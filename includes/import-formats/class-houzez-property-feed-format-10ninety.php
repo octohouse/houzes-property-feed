@@ -425,15 +425,15 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
 				}
 
-				if ( isset($property['status']) && !empty($property['status']) )
+				if ( isset($property->STATUS_ID) && !empty((string)$property->STATUS_ID) )
 				{
-					if ( isset($taxonomy_mappings[$property['status']]) && !empty($taxonomy_mappings[$property['status']]) )
+					if ( isset($taxonomy_mappings[(string)$property->STATUS_ID]) && !empty($taxonomy_mappings[(string)$property->STATUS_ID]) )
 					{
-						wp_set_object_terms( $post_id, $taxonomy_mappings[$property['status']], "property_status" );
+						wp_set_object_terms( $post_id, $taxonomy_mappings[(string)$property->STATUS_ID], "property_status" );
 					}
 					else
 					{
-						$this->log( 'Received status of ' . $property['status'] . ' that isn\'t mapped in the import settings', (string)$property->AGENT_REF, $post_id );
+						$this->log( 'Received status of ' . (string)$property->STATUS_ID . ' that isn\'t mapped in the import settings', (string)$property->AGENT_REF, $post_id );
 					}
 				}
 

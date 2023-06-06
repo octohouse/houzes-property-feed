@@ -4,7 +4,7 @@ function get_houzez_property_feed_formats()
 {
     $formats = array(
         '10ninety' => array(
-            'name' => '10ninety',
+            'name' => __( '10ninety', 'houzezpropertyfeed' ),
             'fields' => array(
                 array(
                     'id' => 'xml_url',
@@ -93,8 +93,50 @@ function get_houzez_property_feed_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/10ninety/'
         ),
+        'acquaint' => array(
+            'name' => __( 'Acquaint', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'locality', 'town', 'region', 'area' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'Sold STC' => 'Sold STC',
+                    'Under Offer' => 'Under Offer',
+                    'Sold' => 'Sold',
+                ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'Let' => 'Let',
+                ),
+                'property_type' => array(
+                    'House' => 'House',
+                    'Detached' => 'Detached',
+                    'Semi-Detached' => 'Semi-Detached',
+                    'Terrace' => 'Terrace',
+                    'End Terrace' => 'End Terrace',
+                    'Flat' => 'Flat',
+                    'Apartment' => 'Apartment',
+                    'Studio' => 'Studio',
+                    'Maisonette' => 'Maisonette',
+                    'Bungalow' => 'Bungalow',
+                    'Garage' => 'Garage',
+                )
+            ),
+            'contact_information_fields' => array(
+                'username',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/acquaint/'
+        ),
         'loop' => array(
-            'name' => 'Loop',
+            'name' => __( 'Loop', 'houzezpropertyfeed' ),
             'fields' => array(
                 array(
                     'id' => 'api_key',
@@ -147,7 +189,7 @@ function get_houzez_property_feed_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/loop/'
         ),
         'street' => array(
-            'name' => 'Street',
+            'name' => __( 'Street', 'houzezpropertyfeed' ),
             'fields' => array(
                 array(
                     'id' => 'api_key',
