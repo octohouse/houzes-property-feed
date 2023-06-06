@@ -1,0 +1,91 @@
+=== Houzez Property Feed ===
+Contributors: PropertyHive
+Tags: property import, houzez, houzez import property, property import, expertagent, loop, 10ninety, vebra, alto, dezrez, jupix, real estate
+Requires at least: 3.8
+Tested up to: 6.2.2
+Stable tag: 1.0.2
+Version: 1.0.2
+Homepage: https://houzezpropertyfeed.com
+License: GPLv3
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+
+Automatically import properties into Houzez from a wide range of estate agency CRMs
+
+== Description ==
+
+This free plugin from the creators of [Property Hive](https://wordpress.org/plugins/propertyhive) makes it easy to import properties from various CRMs in various formats into the popular Houzez theme.
+
+We can import properties from the following estate agency CRMs/formats:
+
+* Loop
+
+Here's just a couple of reasons why you should choose the Houzez Property Feed plugin to import your property stock:
+
+* 20+ years experience in working with property feeds
+* New formats always being added
+* Lots of settings and easy to configure
+* In-depth [documentation](https://houzezpropertyfeed.com/documentation/)
+
+= Free features =
+
+* Automatic imports
+* One active import
+* Import 25 properties
+* Logs stored for one day
+
+= PRO features =
+
+* All of the above, plus:
+* Import unlimited properties
+* Multiple simulateous active imports
+* Priority support
+* Logs stored for seven days
+* Logs emailed to a specified email address
+
+== Installation ==
+
+= Requirements =
+
+* Houzez theme installed and activated
+* For formats that use XML the PHP SimpleXML library will need to installed
+* That WP Cron is firing automatically or an alternative cron job in place
+
+= Automatic installation =
+
+Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t need to leave your web browser. To do an automatic install of Property Hive, log in to your WordPress dashboard, navigate to the Plugins menu and click Add New.
+
+In the search field type "Houzez Property Feed" and click Search Plugins. Once you've found our plugin you can view details about it such as the point release, rating and description. Most importantly of course, you can install it by simply clicking "Install Now".
+
+= Manual installation =
+
+The manual installation method involves downloading the Houzez Property Feed plugin and uploading it to your webserver via your favourite FTP application. The WordPress codex contains [instructions on how to do this here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
+
+Once installed and activated, you can access the import tool by navigating to 'Houzez > Import Properties' from within Wordpress.
+
+= Updating =
+
+Updating should work like a charm; as always though, ensure you backup your site just in case.
+
+== Screenshots ==
+
+1. Once activated you'll be presented with a new 'Import Properties' admin menu item where you can manage your imports
+2. Existing automatic imports will be displayed along with scheduling information
+3. Adding and editing imports is easy with our simple to use interface
+4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
+
+== Changelog ==
+
+= 1.0.2 - 2023-06-05 =
+* Escaping and sanitization to meet WordPress plugin guidelines
+* Don't set global PHP limits to meet WordPress plugin guidelines
+* Remove use of ALLOW_UNFILTERED_UPLOADS to meet WordPress plugin guidelines
+
+= 1.0.1 - 2023-05-26 =
+* Taxonomy mapping
+* Contact information mapping and rules
+* License key integration
+* Only show pro link in plugin list if pro not in place
+* Corrected featured image not getting set when new property imported
+
+= 1.0.0 - 2023-05-23 =
+* First working release of the plugin

@@ -1,0 +1,493 @@
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
+/**
+ * Houzez Property Feed Admin Functions
+ */
+class Houzez_Property_Feed_Admin {
+
+	public function __construct() {
+
+		add_action( 'admin_notices', array( $this, 'admin_error_notices') );
+
+        add_action( 'admin_init', array( $this, 'admin_redirects' ) );
+
+        add_filter( 'houzez_admin_sub_menus', array( $this, 'add_houzez_property_feed_menu_item'), 10, 2 );
+
+        add_filter( "plugin_action_links_" . plugin_basename( HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ), array( $this, 'plugin_add_settings_link' ) );
+
+        add_action( 'admin_enqueue_scripts', array( $this, 'admin_styles' ), 5 );
+        add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ), 5 );
+	}
+
+    /**
+     * Output error messages when necessary
+     */
+    public function admin_error_notices() 
+    {            
+        global $wpdb;
+        
+        $error = '';    
+        $uploads_dir = wp_upload_dir();
+        if( $uploads_dir['error'] === FALSE )
+        {
+            $uploads_dir = $uploads_dir['basedir'] . '/houzez_property_feed_import/';
+            
+            if ( ! @file_exists($uploads_dir) )
+            {
+                if ( ! @mkdir($uploads_dir) )
+                {
+                    $error = 'Unable to create subdirectory in uploads folder for use by Houzez Property Feed plugin. Please ensure the <a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank" title="WordPress Codex - Changing File Permissions">correct permissions</a> are set.';
+                }
+            }
+            else
+            {
+                if ( ! @is_writeable($uploads_dir) )
+                {
+                    $error = 'The uploads folder is not currently writeable and will need to be before properties can be imported. Please ensure the <a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank" title="WordPress Codex - Changing File Permissions">correct permissions</a> are set.';
+                }
+            }
+        }
+        else
+        {
+            $error = 'An error occured whilst trying to create the uploads folder. Please ensure the <a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank" title="WordPress Codex - Changing File Permissions">correct permissions</a> are set. '.$uploads_dir['error'];
+        }
+        
+        if( $error != '' )
+        {
+            echo '<div class="error"><p><strong>' . esc_html($error) . '</strong></p></div>';
+        }
+    }
+
+    /**
+     * Handle redirects to import page after install.
+     */
+    public function admin_redirects()
+    {
+        // Setup wizard redirect
+        if ( get_transient( '_houzez_property_feed_activation_redirect' ) ) 
+        {
+            delete_transient( '_houzez_property_feed_activation_redirect' );
+
+            // Don't do redirect if part of multisite, doing batch-activate, or if no permission
+            if ( is_network_admin() || isset( $_GET['activate-multi'] ) || ! current_user_can( 'manage_options' ) ) {
+                return;
+            }
+
+            wp_safe_redirect( admin_url( 'admin.php?page=houzez-property-feed' ) );
+            exit;
+        }
+    }
+
+    public function add_houzez_property_feed_menu_item( $submenus, $num )
+    {
+        $submenus['houzez_import_properties'] = array(
+            'houzez_dashboard',
+            esc_html__( 'Import Properties', 'houzezpropertyfeed' ),
+            esc_html__( 'Import Properties', 'houzezpropertyfeed' ),
+            'manage_options',
+            'houzez-property-feed',
+            array( $this, 'admin_page' )
+        );
+
+        return $submenus;
+    }
+
+    public function plugin_add_settings_link( $links )
+    {
+        $settings_link = '<a href="' . admin_url('admin.php?page=houzez-property-feed') . '">' . __( 'Settings', 'houzezpropertyfeed' ) . '</a>';
+        array_push( $links, $settings_link );
+
+        $docs_link = '<a href="https://houzezpropertyfeed.com/documentation/" target="_blank">' . __( 'Docs', 'houzezpropertyfeed' ) . '</a>';
+        array_push( $links, $docs_link );
+
+        if ( !class_exists( 'Houzez_Property_Feed_Pro' ) )
+        {
+            $pro_link = '<a href="https://houzezpropertyfeed.com/#pricing" target="_blank" style="font-weight:700; color:#93003c">' . __( 'Upgrade to PRO', 'houzezpropertyfeed' ) . '</a>';
+            array_push( $links, $pro_link );
+        }
+
+        return $links;
+    }
+
+    public function admin_page() 
+    {
+        global $wpdb, $post;
+
+        $tabs = array(
+            '' => __( 'Automatic Imports', 'houzezpropertyfeed' ),
+            'logs' => __( 'Logs', 'houzezpropertyfeed' ),
+            'settings' => __( 'Settings', 'houzezpropertyfeed' ),
+        );
+
+        if ( !class_exists('Houzez_Property_Feed_Pro') ) 
+        {
+            $tabs['pro'] = __( 'PRO Features', 'houzezpropertyfeed' );
+        }
+        else
+        {
+            $tabs['license'] = __( 'License', 'houzezpropertyfeed' );
+        }
+
+        $active_tab = !empty(sanitize_text_field($_GET['tab'])) ? sanitize_text_field($_GET['tab']) : '';
+
+        $options = get_option( 'houzez_property_feed' , array() );
+
+        include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-header.php' );
+
+        switch ( $active_tab )
+        {
+            case "logs":
+            {
+                include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav.php' );
+
+                if ( isset($_GET['action']) && sanitize_text_field($_GET['action']) == 'view' )
+                {
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-logs-view-table.php' );
+
+                    $logs_view_table = new Houzez_Property_Feed_Admin_Logs_View_Table();
+                    $logs_view_table->prepare_items();
+
+                    $previous_instance = false;
+                    $next_instance = false;
+
+                    $logs = $wpdb->get_results( 
+                        "
+                        SELECT * 
+                        FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
+                        INNER JOIN 
+                            " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
+                        WHERE 
+                            " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
+                            instance_id < '" . (int)$_GET['log_id'] . "'
+                        GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
+                        ORDER BY start_date DESC
+                        LIMIT 1
+                        "
+                    );
+
+                    if ( $logs )
+                    {
+                        foreach ( $logs as $log ) 
+                        {
+                            $previous_instance = $log->instance_id;
+                        }
+                    }
+
+                    $logs = $wpdb->get_results( 
+                        "
+                        SELECT * 
+                        FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
+                        INNER JOIN 
+                            " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
+                        WHERE 
+                             " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
+                            instance_id > '" . (int)$_GET['log_id'] . "'
+                        GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
+                        ORDER BY start_date ASC
+                        LIMIT 1
+                        "
+                    );
+
+                    if ( $logs )
+                    {
+                        foreach ( $logs as $log ) 
+                        {
+                            $next_instance = $log->instance_id;
+                        }
+                    }
+
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-logs-view.php' );
+                }
+                else
+                {
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-logs-table.php' );
+
+                    $logs_table = new Houzez_Property_Feed_Admin_Logs_Table();
+                    $logs_table->prepare_items();
+
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-logs.php' );
+                }
+
+                break;
+            }
+            case "settings":
+            {
+                include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav.php' );
+                include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-settings.php' );
+                break;
+            }
+            case "license":
+            {
+                $license_key_status = apply_filters( 'houzez_property_feed_pro_status', array() );
+
+                include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav.php' );
+                include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-license.php' );
+                break;
+            }
+            case "pro":
+            {
+                include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav.php' );
+
+                $features = array(
+                    array(
+                        'icon' => 'dashicons dashicons-admin-multisite',
+                        'title' => 'Import unlimited properties',
+                        'description' => 'Remove the 50 property limit and import unlimited properties.'
+                    ),
+                    array(
+                        'icon' => 'dashicons dashicons-clock',
+                        'title' => 'Imports ran more frequently',
+                        'description' => 'Choose from daily, twice daily, hourly or every 15 minutes meaning your properties import quicker.'
+                    ),
+                    array(
+                        'icon' => 'dashicons dashicons-admin-comments',
+                        'title' => 'Priority support',
+                        'description' => 'Our UK based friendly support team are on hand to answer any of your questions and assist with setting up imports.'
+                    ),
+                    array(
+                        'icon' => 'dashicons dashicons-database-import',
+                        'title' => 'Multiple imports',
+                        'description' => 'Have multiple simultaneous imports running at once. Useful if importing from multiple sources.'
+                    ),
+                    array(
+                        'icon' => 'dashicons dashicons-email',
+                        'title' => 'Email reports',
+                        'description' => 'Get a report emailed to you each time an import has finished running.'
+                    ),
+                    array(
+                        'icon' => 'dashicons dashicons-database-add',
+                        'title' => 'Store logs for longer',
+                        'description' => 'We\'ll store logs for up to seven days making debugging any issues much easier.'
+                    ),
+                    array(
+                        'icon' => 'dashicons dashicons-admin-media',
+                        'title' => 'Save disk space over time',
+                        'description' => 'Choose to delete property media when a property comes off of the market to save on disk space'
+                    ),
+                );
+
+                include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-pro.php' );
+                break;
+            }
+            default:
+            {
+                $active_tab = !empty(sanitize_text_field($_GET['action'])) ? sanitize_text_field($_GET['action']) : '';
+
+                if ( $active_tab == 'addimport' || $active_tab == 'editimport' )
+                {
+                    $import_id = !empty(sanitize_text_field($_GET['import_id'])) ? (int)$_GET['import_id'] : false;
+
+                    $frequencies = get_houzez_property_feed_frequencies();
+
+                    $import_settings = array();
+                    if ( $active_tab == 'editimport' )
+                    {
+                        $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+                        if ( isset($imports[$import_id]) )
+                        {
+                            $import_settings = $imports[$import_id];
+
+                            // ensure frequency is not a PRO one if PRO not enabled
+                            if ( apply_filters( 'houzez_property_feed_pro_active', false ) !== true )
+                            {
+                                if ( isset($frequencies[$import_settings['frequency']]['pro']) && $frequencies[$import_settings['frequency']]['pro'] === true )
+                                {
+                                    $import_settings['frequency'] = 'daily';
+                                }
+                            }
+                        }
+                    }
+
+                    $houzez_ptype_settings = get_option('houzez_ptype_settings', array() );
+
+                    // get WP users / authors
+                    $wp_users = array();
+
+                    $users = get_users( array( 'orderby' => 'name' ) );
+                    foreach ( $users as $user ) 
+                    {
+                        $wp_users[$user->ID] = $user->display_name;
+                    }
+
+                    // get agents
+                    $houzez_agents = array();
+
+                    if ( !isset($houzez_ptype_settings['houzez_agents_post']) || ( isset($houzez_ptype_settings['houzez_agents_post']) && $houzez_ptype_settings['houzez_agents_post'] != 'disabled' ) )
+                    {
+                        $args = array(
+                            'post_type' => 'houzez_agent',
+                            'nopaging' => true
+                        );
+
+                        $agent_query = new WP_Query( $args );
+
+                        if ( $agent_query->have_posts() )
+                        {
+                            while ( $agent_query->have_posts() )
+                            {
+                                $agent_query->the_post();
+
+                                $houzez_agents[get_the_ID()] = get_the_title();
+                            }
+                        }
+                        wp_reset_postdata();
+                    }
+
+                    // get agencies
+                    $houzez_agencies = array();
+
+                    if ( !isset($houzez_ptype_settings['houzez_agencies_post']) || ( isset($houzez_ptype_settings['houzez_agencies_post']) && $houzez_ptype_settings['houzez_agencies_post'] != 'disabled' ) )
+                    {
+                        $args = array(
+                            'post_type' => 'houzez_agency',
+                            'nopaging' => true
+                        );
+
+                        $agency_query = new WP_Query( $args );
+
+                        if ( $agency_query->have_posts() )
+                        {
+                            while ( $agency_query->have_posts() )
+                            {
+                                $agency_query->the_post();
+
+                                $houzez_agencies[get_the_ID()] = get_the_title();
+                            }
+                        }
+                        wp_reset_postdata();
+                    }
+
+                    $formats = get_houzez_property_feed_formats();
+
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-import-settings.php' );
+                }
+                else
+                {
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav.php' );
+
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-automatic-imports-table.php' );
+
+                    $automatic_imports_table = new Houzez_Property_Feed_Admin_Automatic_Imports_Table();
+                    $automatic_imports_table->prepare_items();
+
+                    $run_now_button = false;
+                    $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+                    foreach ( $imports as $import_id => $import_settings )
+                    {
+                        if ( !isset($import_settings['running']) || ( isset($import_settings['running']) && $import_settings['running'] !== true ) )
+                        {
+                            continue;
+                        }
+
+                        if ( isset($import_settings['deleted']) && $import_settings['deleted'] === true )
+                        {
+                            continue;
+                        }
+
+                        $run_now_button = true;
+                        continue;
+                    }
+
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-automatic-imports.php' );
+                }
+            }
+        }
+
+        include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-footer.php' );
+    }
+
+    /**
+     * Enqueue styles
+     */
+    public function admin_styles() 
+    {
+        global $wp_scripts;
+
+        $screen = get_current_screen();
+
+        if ( $screen->id == 'houzez_page_houzez-property-feed' ) 
+        {
+            wp_enqueue_style( 'houzez_property_feed_admin_styles', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/css/admin.css', array(), HOUZEZ_PROPERTY_FEED_VERSION );
+        }
+    }
+
+
+    /**
+     * Enqueue scripts
+     */
+    public function admin_scripts() 
+    {
+        global $wp_query, $post, $tabs;
+
+        $screen       = get_current_screen();
+        $suffix       = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+        if ( $screen->id == 'houzez_page_houzez-property-feed' ) 
+        {
+            wp_register_script( 'houzez_property_feed_admin_script', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/admin' . /*$suffix .*/ '.js', array( 'jquery' ), HOUZEZ_PROPERTY_FEED_VERSION );
+
+            $formats = get_houzez_property_feed_formats();
+
+            $import_id = !empty(sanitize_text_field($_GET['import_id'])) ? (int)$_GET['import_id'] : false;
+
+            $import_settings = array();
+
+            if ( $import_id !== false )
+            {
+                $options = get_option( 'houzez_property_feed' , array() );
+
+                $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+                if ( isset($imports[$import_id]) )
+                {
+                    $import_settings = $imports[$import_id];
+                }
+            }
+
+            $statuses = array();
+
+            $terms = get_terms( array(
+                'taxonomy'   => 'property_status',
+                'hide_empty' => false,
+            ) );
+
+            if ( is_array($terms) && !empty($terms) )
+            {
+                foreach ( $terms as $term )
+                {
+                    $statuses[$term->term_id] = $term->name;
+                }
+            }
+
+            $property_types = array();
+
+            $terms = get_terms( array(
+                'taxonomy'   => 'property_type',
+                'hide_empty' => false,
+            ) );
+
+            if ( is_array($terms) && !empty($terms) )
+            {
+                foreach ( $terms as $term )
+                {
+                    $property_types[$term->term_id] = $term->name;
+                }
+            }
+
+            wp_localize_script( 'houzez_property_feed_admin_script', 'hpf_admin_object', array( 
+                'formats' => $formats,
+                'import_settings' => $import_settings,
+                'statuses' => $statuses,
+                'property_types' => $property_types,
+            ) );
+
+            wp_enqueue_script( 'houzez_property_feed_admin_script' );
+        }
+    }
+
+}
+
+new Houzez_Property_Feed_Admin();
