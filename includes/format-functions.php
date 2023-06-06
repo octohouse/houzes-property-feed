@@ -135,6 +135,40 @@ function get_houzez_property_feed_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/acquaint/'
         ),
+        'apex27' => array(
+            'name' => __( 'Apex27', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'Address2', 'Address3', 'Address4', 'City', 'County' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'SSTC' => 'SSTC',
+                ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                    'Let Agreed' => 'Let Agreed',
+                ),
+                'property_type' => array(
+                    'Detached House' => 'Detached House',
+                    'Semi-detached House' => 'Semi-detached House',
+                    'Detached Bungalow' => 'Detached Bungalow',
+                    'Semi-detached Bungalow' => 'Semi-detached Bungalow',
+                    'Apartment / Flat' => 'Apartment / Flat',
+                )
+            ),
+            'contact_information_fields' => array(
+                'Branch Name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/apex27/'
+        ),
         'loop' => array(
             'name' => __( 'Loop', 'houzezpropertyfeed' ),
             'fields' => array(

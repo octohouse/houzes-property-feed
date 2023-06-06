@@ -132,7 +132,7 @@ class Houzez_Property_Feed_Admin {
             $tabs['license'] = __( 'License', 'houzezpropertyfeed' );
         }
 
-        $active_tab = !empty(sanitize_text_field($_GET['tab'])) ? sanitize_text_field($_GET['tab']) : '';
+        $active_tab = ( isset($_GET['tab']) && !empty(sanitize_text_field($_GET['tab'])) ) ? sanitize_text_field($_GET['tab']) : '';
 
         $options = get_option( 'houzez_property_feed' , array() );
 
@@ -275,11 +275,11 @@ class Houzez_Property_Feed_Admin {
             }
             default:
             {
-                $active_tab = !empty(sanitize_text_field($_GET['action'])) ? sanitize_text_field($_GET['action']) : '';
+                $active_tab = ( isset($_GET['action']) && !empty(sanitize_text_field($_GET['action'])) ) ? sanitize_text_field($_GET['action']) : '';
 
                 if ( $active_tab == 'addimport' || $active_tab == 'editimport' )
                 {
-                    $import_id = !empty(sanitize_text_field($_GET['import_id'])) ? (int)$_GET['import_id'] : false;
+                    $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
 
                     $frequencies = get_houzez_property_feed_frequencies();
 
@@ -432,7 +432,7 @@ class Houzez_Property_Feed_Admin {
 
             $formats = get_houzez_property_feed_formats();
 
-            $import_id = !empty(sanitize_text_field($_GET['import_id'])) ? (int)$_GET['import_id'] : false;
+            $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
 
             $import_settings = array();
 

@@ -12,11 +12,11 @@
 			<?php
 				if ( $previous_instance !== false )
 				{
-					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$previous_instance . '&import_id=' . (int)$_GET['import_id'] ) . '" class="button">Previous Log</a> ';
+					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$previous_instance . ( isset($_GET['import_id']) ? '&import_id=' . (int)$_GET['import_id'] : '' ) ) . '" class="button">Previous Log</a> ';
 				}
 				if ( $next_instance !== false )
 				{
-					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$next_instance . '&import_id=' . (int)$_GET['import_id'] ) . '" class="button">Next Log</a> ';
+					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$next_instance . ( isset($_GET['import_id']) ? '&import_id=' . (int)$_GET['import_id'] : '' ) ) . '" class="button">Next Log</a> ';
 				}
 			?>
 		</div>
@@ -33,11 +33,11 @@
 			<?php
 				if ( $previous_instance !== false )
 				{
-					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$previous_instance . '&import_id=' . (int)$_GET['import_id'] ) . '" class="button">Previous Log</a> ';
+					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$previous_instance . ( isset($_GET['import_id']) ? '&import_id=' . (int)$_GET['import_id'] : '' ) ) . '" class="button">Previous Log</a> ';
 				}
 				if ( $next_instance !== false )
 				{
-					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$next_instance . '&import_id=' . (int)$_GET['import_id'] ) . '" class="button">Next Log</a> ';
+					echo ' <a href="' . admin_url( 'admin.php?page=houzez-property-feed&tab=logs&action=view&log_id=' . (int)$next_instance . ( isset($_GET['import_id']) ? '&import_id=' . (int)$_GET['import_id'] : '' ) ) . '" class="button">Next Log</a> ';
 				}
 			?>
 		</div>

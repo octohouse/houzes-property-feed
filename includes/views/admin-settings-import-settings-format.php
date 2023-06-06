@@ -1,4 +1,4 @@
-<h3><?php echo $format['name'] . ' ' . __( 'Import Format', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo __( 'Import Format', 'houzezpropertyfeed' ); ?></h3>
 
 <p>Select the CRM or format that you want to import using below:</p>
 

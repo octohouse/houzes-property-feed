@@ -294,6 +294,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "apex27":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-apex27.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Apex27( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "loop":
 		    		{
 		                // includes

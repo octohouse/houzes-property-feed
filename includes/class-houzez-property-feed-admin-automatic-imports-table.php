@@ -76,7 +76,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
 
         foreach ( $imports as $key => $import )
         {
-            if ( $imports[$key]['deleted'] && $imports[$key]['deleted'] === true )
+            if ( isset($imports[$key]['deleted']) && $imports[$key]['deleted'] === true )
             {
                 unset( $imports[$key] );
             }

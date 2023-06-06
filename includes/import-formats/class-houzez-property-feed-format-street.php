@@ -1129,7 +1129,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				$this->log( 'Imported ' . count($media_ids) . ' brochures and EPCs (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
+				$this->log( 'Imported ' . count($media_ids) . ' brochures (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
 				
 				$virtual_tours = array();
 				if ( isset($property['details']['virtual_tour']) && !empty($property['details']['virtual_tour']) )
