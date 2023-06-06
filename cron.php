@@ -276,21 +276,21 @@ if ( is_array($imports) && !empty($imports) )
 
 		    	switch ($format)
 		    	{
+		    		case "10ninety":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-10ninety.php';
+
+						$import_object = new Houzez_Property_Feed_Format_10ninety( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "loop":
 		    		{
 		                // includes
                         require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-loop.php';
 
 						$import_object = new Houzez_Property_Feed_Format_Loop( $instance_id, $import_id );
-
-                        $parsed = $import_object->parse();
-
-                        if ( $parsed !== FALSE )
-                        {
-	                        $import_object->import();
-
-		                    $import_object->remove_old_properties();
-		                }
 
 		    			break;
 		    		}
@@ -301,18 +301,23 @@ if ( is_array($imports) && !empty($imports) )
 
 						$import_object = new Houzez_Property_Feed_Format_Street( $instance_id, $import_id );
 
-                        $parsed = $import_object->parse();
-
-                        if ( $parsed !== FALSE )
-                        {
-	                        $import_object->import();
-
-		                    $import_object->remove_old_properties();
-		                }
-
 		    			break;
 		    		}
 		    	}
+
+		    	if ( isset($import_object) )
+		    	{
+			    	$parsed = $import_object->parse();
+
+	                if ( $parsed !== FALSE )
+	                {
+	                    $import_object->import();
+
+	                    $import_object->remove_old_properties();
+	                }
+
+	                unset($import_object);
+	            }
 
 		    	// log instance end
 		    	$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );

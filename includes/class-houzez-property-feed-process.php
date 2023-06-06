@@ -107,12 +107,12 @@ class Houzez_Property_Feed_Process {
 			            )
 			        );
 
-			        $this->log( 'Property removed', get_post_meta($post->ID, $imported_ref_key, TRUE), $post->ID );
+			        $this->log( 'Property removed', get_post_meta(get_the_ID(), $imported_ref_key, TRUE), get_the_ID() );
 
-					do_action( "save_post_property", $post->ID, $post, false );
-					do_action( "save_post", $post->ID, $post, false );
+					do_action( "save_post_property", get_the_ID(), get_post(get_the_ID()), false );
+					do_action( "save_post", get_the_ID(), get_post(get_the_ID()), false );
 
-					do_action( "houzez_property_feed_property_removed", $post->ID, $this->import_id );
+					do_action( "houzez_property_feed_property_removed", get_the_ID(), $this->import_id );
 				}
 			}
 			wp_reset_postdata();

@@ -42,7 +42,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 
 			while ( $more_properties )
 			{
-				$url = ( isset($import_settings['api_base_url']) && !empty($import_settings['api_base_url']) ) ? trim($import_settings['api_base_url'], '/') : 'https://street.co.uk';
+				$url = ( isset($import_settings['base_url']) && !empty($import_settings['base_url']) ) ? trim($import_settings['base_url'], '/') : 'https://street.co.uk';
 				$url .= '/api/property-feed/' . $department . '/search?include=featuresForPortals%2Crooms%2Cimages%2Cfloorplans%2Cepc%2Cbrochure%2CadditionalMedia%2Ctags%2CparkingSpaces%2CoutsideSpaces&page%5Bnumber%5D=' . $current_page;
 				$url .= '&filter%5Binclude_land%5D=true';
 				if ( is_array($statuses) && !empty($statuses) )
@@ -259,7 +259,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
         do_action( "houzez_property_feed_pre_import_properties_street", $this->properties, $this->import_id );
 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
-        $this->properties = apply_filters( "houzez_property_feed_street_properties_due_import", $this->properties, $this->import_id );
+        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_street", $this->properties, $this->import_id );
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
         $additional_message = '';
@@ -627,9 +627,9 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 	        	}
 	        	
 	            // Turn bullets into property features
+	            $feature_term_ids = array();
 	            if ( isset($property['featuresForPortals']) && is_array($property['featuresForPortals']) )
 				{
-					$feature_term_ids = array();
 					foreach ( $property['featuresForPortals'] as $feature )
 					{
 						$term = term_exists( trim($feature['name']), 'property_feature');

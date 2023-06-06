@@ -3,12 +3,102 @@
 function get_houzez_property_feed_formats()
 {
     $formats = array(
+        '10ninety' => array(
+            'name' => '10ninety',
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'ADDRESS_2', 'ADDRESS_3', 'TOWN', 'ADDRESS_4', 'COUNTY' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    '0' => 'Available',
+                    '1' => 'SSTC',
+                    '2' => 'SSTCM (Scotland only)',
+                    '3' => 'Under Offer',
+                    '6' => 'Sold',
+                ),
+                'lettings_status' => array(
+                    '0' => 'Available',
+                    '4' => 'Reserved',
+                    '5' => 'Let Agreed',
+                    '7' => 'Let',
+                ),
+                'property_type' => array(
+                    '0' => 'Not Specified',
+                    '1' => 'Terraced',
+                    '2' => 'End of Terrace',
+                    '3' => 'Semi-Detached ',
+                    '4' => 'Detached',
+                    '5' => 'Mews',
+                    '6' => 'Cluster House',
+                    '7' => 'Ground Flat',
+                    '8' => 'Flat',
+                    '9' => 'Studio',
+                    '10' => 'Ground Maisonette',
+                    '11' => 'Maisonette',
+                    '12' => 'Bungalow',
+                    '13' => 'Terraced Bungalow',
+                    '14' => 'Semi-Detached Bungalow',
+                    '15' => 'Detached Bungalow',
+                    '16' => 'Mobile Home',
+                    '17' => 'Hotel',
+                    '18' => 'Guest House',
+                    '20' => 'Land',
+                    '21' => 'Link Detached House',
+                    '22' => 'Town House',
+                    '23' => 'Cottage',
+                    '24' => 'Chalet',
+                    '27' => 'Villa',
+                    '28' => 'Apartment',
+                    '29' => 'Penthouse',
+                    '30' => 'Finca',
+                    '43' => 'Barn Conversion',
+                    '44' => 'Serviced Apartments',
+                    '45' => 'Parking',
+                    '46' => 'Sheltered Housing',
+                    '47' => 'Retirement Property',
+                    '48' => 'House Share',
+                    '49' => 'Flat Share',
+                    '51' => 'Garages',
+                    '52' => 'Farm House',
+                    '53' => 'Equestrian',
+                    '56' => 'Duplex',
+                    '59' => 'Triplex',
+                    '68' => 'Barn',
+                    '95' => 'Village House',
+                    '107' => 'Farm Land',
+                    '110' => 'Plot',
+                    '113' => 'Country House',
+                    '116' => 'Stone House',
+                    '117' => 'Caravan',
+                    '118' => 'Lodge',
+                    '120' => 'Manor House',
+                    '121' => 'Stately Home',
+                    '125' => 'Off-Plan',
+                    '128' => 'Semi-detached Villa',
+                    '131' => 'Detached Villa',
+                    '142' => 'Hotel Room',
+                    '143' => 'Block of Apartments',
+                    '144' => 'Private Halls',
+                    '253' => 'Commercial Property',
+                )
+            ),
+            'contact_information_fields' => array(
+                'BRANCH_ID',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/10ninety/'
+        ),
         'loop' => array(
             'name' => 'Loop',
             'fields' => array(
                 array(
                     'id' => 'api_key',
-                    'label' => 'API Key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
                     'type' => 'text',
                 )
             ),
@@ -61,12 +151,12 @@ function get_houzez_property_feed_formats()
             'fields' => array(
                 array(
                     'id' => 'api_key',
-                    'label' => 'API Key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
                     'type' => 'text',
                 ),
                 array(
                     'id' => 'base_url',
-                    'label' => 'API Base URL',
+                    'label' => __( 'API Base URL', 'houzezpropertyfeed' ),
                     'type' => 'text',
                     'default' => 'https://street.co.uk',
                 )
