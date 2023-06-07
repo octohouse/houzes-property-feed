@@ -294,6 +294,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "agentos":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-agentos.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Agentos( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "apex27":
 		    		{
 		                // includes

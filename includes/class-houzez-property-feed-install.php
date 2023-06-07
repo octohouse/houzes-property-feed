@@ -198,7 +198,7 @@ class Houzez_Property_Feed_Install {
 					post_id bigint(20) UNSIGNED NOT NULL,
 					crm_id varchar(255) NOT NULL,
 					severity tinyint(1) UNSIGNED NOT NULL,
-					entry varchar(255) NOT NULL,
+					entry longtext NOT NULL,
 					received_data longtext,
 					log_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 				  	PRIMARY KEY (id)

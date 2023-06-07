@@ -91,7 +91,7 @@ function get_houzez_property_feed_formats()
             'contact_information_fields' => array(
                 'BRANCH_ID',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/10ninety/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/10ninety/'
         ),
         'acquaint' => array(
             'name' => __( 'Acquaint', 'houzezpropertyfeed' ),
@@ -133,7 +133,49 @@ function get_houzez_property_feed_formats()
             'contact_information_fields' => array(
                 'username',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/acquaint/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/acquaint/'
+        ),
+        'agentos' => array(
+            'name' => __( 'agentOS', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'short_name',
+                    'label' => __( 'Short Name', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( 'Address2', 'Address3', 'Address4' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For Sale' => 'For Sale',
+                    'Under Offer' => 'Under Offer',
+                ),
+                'lettings_status' => array(
+                    'To Let' => 'To Let',
+                    'Let Agreed' => 'Let Agreed',
+                ),
+                'property_type' => array(
+                    'House' => 'House',
+                    'DetachedHouse' => 'DetachedHouse',
+                    'SemiDetachedHouse' => 'SemiDetachedHouse',
+                    'TerracedHouse' => 'TerracedHouse',
+                    'EndTerraceHouse' => 'EndTerraceHouse',
+                    'Cottage' => 'Cottage',
+                    'Bungalow' => 'Bungalow',
+                    'FlatApartment' => 'FlatApartment',
+                    'HouseFlatShare' => 'HouseFlatShare',
+                )
+            ),
+            'contact_information_fields' => array(
+                'BranchOID',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/agentos/',
+            'warning' => __( 'AgentOS are very strict on the number of requests made per minute. As it takes so many individual requests to obtain the data we require, we\'ve had to add pauses to prevent you hitting this throttling limit. As a result, imports from AgentOS may take a while and therefore you\'ll likely need to increase the timeout limit on your server.', 'houzezpropertyfeed' )
         ),
         'apex27' => array(
             'name' => __( 'Apex27', 'houzezpropertyfeed' ),
@@ -167,7 +209,7 @@ function get_houzez_property_feed_formats()
             'contact_information_fields' => array(
                 'Branch Name',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/apex27/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/apex27/'
         ),
         'loop' => array(
             'name' => __( 'Loop', 'houzezpropertyfeed' ),
@@ -220,7 +262,7 @@ function get_houzez_property_feed_formats()
                 'api_key',
                 'creatingAgentId',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/loop/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/loop/'
         ),
         'street' => array(
             'name' => __( 'Street', 'houzezpropertyfeed' ),
@@ -262,7 +304,7 @@ function get_houzez_property_feed_formats()
             'contact_information_fields' => array(
                 'branch_uuid',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/creating-an-import/street/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/street/'
         ),
     );
 

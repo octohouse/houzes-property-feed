@@ -266,12 +266,12 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 
                     if ( $department == 'residential-lettings' && isset($property->pricefrequency) )
                     {
-                    	$rent_frequency = 'PCM';
+                    	$rent_frequency = 'pcm';
 						switch ((string)$property->pricefrequency)
 						{
-							case "pw": { $rent_frequency = 'PW'; break; }
-							case "pq": { $rent_frequency = 'PQ'; break; }
-							case "pa": { $rent_frequency = 'PA'; break; }
+							case "pw": { $rent_frequency = 'pw'; break; }
+							case "pq": { $rent_frequency = 'pq'; break; }
+							case "pa": { $rent_frequency = 'pa'; break; }
 						}
 
 						update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );

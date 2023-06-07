@@ -63,6 +63,13 @@
 </table>
 
 <?php
+	if ( isset($format['warning']) && !empty($format['warning']) )
+	{
+		echo '<div class="notice notice-error inline"><p>' . esc_html($format['warning']) . '</p></div>';
+	}
+?>
+
+<?php
 	if ( isset($format['help_url']) && !empty($format['help_url']) )
 	{
 		echo '<p style="color:#999"><span class="dashicons dashicons-editor-help"></span> <strong>Need help?</strong> Read our documentation for instructions on <a href="' . esc_attr($format['help_url']) . '" target="_blank">setting up an import from ' . esc_html($format['name']) . '</a></p>';

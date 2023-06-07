@@ -890,7 +890,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 							)
 						)
 						{
-							$description = ( (isset($floorplan['title'])) ? $floorplan['title'] : __( 'Floorplan', 'houzezpropertyfeed' ) );
+							$description = ( ( isset($floorplan['title']) && !empty($floorplan['title']) ) ? $floorplan['title'] : __( 'Floorplan', 'houzezpropertyfeed' ) );
 
 							$floorplans[] = array( 
 								"fave_plan_title" => $description, 

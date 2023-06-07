@@ -237,11 +237,11 @@ class Houzez_Property_Feed_Format_Apex27 extends Houzez_Property_Feed_Process {
 
                     if ( $department == 'residential-lettings' && isset($property->RentFrequency) )
                     {
-                    	$rent_frequency = 'PCM';
+                    	$rent_frequency = 'pcm';
 						switch ((string)$property->RentFrequency)
 						{
-							case "W": { $rent_frequency = 'PW'; break; }
-							case "Y": { $rent_frequency = 'PA'; break; }
+							case "W": { $rent_frequency = 'pw'; break; }
+							case "Y": { $rent_frequency = 'pa'; break; }
 						}
 
 						update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
