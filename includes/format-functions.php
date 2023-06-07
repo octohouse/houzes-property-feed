@@ -2,6 +2,9 @@
 
 function get_houzez_property_feed_formats()
 {
+    $curl_warning = !function_exists('curl_version') ? __( 'cURL must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
+    $simplexml_warning = !class_exists('SimpleXMLElement') ? __( 'SimpleXML must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
+
     $formats = array(
         '10ninety' => array(
             'name' => __( '10ninety', 'houzezpropertyfeed' ),
@@ -91,7 +94,8 @@ function get_houzez_property_feed_formats()
             'contact_information_fields' => array(
                 'BRANCH_ID',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/10ninety/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/10ninety/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'acquaint' => array(
             'name' => __( 'Acquaint', 'houzezpropertyfeed' ),
@@ -133,7 +137,8 @@ function get_houzez_property_feed_formats()
             'contact_information_fields' => array(
                 'username',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/acquaint/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/acquaint/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'agentos' => array(
             'name' => __( 'agentOS', 'houzezpropertyfeed' ),
@@ -175,7 +180,74 @@ function get_houzez_property_feed_formats()
                 'BranchOID',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/agentos/',
-            'warning' => __( 'AgentOS are very strict on the number of requests made per minute. As it takes so many individual requests to obtain the data we require, we\'ve had to add pauses to prevent you hitting this throttling limit. As a result, imports from AgentOS may take a while and therefore you\'ll likely need to increase the timeout limit on your server.', 'houzezpropertyfeed' )
+            'warnings' => array( __( 'AgentOS are very strict on the number of requests made per minute. As it takes so many individual requests to obtain the data we require, we\'ve had to add pauses to prevent you hitting this throttling limit. As a result, imports from AgentOS may take a while and therefore you\'ll likely need to increase the timeout limit on your server.', 'houzezpropertyfeed' ) ),
+        ),
+        'alto' => array(
+            'name' => __( 'Alto by Vebra', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'datafeed_id',
+                    'label' => __( 'Datafeed ID', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'username',
+                    'label' => __( 'Username', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'password',
+                    'label' => __( 'Password', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( 'locality', 'town', 'county' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                     '0' => 'For Sale',
+                    '1' => 'Under Offer',
+                    '2' => 'Sold',
+                    '3' => 'SSTC',
+                    '4' => 'For Sale By Auction',
+                    '5' => 'Reserved',
+                    '6' => 'New Instruction',
+                    '7' => 'Just on Market',
+                    '8' => 'Price Reduction',
+                    '9' => 'Keen to Sell',
+                    '10' => 'No Chain',
+                    '11' => 'Vendor will pay stamp duty',
+                    '12' => 'Offers in the region of',
+                    '13' => 'Guide Price',
+                    '200' => 'For Sale',
+                    '201' => 'Under Offer',
+                    '202' => 'Sold',
+                    '203' => 'SSTC',
+                ),
+                'lettings_status' => array(
+                    '0' => 'To Let',
+                    '1' => 'Let',
+                    '2' => 'Under Offer',
+                    '3' => 'Reserved',
+                    '4' => 'Let Agreed',
+                    '100' => 'To Let',
+                    '101' => 'Let',
+                    '102' => 'Under Offer',
+                    '103' => 'Reserved',
+                    '104' => 'Let Agreed',
+                    '200' => 'To Let',
+                    '214' => 'Let',
+                ),
+                'property_type' => array(
+                    'House' => 'House',
+                    'Flat' => 'Flat',
+                )
+            ),
+            'contact_information_fields' => array(
+                'firmid',
+                'branchid',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/alto/',
+            'warnings' => array_filter( array( $curl_warning, $simplexml_warning ) ),
         ),
         'apex27' => array(
             'name' => __( 'Apex27', 'houzezpropertyfeed' ),
@@ -209,7 +281,8 @@ function get_houzez_property_feed_formats()
             'contact_information_fields' => array(
                 'Branch Name',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/apex27/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/apex27/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'loop' => array(
             'name' => __( 'Loop', 'houzezpropertyfeed' ),

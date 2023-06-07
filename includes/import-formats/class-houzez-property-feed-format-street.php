@@ -302,8 +302,8 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 			{
 				foreach ( $property['rooms'] as $room )
 				{	
-					$room_content = isset($room['name']) ? '<strong>' . $room['name'] . '</strong>' : '';
-					$room_content .= isset($room['formatted_dimensions']) ? ' (' . $room['formatted_dimensions'] . ')' : '';
+					$room_content = ( isset($room['name']) && !empty($room['name']) ) ? '<strong>' . $room['name'] . '</strong>' : '';
+					$room_content .= ( isset($room['formatted_dimensions']) && !empty($room['formatted_dimensions']) ) ? ' (' . $room['formatted_dimensions'] . ')' : '';
 					if ( isset($room['description']) && !empty($room['description']) ) 
 					{
 						if ( !empty($room_content) ) { $room_content .= '<br>'; }

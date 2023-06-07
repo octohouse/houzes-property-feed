@@ -63,9 +63,12 @@
 </table>
 
 <?php
-	if ( isset($format['warning']) && !empty($format['warning']) )
+	if ( isset($format['warnings']) && is_array($format['warnings']) && !empty($format['warnings']) )
 	{
-		echo '<div class="notice notice-error inline"><p>' . esc_html($format['warning']) . '</p></div>';
+		foreach ( $format['warnings'] as $warning )
+		{
+			echo '<div class="notice notice-error inline"><p>' . esc_html($warning) . '</p></div>';
+		}
 	}
 ?>
 

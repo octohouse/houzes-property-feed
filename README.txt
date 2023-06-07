@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, houzez, houzez import property, expertagent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 1.0.6
-Version: 1.0.6
+Stable tag: 1.0.7
+Version: 1.0.7
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,6 +20,7 @@ We can import properties from the following estate agency CRMs/formats:
 * 10ninety
 * Acquaint
 * agentOS
+* Alto by Vebra
 * Apex27
 * Loop
 * Street
@@ -38,7 +39,7 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 * Import 25 properties
 * Logs stored for one day
 
-= [PRO](https://houzezpropertyfeed.com/#pricing) features =
+= PRO features =
 
 * All of the above, plus:
 * Import unlimited properties
@@ -46,6 +47,8 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 * Priority support
 * Logs stored for seven days
 * Logs emailed to a specified email address
+
+[Update to PRO here](https://houzezpropertyfeed.com/#pricing)
 
 == Installation ==
 
@@ -79,6 +82,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 1.0.7 - 2023-06-07 =
+* Initial support for Alto by Vebra format
+* Show warnings when setting up an import if required libraries (cURL, SimpleXML etc) are missing
 
 = 1.0.6 - 2023-06-07 =
 * Initial support for agentOS format

@@ -1425,7 +1425,7 @@ class Houzez_Property_Feed_Format_Agentos extends Houzez_Property_Feed_Process {
 				)
 				{
 					$url = 'https://live-api.letmc.com/v4/advertising/' . urlencode($import_settings['short_name']) . '/download/' . $unique_id_to_use_for_epcs . '/epc/EnvironmentalImpact?api_key=' . urlencode($import_settings['api_key']);
-					$description = 'EnergyEfficiency';
+					$description = 'EnvironmentalImpact';
 				    
 					$filename = $property['OID'] . '-eir.jpg';
 

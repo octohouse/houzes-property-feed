@@ -107,6 +107,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 }
             }
             
+            $running = false;
             if ( isset($import['running']) && $import['running'] === true )
             {
                 $running = true;
