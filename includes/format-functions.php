@@ -284,6 +284,52 @@ function get_houzez_property_feed_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/apex27/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'bdp' => array(
+            'name' => __( 'BDP', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'secret',
+                    'label' => __( 'Secret', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'account_id',
+                    'label' => __( 'Account ID', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( 'addrL1', 'addrL2', 'addrL3', 'town' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                ),
+                'property_type' => array(
+                    'Bungalow' => 'Bungalow',
+                    'Detached Bungalow' => 'Detached Bungalow',
+                    'House' => 'House',
+                    'Detached' => 'Detached',
+                    'Semi-Detached' => 'Semi-Detached',
+                    'Terraced' => 'Terraced',
+                    'Townhouse' => 'Townhouse',
+                    'Flat / Apartment' => 'Flat / Apartment',
+                )
+            ),
+            'contact_information_fields' => array(
+                'branch_id',
+                'branchName',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/bdp/',
+            'warnings' => array_filter( array( $curl_warning ) ),
+        ),
         'loop' => array(
             'name' => __( 'Loop', 'houzezpropertyfeed' ),
             'fields' => array(

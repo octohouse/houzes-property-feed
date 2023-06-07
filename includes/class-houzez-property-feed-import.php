@@ -21,6 +21,8 @@ class Houzez_Property_Feed_Import {
 
         add_action( 'houzez_property_feed_property_imported', array( $this, 'set_generic_houzez_property_data'), 1, 3 );
 
+        add_action( 'add_meta_boxes', array( $this, 'import_data_meta_box') );
+
 	}
 
     public function check_not_multiple_if_no_pro()
@@ -269,6 +271,37 @@ class Houzez_Property_Feed_Import {
         add_post_meta( $post_id, 'fave_single_content_area', 'global', TRUE );
         add_post_meta( $post_id, 'fave_single_top_area', 'global', TRUE );
         add_post_meta( $post_id, 'fave_prop_homeslider', 'no', TRUE );
+    }
+
+    public function import_data_meta_box()
+    {
+        $screen = get_current_screen();
+        if ( isset($screen->post_type) && $screen->post_type == 'property' )
+        {
+            if ( isset($screen->action) && $screen->action == 'add' )
+            {
+
+            }
+            else
+            {
+                add_meta_box( 'houzezpropertyfeed-import-data', __( 'Import Data', 'houzezpropertyfeed' ), array( $this, 'output_import_data_meta_box'), 'property', 'advanced', 'low' );
+            }
+        }
+    }
+
+    public function output_import_data_meta_box( $post )
+    {
+        if ( isset($post->ID) )
+        {
+            if ( get_post_meta( $post->ID, '_property_import_data', TRUE ) != '' )
+            {
+                echo '<textarea readonly rows="20" style="width:100%;">' . get_post_meta( $post->ID, '_property_import_data', TRUE )  . '</textarea>';
+            }
+            else
+            {
+                echo __( 'No import data to display', 'houzezpropertyfeed' );
+            }
+        }
     }
 }
 
