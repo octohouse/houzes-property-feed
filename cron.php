@@ -274,6 +274,8 @@ if ( is_array($imports) && !empty($imports) )
 
 		    	$format = $import_settings['format'];
 
+		    	$parsed_in_class = false;
+
 		    	switch ($format)
 		    	{
 		    		case "10ninety":
@@ -330,6 +332,19 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "blm_local":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-blm.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Blm( $instance_id, $import_id );
+
+						$import_object->parse_and_import();
+
+						$parsed_in_class = true;
+
+		    			break;
+		    		}
 		    		case "loop":
 		    		{
 		                // includes
@@ -350,7 +365,7 @@ if ( is_array($imports) && !empty($imports) )
 		    		}
 		    	}
 
-		    	if ( isset($import_object) )
+		    	if ( !$parsed_in_class && isset($import_object) )
 		    	{
 			    	$parsed = $import_object->parse();
 

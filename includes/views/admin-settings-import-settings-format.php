@@ -50,7 +50,20 @@
 								type="' . esc_attr($field['type']) . '" 
 								name="' . esc_attr($key . '_' . $field['id']) . '" 
 								value="' . ( ( isset($import_settings[$field['id']]) ) ? esc_attr($import_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
-								placeholder="' . ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' ) . '">';
+								placeholder="' . ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' ) . '"
+								style="width:100%; max-width:400px;"
+							>';
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_attr($field['tooltip']) . '</div>' : '' );
+							break;
+						}
+						case "checkbox":
+						{
+							echo '<input 
+								type="checkbox" 
+								name="' . esc_attr($key . '_' . $field['id']) . '" 
+								value="yes"
+								' . ( ( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
+							>';
 							break;
 						}
 					}

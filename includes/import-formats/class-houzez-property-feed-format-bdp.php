@@ -962,6 +962,22 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
 					}
 				}
 
+				if ( isset($property['shMovieLink']) && !empty($property['shMovieLink']) )
+				{
+					// This is a URL
+					$url = $property['shMovieLink'];
+
+					if ( strpos(strtolower($url), 'youtube') !== false || strpos(strtolower($url), 'vimeo') !== false )
+					{
+						update_post_meta( $post_id, 'fave_video_url', $url );
+					}
+					else
+					{
+						$iframe = '<iframe src="' . $url . '" style="border:0; height:360px; width:640px; max-width:100%" allowFullScreen="true"></iframe>';
+						update_post_meta( $post_id, 'fave_virtual_tour', $iframe );
+					}
+				}
+
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
 				do_action( "houzez_property_feed_property_imported_bdp", $post_id, $propert, $this->import_idy );
 

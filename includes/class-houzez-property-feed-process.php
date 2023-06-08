@@ -171,7 +171,7 @@ class Houzez_Property_Feed_Process {
                 'severity' => 1,
                 'post_id' => $post_id,
                 'crm_id' => $agent_ref,
-                'entry' => substr( $message, 0, 255 ),
+                'entry' => $message,
                 'log_date' => $current_date
             );
 
@@ -211,7 +211,7 @@ class Houzez_Property_Feed_Process {
                 'severity' => 0,
                 'post_id' => $post_id,
                 'crm_id' => $agent_ref,
-                'entry' => substr( $message, 0, 255),
+                'entry' => $message,
                 'log_date' => $current_date
             );
 

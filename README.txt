@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, houzez, houzez import property, expertagent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 1.0.8
-Version: 1.0.8
+Stable tag: 1.0.9
+Version: 1.0.9
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -23,6 +23,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Alto by Vebra
 * Apex27
 * BDP
+* BLM
 * Loop
 * Street
 
@@ -83,6 +84,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 1.0.9 - 2023-06-08 =
+* Added support for BLM format, specifically files sent via FTP to the server from the third party
 
 = 1.0.8 - 2023-06-07 =
 * Initial support for BDP format
