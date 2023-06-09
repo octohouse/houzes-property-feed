@@ -23,6 +23,11 @@ jQuery(document).ready(function()
 		hpf_show_contact_info_rules();
 	});
 
+	jQuery('.hpf-admin-settings-import-settings input[name=\'email_reports\']').change(function()
+	{
+		hpf_show_email_reports_settings();
+	});
+
 	jQuery('.hpf-admin-settings-automatic-imports .automatic-imports-table .trash a').click(function()
 	{
 		var confirm_box = confirm( "Are you sure you want to delete this import?\n\nPLEASE NOTE: If any properties have been imported via this import they will remain in place and will need to be deleted manually" );
@@ -48,9 +53,20 @@ jQuery(document).ready(function()
 		jQuery(this).parent().parent().remove()
 	});
 
+	hpf_show_email_reports_settings();
 	hpf_show_format_settings();
 	hpf_show_contact_info_rules();
 });
+
+function hpf_show_email_reports_settings()
+{
+	jQuery('.hpf-admin-settings-import-settings #email_reports_to_row').hide();
+
+	if ( jQuery('.hpf-admin-settings-import-settings input[name=\'email_reports\']').is(':checked') )
+	{
+		jQuery('.hpf-admin-settings-import-settings #email_reports_to_row').show();
+	}
+}
 
 function hpf_show_format_settings()
 {

@@ -345,6 +345,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "dezrez_rezi":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-dezrez-rezi.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Dezrez_Rezi( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "loop":
 		    		{
 		                // includes

@@ -103,7 +103,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 foreach ( $format['fields'] as $field )
                 {
                     $value = ( ( isset($import[$field['id']]) && !empty($import[$field['id']]) ) ? $import[$field['id']] : '' );
-                    $details .= '<strong>' . $field['label'] . '</strong>: ' . $value .  '<br>';
+                    $details .= '<strong>' . $field['label'] . '</strong>: ' . ( $value != '' ? $value : '-' ) .  '<br>';
                 }
             }
             
