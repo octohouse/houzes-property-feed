@@ -3,7 +3,7 @@ Contributors: PropertyHive
 Tags: property import, houzez, houzez import property, expertagent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 Version: 1.0.10
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
@@ -25,6 +25,8 @@ We can import properties from the following estate agency CRMs/formats:
 * BDP
 * BLM
 * Dezrez Rezi
+* Domus
+* Expert Agent
 * Loop
 * Street
 
@@ -85,6 +87,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 1.0.11 - 2023-06-11 =
+* Added support for Expert Agent
+* Added support for Domus
+* Ensure features are cast to a string in Apex27
+* Tweaks to open_ftp_connection() function so ftp_chdir() is only called when a directory is passed in
 
 = 1.0.10 - 2023-06-09 =
 * Added support for Dezrez Rezi format

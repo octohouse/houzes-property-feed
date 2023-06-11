@@ -229,7 +229,7 @@ class Houzez_Property_Feed_Process {
 		$this->import_log[] = $current_date . ' - ' . ( ( $agent_ref != '' ) ? 'AGENT_REF: ' . $agent_ref . ' - ' : '' ) . $message;
 	}
 
-	public function open_ftp_connection( $host, $username, $password, $directory, $passive )
+	public function open_ftp_connection( $host, $username, $password, $directory, $passive = '' )
 	{
 		// Connect to FTP directory and get file
 		$ftp_connected = false;
@@ -239,12 +239,12 @@ class Houzez_Property_Feed_Process {
 			$ftp_login = ftp_login( $ftp_conn, $username, $password );
 			if ( $ftp_login !== FALSE )
 			{
-				if ( isset($passive) && $passive == '1' )
+				if ( $passive == 'yes' )
 				{
 					ftp_pasv( $ftp_conn, true );
 				}
 
-				if ( ftp_chdir( $ftp_conn, $directory ) )
+				if ( empty($directory) || ( !empty($directory) && ftp_chdir( $ftp_conn, $directory ) ) )
 				{
 					$ftp_connected = true;
 				}

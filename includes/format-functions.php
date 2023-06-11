@@ -561,6 +561,108 @@ function get_houzez_property_feed_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/dezrez-rezi/'
         ),
+        'domus' => array(
+            'name' => __( 'Domus', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://{your-site}.domus.net/site/go/api/',
+                )
+            ),
+            'address_fields' => array( 'locality', 'town', 'county' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'Sold Subject to Contract' => 'Sold Subject to Contract',
+                ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                    'Let Subject to Contract' => 'Let Subject to Contract',
+                ),
+                'property_type' => array(
+                    'Detached' => 'Detached',
+                    'Semi-Detached' => 'Semi-Detached',
+                    'End Terraced' => 'End Terraced',
+                    'Flat' => 'Flat',
+                    'Studio' => 'Studio',
+                )
+            ),
+            'contact_information_fields' => array(
+                'branchID',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/domus/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
+        'expertagent' => array(
+            'name' => __( 'Expert Agent', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'ftp_host',
+                    'label' => __( 'FTP Host', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => 'ftp.expertagent.co.uk',
+                ),
+                array(
+                    'id' => 'ftp_user',
+                    'label' => __( 'FTP Username', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => '',
+                ),
+                array(
+                    'id' => 'ftp_pass',
+                    'label' => __( 'FTP Password', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => '',
+                ),
+                array(
+                    'id' => 'ftp_passive',
+                    'label' => __( 'Use FTP Passive Mode', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                ),
+                array(
+                    'id' => 'xml_filename',
+                    'label' => __( 'XML File Name', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => 'properties.xml',
+                ),
+            ),
+            'address_fields' => array( 'district', 'town', 'county' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'On Market' => 'On Market',
+                    'Sold STC' => 'Sold STC',
+                    'Under Offer' => 'Under Offer',
+                    'Exchanged' => 'Exchanged',
+                ),
+                'lettings_status' => array(
+                    'On Market' => 'On Market',
+                    'Available to Let' => 'Available to Let',
+                    'Let' => 'Let',
+                    'Let STC' => 'Let STC',
+                ),
+                'property_type' => array(
+                    'House - Detached' => 'House - Detached',
+                    'House - Semi Detached' => 'House - Semi Detached',
+                    'House - Terraced' => 'House - Terraced',
+                    'House - End of Terrace' => 'House - End of Terrace',
+                    'Flat - Lower Ground Floor Flat' => 'Flat - Lower Ground Floor Flat',
+                    'Flat - Ground Floor Flat' => 'Flat - Ground Floor Flat',
+                    'Flat - Upper Floor Flat' => 'Flat - Upper Floor Flat',
+                    'Bungalow - Detached' => 'Bungalow - Detached',
+                    'Bungalow - Semi Detached' => 'Bungalow - Semi Detached',
+                    'Bungalow - Terraced' => 'Bungalow - Terraced',
+                    'Bungalow - End of Terrace' => 'Bungalow - End of Terrace',
+                )
+            ),
+            'contact_information_fields' => array(
+                'branch',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/expert-agent/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'loop' => array(
             'name' => __( 'Loop', 'houzezpropertyfeed' ),
             'fields' => array(

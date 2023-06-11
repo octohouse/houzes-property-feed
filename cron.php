@@ -354,6 +354,24 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "domus":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-domus.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Domus( $instance_id, $import_id );
+
+		    			break;
+		    		}
+		    		case "expertagent":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-expertagent.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Expertagent( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "loop":
 		    		{
 		                // includes
