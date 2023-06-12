@@ -67,10 +67,10 @@ class Houzez_Property_Feed_Admin_Logs_View_Table extends WP_List_Table {
                 $title = get_the_title($item->post_id);
                 if ( empty($title) )
                 {
-                    return '-';
+                    $title = '(no title)';
                 }
 
-                return '<a href="' . get_edit_post_link($item->post_id) . '" target="_blank">' . get_the_title($item->post_id) . '</a>';
+                return '<a href="' . get_edit_post_link($item->post_id) . '" target="_blank">' . $title . '</a>';
             }
             case 'col_log_crm_id':
             {
