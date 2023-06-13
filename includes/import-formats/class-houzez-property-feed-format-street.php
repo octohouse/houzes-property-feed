@@ -672,10 +672,10 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
 				}
 
-				if ( isset($property['status']) && !empty($property['status']) )
-				{
-					$status_field = str_replace('residential-', '', str_replace('sales', 'sale', $department));
+				$status_field = str_replace('residential-', '', str_replace('sales', 'sale', $department));
 
+				if ( isset($property['attributes'][$status_field . '_status']) && !empty($property['attributes'][$status_field . '_status']) )
+				{
 					if ( isset($taxonomy_mappings[$property['attributes'][$status_field . '_status']]) && !empty($taxonomy_mappings[$property['attributes'][$status_field . '_status']]) )
 					{
 						wp_set_object_terms( $post_id, $taxonomy_mappings[$property['attributes'][$status_field . '_status']], "property_status" );
