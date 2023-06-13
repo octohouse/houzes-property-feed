@@ -18,7 +18,7 @@
 						<li><a href="#frequency"><span class="dashicons dashicons-clock"></span> <?php echo __( 'Frequency', 'houzezpropertyfeed' ); ?></a></li>
 						<li><a href="#taxonomies"><span class="dashicons dashicons-tag"></span> <?php echo __( 'Taxonomies', 'houzezpropertyfeed' ); ?></a></li>
 						<li><a href="#contactinfo"><span class="dashicons dashicons-admin-users"></span> <?php echo __( 'Contact Information', 'houzezpropertyfeed' ); ?></a></li>
-
+						<li><a href="#fieldmapping"><span class="dashicons dashicons-admin-settings"></span></span> <?php echo __( 'Field Mapping', 'houzezpropertyfeed' ); ?></a></li>
 					</ul>
 				</div>
 
@@ -58,6 +58,10 @@
 
 						<div class="settings-panel" id="contactinfo" style="display:none">
 							<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-import-settings-contact-information.php' ); ?>
+						</div>
+
+						<div class="settings-panel" id="fieldmapping" style="display:none">
+							<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-import-settings-field-mapping.php' ); ?>
 						</div>
 
 					</div>

@@ -19,6 +19,7 @@ class Houzez_Property_Feed_Import {
 
         add_action( 'admin_init', array( $this, 'delete_import') );
 
+        add_action( "houzez_property_feed_property_imported", array( $this, 'perform_field_mapping' ), 1, 3 );
         add_action( 'houzez_property_feed_property_imported', array( $this, 'set_generic_houzez_property_data'), 1, 3 );
 
         add_action( 'add_meta_boxes', array( $this, 'import_data_meta_box') );
@@ -106,7 +107,11 @@ class Houzez_Property_Feed_Import {
                     {
                         if ( $rule_i > 0 )
                         {
-                            if ( !empty($field) && !empty($_POST[$agent_display_option . '_rules_equal'][$j]) && !empty($_POST[$agent_display_option . '_rules_result'][$j]) )
+                            if ( 
+                                !empty($field) && 
+                                !empty($_POST[$agent_display_option . '_rules_equal'][$j]) && 
+                                !empty($_POST[$agent_display_option . '_rules_result'][$j]) 
+                            )
                             {
                                 $rules[] = array(
                                     'field' => $field,
@@ -124,6 +129,40 @@ class Houzez_Property_Feed_Import {
         }
         $import_options['agent_display_option_rules'] = $rules;
 
+        $rules = array();
+        if ( 
+            isset($_POST['field_mapping_rules_field']) && 
+            is_array($_POST['field_mapping_rules_field']) && 
+            count($_POST['field_mapping_rules_field']) > 1 // more than 1 to ignore template
+        )
+        {
+            $rule_i = 0;
+            foreach ( $_POST['field_mapping_rules_field'] as $j => $field )
+            {
+                if ( $rule_i > 0 )
+                {
+                    if ( 
+                        !empty($field) && 
+                        !empty($_POST['field_mapping_rules_equal'][$j]) && 
+                        !empty($_POST['field_mapping_rules_houzez_field'][$j]) &&
+                        !empty($_POST['field_mapping_rules_result'][$j]) 
+                    )
+                    {
+                        $rules[] = array(
+                            'field' => $field,
+                            'equal' => sanitize_text_field($_POST['field_mapping_rules_equal'][$j]),
+                            'houzez_field' => sanitize_text_field($_POST['field_mapping_rules_houzez_field'][$j]),
+                            'result' => sanitize_text_field($_POST['field_mapping_rules_result'][$j]),
+                        );
+                    }
+                }
+
+                ++$rule_i;
+            }
+        }
+        $import_options['field_mapping_rules'] = $rules;
+
+        // Save core format fields (API Key, XML URL etc)
         $formats = get_houzez_property_feed_formats();
         if ( isset($formats[$format]) )
         {
@@ -279,6 +318,109 @@ class Houzez_Property_Feed_Import {
             wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpfsuccessmessage=' . __( 'Import deleted successfully', 'houzezpropertyfeed' ) ) );
             die();
         }
+    }
+
+    public function perform_field_mapping( $post_id, $property, $import_id )
+    {
+        $import_settings = get_import_settings_from_id( $import_id );
+
+        if ( $import_settings === false )
+        {
+            return false;
+        }
+
+        if ( !isset($import_settings['field_mapping_rules']) )
+        {
+            return false;
+        }
+
+        if ( empty($import_settings['field_mapping_rules']) )
+        {
+            return false;
+        }
+
+        foreach ( $import_settings['field_mapping_rules'] as $rule )
+        {
+            // field
+            // equal
+            // houzez_field
+            // result
+
+            if ( is_object($property) )
+            {
+                $property = $this->SimpleXML2ArrayWithCDATASupport($property);
+            }
+
+            // loop through all fields in data and see if $rule['field'] is found
+            if ( is_array($property) )
+            {
+                $value_to_check = $this->check_array_for_matching_key( $property, $rule['field'] );
+
+                if ( $value_to_check === false )
+                {
+                    continue;
+                }
+
+                // we found a field with this key
+                if ( $rule['equal'] != '*' && $value_to_check != $rule['equal'] )
+                {
+                    continue;
+                }
+
+                $result = $rule['result'];
+                if ( $rule['result'] == '{field_value}' )
+                {
+                    $result = $value_to_check;
+                }
+
+                // we found a matching field with the required value
+                update_post_meta( $post_id, $rule['houzez_field'], $result );
+            }
+
+        }
+    }
+
+    private function SimpleXML2ArrayWithCDATASupport( $xml )
+    {   
+        $array = (array)$xml;
+
+        if ( count($array) === 0 ) 
+        {
+            return (string)$xml;
+        }
+
+        foreach ( $array as $key => $value ) 
+        {
+            if ( !is_object($value) || strpos(get_class($value), 'SimpleXML') === false ) 
+            {
+                continue;
+            }
+            $array[$key] = $this->SimpleXML2ArrayWithCDATASupport($value);
+        }
+
+        return $array;
+    }
+
+    private function check_array_for_matching_key( $array, $looking_for ) 
+    {
+        foreach ( $array as $key => $value ) 
+        {
+            if ( !is_numeric($key) && $key == $looking_for )
+            {
+                return $value;
+            }
+
+            if ( is_array($value) && !empty($value) ) 
+            {
+                $value_to_check = $this->check_array_for_matching_key( $value, $looking_for );
+                if ( $value_to_check !== false )
+                {
+                    return $value_to_check;
+                }
+            }
+        }
+
+        return false;
     }
 
     public function set_generic_houzez_property_data( $post_id, $property, $import_id )

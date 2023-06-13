@@ -672,7 +672,21 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 				// Location taxonomies
 				$create_location_taxonomy_terms = isset( $import_settings['create_location_taxonomy_terms'] ) ? $import_settings['create_location_taxonomy_terms'] : false;
 
-				$location_taxonomies = array( 'property_city', 'property_area', 'property_state' );
+				$houzez_tax_settings = get_option('houzez_tax_settings', array() );
+				
+				$location_taxonomies = array();
+				if ( !isset($houzez_tax_settings['property_city']) || ( isset($houzez_tax_settings['property_city']) && $houzez_tax_settings['property_city'] != 'disabled' ) )
+				{
+					$location_taxonomies[] = 'property_city';
+				}
+				if ( !isset($houzez_tax_settings['property_area']) || ( isset($houzez_tax_settings['property_area']) && $houzez_tax_settings['property_area'] != 'disabled' ) )
+				{
+					$location_taxonomies[] = 'property_area';
+				}
+				if ( !isset($houzez_tax_settings['property_state']) || ( isset($houzez_tax_settings['property_state']) && $houzez_tax_settings['property_state'] != 'disabled' ) )
+				{
+					$location_taxonomies[] = 'property_state';
+				}
 
 				foreach ( $location_taxonomies as $location_taxonomy )
 				{

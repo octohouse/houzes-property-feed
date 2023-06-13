@@ -53,6 +53,21 @@ jQuery(document).ready(function()
 		jQuery(this).parent().parent().remove();
 	});
 
+	jQuery('.field-mapping-add-rule-button').click(function(e)
+	{
+		e.preventDefault();
+
+		var template_html = jQuery('#field_mapping_rule_template').html();
+
+		jQuery('#field_mapping_rules').append(template_html);
+	});
+
+	jQuery('body').on('click', '.field-mapping-rule .delete-rule a', function(e)
+	{
+		e.preventDefault();
+		jQuery(this).parent().parent().remove();
+	});
+
 	jQuery('body').on('click', '.hpf-admin-settings-import-settings a.add-additional-mapping', function(e)
 	{
 		e.preventDefault();
