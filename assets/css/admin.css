@@ -68,6 +68,8 @@
 .hpf-admin-settings-import-settings .right-settings .buttons 		{ text-align:right; padding:15px 20px; background:#EEE; border-bottom:1px solid #CCC }
 .hpf-admin-settings-import-settings .right-settings .buttons.bottom { border-bottom:0; border-top:1px solid #CCC }
 .hpf-admin-settings-import-settings .right-settings .settings-panels { padding:15px 30px; }
+.hpf-admin-settings-import-settings .add-additional-mapping         {  }
+.hpf-admin-settings-import-settings .add-additional-mapping span    { vertical-align:middle; margin-top:-2px; margin-right:3px; }
 
 .agent-display-option-rule { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #CCC }
 .agent-display-option-rule > div { margin-bottom:5px; }

@@ -18,6 +18,8 @@
 			</tr>
 		</tbody>
 	</table>
+	<br>
+	<a href="#sales_status" class="button add-additional-mapping"><span class="dashicons dashicons-plus-alt2"></span> Add Additional Mapping</a>
 
 	<hr>
 
@@ -35,6 +37,8 @@
 			</tr>
 		</tbody>
 	</table>
+	<br>
+	<a href="#lettings_status" class="button add-additional-mapping"><span class="dashicons dashicons-plus-alt2"></span> Add Additional Mapping</a>
 
 	<hr>
 
@@ -52,6 +56,8 @@
 			</tr>
 		</tbody>
 	</table>
+	<br>
+	<a href="#property_type" class="button add-additional-mapping"><span class="dashicons dashicons-plus-alt2"></span> Add Additional Mapping</a>
 
 	<hr>
 

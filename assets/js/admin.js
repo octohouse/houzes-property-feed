@@ -50,7 +50,51 @@ jQuery(document).ready(function()
 	jQuery('body').on('click', '.agent-display-option-rule .delete-rule a', function(e)
 	{
 		e.preventDefault();
-		jQuery(this).parent().parent().remove()
+		jQuery(this).parent().parent().remove();
+	});
+
+	jQuery('body').on('click', '.hpf-admin-settings-import-settings a.add-additional-mapping', function(e)
+	{
+		e.preventDefault();
+		
+		var taxonomy = jQuery(this).attr('href').replace("#", "");
+
+		var taxonomy_options = new Array();
+		switch (taxonomy)
+		{
+			case "sales_status":
+			case "lettings_status":
+			{
+				taxonomy_options = hpf_admin_object.statuses;
+				break;
+			}
+			case "property_type":
+			{
+				taxonomy_options = hpf_admin_object.property_types;
+				break;
+			}
+		}
+
+		var row_html_dropdown = '';
+		row_html_dropdown += '<select name="custom_mapping_value[' + taxonomy + '][]">';
+		row_html_dropdown += '<option value=""></option>';
+		if ( Object.keys(taxonomy_options).length > 0 )
+		{	
+			for ( var j in taxonomy_options )
+			{
+				row_html_dropdown += '<option value="' + j + '">' + taxonomy_options[j] + '</option>';
+			}
+		}
+		row_html_dropdown += '</select>';
+
+		var row_html = '';
+		row_html += '<tr>';
+		row_html += '<td style="padding-left:0"><input type="text" name="custom_mapping[' + taxonomy + '][]" value=""></td>';
+		row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+		row_html += '</tr>';
+
+		jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_' + taxonomy).append(row_html);
+
 	});
 
 	hpf_show_email_reports_settings();
@@ -162,6 +206,61 @@ function hpf_show_format_settings()
 
 				jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_sales_status').append(row_html);
 			}
+
+			// add any custom mappings
+			if ( Object.keys(hpf_admin_object.import_settings.mappings.sales_status).length > 0 )
+			{
+				for ( var i in hpf_admin_object.import_settings.mappings.sales_status )
+				{
+					var found_in_standard_list = false;
+					for ( var j in taxonomy_values_sales_status )
+					{
+						if ( i == j )
+						{
+							found_in_standard_list = true;
+							break;
+						}
+					}
+					if ( !found_in_standard_list )
+					{
+						var row_html_dropdown = '';
+						row_html_dropdown += '<select name="custom_mapping_value[sales_status][' + i + ']">';
+						row_html_dropdown += '<option value=""></option>';
+						if ( Object.keys(hpf_admin_object.statuses).length > 0 )
+						{	
+							for ( var j in hpf_admin_object.statuses )
+							{
+								var selected_status = false;
+								if ( 
+									hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+									hpf_admin_object.import_settings.mappings.hasOwnProperty('sales_status') &&
+									hpf_admin_object.import_settings.mappings.sales_status.hasOwnProperty(i)
+								)
+								{
+									if ( hpf_admin_object.import_settings.mappings.sales_status[i] == j )
+									{
+										selected_status = true;
+									}
+								}
+								if ( !selected_status )
+								{
+									// TO DO: set by default if match found
+								}
+								row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
+							}
+						}
+						row_html_dropdown += '</select>';
+
+						var row_html = '';
+						row_html += '<tr>';
+						row_html += '<td style="padding-left:0"><input type="text" name="custom_mapping[sales_status][' + i + ']" value="' + i + '"></td>';
+						row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+						row_html += '</tr>';
+
+						jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_sales_status').append(row_html);
+					}
+				}
+			}
 		}
 
 		// Lettings status taxonomy mapping
@@ -207,6 +306,61 @@ function hpf_show_format_settings()
 
 				jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_lettings_status').append(row_html);
 			}
+
+			// add any custom mappings
+			if ( Object.keys(hpf_admin_object.import_settings.mappings.lettings_status).length > 0 )
+			{
+				for ( var i in hpf_admin_object.import_settings.mappings.lettings_status )
+				{
+					var found_in_standard_list = false;
+					for ( var j in taxonomy_values_lettings_status )
+					{
+						if ( i == j )
+						{
+							found_in_standard_list = true;
+							break;
+						}
+					}
+					if ( !found_in_standard_list )
+					{
+						var row_html_dropdown = '';
+						row_html_dropdown += '<select name="custom_mapping_value[lettings_status][' + i + ']">';
+						row_html_dropdown += '<option value=""></option>';
+						if ( Object.keys(hpf_admin_object.statuses).length > 0 )
+						{	
+							for ( var j in hpf_admin_object.statuses )
+							{
+								var selected_status = false;
+								if ( 
+									hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+									hpf_admin_object.import_settings.mappings.hasOwnProperty('lettings_status') &&
+									hpf_admin_object.import_settings.mappings.lettings_status.hasOwnProperty(i)
+								)
+								{
+									if ( hpf_admin_object.import_settings.mappings.lettings_status[i] == j )
+									{
+										selected_status = true;
+									}
+								}
+								if ( !selected_status )
+								{
+									// TO DO: set by default if match found
+								}
+								row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
+							}
+						}
+						row_html_dropdown += '</select>';
+
+						var row_html = '';
+						row_html += '<tr>';
+						row_html += '<td style="padding-left:0"><input type="text" name="custom_mapping[lettings_status][' + i + ']" value="' + i + '"></td>';
+						row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+						row_html += '</tr>';
+
+						jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_lettings_status').append(row_html);
+					}
+				}
+			}
 		}
 
 		// Property type taxonomy mapping
@@ -251,6 +405,61 @@ function hpf_show_format_settings()
 				row_html += '</tr>';
 
 				jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_property_type').append(row_html);
+			}
+
+			// add any custom mappings
+			if ( Object.keys(hpf_admin_object.import_settings.mappings.property_type).length > 0 )
+			{
+				for ( var i in hpf_admin_object.import_settings.mappings.property_type )
+				{
+					var found_in_standard_list = false;
+					for ( var j in taxonomy_values_property_type )
+					{
+						if ( i == j )
+						{
+							found_in_standard_list = true;
+							break;
+						}
+					}
+					if ( !found_in_standard_list )
+					{
+						var row_html_dropdown = '';
+						row_html_dropdown += '<select name="custom_mapping_value[property_type][' + i + ']">';
+						row_html_dropdown += '<option value=""></option>';
+						if ( Object.keys(hpf_admin_object.property_types).length > 0 )
+						{	
+							for ( var j in hpf_admin_object.property_types )
+							{
+								var selected_status = false;
+								if ( 
+									hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+									hpf_admin_object.import_settings.mappings.hasOwnProperty('property_type') &&
+									hpf_admin_object.import_settings.mappings.property_type.hasOwnProperty(i)
+								)
+								{
+									if ( hpf_admin_object.import_settings.mappings.property_type[i] == j )
+									{
+										selected_status = true;
+									}
+								}
+								if ( !selected_status )
+								{
+									// TO DO: set by default if match found
+								}
+								row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.property_types[j] + '</option>';
+							}
+						}
+						row_html_dropdown += '</select>';
+
+						var row_html = '';
+						row_html += '<tr>';
+						row_html += '<td style="padding-left:0"><input type="text" name="custom_mapping[property_type][' + i + ']" value="' + i + '"></td>';
+						row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+						row_html += '</tr>';
+
+						jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_property_type').append(row_html);
+					}
+				}
 			}
 		}
 

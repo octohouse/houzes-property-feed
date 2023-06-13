@@ -147,7 +147,9 @@ class Houzez_Property_Feed_Import {
         {
             foreach ( $_POST['taxonomy_mapping'] as $taxonomy => $mappings )
             {
-                $import_mappings[sanitize_text_field($taxonomy)] = array();
+                $taxonomy = sanitize_text_field($taxonomy);
+
+                $import_mappings[$taxonomy] = array();
 
                 if ( is_array($mappings) && !empty($mappings) )
                 {
@@ -155,7 +157,21 @@ class Houzez_Property_Feed_Import {
                     {
                         if ( !empty((int)$term_id) )
                         {
-                            $import_mappings[sanitize_text_field($taxonomy)][$crm_value] = (int)$term_id;
+                            $import_mappings[$taxonomy][$crm_value] = (int)$term_id;
+                        }
+                    }
+                }
+
+                if ( isset($_POST['custom_mapping'][$taxonomy]) )
+                {
+                    foreach ( $_POST['custom_mapping'][$taxonomy] as $key => $custom_mapping )
+                    {
+                        if ( trim($custom_mapping) != '' )
+                        {
+                            if ( isset($_POST['custom_mapping_value'][$taxonomy][$key]) && trim($_POST['custom_mapping_value'][$taxonomy][$key]) != '' )
+                            {
+                                $import_mappings[$taxonomy][$custom_mapping] = $_POST['custom_mapping_value'][$taxonomy][$key];
+                            }
                         }
                     }
                 }
