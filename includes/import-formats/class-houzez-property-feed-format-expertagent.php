@@ -1078,7 +1078,7 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 						// This is a URL
 						$url = (string)$property->virtual_tour_url;
 
-						if ( strpos(strtolower($url), 'youtube') !== false || strpos(strtolower($url), 'vimeo') !== false )
+						if ( strpos(strtolower($url), 'youtu') !== false || strpos(strtolower($url), 'vimeo') !== false )
 						{
 							update_post_meta( $post_id, 'fave_video_url', $url );
 						}

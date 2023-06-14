@@ -1190,7 +1190,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 							// This is a URL
 							$url = $virtual_tour;
 
-							if ( strpos(strtolower($url), 'youtube') !== false || strpos(strtolower($url), 'vimeo') !== false )
+							if ( strpos(strtolower($url), 'youtu') !== false || strpos(strtolower($url), 'vimeo') !== false )
 							{
 								update_post_meta( $post_id, 'fave_video_url', $url );
 							}
