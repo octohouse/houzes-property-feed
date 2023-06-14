@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 1.0.16
-Version: 1.0.16
+Stable tag: 1.0.17
+Version: 1.0.17
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,6 +28,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Domus
 * Expert Agent
 * Jupix
+* Kyero
 * Loop
 * Street
 
@@ -88,6 +89,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 1.0.17 - 2023-06-14 =
+* Added support for Kyero
+* Catered for formats that don't have a taxonomy mapping set
+* Prevent license check being done multiple times on the same page which should improve performance
 
 = 1.0.16 - 2023-06-14 =
 * Check for 'youtu' instead of 'youtube' to cater for short URLs when deciding where to import a video

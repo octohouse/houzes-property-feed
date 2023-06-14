@@ -167,11 +167,11 @@ function hpf_show_format_settings()
 		{
 			if ( i == selected_format )
 			{
-				if ( Object.keys(hpf_admin_object.formats[i].taxonomy_values.sales_status).length > 0 ) { taxonomy_values_sales_status = hpf_admin_object.formats[i].taxonomy_values.sales_status; }
-				if ( Object.keys(hpf_admin_object.formats[i].taxonomy_values.lettings_status).length > 0 ) { taxonomy_values_lettings_status = hpf_admin_object.formats[i].taxonomy_values.lettings_status; }
-				if ( Object.keys(hpf_admin_object.formats[i].taxonomy_values.property_type).length > 0 ) { taxonomy_values_property_type = hpf_admin_object.formats[i].taxonomy_values.property_type; }
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('sales_status') && Object.keys(hpf_admin_object.formats[i].taxonomy_values.sales_status).length > 0 ) { taxonomy_values_sales_status = hpf_admin_object.formats[i].taxonomy_values.sales_status; }
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('lettings_status') && Object.keys(hpf_admin_object.formats[i].taxonomy_values.lettings_status).length > 0 ) { taxonomy_values_lettings_status = hpf_admin_object.formats[i].taxonomy_values.lettings_status; }
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('property_type') && Object.keys(hpf_admin_object.formats[i].taxonomy_values.property_type).length > 0 ) { taxonomy_values_property_type = hpf_admin_object.formats[i].taxonomy_values.property_type; }
 				address_fields = hpf_admin_object.formats[i].address_fields;
-				if ( Object.keys(hpf_admin_object.formats[i].contact_information_fields).length > 0 ) { contact_information_fields = hpf_admin_object.formats[i].contact_information_fields; }
+				if ( hpf_admin_object.formats[i].hasOwnProperty('contact_information_fields') && Object.keys(hpf_admin_object.formats[i].contact_information_fields).length > 0 ) { contact_information_fields = hpf_admin_object.formats[i].contact_information_fields; }
 
 				jQuery('.hpf-import-format-name').html(hpf_admin_object.formats[i].name);
 				break;
@@ -223,7 +223,7 @@ function hpf_show_format_settings()
 			}
 
 			// add any custom mappings
-			if ( Object.keys(hpf_admin_object.import_settings.mappings.sales_status).length > 0 )
+			if ( hpf_admin_object.import_settings.mappings.hasOwnProperty('sales_status') && Object.keys(hpf_admin_object.import_settings.mappings.sales_status).length > 0 )
 			{
 				for ( var i in hpf_admin_object.import_settings.mappings.sales_status )
 				{
@@ -323,7 +323,7 @@ function hpf_show_format_settings()
 			}
 
 			// add any custom mappings
-			if ( Object.keys(hpf_admin_object.import_settings.mappings.lettings_status).length > 0 )
+			if ( hpf_admin_object.import_settings.mappings.hasOwnProperty('lettings_status') && Object.keys(hpf_admin_object.import_settings.mappings.lettings_status).length > 0 )
 			{
 				for ( var i in hpf_admin_object.import_settings.mappings.lettings_status )
 				{
@@ -423,7 +423,7 @@ function hpf_show_format_settings()
 			}
 
 			// add any custom mappings
-			if ( Object.keys(hpf_admin_object.import_settings.mappings.property_type).length > 0 )
+			if ( hpf_admin_object.import_settings.mappings.hasOwnProperty('property_type') && Object.keys(hpf_admin_object.import_settings.mappings.property_type).length > 0 )
 			{
 				for ( var i in hpf_admin_object.import_settings.mappings.property_type )
 				{

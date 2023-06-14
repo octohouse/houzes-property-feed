@@ -734,6 +734,30 @@ function get_houzez_property_feed_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/jupix/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'kyero' => array(
+            'name' => __( 'Kyero', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'town', 'province', 'location_detail' ),
+            'taxonomy_values' => array(
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Finca' => 'Finca',
+                    'Penthouse' => 'Penthouse',
+                    'Plot' => 'Plot',
+                    'Townhouse' => 'Townhouse',
+                    'Villa' => 'Villa',
+                )
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/kyero/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'loop' => array(
             'name' => __( 'Loop', 'houzezpropertyfeed' ),
             'fields' => array(

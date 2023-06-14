@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Houzez_Property_Feed_License {
 
+	private $license_status = array();
+
 	public function __construct() {
 
 		add_filter( 'houzez_property_feed_pro_active', array( $this, 'is_pro_active' ), 1 );
@@ -78,16 +80,23 @@ class Houzez_Property_Feed_License {
 
     public function get_license_key_status( $force = false )
     {
+    	if ( !empty($this->license_status) )
+    	{
+    		return $this->license_status;
+    	}
+    	
     	$options = get_option( 'houzez_property_feed', array() );
         
         $license_key = $options['license_key'];
 
         if ( empty($license_key) )
         {
-        	return array(
+        	$return = array(
         		'success' => false,
         		'error' => __( 'No license key entered', 'houzezpropertyfeed' )
         	);
+        	$this->license_status = $return;
+        	return $return;
         }
 
         // only do once per day
@@ -99,7 +108,9 @@ class Houzez_Property_Feed_License {
 	        	$license_key_status = get_option( 'houzez_property_feed_license_key_status', array() );
 	        	if ( is_array($license_key_status) && !empty($license_key_status) )
 	        	{
-	        		return $license_key_status;
+	        		$return = $license_key_status;
+	        		$this->license_status = $return;
+        			return $return;
 	        	}
 	        }
 	    }*/
@@ -121,18 +132,22 @@ class Houzez_Property_Feed_License {
     	
     	if ( is_wp_error($response) )
     	{
-        	return array(
+        	$return = array(
         		'success' => false,
         		'error' => __( 'Failed to request license status', 'houzezpropertyfeed' ) . ': ' . $response->get_error_message()
         	);
+        	$this->license_status = $return;
+        	return $return;
 		}
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) )
 		{
-        	return array(
+        	$return = array(
         		'success' => false,
         		'error' => __( 'Received response code when requesting license key status', 'houzezpropertyfeed' ) . ': ' . wp_remote_retrieve_response_code( $response )
         	);
+        	$this->license_status = $return;
+        	return $return;
 		}
 
 		$result = $response['body'];
@@ -141,10 +156,12 @@ class Houzez_Property_Feed_License {
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) 
 		{
-        	return array(
+        	$return = array(
         		'success' => false,
         		'error' => __( 'Failed to decode response when requesting license key status. Please try again', 'houzezpropertyfeed' ) . ': ' . print_r( $result, true )
         	);
+        	$this->license_status = $return;
+        	return $return;
 		}
 
 		if ( isset($body['success']) )
@@ -176,14 +193,17 @@ class Houzez_Property_Feed_License {
 			update_option( 'houzez_property_feed_license_key_last_checked', time() );
 			update_option( 'houzez_property_feed_license_key_status', $return );
 
+			$this->license_status = $return;
 			return $return;
 		}
 		else
 		{
-			return array(
+			$return = array(
         		'success' => false,
         		'error' => __( 'Something went wrong when requesting license key status', 'houzezpropertyfeed' ) . ': ' . print_r($body, true)
         	);
+        	$this->license_status = $return;
+			return $return;
 		}
     }
 
