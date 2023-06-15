@@ -77,11 +77,12 @@
 .agent-display-option-rule .delete-rule {  }
 .agent-display-option-rule .delete-rule a { text-decoration:none }
 
-.field-mapping-rule { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #CCC }
-.field-mapping-rule > div { margin-bottom:5px; }
+.field-mapping-rule { margin-bottom:35px; padding-bottom:30px; border-bottom:1px solid #CCC }
+.field-mapping-rule .and-rules > div > div { margin-bottom:5px; }
+.field-mapping-rule .then > div { margin-bottom:5px; }
 .field-mapping-rule input[type='text'] { width:220px; }
-.field-mapping-rule .delete-rule {  }
-.field-mapping-rule .delete-rule a { text-decoration:none }
+.field-mapping-rule .rule-actions {  }
+.field-mapping-rule .rule-actions a { text-decoration:none }
 
 .hpf-admin-settings-import-settings .running-status-toggle { font-weight:500; float:left; font-size:1.3em }
 .hpf-switch {

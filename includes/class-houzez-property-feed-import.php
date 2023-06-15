@@ -131,29 +131,31 @@ class Houzez_Property_Feed_Import {
 
         $rules = array();
         if ( 
-            isset($_POST['field_mapping_rules_field']) && 
-            is_array($_POST['field_mapping_rules_field']) && 
-            count($_POST['field_mapping_rules_field']) > 1 // more than 1 to ignore template
+            isset($_POST['field_mapping_rules']) && 
+            is_array($_POST['field_mapping_rules']) && 
+            count($_POST['field_mapping_rules']) > 1 // more than 1 to ignore template
         )
         {
             $rule_i = 0;
-            foreach ( $_POST['field_mapping_rules_field'] as $j => $field )
+            foreach ( $_POST['field_mapping_rules'] as $j => $field )
             {
                 if ( $rule_i > 0 )
                 {
-                    if ( 
-                        !empty($field) && 
-                        !empty($_POST['field_mapping_rules_equal'][$j]) && 
-                        !empty($_POST['field_mapping_rules_houzez_field'][$j]) &&
-                        !empty($_POST['field_mapping_rules_result'][$j]) 
-                    )
+                    $rules[$rule_i-1] = array(
+                        'houzez_field' => sanitize_text_field($field['houzez_field']),
+                        'result' => sanitize_text_field($field['result']),
+                        'rules' => array(),
+                    );
+
+                    unset($field['houzez_field']);
+                    unset($field['result']);
+
+                    foreach ( $field as $i => $rule_fields )
                     {
-                        $rules[] = array(
-                            'field' => $field,
-                            'equal' => sanitize_text_field($_POST['field_mapping_rules_equal'][$j]),
-                            'houzez_field' => sanitize_text_field($_POST['field_mapping_rules_houzez_field'][$j]),
-                            'result' => sanitize_text_field($_POST['field_mapping_rules_result'][$j]),
-                        );
+                        foreach ( $rule_fields as $k => $rule_field )
+                        {
+                            $rules[$rule_i-1]['rules'][$k][$i] = sanitize_text_field($rule_field);
+                        }
                     }
                 }
 
@@ -339,44 +341,67 @@ class Houzez_Property_Feed_Import {
             return false;
         }
 
-        foreach ( $import_settings['field_mapping_rules'] as $rule )
+        if ( is_object($property) )
+        {
+            $property = $this->SimpleXML2ArrayWithCDATASupport($property);
+        }
+
+        $import_settings['field_mapping_rules'] = convert_old_field_mapping_to_new( $import_settings['field_mapping_rules'] );
+
+        foreach ( $import_settings['field_mapping_rules'] as $and_rules )
         {
             // field
             // equal
             // houzez_field
             // result
-
-            if ( is_object($property) )
+            $rules_met = 0;
+            foreach ( $and_rules['rules'] as $i => $rule )
             {
-                $property = $this->SimpleXML2ArrayWithCDATASupport($property);
+                // loop through all fields in data and see if $rule['field'] is found
+                if ( is_array($property) )
+                {
+                    $value_to_check = $this->check_array_for_matching_key( $property, $rule['field'] );
+
+                    if ( $value_to_check === false )
+                    {
+                        continue;
+                    }
+
+                    // we found a field with this key
+                    if ( $rule['equal'] != '*' && $value_to_check != $rule['equal'] )
+                    {
+                        continue;
+                    }
+
+                    ++$rules_met;
+                }
             }
 
-            // loop through all fields in data and see if $rule['field'] is found
-            if ( is_array($property) )
+            if ( $rules_met == count($and_rules['rules']) )
             {
-                $value_to_check = $this->check_array_for_matching_key( $property, $rule['field'] );
+                $result = $and_rules['result'];
 
-                if ( $value_to_check === false )
+                preg_match_all('/{[^}]*}/', $and_rules['result'], $matches);
+                if ( $matches !== FALSE && isset($matches[0]) && is_array($matches[0]) && !empty($matches[0]) )
                 {
-                    continue;
-                }
+                    foreach ( $matches[0] as $match )
+                    {
+                        $field_name = str_replace(array("{", "}"), "", $match);
 
-                // we found a field with this key
-                if ( $rule['equal'] != '*' && $value_to_check != $rule['equal'] )
-                {
-                    continue;
-                }
+                        $value_to_check = $this->check_array_for_matching_key( $property, $field_name );
 
-                $result = $rule['result'];
-                if ( $rule['result'] == '{field_value}' )
-                {
-                    $result = $value_to_check;
+                        if ( $value_to_check === false )
+                        {
+                            $value_to_check = '';
+                        }
+
+                        $result = str_replace($match, $value_to_check, $result);
+                    }
                 }
 
                 // we found a matching field with the required value
-                update_post_meta( $post_id, $rule['houzez_field'], $result );
+                update_post_meta( $post_id, $and_rules['houzez_field'], $result );
             }
-
         }
     }
 

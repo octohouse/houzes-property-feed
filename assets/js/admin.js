@@ -53,19 +53,41 @@ jQuery(document).ready(function()
 		jQuery(this).parent().parent().remove();
 	});
 
-	jQuery('.field-mapping-add-rule-button').click(function(e)
+	jQuery('.field-mapping-add-or-rule-button').click(function(e)
 	{
 		e.preventDefault();
 
-		var template_html = jQuery('#field_mapping_rule_template').html();
-
-		jQuery('#field_mapping_rules').append(template_html);
+		add_field_mapping_or_rule();
 	});
 
-	jQuery('body').on('click', '.field-mapping-rule .delete-rule a', function(e)
+	jQuery('body').on('click', '.field-mapping-rule .rule-actions a.delete-action', function(e)
 	{
 		e.preventDefault();
 		jQuery(this).parent().parent().remove();
+
+		// clean up any empty AND groups
+		jQuery('#field_mapping_rules .field-mapping-rule').each(function()
+		{
+			if ( jQuery(this).find('.and-rules').html().trim() == '' )
+			{
+				jQuery(this).remove();
+			}
+			jQuery(this).find('.and-rules:nth-child(1) .and-label').remove();
+		});
+	});
+
+	jQuery('body').on('click', '.rule-actions a.add-and-rule-action', function(e)
+	{
+		e.preventDefault();
+
+		// clone previous rule
+		var previous_rule_html = jQuery(this).parent().parent().html();
+		var and_html = '<div style="padding:20px 0; font-weight:600" class="and-label">AND</div>';
+		jQuery(this).parent().parent().parent().append( '<div class="or-rule">' + ( previous_rule_html.indexOf('>AND<') == -1 ? and_html : '' ) + previous_rule_html + '</div>' );
+		jQuery(this).parent().parent().parent().find('.or-rule:last-child').find('input, select').each(function()
+		{
+			jQuery(this).val('');
+		});
 	});
 
 	jQuery('body').on('click', '.hpf-admin-settings-import-settings a.add-additional-mapping', function(e)
@@ -115,7 +137,26 @@ jQuery(document).ready(function()
 	hpf_show_email_reports_settings();
 	hpf_show_format_settings();
 	hpf_show_contact_info_rules();
+
+	if ( jQuery('#field_mapping_rules .field-mapping-rule').length == 0 )
+	{
+		add_field_mapping_or_rule();
+	}
 });
+
+function add_field_mapping_or_rule()
+{
+	var template_html = jQuery('#field_mapping_rule_template').html();
+
+	template_html = template_html.replace("{rule_count}", hpf_rule_count);
+	template_html = template_html.replace("{rule_count}", hpf_rule_count);
+	template_html = template_html.replace("{rule_count}", hpf_rule_count);
+	template_html = template_html.replace("{rule_count}", hpf_rule_count);
+
+	hpf_rule_count = hpf_rule_count + 1;
+
+	jQuery('#field_mapping_rules').append(template_html);
+}
 
 function hpf_show_email_reports_settings()
 {

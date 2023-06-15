@@ -49,6 +49,12 @@
 	$houzez_fields = apply_filters( 'houzez_property_feed_field_mapping_houzez_fields', $houzez_fields );
 
 	asort($houzez_fields);
+
+	// convert old-style rules to new style
+	if ( isset($import_settings['field_mapping_rules']) && !empty($import_settings['field_mapping_rules']) )
+	{
+		$import_settings['field_mapping_rules'] = convert_old_field_mapping_to_new( $import_settings['field_mapping_rules'] );
+	}
 ?>
 
 <table class="form-table">
@@ -58,36 +64,43 @@
 			<td>
  				<div id="field_mapping_rule_template" style="display:none">
 					<div class="field-mapping-rule">
-						<div>
-							If 
-							<input type="text" name="field_mapping_rules_field[]" value="">
-							field in <span class="hpf-import-format-name"></span> feed
+						<div class="and-rules">
+							<div class="or-rule">
+								<div>
+									If 
+									<input type="text" name="field_mapping_rules[{rule_count}][field][]" value="">
+									field in <span class="hpf-import-format-name"></span> feed
+								</div>
+								<div>
+									Is equal to 
+									<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
+								</div>
+								<div class="rule-actions">
+									<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus2"></span> Add AND Rule</a> | <a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+								</div>
+							</div>
 						</div>
-						<div>
-							Is equal to 
-							<input type="text" name="field_mapping_rules_equal[]" placeholder="Value in feed, or use * wildcard">
-						</div>
-						<div>
-							Then set Houzez field
-							<select name="field_mapping_rules_houzez_field[]">
-								<option value=""></option>
-								<?php
-									if ( !empty($houzez_fields) )
-									{
-										foreach ( $houzez_fields as $key => $value )
+						<div class="then">
+							<div style="padding:20px 0; font-weight:600">THEN</div>
+							<div>
+								Set Houzez field
+								<select name="field_mapping_rules[{rule_count}][houzez_field]">
+									<option value=""></option>
+									<?php
+										if ( !empty($houzez_fields) )
 										{
-											echo '<option value="' . esc_attr($key) . '">' . esc_html($value) . '</option>';
+											foreach ( $houzez_fields as $key => $value )
+											{
+												echo '<option value="' . esc_attr($key) . '">' . esc_html($value) . '</option>';
+											}
 										}
-									}
-								?>
-							</select> 
-						</div>
-						<div>
-							To
-							<input type="text" name="field_mapping_rules_result[]" style="width:100%; max-width:300px;" value="" placeholder="Enter value or {field_value} to use value sent">
-						</div>
-						<div class="delete-rule">
-							<a href=""><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+									?>
+								</select> 
+							</div>
+							<div>
+								To
+								<input type="text" name="field_mapping_rules[{rule_count}][result]" style="width:100%; max-width:340px;" value="" placeholder="Enter value or {field_name_here} to use value sent">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -96,42 +109,52 @@
 					<?php
 						if ( isset($import_settings['field_mapping_rules']) && !empty($import_settings['field_mapping_rules']) )
 						{
-							foreach ( $import_settings['field_mapping_rules'] as $rule )
+							foreach ( $import_settings['field_mapping_rules'] as $i => $and_rules )
 							{
 					?>
 					<div class="field-mapping-rule">
-						<div>
-							If 
-							<input type="text" name="field_mapping_rules_field[]" value="<?php echo esc_attr($rule['field']); ?>">
-							field in <span class="hpf-import-format-name"></span> feed
+						<div class="and-rules">
+							<?php $rule_i = 0; foreach ( $and_rules['rules'] as $or_rule ) { ?>
+							<div class="or-rule">
+								<?php if ( $rule_i > 0 ) { echo '<div style="padding:20px 0; font-weight:600" class="and-label">AND</div>'; } ?>
+								<div>
+									If 
+									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][field][]" value="<?php echo esc_attr($or_rule['field']); ?>">
+									field in <span class="hpf-import-format-name"></span> feed
+								</div>
+								<div>
+									Is equal to 
+									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
+								</div>
+								<div class="rule-actions">
+									<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a> | <a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+								</div>
+							</div>
+							<?php ++$rule_i; } // end foreach AND rules ?>
 						</div>
-						<div>
-							Is equal to 
-							<input type="text" name="field_mapping_rules_equal[]" value="<?php echo esc_attr($rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
-						</div>
-						<div>
-							Then set Houzez field
-							<select name="field_mapping_rules_houzez_field[]">
-								<option value=""></option>
-								<?php
-									if ( !empty($houzez_fields) )
-									{
-										foreach ( $houzez_fields as $key => $value )
+						<div class="then">
+							<div style="padding:20px 0; font-weight:600">THEN</div>
+							<div>
+								Set Houzez field
+								<select name="field_mapping_rules[<?php echo $i; ?>][houzez_field]">
+									<option value=""></option>
+									<?php
+										if ( !empty($houzez_fields) )
 										{
-											echo '<option value="' . esc_attr($key) . '"';
-											if ( $key == $rule['houzez_field'] ) { echo ' selected'; }
-											echo '>' . esc_html($value) . '</option>';
+											foreach ( $houzez_fields as $key => $value )
+											{
+												echo '<option value="' . esc_attr($key) . '"';
+												if ( $key == $and_rules['houzez_field'] ) { echo ' selected'; }
+												echo '>' . esc_html($value) . '</option>';
+											}
 										}
-									}
-								?>
-							</select> 
-						</div>
-						<div>
-							To
-							<input type="text" name="field_mapping_rules_result[]" style="width:100%; max-width:300px;" value="<?php echo esc_attr($rule['result']); ?>" placeholder="Enter value or {field_value} to use value sent">
-						</div>
-						<div class="delete-rule">
-							<a href=""><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+									?>
+								</select> 
+							</div>
+							<div>
+								To
+								<input type="text" name="field_mapping_rules[<?php echo $i; ?>][result]" style="width:100%; max-width:340px;" value="<?php echo esc_attr($and_rules['result']); ?>" placeholder="Enter value or {field_name_here} to use value sent">
+							</div>
 						</div>
 					</div>
 					<?php
@@ -140,9 +163,13 @@
 					?>
 				</div>
 
-				<a href="" class="button field-mapping-add-rule-button">Add Rule</a>
+				<a href="" class="button field-mapping-add-or-rule-button">Add Field Mapping Rule</a>
 			
 			</td>
 		</tr>
 	</tbody>
 </table>
+
+<script>
+	var hpf_rule_count = <?php echo ( isset($import_settings['field_mapping_rules']) && !empty($import_settings['field_mapping_rules']) ) ? count($import_settings['field_mapping_rules']) : 0; ?>;
+</script>
