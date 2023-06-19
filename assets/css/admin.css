@@ -2,6 +2,11 @@
 
 .row-actions 										{ left:0 !important }
 
+.select2-results__option { margin-bottom:0 }
+.select2-container .select2-selection--single { height:30px !important; }
+.select2-container--default .select2-selection--single .select2-selection__rendered { line-height:29px !important; }
+.select2-container--default .select2-selection--single .select2-selection__arrow { top:3px !important; }
+
 /* Admin Settings Header */
 .hpf-admin-settings-header 							{ background:#FFF; padding:30px; border-bottom:1px solid #999 }
 .hpf-admin-settings-header .logo					{ display:inline-block; vertical-align:middle; margin-right:30px; }
@@ -63,13 +68,16 @@
 .hpf-admin-settings-import-settings .left-tabs ul li a				{ font-size:1.2em; text-decoration:none; color:#FFF; display:block; padding:14px 20px; border-bottom:1px solid #666 }
 .hpf-admin-settings-import-settings .left-tabs ul li:hover a		{  }
 .hpf-admin-settings-import-settings .left-tabs ul li.active a		{ background:#2271b1 }
-.hpf-admin-settings-import-settings .left-tabs ul li a span 		{ vertical-align:middle; margin-top:-3px; margin-right:5px; }
+.hpf-admin-settings-import-settings .left-tabs ul li a span.dashicons 		{ vertical-align:middle; margin-top:-3px; margin-right:5px; }
 .hpf-admin-settings-import-settings .right-settings 				{ flex:1; background:#FFF }
 .hpf-admin-settings-import-settings .right-settings .buttons 		{ text-align:right; padding:15px 20px; background:#EEE; border-bottom:1px solid #CCC }
 .hpf-admin-settings-import-settings .right-settings .buttons.bottom { border-bottom:0; border-top:1px solid #CCC }
 .hpf-admin-settings-import-settings .right-settings .settings-panels { padding:15px 30px; }
 .hpf-admin-settings-import-settings .add-additional-mapping         {  }
 .hpf-admin-settings-import-settings .add-additional-mapping span    { vertical-align:middle; margin-top:-2px; margin-right:3px; }
+.hpf-admin-settings-import-settings .rules-table-available-fields   { display: flex; }
+.hpf-admin-settings-import-settings .rules-table                    { flex: 1; }
+.hpf-admin-settings-import-settings .rules-available-fields         { min-height:270px; flex: 0 0 230px; margin-top:20px; background:#F8F8F8; padding:25px; border:1px solid #DDD; }
 
 .agent-display-option-rule { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #CCC }
 .agent-display-option-rule > div { margin-bottom:5px; }

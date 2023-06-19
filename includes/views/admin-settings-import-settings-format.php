@@ -1,13 +1,13 @@
 <h3><?php echo __( 'Import Format', 'houzezpropertyfeed' ); ?></h3>
 
-<p>Select the CRM or format that you want to import using below:</p>
+<p><?php echo __( 'Select the CRM or format that you want to import using below', 'houzezpropertyfeed' ); ?>:</p>
 
 <table class="form-table">
 	<tbody>
 		<tr>
 			<th><label for="format"><?php echo __( 'Choose Format', 'houzezpropertyfeed' ); ?></label></th>
 			<td>
-				<select name="format" id="format">
+				<select name="format" id="format" style="width:250px;">
 					<option value=""></option>
 					<?php
 						foreach ( $formats as $key => $format )
@@ -37,6 +37,15 @@
 		<?php
 			foreach ( $format['fields'] as $field )
 			{
+				if ( $field['type'] == 'hidden' )
+				{
+					echo '<input 
+						type="' . esc_attr($field['type']) . '" 
+						name="' . esc_attr($key . '_' . $field['id']) . '" 
+						value="' . ( ( isset($import_settings[$field['id']]) ) ? esc_attr($import_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
+					>';
+					continue;
+				}
 		?>
 			<tr>
 				<th><?php echo esc_html($field['label']); ?></th>
@@ -53,7 +62,7 @@
 								placeholder="' . ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' ) . '"
 								style="width:100%; max-width:400px;"
 							>';
-							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_attr($field['tooltip']) . '</div>' : '' );
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
 							break;
 						}
 						case "checkbox":
@@ -64,6 +73,95 @@
 								value="yes"
 								' . ( ( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
 							>';
+							break;
+						}
+						case "select":
+						{
+							echo '<select 
+								name="' . esc_attr($key . '_' . $field['id']) . '" 
+							>';
+							$options = array();
+							if ( isset($field['options']) && is_array($field['options']) && !empty($field['options']) )
+							{
+								$options = $field['options'];
+							}
+							elseif ( isset($import_settings[$field['id'] . '_options']) && !empty($import_settings[$field['id'] . '_options']) )
+							{
+								$options = json_decode($import_settings[$field['id'] . '_options']);
+
+								$new_options = array();
+								if ( !empty($options) )
+								{
+									foreach ( $options as $option_key => $option_value )
+									{
+										$new_options[$option_value] = $option_value;
+									}
+								}
+
+								$options = $new_options; 
+							}
+
+							if ( $field['id'] == 'property_id_node' )
+							{
+								if ( isset($import_settings['property_node_options']) && !empty($import_settings['property_node_options']) )
+								{
+									// use options from property_node_options
+									$options = json_decode($import_settings['property_node_options']);
+
+									$new_options = array();
+									if ( !empty($options) )
+									{
+										foreach ( $options as $option_key => $option_value )
+										{
+											$node_name = $option_value;
+											if ( isset($import_settings['property_node']) && !empty($import_settings['property_node']) )
+											{
+												if ( strpos($node_name, $import_settings['property_node']) === false )
+												{
+													continue;
+												}
+
+												$node_name = str_replace($import_settings['property_node'], '', $node_name);
+											}
+
+											$new_options[$node_name] = $node_name;
+										}
+									}
+
+									$options = $new_options; 
+								}
+							}
+
+							if ( !empty($options) )
+							{
+								foreach ( $options as $option_key => $option_value )
+								{
+									echo '<option value="' . $option_key . '"';
+									if (
+										( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == $option_key )
+										||
+										( !isset($import_settings[$field['id']]) && ( isset($field['default']) && $field['default'] == $option_key ) )
+									)
+									{
+										echo ' selected';
+									}
+									echo '>' . esc_html($option_value) . '</option>';
+								}
+							}
+							else
+							{
+								if ( isset($field['no_options_value']) && !empty($field['no_options_value']) )
+								{
+									echo '<option value="">' . $field['no_options_value'] . '</option>';
+								}
+							}
+							echo '</select>';
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
+							break;
+						}
+						case "html":
+						{
+							echo $field['html'];
 							break;
 						}
 					}

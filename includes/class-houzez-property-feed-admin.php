@@ -412,6 +412,7 @@ class Houzez_Property_Feed_Admin {
         if ( $screen->id == 'houzez_page_houzez-property-feed' ) 
         {
             wp_enqueue_style( 'houzez_property_feed_admin_styles', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/css/admin.css', array(), HOUZEZ_PROPERTY_FEED_VERSION );
+            wp_enqueue_style( 'select2_styles', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/css/select2.min.css', array(), '4.0.13' );
         }
     }
 
@@ -428,6 +429,10 @@ class Houzez_Property_Feed_Admin {
 
         if ( $screen->id == 'houzez_page_houzez-property-feed' ) 
         {
+            // enqueue draggable/droppable for XML field mapping
+            wp_enqueue_script( 'jquery-ui-draggable' );
+            wp_enqueue_script( 'jquery-ui-droppable' );
+
             wp_register_script( 'houzez_property_feed_admin_script', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/admin' . /*$suffix .*/ '.js', array( 'jquery' ), HOUZEZ_PROPERTY_FEED_VERSION );
 
             $formats = get_houzez_property_feed_formats();
@@ -446,6 +451,9 @@ class Houzez_Property_Feed_Admin {
                     $import_settings = $imports[$import_id];
                 }
             }
+
+            wp_register_script( 'select2', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/select2.min.js', array( 'jquery' ), '4.0.13' );
+            wp_enqueue_script( 'select2' );
 
             $statuses = array();
 
@@ -477,11 +485,76 @@ class Houzez_Property_Feed_Admin {
                 }
             }
 
+            // get fields referenced in import format file to show warning if field also gets mapped in 'Field Mapping' section
+            $format_fields_imported_by_default = array();
+            foreach ( $formats as $key => $format )
+            {
+                if ( !isset($formats[$key]['houzez_fields_imported_by_default']) )
+                {
+                    $formats[$key]['houzez_fields_imported_by_default'] = array();
+                }
+
+                $format_file = dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/import-formats/class-houzez-property-feed-format-' . $key . '.php';
+                $format_file = str_replace( array( "_local", "_remote" ), "", $format_file);
+                $format_file = str_replace( "_", "-", $format_file);
+                if ( file_exists($format_file) )
+                {
+                    $import_file_contents = file_get_contents($format_file);
+
+                    if ( !empty($import_file_contents) )
+                    {
+                        // get all 'fave_X' fields already imported in format
+                        preg_match_all('/\'fave_(.*?)[\']+/', $import_file_contents, $matches);
+                        if ( isset($matches[1]) && is_array($matches[1]) && !empty($matches[1]) )
+                        {
+                            foreach ( $matches[1] as $match )
+                            {
+                                $formats[$key]['houzez_fields_imported_by_default'][] = 'fave_' . $match;
+                            }
+                        }
+
+                        // get all taxonomies already mapped
+                        preg_match_all('/wp_set_object_terms\((.*?)[\)]+[;]+/', $import_file_contents, $matches);
+                        if ( isset($matches[1]) && is_array($matches[1]) && !empty($matches[1]) )
+                        {
+                            foreach ( $matches[1] as $match )
+                            {
+                                $explode_set_object_terms = explode(",", $match);
+                                if ( count($explode_set_object_terms) >= 3 )
+                                {
+                                    $taxonomy = str_replace(array('"', "'"), "", trim($explode_set_object_terms[2]));
+                                    $formats[$key]['houzez_fields_imported_by_default'][] = trim($taxonomy);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //echo 'File ' . $format_file . ' contents empty';
+                    }
+                }
+                else
+                {
+                    //echo 'File ' . $format_file . ' not found';
+                }
+
+                if ( $key != 'xml' )
+                {
+                    $formats[$key]['houzez_fields_imported_by_default'][] = 'post_title';
+                    $formats[$key]['houzez_fields_imported_by_default'][] = 'post_excerpt';
+                    $formats[$key]['houzez_fields_imported_by_default'][] = 'post_content';
+                }
+
+                $formats[$key]['houzez_fields_imported_by_default'] = array_unique($formats[$key]['houzez_fields_imported_by_default']);
+                $formats[$key]['houzez_fields_imported_by_default'] = array_filter($formats[$key]['houzez_fields_imported_by_default']);
+            }
+
             wp_localize_script( 'houzez_property_feed_admin_script', 'hpf_admin_object', array( 
                 'formats' => $formats,
                 'import_settings' => $import_settings,
                 'statuses' => $statuses,
                 'property_types' => $property_types,
+                'ajax_nonce' => wp_create_nonce("hpf_ajax_nonce"),
             ) );
 
             wp_enqueue_script( 'houzez_property_feed_admin_script' );

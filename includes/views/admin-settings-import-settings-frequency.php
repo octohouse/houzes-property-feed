@@ -1,6 +1,6 @@
 <h3><?php echo __( 'Import Frequency', 'houzezpropertyfeed' ); ?></h3>
 
-<p>Choose how often imports should run by selecting the frequency below:</p>
+<p><?php echo __( 'Choose how often imports should run by selecting the frequency below', 'houzezpropertyfeed' ); ?>:</p>
 
 <table class="form-table">
 	<tbody>

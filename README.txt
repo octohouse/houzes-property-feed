@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 1.0.18
-Version: 1.0.18
+Stable tag: 1.0.19
+Version: 1.0.19
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,6 +31,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Kyero
 * Loop
 * Street
+* XML (any XML file hosted on a public URL)
 
 Here's just a couple of reasons why you should choose the Houzez Property Feed plugin to import your property stock:
 
@@ -89,6 +90,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 1.0.19 - 2023-06-19 =
+* Support for XML format allowing any XML file hosted on a public URL to be imported
+* Show warning if trying to map a field that is already imported by default
+* Make format dropdown searchable to make finding a format easier as the list grows
 
 = 1.0.18 - 2023-06-15 =
 * Field mapping feature in an import settings area updated to support groups of multiple rules

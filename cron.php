@@ -408,6 +408,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "xml":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-xml.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Xml( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    	}
 
 		    	if ( !$parsed_in_class && isset($import_object) )

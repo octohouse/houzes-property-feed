@@ -853,6 +853,42 @@ function get_houzez_property_feed_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/street/'
         ),
+        'xml' => array(
+            'name' => __( 'XML', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                ),
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => '<a href="" class="button hpf-fetch-xml-nodes">' . __( 'Fetch XML', 'houzezpropertyfeed' ) . '</a>'
+                ),
+                array(
+                    'id' => 'property_node',
+                    'label' => __( 'Repeating Property Node', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'tooltip' => __( 'Please select which node in the XML determines a property record. If no options show, click the \'Fetch XML\' button above', 'houzezpropertyfeed' ),
+                ),
+                array(
+                    'id' => 'property_id_node',
+                    'label' => __( 'Unique Property ID Node', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'tooltip' => __( 'Please select which node in the XML determines the property\'s unique ID. We\'ll use this to determine if a property has been inserted previously or not. If no options show, click the \'Fetch XML\' button above', 'houzezpropertyfeed' ),
+                ),
+                array(
+                    'id' => 'property_node_options',
+                    'type' => 'hidden',
+                ),
+            ),
+            'address_fields' => array(),
+            'taxonomy_values' => array(),
+            'contact_information_fields' => array(),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/xml/'
+        ),
     );
 
     $formats = apply_filters( 'houzez_property_feed_import_formats', $formats );

@@ -2,7 +2,7 @@
 
 <h3><?php echo __( 'Property Contact Information', 'houzezpropertyfeed' ); ?></h3>
 
-<p>There are a few ways in Houzez to determine what contact details show on a property. The settings below allow you to choose which contact details you want to use, and to match the information provided in the <span class="hpf-import-format-name"></span> feed to the display type selected.</p>
+<p><?php echo __( 'There are a few ways in Houzez to determine what contact details show on a property. The settings below allow you to choose which contact details you want to use, and to match the information provided in the <span class="hpf-import-format-name"></span> feed to the display type selected', 'houzezpropertyfeed' ); ?>.</p>
 
 <table class="form-table">
 	<tbody>

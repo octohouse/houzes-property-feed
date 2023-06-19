@@ -1,5 +1,11 @@
+var hpf_original_property_node = '';
+var hpf_original_property_id_node = '';
+
 jQuery(document).ready(function()
 {
+	jQuery('.hpf-admin-settings-import-settings .settings-panel #format').select2({ allowClear: true, placeholder:"Select..." });
+	jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
+
 	jQuery('.hpf-admin-settings-import-settings .left-tabs ul li a').click(function(e)
 	{
 		e.preventDefault();
@@ -11,11 +17,19 @@ jQuery(document).ready(function()
 
 		jQuery('.hpf-admin-settings-import-settings .settings-panel').hide();
 		jQuery(this_href).fadeIn('fast');
+
+		hpf_set_xml_fields_size_properties();
 	});
 
 	jQuery('.hpf-admin-settings-import-settings .settings-panel #format').change(function()
 	{
 		hpf_show_format_settings();
+	});
+
+	jQuery('select[name=\'xml_property_node\']').change(function()
+	{
+		hpf_create_xml_property_id_node_options();
+		hpf_create_xml_field_mapping_options();
 	});
 
 	jQuery('.hpf-admin-settings-import-settings .settings-panel input[name=\'agent_display_option\']').change(function()
@@ -45,6 +59,8 @@ jQuery(document).ready(function()
 		var template_html = jQuery('#agent_display_option_rule_template_' + this_id).html();
 
 		jQuery('#agent_display_option_rules_' + this_id).append(template_html);
+
+		hpf_set_xml_fields_size_properties();
 	});
 
 	jQuery('body').on('click', '.agent-display-option-rule .delete-rule a', function(e)
@@ -72,13 +88,23 @@ jQuery(document).ready(function()
 			{
 				jQuery(this).remove();
 			}
-			jQuery(this).find('.and-rules:nth-child(1) .and-label').remove();
+			jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
 		});
+
+		last_safe_scroll = 0;
+		hpf_set_xml_fields_size_properties();
 	});
+
+	jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
 
 	jQuery('body').on('click', '.rule-actions a.add-and-rule-action', function(e)
 	{
 		e.preventDefault();
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable( "destroy" );
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').droppable( "destroy" );
+
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2("destroy");
 
 		// clone previous rule
 		var previous_rule_html = jQuery(this).parent().parent().html();
@@ -88,6 +114,20 @@ jQuery(document).ready(function()
 		{
 			jQuery(this).val('');
 		});
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
+		    drop: function (event, ui) {
+		        this.value += jQuery(ui.draggable).text();
+		    }
+		});
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').droppable({
+		    drop: function (event, ui) {
+		        this.value += '{' + jQuery(ui.draggable).text() + '}';
+		    }
+		});
+
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
 	});
 
 	jQuery('body').on('click', '.hpf-admin-settings-import-settings a.add-additional-mapping', function(e)
@@ -134,9 +174,87 @@ jQuery(document).ready(function()
 
 	});
 
+	jQuery('a.hpf-fetch-xml-nodes').click(function(e)
+	{
+		e.preventDefault();
+
+		hpf_original_property_node = jQuery('select[name=\'xml_property_node\']').val();
+		hpf_original_property_id_node = jQuery('select[name=\'xml_property_id_node\']').val();
+		
+		jQuery('a.hpf-fetch-xml-nodes').text('Fetching...');
+		jQuery('a.hpf-fetch-xml-nodes').attr('disabled', 'disabled');
+		jQuery('select[name=\'xml_property_node\']').empty();
+		jQuery('select[name=\'xml_property_node\']').append('<option value="">Fetching nodes...</option>');
+		jQuery('select[name=\'xml_property_id_node\']').empty();
+		jQuery('select[name=\'xml_property_id_node\']').append('<option value="">Fetching nodes...</option>');
+		jQuery('input[name=\'xml_property_node_options\']').val('');
+
+		jQuery.ajax({
+        	url : ajaxurl,
+        	data : {
+        		action: "houzez_property_feed_fetch_xml_nodes", 
+        		url : jQuery(this).parent().parent().parent().find('input[name=\'xml_xml_url\']').val(), 
+        		ajax_nonce: hpf_admin_object.ajax_nonce
+        	},
+        	dataType : "json",
+        	success: function(response) 
+        	{
+        		jQuery('a.hpf-fetch-xml-nodes').text('Fetch XML');
+				jQuery('a.hpf-fetch-xml-nodes').attr('disabled', false);
+				jQuery('select[name=\'xml_property_node\']').empty();
+				jQuery('select[name=\'xml_property_id_node\']').empty();
+
+            	if ( response.success == true )
+            	{
+            		var nodes = new Array();
+            		for ( var i in response.nodes )
+            		{
+            			var selected_html = '';
+            			if ( hpf_original_property_node == response.nodes[i] )
+            			{
+            				selected_html = ' selected';
+            			}
+            			jQuery('select[name=\'xml_property_node\']').append('<option value="' + response.nodes[i] + '"' + selected_html + '>' + response.nodes[i] + '</option>');
+            			nodes.push(response.nodes[i]);
+            		}
+            		jQuery('input[name=\'xml_property_node_options\']').val(JSON.stringify(nodes));
+            		hpf_create_xml_property_id_node_options();
+            		hpf_create_xml_field_mapping_options();
+            	}
+            	else
+            	{
+            		alert(response.error);
+            	}
+         	}
+      	})  
+	});
+
 	hpf_show_email_reports_settings();
 	hpf_show_format_settings();
 	hpf_show_contact_info_rules();
+
+	jQuery('.rules-available-fields a').draggable({
+	    revert: true,
+	    helper: 'clone'
+	});
+
+	jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
+	    drop: function (event, ui) {
+	        this.value += jQuery(ui.draggable).text();
+	    }
+	});
+
+	jQuery('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').droppable({
+	    drop: function (event, ui) {
+	        this.value += '{' + jQuery(ui.draggable).text() + '}';
+	    }
+	});
+
+	jQuery('body').on('change', 'select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']', function(e)
+	{
+		hpf_show_missing_mandatory_xml_field_mapping();
+		hpf_show_already_mapped_warning();
+	});
 
 	if ( jQuery('#field_mapping_rules .field-mapping-rule').length == 0 )
 	{
@@ -144,18 +262,191 @@ jQuery(document).ready(function()
 	}
 });
 
+jQuery(window).on( "resize", function() 
+{
+	hpf_set_xml_fields_size_properties();
+});
+
+jQuery(window).on( "scroll", function() 
+{
+	hpf_set_xml_fields_size_properties();
+});
+
+var last_safe_scroll = 0;
+function hpf_set_xml_fields_size_properties()
+{
+	var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
+
+	if ( selected_format == 'xml' )
+	{
+		jQuery('.rules-available-fields').css('transform', 'translateY(0)').height('auto');
+
+		var max_available_space = jQuery(window).height() - 120;
+
+		jQuery('.rules-available-fields').hide();
+		var available_fields_container_height = jQuery('.rules-table').outerHeight() - 40;
+		if ( available_fields_container_height > max_available_space )
+		{
+			available_fields_container_height = max_available_space;
+		}
+		jQuery('.rules-available-fields').show().css('overflow-y', 'auto').css('overflow-x', 'hidden').outerHeight(available_fields_container_height);
+
+		// set top position
+		var window_scroll = jQuery(window).scrollTop();
+		
+		if ( window_scroll > ( jQuery('.rules-table-available-fields').offset().top - 50 ) )
+		{
+			var target_top = window_scroll - ( jQuery('.rules-table-available-fields').offset().top - 50 );
+
+			// make sure it's not going to go off the bottom of the screen
+			var difference = ( target_top + jQuery('.rules-available-fields').outerHeight() ) - (jQuery('.rules-table').outerHeight());
+			if ( difference < -40 )
+			{
+				last_safe_scroll = target_top;
+			}
+			else
+			{
+				
+			}
+			jQuery('.rules-available-fields').css('transform', 'translateY(' + last_safe_scroll + 'px)');
+		}
+		else
+		{
+			jQuery('.rules-available-fields').css('transform', 'translateY(0)');
+			last_safe_scroll = 0;
+		}
+	}
+}
+
+function hpf_create_xml_property_id_node_options()
+{
+	jQuery('select[name=\'xml_property_id_node\']').empty();
+
+	var nodes = jQuery('input[name=\'xml_property_node_options\']').val();
+
+	if ( nodes == '' )
+	{
+		return;
+	}
+
+	var property_node = jQuery('select[name=\'xml_property_node\']').val();
+
+	if ( property_node != '' )
+	{
+		nodes = JSON.parse(nodes);
+
+		for ( var i in nodes )
+		{
+			var selected_html = '';
+			var node = nodes[i]/*.replace(/\/\//g, "/")*/;
+			if ( hpf_original_property_id_node == node )
+			{
+				selected_html = ' selected';
+			}
+
+			if ( node.indexOf(property_node) == -1 )
+			{
+				continue;
+			}
+
+			node = node.replace(property_node, "");
+			if ( node == '' )
+			{
+				continue;
+			}
+
+			jQuery('select[name=\'xml_property_id_node\']').append('<option value="' + node + '"' + selected_html + '>' + node + '</option>');
+		}
+	}
+}
+
+function hpf_create_xml_field_mapping_options()
+{	
+	jQuery('.rules-available-fields a').draggable( "destroy" );
+
+	jQuery('#no_nodes_found').hide();
+	jQuery('#xml-nodes-found').empty()
+
+	var nodes = jQuery('input[name=\'xml_property_node_options\']').val();
+
+	if ( nodes == '' )
+	{
+		jQuery('#no_nodes_found').show();
+		return;
+	}
+
+	var property_node = jQuery('select[name=\'xml_property_node\']').val();
+
+	if ( property_node == '' )
+	{
+		jQuery('#no_nodes_found').show();
+		return;
+	}
+
+	nodes = JSON.parse(nodes);
+
+	for ( var i in nodes )
+	{
+		var node = nodes[i]/*.replace(/\/\//g, "/")*/;
+
+		if ( node.indexOf(property_node) == -1 )
+		{
+			continue;
+		}
+
+		node = node.replace(property_node, "");
+		if ( node == '' )
+		{
+			continue;
+		}
+
+		jQuery('#xml-nodes-found').append('<a href="#">' + node + '</a><br>');
+	}
+
+	hpf_set_xml_fields_size_properties();
+
+	jQuery('.rules-available-fields a').draggable({
+	    revert: true,
+	    helper: 'clone'
+	});
+}
+
 function add_field_mapping_or_rule()
 {
-	var template_html = jQuery('#field_mapping_rule_template').html();
+	if ( jQuery('#field_mapping_rules').length > 0 )
+	{
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable( "destroy" );
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').droppable( "destroy" );
 
-	template_html = template_html.replace("{rule_count}", hpf_rule_count);
-	template_html = template_html.replace("{rule_count}", hpf_rule_count);
-	template_html = template_html.replace("{rule_count}", hpf_rule_count);
-	template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2("destroy");
 
-	hpf_rule_count = hpf_rule_count + 1;
+		var template_html = jQuery('#field_mapping_rule_template').html();
 
-	jQuery('#field_mapping_rules').append(template_html);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+
+		hpf_rule_count = hpf_rule_count + 1;
+
+		jQuery('#field_mapping_rules').append(template_html);
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
+		    drop: function (event, ui) {
+		        this.value += jQuery(ui.draggable).text();
+		    }
+		});
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').droppable({
+		    drop: function (event, ui) {
+		        this.value += '{' + jQuery(ui.draggable).text() + '}';
+		    }
+		});
+
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
+	}
+
+	hpf_set_xml_fields_size_properties();
 }
 
 function hpf_show_email_reports_settings()
@@ -165,6 +456,68 @@ function hpf_show_email_reports_settings()
 	if ( jQuery('.hpf-admin-settings-import-settings input[name=\'email_reports\']').is(':checked') )
 	{
 		jQuery('.hpf-admin-settings-import-settings #email_reports_to_row').show();
+	}
+}
+
+function hpf_show_missing_mandatory_xml_field_mapping()
+{
+	jQuery('#missing_mandatory_xml_field_mapping').hide();
+	jQuery('#field_mapping_warning').hide();
+
+	var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
+
+	if ( selected_format == 'xml' )
+	{
+		var found_title_excerpt_or_content = false;
+		
+		// loop through field mapping and ensure at least title, excerpt or content set
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'houzez_field\']').each(function()
+		{
+			if ( jQuery(this).attr('name') != 'field_mapping_rules[{rule_count}][houzez_field]' )
+			{
+				if ( jQuery(this).val() == 'post_title' || jQuery(this).val() == 'post_excerpt' || jQuery(this).val() == 'post_content' )
+				{
+					found_title_excerpt_or_content = true;
+				}
+			}
+		});
+
+		if ( !found_title_excerpt_or_content )
+		{
+			jQuery('#missing_mandatory_xml_field_mapping').show();
+			jQuery('#field_mapping_warning').show();
+		}
+	}
+}
+
+function hpf_show_already_mapped_warning()
+{
+	var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
+
+	jQuery('.already-mapped-warning').hide();
+
+	for ( var i in hpf_admin_object.formats )
+	{
+		if ( i == selected_format )
+		{
+			if ( hpf_admin_object.formats[i].hasOwnProperty('houzez_fields_imported_by_default') )
+			{
+				var houzez_fields_imported_by_default = hpf_admin_object.formats[i].houzez_fields_imported_by_default;
+
+				jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').each(function()
+				{
+					if ( Object.values(houzez_fields_imported_by_default).indexOf(jQuery(this).val()) !== -1 ) 
+					{
+						if ( jQuery(this).val() != '' )
+						{
+							// We found it already mapped. Show warning
+							jQuery(this).parent().find('.already-mapped-field').html( jQuery(this).children(':selected').text().toLowerCase() );
+							jQuery(this).parent().find('.already-mapped-warning').show();
+						}
+					}
+				});
+			}
+		}
 	}
 }
 
@@ -182,6 +535,14 @@ function hpf_show_format_settings()
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_sales_status').hide();
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_lettings_status').hide();
 
+	jQuery('.hpf-admin-settings-import-settings .rules-available-fields').hide();
+
+	jQuery('#import_setting_tab_taxonomies').show();
+	jQuery('#import_setting_tab_contactinfo').show();
+	jQuery('#import_setting_tab_media').hide();
+
+	jQuery('#missing_mandatory_xml_field_mapping').hide();
+
 	jQuery('.hpf-admin-settings-import-settings #property_city_address_field').empty();
 	jQuery('.hpf-admin-settings-import-settings #property_area_address_field').empty();
 	jQuery('.hpf-admin-settings-import-settings #property_state_address_field').empty();
@@ -198,9 +559,26 @@ function hpf_show_format_settings()
 	}
 	else
 	{
+		hpf_show_missing_mandatory_xml_field_mapping();
+		hpf_show_already_mapped_warning();
+
+		if ( selected_format == 'xml' )
+		{
+			jQuery('#import_setting_tab_taxonomies').hide();
+			jQuery('#import_setting_tab_contactinfo').hide();
+			jQuery('#import_setting_tab_media').show();
+			jQuery('.hpf-admin-settings-import-settings .rules-available-fields').show();
+		}
+
+		var has_taxonomy_values_sales_status = false;
 		var taxonomy_values_sales_status = new Array();
+
+		var has_taxonomy_values_lettings_status = false;
 		var taxonomy_values_lettings_status = new Array();
+		
+		var has_taxonomy_values_property_type = false;
 		var taxonomy_values_property_type = new Array();
+
 		var address_fields = new Array();
 		var contact_information_fields = new Array();
 
@@ -208,9 +586,33 @@ function hpf_show_format_settings()
 		{
 			if ( i == selected_format )
 			{
-				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('sales_status') && Object.keys(hpf_admin_object.formats[i].taxonomy_values.sales_status).length > 0 ) { taxonomy_values_sales_status = hpf_admin_object.formats[i].taxonomy_values.sales_status; }
-				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('lettings_status') && Object.keys(hpf_admin_object.formats[i].taxonomy_values.lettings_status).length > 0 ) { taxonomy_values_lettings_status = hpf_admin_object.formats[i].taxonomy_values.lettings_status; }
-				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('property_type') && Object.keys(hpf_admin_object.formats[i].taxonomy_values.property_type).length > 0 ) { taxonomy_values_property_type = hpf_admin_object.formats[i].taxonomy_values.property_type; }
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('sales_status') )
+				{
+					has_taxonomy_values_sales_status = true;
+					if ( Object.keys(hpf_admin_object.formats[i].taxonomy_values.sales_status).length > 0 ) 
+					{ 
+						taxonomy_values_sales_status = hpf_admin_object.formats[i].taxonomy_values.sales_status; 
+					}
+				}
+				
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('lettings_status') )
+				{
+					has_taxonomy_values_lettings_status = true;
+					if ( Object.keys(hpf_admin_object.formats[i].taxonomy_values.lettings_status).length > 0 ) 
+					{ 
+						taxonomy_values_lettings_status = hpf_admin_object.formats[i].taxonomy_values.lettings_status; 
+					}
+				}
+				
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('property_type') )
+				{
+					has_taxonomy_values_property_type = true;
+					if (Object.keys(hpf_admin_object.formats[i].taxonomy_values.property_type).length > 0 ) 
+					{ 
+						taxonomy_values_property_type = hpf_admin_object.formats[i].taxonomy_values.property_type; 
+					}	
+				} 
+				
 				address_fields = hpf_admin_object.formats[i].address_fields;
 				if ( hpf_admin_object.formats[i].hasOwnProperty('contact_information_fields') && Object.keys(hpf_admin_object.formats[i].contact_information_fields).length > 0 ) { contact_information_fields = hpf_admin_object.formats[i].contact_information_fields; }
 
@@ -220,51 +622,54 @@ function hpf_show_format_settings()
 		}
 
 		// Sales status taxonomy mapping
-		if ( Object.keys(taxonomy_values_sales_status).length > 0 )
+		if ( has_taxonomy_values_sales_status )
 		{
 			jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_sales_status').show();
 
-			for ( var i in taxonomy_values_sales_status )
+			if ( Object.keys(taxonomy_values_sales_status).length > 0 )
 			{
-				var row_html_dropdown = '';
-				row_html_dropdown += '<select name="taxonomy_mapping[sales_status][' + i + ']">';
-				row_html_dropdown += '<option value=""></option>';
-				if ( Object.keys(hpf_admin_object.statuses).length > 0 )
-				{	
-					for ( var j in hpf_admin_object.statuses )
-					{
-						var selected_status = false;
-						if ( 
-							hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
-							hpf_admin_object.import_settings.mappings.hasOwnProperty('sales_status') &&
-							hpf_admin_object.import_settings.mappings.sales_status.hasOwnProperty(i)
-						)
+				for ( var i in taxonomy_values_sales_status )
+				{
+					var row_html_dropdown = '';
+					row_html_dropdown += '<select name="taxonomy_mapping[sales_status][' + i + ']">';
+					row_html_dropdown += '<option value=""></option>';
+					if ( Object.keys(hpf_admin_object.statuses).length > 0 )
+					{	
+						for ( var j in hpf_admin_object.statuses )
 						{
-							if ( hpf_admin_object.import_settings.mappings.sales_status[i] == j )
+							var selected_status = false;
+							if ( 
+								hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+								hpf_admin_object.import_settings.mappings.hasOwnProperty('sales_status') &&
+								hpf_admin_object.import_settings.mappings.sales_status.hasOwnProperty(i)
+							)
 							{
-								selected_status = true;
+								if ( hpf_admin_object.import_settings.mappings.sales_status[i] == j )
+								{
+									selected_status = true;
+								}
 							}
+							if ( !selected_status )
+							{
+								// TO DO: set by default if match found
+							}
+							row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
 						}
-						if ( !selected_status )
-						{
-							// TO DO: set by default if match found
-						}
-						row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
 					}
+					row_html_dropdown += '</select>';
+
+					var row_html = '';
+					row_html += '<tr>';
+					row_html += '<td style="padding-left:0">' + i + ( taxonomy_values_sales_status[i] != i ? ' - <span style="color:#999">' + taxonomy_values_sales_status[i] + '</span>' : '' )  + '</td>';
+					row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+					row_html += '</tr>';
+
+					jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_sales_status').append(row_html);
 				}
-				row_html_dropdown += '</select>';
-
-				var row_html = '';
-				row_html += '<tr>';
-				row_html += '<td style="padding-left:0">' + i + ( taxonomy_values_sales_status[i] != i ? ' - <span style="color:#999">' + taxonomy_values_sales_status[i] + '</span>' : '' )  + '</td>';
-				row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
-				row_html += '</tr>';
-
-				jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_sales_status').append(row_html);
 			}
 
 			// add any custom mappings
-			if ( hpf_admin_object.import_settings.mappings.hasOwnProperty('sales_status') && Object.keys(hpf_admin_object.import_settings.mappings.sales_status).length > 0 )
+			if ( hpf_admin_object.import_settings.hasOwnProperty('mappings') && hpf_admin_object.import_settings.mappings.hasOwnProperty('sales_status') && Object.keys(hpf_admin_object.import_settings.mappings.sales_status).length > 0 )
 			{
 				for ( var i in hpf_admin_object.import_settings.mappings.sales_status )
 				{
@@ -320,51 +725,54 @@ function hpf_show_format_settings()
 		}
 
 		// Lettings status taxonomy mapping
-		if ( Object.keys(taxonomy_values_lettings_status).length > 0 )
+		if ( has_taxonomy_values_lettings_status )
 		{
 			jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_lettings_status').show();
 
-			for ( var i in taxonomy_values_lettings_status )
+			if ( Object.keys(taxonomy_values_lettings_status).length > 0 )
 			{
-				var row_html_dropdown = '';
-				row_html_dropdown += '<select name="taxonomy_mapping[lettings_status][' + i + ']">';
-				row_html_dropdown += '<option value=""></option>';
-				if ( Object.keys(hpf_admin_object.statuses).length > 0 )
-				{	
-					for ( var j in hpf_admin_object.statuses )
-					{
-						var selected_status = false;
-						if ( 
-							hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
-							hpf_admin_object.import_settings.mappings.hasOwnProperty('lettings_status') &&
-							hpf_admin_object.import_settings.mappings.lettings_status.hasOwnProperty(i)
-						)
+				for ( var i in taxonomy_values_lettings_status )
+				{
+					var row_html_dropdown = '';
+					row_html_dropdown += '<select name="taxonomy_mapping[lettings_status][' + i + ']">';
+					row_html_dropdown += '<option value=""></option>';
+					if ( Object.keys(hpf_admin_object.statuses).length > 0 )
+					{	
+						for ( var j in hpf_admin_object.statuses )
 						{
-							if ( hpf_admin_object.import_settings.mappings.lettings_status[i] == j )
+							var selected_status = false;
+							if ( 
+								hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+								hpf_admin_object.import_settings.mappings.hasOwnProperty('lettings_status') &&
+								hpf_admin_object.import_settings.mappings.lettings_status.hasOwnProperty(i)
+							)
 							{
-								selected_status = true;
+								if ( hpf_admin_object.import_settings.mappings.lettings_status[i] == j )
+								{
+									selected_status = true;
+								}
 							}
+							if ( !selected_status )
+							{
+								// TO DO: set by default if match found
+							}
+							row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
 						}
-						if ( !selected_status )
-						{
-							// TO DO: set by default if match found
-						}
-						row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
 					}
+					row_html_dropdown += '</select>';
+
+					var row_html = '';
+					row_html += '<tr>';
+					row_html += '<td style="padding-left:0">' + i + ( taxonomy_values_lettings_status[i] != i ? ' - <span style="color:#999">' + taxonomy_values_lettings_status[i] + '</span>' : '' )  + '</td>';
+					row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+					row_html += '</tr>';
+
+					jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_lettings_status').append(row_html);
 				}
-				row_html_dropdown += '</select>';
-
-				var row_html = '';
-				row_html += '<tr>';
-				row_html += '<td style="padding-left:0">' + i + ( taxonomy_values_lettings_status[i] != i ? ' - <span style="color:#999">' + taxonomy_values_lettings_status[i] + '</span>' : '' )  + '</td>';
-				row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
-				row_html += '</tr>';
-
-				jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_lettings_status').append(row_html);
 			}
 
 			// add any custom mappings
-			if ( hpf_admin_object.import_settings.mappings.hasOwnProperty('lettings_status') && Object.keys(hpf_admin_object.import_settings.mappings.lettings_status).length > 0 )
+			if ( hpf_admin_object.import_settings.hasOwnProperty('mappings') && hpf_admin_object.import_settings.mappings.hasOwnProperty('lettings_status') && Object.keys(hpf_admin_object.import_settings.mappings.lettings_status).length > 0 )
 			{
 				for ( var i in hpf_admin_object.import_settings.mappings.lettings_status )
 				{
@@ -420,51 +828,54 @@ function hpf_show_format_settings()
 		}
 
 		// Property type taxonomy mapping
-		if ( Object.keys(taxonomy_values_property_type).length > 0 )
+		if ( has_taxonomy_values_property_type )
 		{
 			jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_property_type').show();
 
-			for ( var i in taxonomy_values_property_type )
+			if ( Object.keys(taxonomy_values_property_type).length > 0 )
 			{
-				var row_html_dropdown = '';
-				row_html_dropdown += '<select name="taxonomy_mapping[property_type][' + i + ']">';
-				row_html_dropdown += '<option value=""></option>';
-				if ( Object.keys(hpf_admin_object.property_types).length > 0 )
-				{	
-					for ( var j in hpf_admin_object.property_types )
-					{
-						var selected_status = false;
-						if ( 
-							hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
-							hpf_admin_object.import_settings.mappings.hasOwnProperty('property_type') &&
-							hpf_admin_object.import_settings.mappings.property_type.hasOwnProperty(i)
-						)
+				for ( var i in taxonomy_values_property_type )
+				{
+					var row_html_dropdown = '';
+					row_html_dropdown += '<select name="taxonomy_mapping[property_type][' + i + ']">';
+					row_html_dropdown += '<option value=""></option>';
+					if ( Object.keys(hpf_admin_object.property_types).length > 0 )
+					{	
+						for ( var j in hpf_admin_object.property_types )
 						{
-							if ( hpf_admin_object.import_settings.mappings.property_type[i] == j )
+							var selected_status = false;
+							if ( 
+								hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+								hpf_admin_object.import_settings.mappings.hasOwnProperty('property_type') &&
+								hpf_admin_object.import_settings.mappings.property_type.hasOwnProperty(i)
+							)
 							{
-								selected_status = true;
+								if ( hpf_admin_object.import_settings.mappings.property_type[i] == j )
+								{
+									selected_status = true;
+								}
 							}
+							if ( !selected_status )
+							{
+								// TO DO: set by default if match found
+							}
+							row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.property_types[j] + '</option>';
 						}
-						if ( !selected_status )
-						{
-							// TO DO: set by default if match found
-						}
-						row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.property_types[j] + '</option>';
 					}
+					row_html_dropdown += '</select>';
+
+					var row_html = '';
+					row_html += '<tr>';
+					row_html += '<td style="padding-left:0">' + i + ( taxonomy_values_property_type[i] != i ? ' - <span style="color:#999">' + taxonomy_values_property_type[i] + '</span>' : '' )  + '</td>';
+					row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+					row_html += '</tr>';
+
+					jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_property_type').append(row_html);
 				}
-				row_html_dropdown += '</select>';
-
-				var row_html = '';
-				row_html += '<tr>';
-				row_html += '<td style="padding-left:0">' + i + ( taxonomy_values_property_type[i] != i ? ' - <span style="color:#999">' + taxonomy_values_property_type[i] + '</span>' : '' )  + '</td>';
-				row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
-				row_html += '</tr>';
-
-				jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_property_type').append(row_html);
 			}
 
 			// add any custom mappings
-			if ( hpf_admin_object.import_settings.mappings.hasOwnProperty('property_type') && Object.keys(hpf_admin_object.import_settings.mappings.property_type).length > 0 )
+			if ( hpf_admin_object.import_settings.hasOwnProperty('mappings') && hpf_admin_object.import_settings.mappings.hasOwnProperty('property_type') && Object.keys(hpf_admin_object.import_settings.mappings.property_type).length > 0 )
 			{
 				for ( var i in hpf_admin_object.import_settings.mappings.property_type )
 				{
