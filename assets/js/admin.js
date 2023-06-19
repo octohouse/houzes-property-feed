@@ -229,13 +229,19 @@ jQuery(document).ready(function()
       	})  
 	});
 
+	jQuery('body').on('click', '#xml-nodes-found a', function(e)
+	{
+		e.preventDefault();
+	});
+
 	hpf_show_email_reports_settings();
 	hpf_show_format_settings();
 	hpf_show_contact_info_rules();
 
 	jQuery('.rules-available-fields a').draggable({
 	    revert: true,
-	    helper: 'clone'
+	    helper: 'clone',
+	    appendTo: 'body'
 	});
 
 	jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
@@ -289,7 +295,7 @@ function hpf_set_xml_fields_size_properties()
 		{
 			available_fields_container_height = max_available_space;
 		}
-		jQuery('.rules-available-fields').show().css('overflow-y', 'auto').css('overflow-x', 'hidden').outerHeight(available_fields_container_height);
+		jQuery('.rules-available-fields').show().outerHeight(available_fields_container_height);
 
 		// set top position
 		var window_scroll = jQuery(window).scrollTop();
@@ -400,14 +406,15 @@ function hpf_create_xml_field_mapping_options()
 			continue;
 		}
 
-		jQuery('#xml-nodes-found').append('<a href="#">' + node + '</a><br>');
+		jQuery('#xml-nodes-found').append('<a href="#">' + node + '</a>');
 	}
 
 	hpf_set_xml_fields_size_properties();
 
 	jQuery('.rules-available-fields a').draggable({
 	    revert: true,
-	    helper: 'clone'
+	    helper: 'clone',
+	    appendTo: 'body'
 	});
 }
 

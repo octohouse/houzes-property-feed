@@ -125,7 +125,7 @@
 							?>
 						</div>
 
-						<a href="" class="button field-mapping-add-or-rule-button">Add Field Mapping Rule</a>
+						<a href="" class="button field-mapping-add-or-rule-button">Add Additional Field Mapping Rule</a>
 					
 					</td>
 				</tr>
@@ -162,7 +162,7 @@
 
 						if ( !empty($node_name) )
 						{
-							echo '<a href="#">' . $node_name . '</a><br>';
+							echo '<a href="#">' . $node_name . '</a>';
 						}
 					}	
 				}
