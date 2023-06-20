@@ -440,6 +440,36 @@ function get_houzez_property_feed_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/blm/',
         ),
+        'csv' => array(
+            'name' => __( 'CSV', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'csv_url',
+                    'label' => __( 'CSV URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                ),
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => '<a href="" class="button hpf-fetch-csv-fields">' . __( 'Fetch CSV', 'houzezpropertyfeed' ) . '</a>'
+                ),
+                array(
+                    'id' => 'property_id_field',
+                    'label' => __( 'Unique Property ID Field', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'tooltip' => __( 'Please select which field in the CSV determines the property\'s unique ID. We\'ll use this to determine if a property has been inserted previously or not. If no options show, click the \'Fetch CSV\' button above', 'houzezpropertyfeed' ),
+                ),
+                array(
+                    'id' => 'property_field_options',
+                    'type' => 'hidden',
+                ),
+            ),
+            'address_fields' => array(),
+            'taxonomy_values' => array(),
+            'contact_information_fields' => array(),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/csv/'
+        ),
         'dezrez_rezi' => array(
             'name' => __( 'Dezrez Rezi', 'houzezpropertyfeed' ),
             'fields' => array(

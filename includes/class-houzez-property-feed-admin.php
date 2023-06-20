@@ -538,7 +538,7 @@ class Houzez_Property_Feed_Admin {
                     //echo 'File ' . $format_file . ' not found';
                 }
 
-                if ( $key != 'xml' )
+                if ( $key != 'xml' && $key != 'csv' )
                 {
                     $formats[$key]['houzez_fields_imported_by_default'][] = 'post_title';
                     $formats[$key]['houzez_fields_imported_by_default'][] = 'post_excerpt';

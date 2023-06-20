@@ -132,6 +132,29 @@
 								}
 							}
 
+							if ( $field['id'] == 'property_id_field' )
+							{
+								if ( isset($import_settings['property_field_options']) && !empty($import_settings['property_field_options']) )
+								{
+									var_dump($import_settings['property_field_options']);
+									// use options from property_field_options
+									$options = json_decode($import_settings['property_field_options']);
+
+									$new_options = array();
+									if ( !empty($options) )
+									{
+										foreach ( $options as $option_key => $option_value )
+										{
+											$field_name = $option_value;
+
+											$new_options[$field_name] = $field_name;
+										}
+									}
+
+									$options = $new_options; 
+								}
+							}
+
 							if ( !empty($options) )
 							{
 								foreach ( $options as $option_key => $option_value )

@@ -9,7 +9,7 @@
 		<tr>
 			<th><label for="image_fields"><?php echo __( 'Fields Containing Images', 'houzezpropertyfeed' ); ?></label></th>
 			<td>
-				<textarea name="image_fields" id="image_fields" placeholder="/images/image[1]&#10;/images/image[2]&#10;/images/image[3]/url|/images/image[3]/caption" style="width:100%; height:120px; max-width:500px;"><?php echo isset($import_settings['image_fields']) ? $import_settings['image_fields'] : ''; ?></textarea>
+				<textarea name="image_fields" id="image_fields" placeholder="{/images/image[1]}&#10;{/images/image[2]}&#10;{/images/image[3]/url}|{/images/image[3]/caption}&#10;{/image[0]}.jpg" style="width:100%; height:120px; max-width:500px;"><?php echo isset($import_settings['image_fields']) ? $import_settings['image_fields'] : ''; ?></textarea>
 				<div style="color:#999; font-size:13px; margin-top:5px;">
 					Enter one image URL per line.<br>
 					Separate with a pipe (|) character to specify the image caption.<br>
@@ -29,7 +29,7 @@
 		<tr>
 			<th><label for="floorplan_fields"><?php echo __( 'Fields Containing Floorplans', 'houzezpropertyfeed' ); ?></label></th>
 			<td>
-				<textarea name="floorplan_fields" id="floorplan_fields" placeholder="/floorplans/floorplan[1]/url|/floorplans/floorplan[1]/caption&#10;/floorplans/floorplan[2]" style="width:100%; height:120px; max-width:500px;"><?php echo isset($import_settings['floorplan_fields']) ? $import_settings['floorplan_fields'] : ''; ?></textarea>
+				<textarea name="floorplan_fields" id="floorplan_fields" placeholder="{/floorplans/floorplan[1]/url}|{/floorplans/floorplan[1]/caption}&#10;{/floorplans/floorplan[2]}" style="width:100%; height:120px; max-width:500px;"><?php echo isset($import_settings['floorplan_fields']) ? $import_settings['floorplan_fields'] : ''; ?></textarea>
 				<div style="color:#999; font-size:13px; margin-top:5px;">
 					Enter one floorplan URL per line.<br>
 					Separate with a pipe (|) character to specify the floorplan caption.<br>
@@ -49,7 +49,7 @@
 		<tr>
 			<th><label for="document_fields"><?php echo __( 'Fields Containing Documents', 'houzezpropertyfeed' ); ?></label></th>
 			<td>
-				<textarea name="document_fields" id="document_fields" placeholder="/brochureURL|Brochure&#10;/epcs/epc[1]&#10;/documents/document[1]/url|/documents/document[1]/caption" style="width:100%; height:120px; max-width:500px;"><?php echo isset($import_settings['document_fields']) ? $import_settings['document_fields'] : ''; ?></textarea>
+				<textarea name="document_fields" id="document_fields" placeholder="{/brochureURL}|Brochure&#10;{/epcs/epc[1]}&#10;{/documents/document[1]/url}|{/documents/document[1]/caption}" style="width:100%; height:120px; max-width:500px;"><?php echo isset($import_settings['document_fields']) ? $import_settings['document_fields'] : ''; ?></textarea>
 				<div style="color:#999; font-size:13px; margin-top:5px;">
 					Enter one document URL per line.<br>
 					Separate with a pipe (|) character to specify the document caption.<br>

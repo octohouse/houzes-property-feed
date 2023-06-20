@@ -23,6 +23,7 @@ class Houzez_Property_Feed_Import {
         add_action( 'houzez_property_feed_property_imported', array( $this, 'set_generic_houzez_property_data'), 1, 3 );
 
         add_filter( 'houzez_property_feed_xml_mapped_field_value', array( $this, 'get_xml_mapped_field_value' ), 1, 4 );
+        add_filter( 'houzez_property_feed_csv_mapped_field_value', array( $this, 'get_csv_mapped_field_value' ), 1, 4 );
 
         add_action( 'add_meta_boxes', array( $this, 'import_data_meta_box') );
 
@@ -181,7 +182,7 @@ class Houzez_Property_Feed_Import {
                         {
                             $field_value = sanitize_text_field($_POST[$format . '_' . $field['id']]);
                         }
-                        if ( $field['id'] == 'property_node_options' )
+                        if ( $field['id'] == 'property_node_options' || $field['id'] == 'property_field_options' )
                         {
                             $field_value = stripslashes($field_value);
                         }
@@ -375,9 +376,13 @@ class Houzez_Property_Feed_Import {
 
         $post_fields_to_update = array();
 
-        $property_node = $import_settings['property_node'];
-        $explode_property_node = explode("/", $property_node);
-        $property_node = $explode_property_node[count($explode_property_node)-1];
+        $property_node = '';
+        if ( isset($import_settings['property_node']) )
+        {
+            $property_node = $import_settings['property_node'];
+            $explode_property_node = explode("/", $property_node);
+            $property_node = $explode_property_node[count($explode_property_node)-1];
+        }
 
         $taxonomies_with_multiple_values = array();
 
@@ -422,7 +427,7 @@ class Houzez_Property_Feed_Import {
                     // loop through all fields in data and see if $rule['field'] is found
                     if ( is_array($property) )
                     {
-                        $value_to_check = $this->check_array_for_matching_key( $property, $rule['field'] );
+                        $value_to_check = check_array_for_matching_key( $property, $rule['field'] );
 
                         if ( $value_to_check === false )
                         {
@@ -463,7 +468,7 @@ class Houzez_Property_Feed_Import {
                         }
                         else
                         {
-                            $value_to_check = $this->check_array_for_matching_key( $property, $field_name );
+                            $value_to_check = check_array_for_matching_key( $property, $field_name );
 
                             if ( $value_to_check === false )
                             {
@@ -494,7 +499,7 @@ class Houzez_Property_Feed_Import {
 
                             if ( !isset($taxonomies_with_multiple_values[$taxonomy]) ) { $taxonomies_with_multiple_values[$taxonomy] = array(); }
 
-                            // check term exitsts and get termID as wp_set_object_terms() requires the ID
+                            // check term exists and get termID as wp_set_object_terms() requires the ID
                             $term_id = '';
                             if ( $taxonomy == 'property_feature' )
                             {
@@ -561,31 +566,6 @@ class Houzez_Property_Feed_Import {
         }
     }
 
-    private function check_array_for_matching_key( $array, $looking_for ) 
-    {
-        if ( is_array($array) && !empty($array) )
-        {
-            foreach ( $array as $key => $value ) 
-            {
-                if ( !is_numeric($key) && $key == $looking_for )
-                {
-                    return $value;
-                }
-
-                if ( is_array($value) && !empty($value) ) 
-                {
-                    $value_to_check = $this->check_array_for_matching_key( $value, $looking_for );
-                    if ( $value_to_check !== false )
-                    {
-                        return $value_to_check;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
     public function set_generic_houzez_property_data( $post_id, $property, $import_id )
     {
         add_post_meta( $post_id, 'fave_loggedintoview', '0', TRUE );
@@ -613,9 +593,13 @@ class Houzez_Property_Feed_Import {
             return $value;
         }
 
-        $property_node = $import_settings['property_node'];
-        $explode_property_node = explode("/", $property_node);
-        $property_node = $explode_property_node[count($explode_property_node)-1];
+        $property_node = '';
+        if ( isset($import_settings['property_node']) )
+        {
+            $property_node = $import_settings['property_node'];
+            $explode_property_node = explode("/", $property_node);
+            $property_node = $explode_property_node[count($explode_property_node)-1];
+        }
 
         foreach ( $import_settings['field_mapping_rules'] as $and_rules )
         {
@@ -674,6 +658,85 @@ class Houzez_Property_Feed_Import {
                                 {
                                     $value_to_check = (string)$values_to_check[0];
                                 }
+                            }
+
+                            $result = str_replace($match, $value_to_check, $result);
+                        }
+                    }
+
+                    return $result;
+                }
+            }
+        }
+
+        return $value;
+    }
+
+    public function get_csv_mapped_field_value( $value, $property, $field_name, $import_id )
+    {
+        $import_settings = get_import_settings_from_id( $import_id );
+
+        if ( $import_settings === false )
+        {
+            return $value;
+        }
+
+        if ( !isset($import_settings['field_mapping_rules']) )
+        {
+            return $value;
+        }
+
+        if ( empty($import_settings['field_mapping_rules']) )
+        {
+            return $value;
+        }
+
+        foreach ( $import_settings['field_mapping_rules'] as $and_rules )
+        {
+            if ( $and_rules['houzez_field'] == $field_name )
+            {
+                // This is the field we're after. Check rules are met
+                $rules_met = 0;
+                foreach ( $and_rules['rules'] as $i => $rule )
+                {
+                    $value_to_check = '';
+                    if ( isset($property[$rule['field']]) )
+                    {
+                        $value_to_check = $property[$rule['field']];
+                    }
+
+                    $found = false;
+                    
+                    if ( $rule['equal'] == '*' )
+                    {
+                        $found = true;
+                    }
+                    elseif ( $value_to_check == $rule['equal'] )
+                    {
+                        $found = true;
+                    }
+
+                    if ( $found )
+                    {
+                        ++$rules_met;
+                    }
+                }
+
+                if ( $rules_met == count($and_rules['rules']) )
+                {
+                    $result = $and_rules['result'];
+
+                    preg_match_all('/{[^}]*}/', $and_rules['result'], $matches);
+                    if ( $matches !== FALSE && isset($matches[0]) && is_array($matches[0]) && !empty($matches[0]) )
+                    {
+                        foreach ( $matches[0] as $match )
+                        {
+                            $field_name = str_replace(array("{", "}"), "", $match);
+                            $value_to_check = '';
+
+                            if ( isset($property[$field_name]) )
+                            {
+                                $value_to_check = $property[$field_name];
                             }
 
                             $result = str_replace($match, $value_to_check, $result);

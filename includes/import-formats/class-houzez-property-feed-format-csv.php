@@ -1,12 +1,12 @@
 <?php
 /**
- * Class for managing the import process of an XML file
+ * Class for managing the import process of an CSV file
  *
  * @package WordPress
  */
 if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
-class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
+class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 
 	public function __construct( $instance_id = '', $import_id = '' )
 	{
@@ -19,8 +19,6 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ) );
 	    }
-
-	    if ( !defined('ALLOW_UNFILTERED_UPLOADS') ) { define( 'ALLOW_UNFILTERED_UPLOADS', true ); }
 	}
 
 	public function parse()
@@ -31,59 +29,48 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
-		if ( !isset($import_settings['property_node']) || ( isset($import_settings['property_node']) && empty($import_settings['property_node']) ) )
+		if ( !isset($import_settings['property_id_field']) || ( isset($import_settings['property_id_field']) && empty($import_settings['property_id_field']) ) )
 		{
-			$this->log_error( 'Please ensure you have a field specified that we can use as the property record identifer in the import setting under the \'Import Format\' tab' );
-			return false;
-		}
-
-		if ( !isset($import_settings['property_id_node']) || ( isset($import_settings['property_id_node']) && empty($import_settings['property_id_node']) ) )
-		{
-			$this->log_error( 'Please ensure you have a field specified that we can use as the unique property identifer in the import setting under the \'Import Format\' tab and that is has a value set in the XML' );
+			$this->log_error( 'Please ensure you have a field specified that we can use as the unique property identifer in the import setting under the \'Import Format\' tab and that is has a value set in the CSV' );
 			return false;
 		}
 
 		$contents = '';
 
-		$response = wp_remote_get( $import_settings['xml_url'], array( 'timeout' => 120 ) );
+		$response = wp_remote_get( $import_settings['csv_url'], array( 'timeout' => 120 ) );
 		if ( !is_wp_error($response) && is_array( $response ) ) 
 		{
 			$contents = $response['body'];
 		}
 		else
 		{
-			$this->log_error( "Failed to obtain XML. Dump of response as follows: " . print_r($response, TRUE) );
+			$this->log_error( "Failed to obtain CSV. Dump of response as follows: " . print_r($response, TRUE) );
 
         	return false;
 		}
 
-		$test_xml = simplexml_load_string($contents);
-		if ($test_xml === FALSE)
+		$temp = tmpfile();
+		fwrite($temp, $contents);
+		fseek($temp, 0);
+
+		$fields = array(); 
+		$i = 0;
+
+		while ( ($row = fgetcsv($temp, 10000)) !== false ) 
 		{
-			// Failed to parse XML
-        	$this->log_error( 'Failed to parse XML file. Possibly invalid XML' );
-
-        	return false;
-        }
-
-		$xml = new SimpleXMLElement($contents);
-
-		$xml = $xml->xpath($import_settings['property_node']);
-
-		if ( $xml === false )
-		{
-			$this->log_error( 'Failed to find any properties in the XML with the property identifier' );
-
-			return false;
-		}
-
-		if ( is_array($xml) && !empty($xml) )
-		{
-			foreach ($xml as $property)
-			{
-                $this->properties[] = $property;
-            } // end foreach property
-        }
+	        if ( empty($fields) ) 
+	        {
+	            $fields = $row;
+	            continue;
+	        }
+	        foreach ( $row as $k => $value ) 
+	        {
+	        	if ( !isset($this->properties[$i]) ) { $this->properties[$i] = array(); }
+	            $this->properties[$i][$fields[$k]] = $value;
+	        }
+	        ++$i;
+	    }
+	    fclose($temp);
 
 		if ( empty($this->properties) )
 		{
@@ -108,10 +95,10 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
-        do_action( "houzez_property_feed_pre_import_properties_xml", $this->properties, $this->import_id );
+        do_action( "houzez_property_feed_pre_import_properties_csv", $this->properties, $this->import_id );
 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
-        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_xml", $this->properties, $this->import_id );
+        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_csv", $this->properties, $this->import_id );
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
         $additional_message = '';
@@ -123,29 +110,21 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
 
-		$property_node = $import_settings['property_node'];
-		$explode_property_node = explode("/", $property_node);
-		$property_node = $explode_property_node[count($explode_property_node)-1];
+		$property_id_field = $import_settings['property_id_field'];
 
 		$property_row = 1;
 		foreach ( $this->properties as $property )
 		{
 			$property_id = '';
-			$property = new SimpleXMLElement( $property->asXML() );
-			$property_ids = $property->xpath('/' . $property_node . $import_settings['property_id_node']);
 
-            if ( $property_ids === FALSE || empty($property_ids) )
+            if ( isset($property[$property_id_field]) && !empty($property[$property_id_field]) )
             {
-                //continue;
-            }
-            else
-            {
-            	$property_id = (string)$property_ids[0];
+                $property_id = $property[$property_id_field];
             }
 
 			if ( empty($property_id) )
 			{
-				$this->log_error( 'Unique ID empty. Please ensure you have a field specified that we can use as the unique identifer in the import setting under the \'Format\' tab and that is has a value set in the XML' );
+				$this->log_error( 'Unique ID empty. Please ensure you have a field specified that we can use as the unique identifer in the import setting under the \'Import Format\' tab and that is has a value set in the CSV' );
 				continue;
 			}
 
@@ -179,9 +158,9 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 	                $my_post = array(
 				    	'ID'          	 => $post_id,
-				    	'post_title'     => wp_strip_all_tags( apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_title', $this->import_id ) ),
-				    	'post_excerpt'   => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_excerpt', $this->import_id ),
-				    	'post_content' 	 => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_content', $this->import_id ),
+				    	'post_title'     => wp_strip_all_tags( apply_filters( 'houzez_property_feed_csv_mapped_field_value', '', $property, 'post_title', $this->import_id ) ),
+				    	'post_excerpt'   => apply_filters( 'houzez_property_feed_csv_mapped_field_value', '', $property, 'post_excerpt', $this->import_id ),
+				    	'post_content' 	 => apply_filters( 'houzez_property_feed_csv_mapped_field_value', '', $property, 'post_content', $this->import_id ),
 				    	'post_status'    => 'publish',
 				  	);
 
@@ -204,9 +183,9 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 	        	// We've not imported this property before
 				$postdata = array(
-					'post_title'     => wp_strip_all_tags( apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_title', $this->import_id ) ),
-				    'post_excerpt'   => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_excerpt', $this->import_id ),
-				    'post_content' 	 => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_content', $this->import_id ),
+					'post_title'     => wp_strip_all_tags( apply_filters( 'houzez_property_feed_csv_mapped_field_value', '', $property, 'post_title', $this->import_id ) ),
+				    'post_excerpt'   => apply_filters( 'houzez_property_feed_csv_mapped_field_value', '', $property, 'post_excerpt', $this->import_id ),
+				    'post_content' 	 => apply_filters( 'houzez_property_feed_csv_mapped_field_value', '', $property, 'post_content', $this->import_id ),
 					'post_status'    => 'publish',
 					'post_type'      => 'property',
 					'comment_status' => 'closed',
@@ -247,7 +226,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 				update_post_meta( $post_id, $imported_ref_key, $property_id );
 
-				update_post_meta( $post_id, '_property_import_data', $property->asXML() );
+				update_post_meta( $post_id, '_property_import_data', print_r($property, true) );
 
 				// Images
 				$media_ids = array();
@@ -276,17 +255,12 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		                    	// foreach field in xpath
 		                        $field_name = str_replace(array("{", "}"), "", $match);
 
-		                        $urls = $property->xpath('/' . $property_node . $field_name);
+		                        $value_to_check = check_array_for_matching_key( $property, $field_name );
 
-		                        $value_to_check = '';
-								if ( $urls === FALSE || empty($urls) )
-					            {
-					                //continue;
-					            }
-					            else
-					            {
-					            	$value_to_check = (string)$urls[0];
-					            }
+	                            if ( $value_to_check === false )
+	                            {
+	                                $value_to_check = '';
+	                            }
 
 		                        $url = str_replace($match, $value_to_check, $url);
 		                    }
@@ -302,17 +276,12 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 			                    	// foreach field in xpath
 			                        $field_name = str_replace(array("{", "}"), "", $match);
 
-			                        $descriptions = $property->xpath('/' . $property_node . $field_name);
+			                        $value_to_check = check_array_for_matching_key( $property, $field_name );
 
-			                        $value_to_check = '';
-									if ( $descriptions === FALSE || empty($descriptions) )
-						            {
-						                //continue;
-						            }
-						            else
-						            {
-						            	$value_to_check = (string)$descriptions[0];
-						            }
+		                            if ( $value_to_check === false )
+		                            {
+		                                $value_to_check = '';
+		                            }
 
 			                        $description = str_replace($match, $value_to_check, $description);
 			                    }
@@ -460,17 +429,12 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		                    	// foreach field in xpath
 		                        $field_name = str_replace(array("{", "}"), "", $match);
 
-		                        $urls = $property->xpath('/' . $property_node . $field_name);
+		                        $value_to_check = check_array_for_matching_key( $property, $field_name );
 
-		                        $value_to_check = '';
-								if ( $urls === FALSE || empty($urls) )
-					            {
-					                //continue;
-					            }
-					            else
-					            {
-					            	$value_to_check = (string)$urls[0];
-					            }
+	                            if ( $value_to_check === false )
+	                            {
+	                                $value_to_check = '';
+	                            }
 
 		                        $url = str_replace($match, $value_to_check, $url);
 		                    }
@@ -486,17 +450,12 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 			                    	// foreach field in xpath
 			                        $field_name = str_replace(array("{", "}"), "", $match);
 
-			                        $descriptions = $property->xpath('/' . $property_node . $field_name);
+			                        $value_to_check = check_array_for_matching_key( $property, $field_name );
 
-			                        $value_to_check = '';
-									if ( $descriptions === FALSE || empty($descriptions) )
-						            {
-						                //continue;
-						            }
-						            else
-						            {
-						            	$value_to_check = (string)$descriptions[0];
-						            }
+		                            if ( $value_to_check === false )
+		                            {
+		                                $value_to_check = '';
+		                            }
 
 			                        $description = str_replace($match, $value_to_check, $description);
 			                    }
@@ -554,17 +513,12 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		                    	// foreach field in xpath
 		                        $field_name = str_replace(array("{", "}"), "", $match);
 
-		                        $urls = $property->xpath('/' . $property_node . $field_name);
+		                        $value_to_check = check_array_for_matching_key( $property, $field_name );
 
-		                        $value_to_check = '';
-								if ( $urls === FALSE || empty($urls) )
-					            {
-					                //continue;
-					            }
-					            else
-					            {
-					            	$value_to_check = (string)$urls[0];
-					            }
+	                            if ( $value_to_check === false )
+	                            {
+	                                $value_to_check = '';
+	                            }
 
 		                        $url = str_replace($match, $value_to_check, $url);
 		                    }
@@ -580,17 +534,12 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 			                    	// foreach field in xpath
 			                        $field_name = str_replace(array("{", "}"), "", $match);
 
-			                        $descriptions = $property->xpath('/' . $property_node . $field_name);
+			                        $value_to_check = check_array_for_matching_key( $property, $field_name );
 
-			                        $value_to_check = '';
-									if ( $descriptions === FALSE || empty($descriptions) )
-						            {
-						                //continue;
-						            }
-						            else
-						            {
-						            	$value_to_check = (string)$descriptions[0];
-						            }
+		                            if ( $value_to_check === false )
+		                            {
+		                                $value_to_check = '';
+		                            }
 
 			                        $description = str_replace($match, $value_to_check, $description);
 			                    }
@@ -713,7 +662,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 				$this->log( 'Imported ' . count($media_ids) . ' documents (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->propertyID, $post_id );
 				
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_xml", $post_id, $propert, $this->import_id );
+				do_action( "houzez_property_feed_property_imported_csv", $post_id, $propert, $this->import_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
@@ -729,7 +678,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		} // end foreach property
 
-		do_action( "houzez_property_feed_post_import_properties_xml", $this->import_id );
+		do_action( "houzez_property_feed_post_import_properties_csv", $this->import_id );
 
 		$this->import_end();
 
@@ -744,24 +693,16 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		{
 			$import_settings = get_import_settings_from_id( $this->import_id );
 
-			$property_node = $import_settings['property_node'];
-			$explode_property_node = explode("/", $property_node);
-			$property_node = $explode_property_node[count($explode_property_node)-1];
+			$property_id_field = $import_settings['property_id_field'];
 
 			$import_refs = array();
 			foreach ($this->properties as $property)
 			{
 				$property_id = '';
-				$property = new SimpleXMLElement( $property->asXML() );
-				$property_ids = $property->xpath('/' . $property_node . $import_settings['property_id_node']);
 
-	            if ( $property_ids === FALSE || empty($property_ids) )
+				if ( isset($property[$property_id_field]) && !empty($property[$property_id_field]) )
 	            {
-	                //continue;
-	            }
-	            else
-	            {
-	            	$import_refs[] = (string)$property_ids[0];
+	                $import_refs[] = $property[$property_id_field];
 	            }
 			}
 

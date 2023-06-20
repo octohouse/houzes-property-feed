@@ -23,5 +23,29 @@ function houzez_property_feed_array_msort($array, $cols)
         }
     }
     return $ret;
+}
 
+function check_array_for_matching_key( $array, $looking_for ) 
+{
+    if ( is_array($array) && !empty($array) )
+    {
+        foreach ( $array as $key => $value ) 
+        {
+            if ( !is_numeric($key) && $key == $looking_for )
+            {
+                return $value;
+            }
+
+            if ( is_array($value) && !empty($value) ) 
+            {
+                $value_to_check = check_array_for_matching_key( $value, $looking_for );
+                if ( $value_to_check !== false )
+                {
+                    return $value_to_check;
+                }
+            }
+        }
+    }
+
+    return false;
 }

@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 1.0.20
-Version: 1.0.20
+Stable tag: 1.0.21
+Version: 1.0.21
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,7 @@ Automatically import properties into Houzez from a wide range of estate agency C
 
 == Description ==
 
-This free plugin from the creators of [Property Hive](https://wordpress.org/plugins/propertyhive) makes it easy to import properties from various CRMs in various formats into the popular Houzez theme.
+This free plugin from the creators of [Property Hive](https://wordpress.org/plugins/propertyhive) makes it easy to import properties from various CRMs, including XML and CSV files in any format, into the popular Houzez theme.
 
 We can import properties from the following estate agency CRMs/formats:
 
@@ -24,6 +24,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Apex27
 * BDP
 * BLM
+* CSV (any CSV file hosted on a public URL)
 * Dezrez Rezi
 * Domus
 * Expert Agent
@@ -90,6 +91,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 1.0.21 - 2023-06-20 =
+* Support for CSV format allowing any CSV file hosted on a public URL to be imported
 
 = 1.0.20 - 2023-06-19 =
 * Corrected issue with dragging of XML fields into field mapping rules when using XML format

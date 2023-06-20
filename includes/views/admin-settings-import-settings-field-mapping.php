@@ -133,7 +133,7 @@
 		</table>
 	</div>
 
-	<div class="rules-available-fields" style="display:none">
+	<div class="xml-rules-available-fields" style="display:none">
 		<h3 style="margin-top:0">Fields found in the XML</h3>
 		<p>Below is a list of the fields we found in the XML provided using the <a href="https://www.w3schools.com/xml/xpath_syntax.asp" target="_blank">XPath syntax</a>.</p>
 		<p>You can <strong>click and drag</strong> the fields below into the rule.</p>
@@ -163,6 +163,34 @@
 						if ( !empty($node_name) )
 						{
 							echo '<a href="#">' . $node_name . '</a>';
+						}
+					}	
+				}
+			}
+		?></div>
+	</div>
+
+	<div class="csv-rules-available-fields" style="display:none">
+		<h3 style="margin-top:0">Fields found in the CSV</h3>
+		<p>Below is a list of the fields we found in the CSV provided.</p>
+		<p>You can <strong>click and drag</strong> the fields below into the rule.</p>
+		<hr>
+		<?php echo '<p id="no_fields_found"' . ( ( !isset($import_settings['property_field_options']) || ( isset($import_settings['property_field_options']) && empty($import_settings['property_node_options']) ) ) ? '' : ' style="display:none"' ) . '><em>' . __( 'No CSV fields found. Please go to the \'Import Format\' tab and click \'Fetch CSV\' to obtain a list of these.', 'houzezpropertyfeed' ) . '</em></p>'; ?>
+		<div id="csv-fields-found">
+			<?php
+			if ( isset($import_settings['property_field_options']) && !empty($import_settings['property_field_options']) )
+			{
+				$options = json_decode($import_settings['property_field_options']);
+
+				if ( !empty($options) )
+				{
+					foreach ( $options as $option )
+					{
+						$field_name = $option;
+
+						if ( !empty($field_name) )
+						{
+							echo '<a href="#">' . $field_name . '</a>';
 						}
 					}	
 				}

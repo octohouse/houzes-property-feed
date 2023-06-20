@@ -1,5 +1,6 @@
-var hpf_original_property_node = '';
-var hpf_original_property_id_node = '';
+var hpf_original_property_node = ''; // used for XML format
+var hpf_original_property_id_node = ''; // used for XML format
+var hpf_original_property_id_field = ''; // used for CSV format
 
 jQuery(document).ready(function()
 {
@@ -19,6 +20,25 @@ jQuery(document).ready(function()
 		jQuery(this_href).fadeIn('fast');
 
 		hpf_set_xml_fields_size_properties();
+		hpf_set_csv_fields_size_properties();
+
+		var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
+
+		if ( selected_format == 'csv' )
+		{
+			hpf_create_csv_field_mapping_options();
+
+			jQuery('#image_fields').attr('placeholder', '{Image 1}|{Image 1 Caption}' + "\n" + '{Image 2}');
+			jQuery('#floorplan_fields').attr('placeholder', '{Floorplan 1}' + "\n" + '{Floorplan 2}');
+			jQuery('#document_fields').attr('placeholder', '{Brochure}' + "\n" + '{EPC}' + "\n" + '{Document 1}|Brochure');
+		}
+
+		if ( selected_format == 'xml' )
+		{
+			jQuery('#image_fields').attr('placeholder', '{/images/image[1]}' + "\n" + '{/images/image[2]}' + "\n" + '{/images/image[3]/url}|{/images/image[3]/caption}' + "\n" + '{/image[1]}.jpg');
+			jQuery('#floorplan_fields').attr('placeholder', '{/floorplans/floorplan[1]/url}|{/floorplans/floorplan[1]/caption}' + "\n" + '{/floorplans/floorplan[2]}');
+			jQuery('#document_fields').attr('placeholder', '{/brochureURL}|Brochure' + "\n" + '{/epcs/epc[1]}' + "\n" + '{/documents/document[1]/url}|{/documents/document[1]/caption}');
+		}
 	});
 
 	jQuery('.hpf-admin-settings-import-settings .settings-panel #format').change(function()
@@ -59,8 +79,6 @@ jQuery(document).ready(function()
 		var template_html = jQuery('#agent_display_option_rule_template_' + this_id).html();
 
 		jQuery('#agent_display_option_rules_' + this_id).append(template_html);
-
-		hpf_set_xml_fields_size_properties();
 	});
 
 	jQuery('body').on('click', '.agent-display-option-rule .delete-rule a', function(e)
@@ -93,6 +111,7 @@ jQuery(document).ready(function()
 
 		last_safe_scroll = 0;
 		hpf_set_xml_fields_size_properties();
+		hpf_set_csv_fields_size_properties();
 	});
 
 	jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
@@ -128,6 +147,9 @@ jQuery(document).ready(function()
 		});
 
 		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
+
+		hpf_set_xml_fields_size_properties();
+		hpf_set_csv_fields_size_properties();
 	});
 
 	jQuery('body').on('click', '.hpf-admin-settings-import-settings a.add-additional-mapping', function(e)
@@ -229,6 +251,51 @@ jQuery(document).ready(function()
       	})  
 	});
 
+	jQuery('a.hpf-fetch-csv-fields').click(function(e)
+	{
+		e.preventDefault();
+
+		hpf_original_property_id_field = jQuery('select[name=\'csv_property_id_field\']').val();
+		
+		jQuery('a.hpf-fetch-csv-fields').text('Fetching...');
+		jQuery('a.hpf-fetch-csv-fields').attr('disabled', 'disabled');
+		jQuery('select[name=\'csv_property_id_field\']').empty();
+		jQuery('select[name=\'csv_property_id_field\']').append('<option value="">Fetching fields...</option>');
+		jQuery('input[name=\'csv_property_field_options\']').val('');
+
+		jQuery.ajax({
+        	url : ajaxurl,
+        	data : {
+        		action: "houzez_property_feed_fetch_csv_fields", 
+        		url : jQuery(this).parent().parent().parent().find('input[name=\'csv_csv_url\']').val(), 
+        		ajax_nonce: hpf_admin_object.ajax_nonce
+        	},
+        	dataType : "json",
+        	success: function(response) 
+        	{
+        		jQuery('a.hpf-fetch-csv-fields').text('Fetch CSV');
+				jQuery('a.hpf-fetch-csv-fields').attr('disabled', false);
+				jQuery('select[name=\'csv_property_id_field\']').empty();
+
+            	if ( response.success == true )
+            	{
+            		var fields = new Array();
+            		for ( var i in response.fields )
+            		{
+            			fields.push(response.fields[i]);
+            		}
+            		jQuery('input[name=\'csv_property_field_options\']').val(JSON.stringify(fields));
+            		hpf_create_csv_property_id_field_options();
+            		hpf_create_csv_field_mapping_options();
+            	}
+            	else
+            	{
+            		alert(response.error);
+            	}
+         	}
+      	})  
+	});
+
 	jQuery('body').on('click', '#xml-nodes-found a', function(e)
 	{
 		e.preventDefault();
@@ -238,7 +305,13 @@ jQuery(document).ready(function()
 	hpf_show_format_settings();
 	hpf_show_contact_info_rules();
 
-	jQuery('.rules-available-fields a').draggable({
+	jQuery('.xml-rules-available-fields a').draggable({
+	    revert: true,
+	    helper: 'clone',
+	    appendTo: 'body'
+	});
+
+	jQuery('.csv-rules-available-fields a').draggable({
 	    revert: true,
 	    helper: 'clone',
 	    appendTo: 'body'
@@ -271,11 +344,13 @@ jQuery(document).ready(function()
 jQuery(window).on( "resize", function() 
 {
 	hpf_set_xml_fields_size_properties();
+	hpf_set_csv_fields_size_properties();
 });
 
 jQuery(window).on( "scroll", function() 
 {
 	hpf_set_xml_fields_size_properties();
+	hpf_set_csv_fields_size_properties();
 });
 
 var last_safe_scroll = 0;
@@ -285,17 +360,17 @@ function hpf_set_xml_fields_size_properties()
 
 	if ( selected_format == 'xml' )
 	{
-		jQuery('.rules-available-fields').css('transform', 'translateY(0)').height('auto');
+		jQuery('.xml-rules-available-fields').css('transform', 'translateY(0)').height('auto');
 
 		var max_available_space = jQuery(window).height() - 120;
 
-		jQuery('.rules-available-fields').hide();
+		jQuery('.xml-rules-available-fields').hide();
 		var available_fields_container_height = jQuery('.rules-table').outerHeight() - 40;
 		if ( available_fields_container_height > max_available_space )
 		{
 			available_fields_container_height = max_available_space;
 		}
-		jQuery('.rules-available-fields').show().outerHeight(available_fields_container_height);
+		jQuery('.xml-rules-available-fields').show().outerHeight(available_fields_container_height);
 
 		// set top position
 		var window_scroll = jQuery(window).scrollTop();
@@ -305,7 +380,7 @@ function hpf_set_xml_fields_size_properties()
 			var target_top = window_scroll - ( jQuery('.rules-table-available-fields').offset().top - 50 );
 
 			// make sure it's not going to go off the bottom of the screen
-			var difference = ( target_top + jQuery('.rules-available-fields').outerHeight() ) - (jQuery('.rules-table').outerHeight());
+			var difference = ( target_top + jQuery('.xml-rules-available-fields').outerHeight() ) - (jQuery('.rules-table').outerHeight());
 			if ( difference < -40 )
 			{
 				last_safe_scroll = target_top;
@@ -314,11 +389,56 @@ function hpf_set_xml_fields_size_properties()
 			{
 				
 			}
-			jQuery('.rules-available-fields').css('transform', 'translateY(' + last_safe_scroll + 'px)');
+			jQuery('.xml-rules-available-fields').css('transform', 'translateY(' + last_safe_scroll + 'px)');
 		}
 		else
 		{
-			jQuery('.rules-available-fields').css('transform', 'translateY(0)');
+			jQuery('.xml-rules-available-fields').css('transform', 'translateY(0)');
+			last_safe_scroll = 0;
+		}
+	}
+}
+
+function hpf_set_csv_fields_size_properties()
+{
+	var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
+
+	if ( selected_format == 'csv' )
+	{
+		jQuery('.csv-rules-available-fields').css('transform', 'translateY(0)').height('auto');
+
+		var max_available_space = jQuery(window).height() - 120;
+
+		jQuery('.csv-rules-available-fields').hide();
+		var available_fields_container_height = jQuery('.rules-table').outerHeight() - 40;
+		if ( available_fields_container_height > max_available_space )
+		{
+			available_fields_container_height = max_available_space;
+		}
+		jQuery('.csv-rules-available-fields').show().outerHeight(available_fields_container_height);
+
+		// set top position
+		var window_scroll = jQuery(window).scrollTop();
+		
+		if ( window_scroll > ( jQuery('.rules-table-available-fields').offset().top - 50 ) )
+		{
+			var target_top = window_scroll - ( jQuery('.rules-table-available-fields').offset().top - 50 );
+
+			// make sure it's not going to go off the bottom of the screen
+			var difference = ( target_top + jQuery('.csv-rules-available-fields').outerHeight() ) - (jQuery('.rules-table').outerHeight());
+			if ( difference < -40 )
+			{
+				last_safe_scroll = target_top;
+			}
+			else
+			{
+				
+			}
+			jQuery('.csv-rules-available-fields').css('transform', 'translateY(' + last_safe_scroll + 'px)');
+		}
+		else
+		{
+			jQuery('.csv-rules-available-fields').css('transform', 'translateY(0)');
 			last_safe_scroll = 0;
 		}
 	}
@@ -366,9 +486,35 @@ function hpf_create_xml_property_id_node_options()
 	}
 }
 
+function hpf_create_csv_property_id_field_options()
+{
+	jQuery('select[name=\'csv_property_id_field\']').empty();
+
+	var fields = jQuery('input[name=\'csv_property_field_options\']').val();
+
+	if ( fields == '' )
+	{
+		return;
+	}
+
+	fields = JSON.parse(fields);
+
+	for ( var i in fields )
+	{
+		var selected_html = '';
+		var field = fields[i];
+		if ( hpf_original_property_id_field == field )
+		{
+			selected_html = ' selected';
+		}
+
+		jQuery('select[name=\'csv_property_id_field\']').append('<option value="' + field + '"' + selected_html + '>' + field + '</option>');
+	}
+}
+
 function hpf_create_xml_field_mapping_options()
 {	
-	jQuery('.rules-available-fields a').draggable( "destroy" );
+	jQuery('.xml-rules-available-fields a').draggable( "destroy" );
 
 	jQuery('#no_nodes_found').hide();
 	jQuery('#xml-nodes-found').empty()
@@ -411,7 +557,40 @@ function hpf_create_xml_field_mapping_options()
 
 	hpf_set_xml_fields_size_properties();
 
-	jQuery('.rules-available-fields a').draggable({
+	jQuery('.xml-rules-available-fields a').draggable({
+	    revert: true,
+	    helper: 'clone',
+	    appendTo: 'body'
+	});
+}
+
+function hpf_create_csv_field_mapping_options()
+{	
+	jQuery('.csv-rules-available-fields a').draggable( "destroy" );
+
+	jQuery('#no_fields_found').hide();
+	jQuery('#csv-fields-found').empty()
+
+	var fields = jQuery('input[name=\'csv_property_field_options\']').val();
+
+	if ( fields == '' )
+	{
+		jQuery('#no_fields_found').show();
+		return;
+	}
+
+	fields = JSON.parse(fields);
+
+	for ( var i in fields )
+	{
+		var field = fields[i];
+
+		jQuery('#csv-fields-found').append('<a href="#">' + field + '</a>');
+	}
+
+	hpf_set_csv_fields_size_properties();
+
+	jQuery('.csv-rules-available-fields a').draggable({
 	    revert: true,
 	    helper: 'clone',
 	    appendTo: 'body'
@@ -454,6 +633,7 @@ function add_field_mapping_or_rule()
 	}
 
 	hpf_set_xml_fields_size_properties();
+	hpf_set_csv_fields_size_properties();
 }
 
 function hpf_show_email_reports_settings()
@@ -492,6 +672,37 @@ function hpf_show_missing_mandatory_xml_field_mapping()
 		if ( !found_title_excerpt_or_content )
 		{
 			jQuery('#missing_mandatory_xml_field_mapping').show();
+			jQuery('#field_mapping_warning').show();
+		}
+	}
+}
+
+function hpf_show_missing_mandatory_csv_field_mapping()
+{
+	jQuery('#missing_mandatory_csv_field_mapping').hide();
+	jQuery('#field_mapping_warning').hide();
+
+	var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
+
+	if ( selected_format == 'csv' )
+	{
+		var found_title_excerpt_or_content = false;
+		
+		// loop through field mapping and ensure at least title, excerpt or content set
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'houzez_field\']').each(function()
+		{
+			if ( jQuery(this).attr('name') != 'field_mapping_rules[{rule_count}][houzez_field]' )
+			{
+				if ( jQuery(this).val() == 'post_title' || jQuery(this).val() == 'post_excerpt' || jQuery(this).val() == 'post_content' )
+				{
+					found_title_excerpt_or_content = true;
+				}
+			}
+		});
+
+		if ( !found_title_excerpt_or_content )
+		{
+			jQuery('#missing_mandatory_csv_field_mapping').show();
 			jQuery('#field_mapping_warning').show();
 		}
 	}
@@ -542,7 +753,8 @@ function hpf_show_format_settings()
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_sales_status').hide();
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_lettings_status').hide();
 
-	jQuery('.hpf-admin-settings-import-settings .rules-available-fields').hide();
+	jQuery('.hpf-admin-settings-import-settings .xml-rules-available-fields').hide();
+	jQuery('.hpf-admin-settings-import-settings .csv-rules-available-fields').hide();
 
 	jQuery('#import_setting_tab_taxonomies').show();
 	jQuery('#import_setting_tab_contactinfo').show();
@@ -567,6 +779,7 @@ function hpf_show_format_settings()
 	else
 	{
 		hpf_show_missing_mandatory_xml_field_mapping();
+		hpf_show_missing_mandatory_csv_field_mapping();
 		hpf_show_already_mapped_warning();
 
 		if ( selected_format == 'xml' )
@@ -574,7 +787,15 @@ function hpf_show_format_settings()
 			jQuery('#import_setting_tab_taxonomies').hide();
 			jQuery('#import_setting_tab_contactinfo').hide();
 			jQuery('#import_setting_tab_media').show();
-			jQuery('.hpf-admin-settings-import-settings .rules-available-fields').show();
+			jQuery('.hpf-admin-settings-import-settings .xml-rules-available-fields').show();
+		}
+
+		if ( selected_format == 'csv' )
+		{
+			jQuery('#import_setting_tab_taxonomies').hide();
+			jQuery('#import_setting_tab_contactinfo').hide();
+			jQuery('#import_setting_tab_media').show();
+			jQuery('.hpf-admin-settings-import-settings .csv-rules-available-fields').show();
 		}
 
 		var has_taxonomy_values_sales_status = false;
