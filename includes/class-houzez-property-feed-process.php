@@ -354,3 +354,14 @@ class Houzez_Property_Feed_Process {
 		}
 	}
 }
+
+class SimpleXMLExtendedHpf extends SimpleXMLElement {
+
+    public function addCData($name, $value) {
+        $new = parent::addChild($name);
+        $base = dom_import_simplexml($new);
+        $docOwner = $base->ownerDocument;
+        $base->appendChild($docOwner->createCDATASection($value));
+    } 
+
+}

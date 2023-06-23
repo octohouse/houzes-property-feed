@@ -72,7 +72,7 @@ if ( is_array($exports) && !empty($exports) )
 	foreach ( $exports as $export_id => $export_settings  )
 	{
 		$format = get_format_from_export_id( $export_id );
-		if ( isset($format['method']) && $format['method'] == 'cron' )
+		if ( isset($format['method']) && ( $format['method'] == 'cron' || $format['method'] == 'url' ) )
 		{
 
 		}
@@ -263,6 +263,17 @@ if ( is_array($exports) && !empty($exports) )
 
 	    			break;
 	    		}
+                case "kyero":
+                {
+                    // includes
+                    require_once dirname( __FILE__ ) . '/includes/export-formats/class-houzez-property-feed-format-kyero.php';
+
+                    $export_object = new Houzez_Property_Feed_Format_Kyero( $instance_id, $export_id );
+
+                    $exported = $export_object->export();
+
+                    break;
+                }
 	    	}
 
             // log instance end

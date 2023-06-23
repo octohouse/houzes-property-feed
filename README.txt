@@ -1,19 +1,19 @@
 === Houzez Property Feed ===
 Contributors: PropertyHive
-Tags: property import, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
+Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 2.0.0
-Version: 2.0.0
+Stable tag: 2.0.1
+Version: 2.0.1
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Automatically import properties into Houzez from a wide range of estate agency CRMs
+Automatically import and export properties to Houzez from a wide range of estate agency CRMs
 
 == Description ==
 
-This free plugin from the creators of [Property Hive](https://wordpress.org/plugins/propertyhive) makes it easy to import properties from various CRMs, including XML and CSV files in any format, into the popular Houzez theme.
+This free plugin from the creators of [Property Hive](https://wordpress.org/plugins/propertyhive) makes it easy to import and export properties to Houzez from various CRMs, including XML and CSV files in any format, into the popular Houzez theme.
 
 We can import properties from the following estate agency CRMs/formats:
 
@@ -34,6 +34,11 @@ We can import properties from the following estate agency CRMs/formats:
 * Street
 * XML (any XML file hosted on a public URL)
 
+We can export and upload feeds from Houzez to third party portals in the following formats:
+
+* BLM
+* Kyero v3
+
 Here's just a couple of reasons why you should choose the Houzez Property Feed plugin to import your property stock:
 
 * 20+ years experience in working with property feeds
@@ -43,19 +48,19 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 
 = Free features =
 
-* Automatic imports
-* One active import
-* Import 25 properties
+* Automatic imports and export
+* One active import and export
+* Import and export up to 25 properties
 * Logs stored for one day
 
 = PRO features =
 
 * All of the above, plus:
-* Import unlimited properties
-* Multiple simulateous active imports
+* Import and export unlimited properties
+* Multiple simulateous active imports and exports
 * Priority support
 * Logs stored for seven days
-* Logs emailed to a specified email address
+* Import logs emailed to a specified email address
 
 [Update to PRO here](https://houzezpropertyfeed.com/#pricing)
 
@@ -91,6 +96,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.1 - 2023-06-23 =
+* Added support for automatic exports in the Kyero v3 XML format
 
 = 2.0.0 - 2023-06-23 =
 * Added support for automatic exports. Only BLM format added for now but more to be rolled out soon

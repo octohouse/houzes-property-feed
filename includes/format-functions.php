@@ -1068,27 +1068,30 @@ function get_houzez_property_feed_export_formats()
         )
     );
 
-    foreach ( $branch_mapping_options as $type => $values )
+    if ( !empty($branch_mapping_options) )
     {
-        foreach ( $values as $id => $name )
+        foreach ( $branch_mapping_options as $type => $values )
         {
-            $branch_mapping_fields[] = array(
-                'type' => 'text',
-                'id' => 'branch_code_' . $type . '_' . $id . '_sales',
-                'label' => $name . ' (' . __( ucwords(str_replace("_info", "", $type)), 'houzezpropertyfeed' ) . ') - ' . __( 'Sales', 'houzezpropertyfeed' ),
-            );
-            $branch_mapping_fields[] = array(
-                'type' => 'text',
-                'id' => 'branch_code_' . $type . '_' . $id . '_lettings',
-                'label' => $name . ' (' . __( ucwords(str_replace("_info", "", $type)), 'houzezpropertyfeed' ) . ') - ' . __( 'Lettings', 'houzezpropertyfeed' ),
-            );
+            foreach ( $values as $id => $name )
+            {
+                $branch_mapping_fields[] = array(
+                    'type' => 'text',
+                    'id' => 'branch_code_' . $type . '_' . $id . '_sales',
+                    'label' => $name . ' (' . __( ucwords(str_replace("_info", "", $type)), 'houzezpropertyfeed' ) . ') - ' . __( 'Sales', 'houzezpropertyfeed' ),
+                );
+                $branch_mapping_fields[] = array(
+                    'type' => 'text',
+                    'id' => 'branch_code_' . $type . '_' . $id . '_lettings',
+                    'label' => $name . ' (' . __( ucwords(str_replace("_info", "", $type)), 'houzezpropertyfeed' ) . ') - ' . __( 'Lettings', 'houzezpropertyfeed' ),
+                );
+            }
         }
     }
 
     $formats = array(
-        'blm' => array(
+        'blm' => apply_filters( 'houzez_property_feed_export_format_options_blm', array(
             'name' => __( 'BLM', 'houzezpropertyfeed' ),
-            'method' => 'cron', // cron / realtime
+            'method' => 'cron', // cron / realtime / url
             'fields' => array_merge(array(
                 array(
                     'type' => 'html',
@@ -1226,7 +1229,23 @@ function get_houzez_property_feed_export_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/blm/',
             'warnings' => array(), // maybe FTP warning? maybe ZipArchive warning
-        ),
+        ) ),
+        'kyero' => apply_filters( 'houzez_property_feed_export_format_options_kyero', array(
+            'name' => __( 'Kyero', 'houzezpropertyfeed' ),
+            'method' => 'url', // cron / realtime / url
+            'fields' => array(),
+            'taxonomy_values' => array(
+                'property_type' => array(
+                    'apartment' => 'Apartment',
+                    'villa' => 'Villa',
+                    'town house' => 'Town house',
+                    'country house' => 'Country house',
+                    'land' => 'Land',
+                )
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/kyero/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ) ),
     );
 
     $formats = apply_filters( 'houzez_property_feed_export_formats', $formats );

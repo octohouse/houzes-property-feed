@@ -1,6 +1,6 @@
 <h3><?php echo __( 'Export Format', 'houzezpropertyfeed' ); ?></h3>
 
-<p><?php echo __( 'Select the format that you want to export to using below', 'houzezpropertyfeed' ); ?>:</p>
+<p><?php echo __( 'Select the format that you want to export in using below', 'houzezpropertyfeed' ); ?>:</p>
 
 <table class="form-table">
 	<tbody>
@@ -36,6 +36,11 @@
 ?>
 
 <div id="export_settings_<?php echo esc_attr($key); ?>" class="import-settings-format" style="display:none">
+
+	<?php
+		if ( isset($format['fields']) && !empty($format['fields']) )
+		{
+	?>
 
 <h3><?php echo esc_html($format['name']) . ' ' . __( 'Settings', 'houzezpropertyfeed' ); ?></h3>
 
@@ -204,6 +209,8 @@
 </table>
 
 <?php
+	}
+
 	if ( isset($format['warnings']) && is_array($format['warnings']) && !empty($format['warnings']) )
 	{
 		foreach ( $format['warnings'] as $warning )

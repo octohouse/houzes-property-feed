@@ -548,7 +548,7 @@ class Houzez_Property_Feed_Admin {
                     foreach ( $exports as $export_id => $export_settings  )
                     {
                         $format = get_format_from_export_id( $export_id );
-                        if ( isset($format['method']) && $format['method'] == 'cron' )
+                        if ( isset($format['method']) && ( $format['method'] == 'cron' || $format['method'] == 'url' ) )
                         {
 
                         }

@@ -109,7 +109,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
             $last_ran = '';
             $next_due_display = '';
             $frequency = '';
-            if ( $format['method'] == 'cron' )
+            if ( $format['method'] == 'cron' || $format['method'] == 'url' )
             {
                 $row = $wpdb->get_row( "
                     SELECT 
@@ -242,6 +242,27 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
             }
 
             $details = '';
+            if ( $format['method'] == 'url' )
+            {
+                $url = '';
+                $before = '';
+                $after = '<br><em>(Export not generated yet)</em>';
+                $wp_upload_dir = wp_upload_dir();
+                if( $wp_upload_dir['error'] !== FALSE )
+                {
+                    
+                }
+                else
+                {
+                    $url = $wp_upload_dir['baseurl'] . '/houzez_property_feed_export/' . $key . '.xml';
+                    if ( file_exists($wp_upload_dir['basedir'] . '/houzez_property_feed_export/' . $key . '.xml') )
+                    {
+                        $before = '<a href="' . $url . '" target="_blank">';
+                        $after = '</a>';
+                    }
+                }
+                $details .= '<strong>URL</strong>: ' . $before . $url . $after . '<br>';
+            }
             if ( isset($format['fields']) && !empty($format['fields']) )
             {
                 foreach ( $format['fields'] as $field )

@@ -30,6 +30,9 @@ function hpf_show_format_settings()
 	jQuery('.hpf-admin-settings-import-settings .settings-panel .import-settings-format').hide();
 	jQuery('#export_settings_' + selected_format).fadeIn('fast');
 
+	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_property_type').hide();
+	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_status').hide();
+
 	jQuery('#export_name_row').hide();
 
 	jQuery('.no-format-notice').hide();
