@@ -204,6 +204,28 @@ class Houzez_Property_Feed_Install {
 				  	PRIMARY KEY (id)
 				) $collate;";
 
+		$table_name = $wpdb->prefix . "houzez_property_feed_export_logs_instance";
+	      
+	   	$sql .= "CREATE TABLE $table_name (
+					id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+					export_id bigint(20) UNSIGNED NOT NULL,
+					start_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+					end_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+				  	PRIMARY KEY (id)
+	    		) $collate;";
+		
+		$table_name = $wpdb->prefix . "houzez_property_feed_export_logs_instance_log";
+		
+		$sql .= "CREATE TABLE $table_name (
+					id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+					instance_id bigint(20) UNSIGNED NOT NULL,
+					post_id bigint(20) UNSIGNED NOT NULL,
+					severity tinyint(1) UNSIGNED NOT NULL,
+					entry longtext NOT NULL,
+					log_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+				  	PRIMARY KEY (id)
+				) $collate;";
+
 		dbDelta( $sql );
 
 	}

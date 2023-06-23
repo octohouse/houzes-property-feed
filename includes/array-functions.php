@@ -49,3 +49,15 @@ function check_array_for_matching_key( $array, $looking_for )
 
     return false;
 }
+
+function hpf_clean( $var ) 
+{
+    if ( is_array( $var ) ) 
+    {
+        return array_map( 'hpf_clean', $var );
+    }
+    else
+    {
+        return is_scalar( $var ) ? sanitize_text_field( $var ) : $var;
+    }
+}

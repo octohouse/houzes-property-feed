@@ -12,8 +12,8 @@
 .hpf-admin-settings-header .logo					{ display:inline-block; vertical-align:middle; margin-right:30px; }
 .hpf-admin-settings-header .logo img 				{ max-width:300px; display:block }
 .hpf-admin-settings-header .buttons					{ display:inline-block; vertical-align:middle; }
-.hpf-admin-settings-header .add-import-button 		{ float:right; margin-top:-9px; }
-.hpf-admin-settings-header .add-import-button span 	{ vertical-align:middle; margin-top:-3px; margin-right:3px; }
+.hpf-admin-settings-header .add-import-export-button 		{ float:right; margin-top:-9px; }
+.hpf-admin-settings-header .add-import-export-button span 	{ vertical-align:middle; margin-top:-3px; margin-right:3px; }
 
 /* Admin Settings Primary Nav */
 .hpf-admin-settings-primary-nav 					{ background:#FFF; padding:0 20px; border-bottom:1px solid #999 }
@@ -32,12 +32,17 @@
 .hpf-meta-box                                 { background:#FFF; border:1px solid #CCC; padding:30px; }
 
 .hpf-admin-settings-automatic-imports 				{  }
+
 .hpf-admin-settings-automatic-imports .automatic-imports-table { margin:20px 0 }
 .hpf-admin-settings-automatic-imports .automatic-imports-table td.column-col_import_details { overflow-wrap: break-word; word-wrap:break-word; max-width:300px; }
-.hpf-admin-settings-automatic-imports .no-imports   { max-width:630px; margin:30px auto 0; border:3px dashed #CCC; text-align:center; padding:40px 30px; }
-.hpf-admin-settings-automatic-imports .no-imports p { font-size:1.1em }
-.hpf-admin-settings-automatic-imports .no-imports a.button { margin:20px 0 }
-.hpf-admin-settings-automatic-imports .no-imports a.button span { vertical-align:middle; margin-top:-3px; margin-right:3px; }
+
+.hpf-admin-settings-automatic-imports .automatic-exports-table { margin:20px 0 }
+.hpf-admin-settings-automatic-imports .automatic-exports-table td.column-col_import_details { overflow-wrap: break-word; word-wrap:break-word; max-width:300px; }
+
+.hpf-admin-settings-automatic-imports .no-imports-exports   { max-width:630px; margin:30px auto 0; border:3px dashed #CCC; text-align:center; padding:40px 30px; }
+.hpf-admin-settings-automatic-imports .no-imports-exports p { font-size:1.1em }
+.hpf-admin-settings-automatic-imports .no-imports-exports a.button { margin:20px 0 }
+.hpf-admin-settings-automatic-imports .no-imports-exports a.button span { vertical-align:middle; margin-top:-3px; margin-right:3px; }
 .hpf-admin-settings-automatic-imports .icon-running-status { margin-right:4px; display:inline-block; vertical-align:middle; margin-top:-1px; height:11px; width:11px; border-radius:50%; background:#d63638 }
 .hpf-admin-settings-automatic-imports .icon-running-status.icon-running { background:#00a32a }
 

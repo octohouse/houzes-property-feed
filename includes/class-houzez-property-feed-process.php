@@ -8,9 +8,19 @@ class Houzez_Property_Feed_Process {
 	public $instance_id;
 
 	/**
+	 * @var bool
+	 */
+	public $is_import = true;
+
+	/**
 	 * @var int
 	 */
 	public $import_id;
+
+	/**
+	 * @var int
+	 */
+	public $export_id;
 
 	/**
 	 * @var array
@@ -170,10 +180,14 @@ class Houzez_Property_Feed_Process {
                 'instance_id' => $this->instance_id,
                 'severity' => 1,
                 'post_id' => $post_id,
-                'crm_id' => $agent_ref,
                 'entry' => $message,
                 'log_date' => $current_date
             );
+
+            if ( $this->is_import )
+            {
+            	$data['crm_id'] = $agent_ref;
+            }
 
             if ( $received_data != '' )
             {
@@ -181,7 +195,7 @@ class Houzez_Property_Feed_Process {
             }
         
 	        $wpdb->insert( 
-	            $wpdb->prefix . "houzez_property_feed_logs_instance_log", 
+	            $wpdb->prefix . "houzez_property_feed" . ( $this->is_import ? '' : '_export' ) . "_logs_instance_log", 
 	            $data
 	        );
 		}
@@ -210,10 +224,14 @@ class Houzez_Property_Feed_Process {
                 'instance_id' => $this->instance_id,
                 'severity' => 0,
                 'post_id' => $post_id,
-                'crm_id' => $agent_ref,
                 'entry' => $message,
                 'log_date' => $current_date
             );
+
+            if ( $this->is_import )
+            {
+            	$data['crm_id'] = $agent_ref;
+            }
 
             if ( $received_data != '' )
             {
@@ -221,7 +239,7 @@ class Houzez_Property_Feed_Process {
             }
         
 	        $wpdb->insert( 
-	            $wpdb->prefix . "houzez_property_feed_logs_instance_log", 
+	            $wpdb->prefix . "houzez_property_feed" . ( $this->is_import ? '' : '_export' ) . "_logs_instance_log", 
 	            $data
 	        );
 		}
@@ -251,6 +269,48 @@ class Houzez_Property_Feed_Process {
 			}
 		}
 		return $ftp_connected ? $ftp_conn : null;
+	}
+
+	public function get_export_mapped_value( $post_id, $taxonomy )
+	{
+		$return = '';
+
+		$terms = get_the_terms( $post_id, $taxonomy );
+		$term_ids_to_use = array();
+        if ( !is_wp_error($terms) && !empty($terms) )
+        {
+        	foreach ( $terms as $term )
+        	{
+        		if ( !empty($term->parent) )
+        		{
+        			array_unshift($term_ids_to_use, $term->term_id); // push to front of array to give it priority
+        		}
+        		else
+        		{
+	        		$term_ids_to_use[] = $term->term_id;
+	        	}
+        	}
+        }
+        
+        if ( !empty($term_ids_to_use) )
+        {
+        	$export_settings = get_export_settings_from_id( $this->export_id );
+
+        	$mappings = ( isset($export_settings['mappings'][$taxonomy]) && !empty($export_settings['mappings'][$taxonomy]) ) ? $export_settings['mappings'][$taxonomy] : array();
+
+        	if ( !empty($mappings) )
+        	{
+	        	foreach ( $term_ids_to_use as $term_id )
+	        	{
+	        		if ( isset($mappings[$term_id]) )
+	        		{
+	        			return $mappings[$term_id];
+	        		}
+	        	}
+	        }
+        }
+
+		return $return;
 	}
 
 	public function compare_meta_and_taxonomy_data( $post_id, $crm_id, $metadata_before = array(), $taxonomy_terms_before = array() )

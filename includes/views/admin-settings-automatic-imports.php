@@ -15,20 +15,20 @@
 
 				if ( $run_now_button )
 				{
-					echo '<a href="' . admin_url('admin.php?page=houzez-property-feed&custom_property_import_cron=houzezpropertyfeedcronhook') . '" class="button">Manually Execute Import</a>';
+					echo '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&custom_property_import_cron=houzezpropertyfeedcronhook') . '" class="button">Manually Execute Import</a>';
 				}
 			}
 			else
 			{
 		?>
 
-		<div class="no-imports">
+		<div class="no-imports-exports">
 
 			<h2><?php echo __( 'Your automatic imports will appear here', 'houzezpropertyfeed' ); ?></h2>
 
 			<p>You don't have any imports running at the moment. Why not go ahead and try creating one now?</p>
 
-			<p><a href="<?php echo admin_url('admin.php?page=houzez-property-feed&action=addimport'); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2"></span> <?php echo __( 'Create New Import', 'houzezpropertyfeed' ); ?></a></p>
+			<p><a href="<?php echo admin_url('admin.php?page=houzez-property-feed-import&action=addimport'); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2"></span> <?php echo __( 'Create New Import', 'houzezpropertyfeed' ); ?></a></p>
 
 			<p><strong>Need help?</strong> Our <a href="https://houzezpropertyfeed.com/documentation/" target="_blank">in-depth documentation</a> will guide you through the process.</p>
 

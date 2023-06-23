@@ -1,7 +1,7 @@
 <?php
 
-register_shutdown_function( "houzez_property_feed_fatal_handler" );
-function houzez_property_feed_fatal_handler() {
+register_shutdown_function( "houzez_property_feed_import_fatal_handler" );
+function houzez_property_feed_import_fatal_handler() {
 
     $error = error_get_last();
 
@@ -14,7 +14,7 @@ function houzez_property_feed_fatal_handler() {
 	        $errline = $error["line"];
 	        $errstr  = $error["message"];
 
-			$error_text = houzez_property_feed_format_error( $errno, $errstr, $errfile, $errline );
+			$error_text = houzez_property_feed_import_format_error( $errno, $errstr, $errfile, $errline );
 
 			global $wpdb, $instance_id;
 
@@ -28,7 +28,7 @@ function houzez_property_feed_fatal_handler() {
 					'post_id' => 0,
 					'crm_id' => '',
 					'severity' => 1,
-					'entry' => substr( $error_text, 0, 255),
+					'entry' => $error_text,
 					'log_date' => $current_date
 				)
 			);
@@ -37,7 +37,7 @@ function houzez_property_feed_fatal_handler() {
 }
 
 // Returns a formatted version of the fatal error, showing the error message and number, filename and line number
-function houzez_property_feed_format_error( $errno, $errstr, $errfile, $errline ) {
+function houzez_property_feed_import_format_error( $errno, $errstr, $errfile, $errline ) {
 	$trace = print_r( debug_backtrace( false ), true );
 	$file_split = explode('/', $errfile);
 	$trimmed_filename = implode('/', array_slice($file_split, -2));
@@ -134,7 +134,7 @@ if ( is_array($imports) && !empty($imports) )
     		}
 	    }
 
-    	$frequencies = get_houzez_property_feed_frequencies();
+    	$frequencies = get_houzez_property_feed_import_frequencies();
 
     	foreach ( $imports as $import_id => $import_settings )
     	{
@@ -455,6 +455,7 @@ if ( is_array($imports) && !empty($imports) )
 		        );
 
 		        do_action( 'houzez_property_feed_cron_end', $instance_id, $import_id );
+		        do_action( 'houzez_property_feed_import_cron_end', $instance_id, $import_id );
 	    	}
 	    }
     }

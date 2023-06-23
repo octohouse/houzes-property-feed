@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 1.0.21
-Version: 1.0.21
+Stable tag: 2.0.0
+Version: 2.0.0
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -91,6 +91,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.0 - 2023-06-23 =
+* Added support for automatic exports. Only BLM format added for now but more to be rolled out soon
+* Show admin notice if Houzez theme not active
+* Only do redirect when plugin activated if Houzez is active. Previously it would show an error
 
 = 1.0.21 - 2023-06-20 =
 * Support for CSV format allowing any CSV file hosted on a public URL to be imported

@@ -48,7 +48,7 @@ class Houzez_Property_Feed_Import {
 
                 if ( count($imports) >=1 )
                 {
-                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpferrormessage=' . urlencode(__( 'Maximum number of imports reached. Upgrade to PRO if wanting to benfit from multiple imports and more', 'houzezpropertyfeed' ) ) ) );
+                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . urlencode(__( 'Maximum number of imports reached. Upgrade to PRO if wanting to benfit from multiple imports and more', 'houzezpropertyfeed' ) ) ) );
                     die();
                 }
             }
@@ -168,7 +168,7 @@ class Houzez_Property_Feed_Import {
         $import_options['field_mapping_rules'] = $rules;
 
         // Save core format fields (API Key, XML URL etc)
-        $formats = get_houzez_property_feed_formats();
+        $formats = get_houzez_property_feed_import_formats();
         if ( isset($formats[$format]) )
         {
             if ( isset($formats[$format]['fields']) && !empty($formats[$format]['fields']) )
@@ -249,7 +249,7 @@ class Houzez_Property_Feed_Import {
 
         update_option( 'houzez_property_feed', $options );
 
-        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpfsuccessmessage=' . __( 'Import details saved', 'houzezpropertyfeed' ) ) );
+        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . __( 'Import details saved', 'houzezpropertyfeed' ) ) );
         die();
     }
 
@@ -261,7 +261,7 @@ class Houzez_Property_Feed_Import {
 
             if ( empty($import_id) )
             {
-                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpferrormessage=' . __( 'No import passed', 'houzezpropertyfeed' ) ) );
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . __( 'No import passed', 'houzezpropertyfeed' ) ) );
                 die();
             }
 
@@ -269,7 +269,7 @@ class Houzez_Property_Feed_Import {
             
             if ( !isset($options['imports'][$import_id]) )
             {
-                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpferrormessage=' . __( 'Import not found', 'houzezpropertyfeed' ) ) );
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . __( 'Import not found', 'houzezpropertyfeed' ) ) );
                 die();
             }
 
@@ -284,7 +284,7 @@ class Houzez_Property_Feed_Import {
                         {
                             if ( ( !isset($import['deleted']) || ( isset($import['deleted']) && $import['deleted'] !== true ) ) && isset($import['running']) && $import['running'] === true )
                             {
-                                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpferrormessage=' . urlencode(__( 'Maximum number of running imports reached. Upgrade to PRO if wanting to benfit from multiple imports and more', 'houzezpropertyfeed' ) ) ) );
+                                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . urlencode(__( 'Maximum number of running imports reached. Upgrade to PRO if wanting to benfit from multiple imports and more', 'houzezpropertyfeed' ) ) ) );
                                 die();
                             }
                         }
@@ -294,7 +294,7 @@ class Houzez_Property_Feed_Import {
 
                     update_option( 'houzez_property_feed', $options );
 
-                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpfsuccessmessage=' . __( 'Import started', 'houzezpropertyfeed' ) ) );
+                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . __( 'Import started', 'houzezpropertyfeed' ) ) );
                     die();
 
                     break;
@@ -306,7 +306,7 @@ class Houzez_Property_Feed_Import {
 
                     update_option( 'houzez_property_feed', $options );
 
-                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpfsuccessmessage=' . __( 'Import paused', 'houzezpropertyfeed' ) ) );
+                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . __( 'Import paused', 'houzezpropertyfeed' ) ) );
                     die();
 
                     break;
@@ -324,7 +324,7 @@ class Houzez_Property_Feed_Import {
 
             if ( empty($import_id) )
             {
-                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpferrormessage=' . __( 'No import passed', 'houzezpropertyfeed' ) ) );
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . __( 'No import passed', 'houzezpropertyfeed' ) ) );
                 die();
             }
 
@@ -332,7 +332,7 @@ class Houzez_Property_Feed_Import {
             
             if ( !isset($options['imports'][$import_id]) )
             {
-                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpferrormessage=' . __( 'Import not found', 'houzezpropertyfeed' ) ) );
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . __( 'Import not found', 'houzezpropertyfeed' ) ) );
                 die();
             }
 
@@ -341,7 +341,7 @@ class Houzez_Property_Feed_Import {
 
             update_option( 'houzez_property_feed', $options );
 
-            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed&hpfsuccessmessage=' . __( 'Import deleted successfully', 'houzezpropertyfeed' ) ) );
+            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . __( 'Import deleted successfully', 'houzezpropertyfeed' ) ) );
             die();
         }
     }

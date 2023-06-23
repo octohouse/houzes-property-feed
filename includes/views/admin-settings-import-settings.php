@@ -39,7 +39,7 @@
 						</div>
 
 						<input type="submit" value="<?php echo __( 'Save changes', 'houzezpropertyfeed' ); ?>" class="button button-primary">&nbsp;
-						<a href="<?php echo admin_url('admin.php?page=houzez-property-feed'); ?>" class="button">Cancel</a>
+						<a href="<?php echo admin_url('admin.php?page=houzez-property-feed-import'); ?>" class="button">Cancel</a>
 
 					</div>
 
@@ -74,7 +74,7 @@
 					<div class="buttons bottom">
 
 						<input type="submit" value="<?php echo __( 'Save changes', 'houzezpropertyfeed' ); ?>" class="button button-primary">&nbsp;
-						<a href="<?php echo admin_url('admin.php?page=houzez-property-feed'); ?>" class="button">Cancel</a>
+						<a href="<?php echo admin_url('admin.php?page=houzez-property-feed-import'); ?>" class="button">Cancel</a>
 
 					</div>
 

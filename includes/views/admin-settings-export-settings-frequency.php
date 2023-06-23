@@ -1,6 +1,6 @@
-<h3><?php echo __( 'Import Frequency', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo __( 'Export Frequency', 'houzezpropertyfeed' ); ?></h3>
 
-<p><?php echo __( 'Choose how often imports should run by selecting the frequency below', 'houzezpropertyfeed' ); ?>:</p>
+<p><?php echo __( 'Choose how often exports should run by selecting the frequency below', 'houzezpropertyfeed' ); ?>:</p>
 
 <table class="form-table">
 	<tbody>
@@ -11,7 +11,7 @@
 					foreach ( $frequencies as $key => $frequency )
 					{
 						$checked = false;
-						if ( isset($import_settings['frequency']) && $import_settings['frequency'] == $key )
+						if ( isset($export_settings['frequency']) && $export_settings['frequency'] == $key )
 						{
 							$checked = true;
 						}
@@ -19,7 +19,7 @@
 						{
 							$checked = true;
 						}
-						elseif( !isset($import_settings['frequency']) && $key == 'daily' )
+						elseif( !isset($export_settings['frequency']) && $key == 'daily' )
 						{
 							$checked = true;
 						}

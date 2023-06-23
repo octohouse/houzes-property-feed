@@ -82,7 +82,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             }
         }
 
-        $frequencies = get_houzez_property_feed_frequencies();
+        $frequencies = get_houzez_property_feed_import_frequencies();
 
         foreach ( $imports as $key => $import )
         {
@@ -95,7 +95,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 }
             }
 
-            $format = get_houzez_property_feed_format( $import['format'] );
+            $format = get_houzez_property_feed_import_format( $import['format'] );
 
             $details = '';
             if ( isset($format['fields']) && !empty($format['fields']) )
@@ -251,16 +251,16 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
 
             $this->items[] = array(
                 'col_import_format' => '
-                    <strong><a href="' . admin_url('admin.php?page=houzez-property-feed&action=editimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . ( isset($format['name']) ? $format['name'] : '-' ) . '</a></strong>
+                    <strong><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . ( isset($format['name']) ? $format['name'] : '-' ) . '</a></strong>
                     <div class="row-actions">
                         <span class="edit">' . ( 
                             !$running ? 
-                            '<a href="' . admin_url('admin.php?page=houzez-property-feed&action=startimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Start Import', 'houzezpropertyfeed' ) . '">' . __( 'Start Import', 'houzezpropertyfeed' ) . '</a>' : 
-                            '<a href="' . admin_url('admin.php?page=houzez-property-feed&action=pauseimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Pause Import', 'houzezpropertyfeed' ) . '">' . __( 'Pause Import', 'houzezpropertyfeed' ) . '</a>' 
+                            '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=startimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Start Import', 'houzezpropertyfeed' ) . '">' . __( 'Start Import', 'houzezpropertyfeed' ) . '</a>' : 
+                            '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=pauseimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Pause Import', 'houzezpropertyfeed' ) . '">' . __( 'Pause Import', 'houzezpropertyfeed' ) . '</a>' 
                         ) . ' | </span>
-                        <span class="edit"><a href="' . admin_url('/admin.php?page=houzez-property-feed&tab=logs&import_id=' . (int)$key) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a> | </span>
-                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed&action=editimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a> | </span>
-                        <span class="trash"><a href="' . admin_url('admin.php?page=houzez-property-feed&action=deleteimport&import_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Import', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
+                        <span class="edit"><a href="' . admin_url('/admin.php?page=houzez-property-feed-import&tab=logs&import_id=' . (int)$key) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a> | </span>
+                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a> | </span>
+                        <span class="trash"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=deleteimport&import_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Import', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
                     </div>',
                 'col_import_details' => $details,
                 'col_import_frequency' => ( isset($import['frequency']) ? str_replace("_", " ", ucwords($import['frequency'])) : '-' ),

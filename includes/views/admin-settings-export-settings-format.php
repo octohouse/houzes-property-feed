@@ -1,6 +1,6 @@
-<h3><?php echo __( 'Import Format', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo __( 'Export Format', 'houzezpropertyfeed' ); ?></h3>
 
-<p><?php echo __( 'Select the CRM or format that you want to import using below', 'houzezpropertyfeed' ); ?>:</p>
+<p><?php echo __( 'Select the format that you want to export to using below', 'houzezpropertyfeed' ); ?>:</p>
 
 <table class="form-table">
 	<tbody>
@@ -13,11 +13,18 @@
 						foreach ( $formats as $key => $format )
 						{
 							echo '<option value="' . $key . '"';
-							echo ( ( isset($import_settings['format']) && $import_settings['format'] == $key ) ? ' selected' : '' );
+							echo ( ( isset($export_settings['format']) && $export_settings['format'] == $key ) ? ' selected' : '' );
 							echo '>' . esc_html($format['name']) . '</option>';
 						}
 					?>
 				</select>
+			</td>
+		</tr>
+		<tr id="export_name_row" style="display:none">
+			<th><label for="export_name"><?php echo __( 'Name', 'houzezpropertyfeed' ); ?></label></th>
+			<td>
+				<input type="text" name="export_name" id="export_name" style="width:100%; max-width:400px;" value="<?php echo isset($export_settings['name']) ? esc_attr($export_settings['name']) : ''; ?>" placeholder="">
+				<div style="color:#999; font-size:13px; margin-top:5px;">Name given to export for internal purposes. Useful if using the same format for multiple exports</div>
 			</td>
 		</tr>
 	</tbody>
@@ -28,7 +35,7 @@
 	{
 ?>
 
-<div id="import_settings_<?php echo esc_attr($key); ?>" class="import-settings-format" style="display:none">
+<div id="export_settings_<?php echo esc_attr($key); ?>" class="import-settings-format" style="display:none">
 
 <h3><?php echo esc_html($format['name']) . ' ' . __( 'Settings', 'houzezpropertyfeed' ); ?></h3>
 
@@ -42,7 +49,7 @@
 					echo '<input 
 						type="' . esc_attr($field['type']) . '" 
 						name="' . esc_attr($key . '_' . $field['id']) . '" 
-						value="' . ( ( isset($import_settings[$field['id']]) ) ? esc_attr($import_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
+						value="' . ( ( isset($export_settings[$field['id']]) ) ? esc_attr($export_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
 					>';
 					continue;
 				}
@@ -58,7 +65,7 @@
 							echo '<input 
 								type="' . esc_attr($field['type']) . '" 
 								name="' . esc_attr($key . '_' . $field['id']) . '" 
-								value="' . ( ( isset($import_settings[$field['id']]) ) ? esc_attr($import_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
+								value="' . ( ( isset($export_settings[$field['id']]) ) ? esc_attr($export_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
 								placeholder="' . ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' ) . '"
 								style="width:100%; max-width:400px;"
 							>';
@@ -71,7 +78,7 @@
 								type="checkbox" 
 								name="' . esc_attr($key . '_' . $field['id']) . '" 
 								value="yes"
-								' . ( ( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
+								' . ( ( isset($export_settings[$field['id']]) && $export_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
 							>';
 							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
 							break;
@@ -86,9 +93,9 @@
 							{
 								$options = $field['options'];
 							}
-							elseif ( isset($import_settings[$field['id'] . '_options']) && !empty($import_settings[$field['id'] . '_options']) )
+							elseif ( isset($export_settings[$field['id'] . '_options']) && !empty($export_settings[$field['id'] . '_options']) )
 							{
-								$options = json_decode($import_settings[$field['id'] . '_options']);
+								$options = json_decode($export_settings[$field['id'] . '_options']);
 
 								$new_options = array();
 								if ( !empty($options) )
@@ -104,10 +111,10 @@
 
 							if ( $field['id'] == 'property_id_node' )
 							{
-								if ( isset($import_settings['property_node_options']) && !empty($import_settings['property_node_options']) )
+								if ( isset($export_settings['property_node_options']) && !empty($export_settings['property_node_options']) )
 								{
 									// use options from property_node_options
-									$options = json_decode($import_settings['property_node_options']);
+									$options = json_decode($export_settings['property_node_options']);
 
 									$new_options = array();
 									if ( !empty($options) )
@@ -115,14 +122,14 @@
 										foreach ( $options as $option_key => $option_value )
 										{
 											$node_name = $option_value;
-											if ( isset($import_settings['property_node']) && !empty($import_settings['property_node']) )
+											if ( isset($export_settings['property_node']) && !empty($export_settings['property_node']) )
 											{
-												if ( strpos($node_name, $import_settings['property_node']) === false )
+												if ( strpos($node_name, $export_settings['property_node']) === false )
 												{
 													continue;
 												}
 
-												$node_name = str_replace($import_settings['property_node'], '', $node_name);
+												$node_name = str_replace($export_settings['property_node'], '', $node_name);
 											}
 
 											$new_options[$node_name] = $node_name;
@@ -135,10 +142,10 @@
 
 							if ( $field['id'] == 'property_id_field' )
 							{
-								if ( isset($import_settings['property_field_options']) && !empty($import_settings['property_field_options']) )
+								if ( isset($export_settings['property_field_options']) && !empty($export_settings['property_field_options']) )
 								{
 									// use options from property_field_options
-									$options = json_decode($import_settings['property_field_options']);
+									$options = json_decode($export_settings['property_field_options']);
 
 									$new_options = array();
 									if ( !empty($options) )
@@ -161,9 +168,9 @@
 								{
 									echo '<option value="' . $option_key . '"';
 									if (
-										( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == $option_key )
+										( isset($export_settings[$field['id']]) && $export_settings[$field['id']] == $option_key )
 										||
-										( !isset($import_settings[$field['id']]) && ( isset($field['default']) && $field['default'] == $option_key ) )
+										( !isset($export_settings[$field['id']]) && ( isset($field['default']) && $field['default'] == $option_key ) )
 									)
 									{
 										echo ' selected';
@@ -209,7 +216,7 @@
 <?php
 	if ( isset($format['help_url']) && !empty($format['help_url']) )
 	{
-		echo '<p style="color:#999"><span class="dashicons dashicons-editor-help"></span> <strong>Need help?</strong> Read our documentation for instructions on <a href="' . esc_attr($format['help_url']) . '" target="_blank">setting up an import from ' . esc_html($format['name']) . '</a></p>';
+		echo '<p style="color:#999"><span class="dashicons dashicons-editor-help"></span> <strong>Need help?</strong> Read our documentation for instructions on <a href="' . esc_attr($format['help_url']) . '" target="_blank">setting up an export in the ' . esc_html($format['name']) . ' format</a></p>';
 	}
 ?>
 

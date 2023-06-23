@@ -1,6 +1,6 @@
 <?php
 
-function get_houzez_property_feed_formats()
+function get_houzez_property_feed_import_formats()
 {
     $curl_warning = !function_exists('curl_version') ? __( 'cURL must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
     $simplexml_warning = !class_exists('SimpleXMLElement') ? __( 'SimpleXML must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
@@ -926,16 +926,16 @@ function get_houzez_property_feed_formats()
     return $formats;
 }
 
-function get_houzez_property_feed_format( $key )
+function get_houzez_property_feed_import_format( $key )
 {
-    $formats = get_houzez_property_feed_formats();
+    $formats = get_houzez_property_feed_import_formats();
     
     return isset($formats[$key]) ? $formats[$key] : false;
 }
 
 function get_format_from_import_id( $import_id )
 {
-    $formats = get_houzez_property_feed_formats();
+    $formats = get_houzez_property_feed_import_formats();
 
     $options = get_option( 'houzez_property_feed' , array() );
     $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
@@ -944,7 +944,315 @@ function get_format_from_import_id( $import_id )
     {
         $format = $imports[$import_id]['format'];
 
-        return get_houzez_property_feed_format( $format );
+        return get_houzez_property_feed_import_format( $format );
+    }
+    
+    return false;
+}
+
+function get_houzez_property_feed_export_formats()
+{
+    $curl_warning = !function_exists('curl_version') ? __( 'cURL must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
+    $simplexml_warning = !class_exists('SimpleXMLElement') ? __( 'SimpleXML must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
+    // FTP warning?
+    // zipArchive warning?
+
+    $branch_mapping_options = array();
+
+    $houzez_ptype_settings = get_option('houzez_ptype_settings', array() );
+
+    $args = array(
+        'post_type' => 'property',
+        'fields' => 'ids',
+        'meta_query' => array(
+            array(
+                'key' => 'fave_agent_display_option',
+                'value' => 'author_info',
+            )
+        ),
+    );
+
+    $property_query = new WP_Query( $args );
+
+    if ( $property_query->have_posts() )
+    {
+        $branch_mapping_options['author_info'] = array();
+
+        $users = get_users( array( 'orderby' => 'name' ) );
+        foreach ( $users as $user ) 
+        {
+            $branch_mapping_options['author_info'][$user->ID] = $user->display_name;
+        }
+    }
+
+    if ( !isset($houzez_ptype_settings['houzez_agents_post']) || ( isset($houzez_ptype_settings['houzez_agents_post']) && $houzez_ptype_settings['houzez_agents_post'] != 'disabled' ) )
+    {
+        $args = array(
+            'post_type' => 'property',
+            'fields' => 'ids',
+            'meta_query' => array(
+                array(
+                    'key' => 'fave_agent_display_option',
+                    'value' => 'agent_info',
+                )
+            ),
+        );
+
+        $property_query = new WP_Query( $args );
+
+        if ( $property_query->have_posts() )
+        {
+            $args = array(
+                'post_type' => 'houzez_agent',
+                'nopaging' => true
+            );
+
+            $agent_query = new WP_Query( $args );
+
+            if ( $agent_query->have_posts() )
+            {
+                $branch_mapping_options['agent_info'] = array();
+
+                while ( $agent_query->have_posts() )
+                {
+                    $agent_query->the_post();
+
+                    $branch_mapping_options['agent_info'][get_the_ID()] = get_the_title();
+                }
+            }
+        }
+    }
+
+    if ( !isset($houzez_ptype_settings['houzez_agencies_post']) || ( isset($houzez_ptype_settings['houzez_agencies_post']) && $houzez_ptype_settings['houzez_agencies_post'] != 'disabled' ) )
+    {
+        $args = array(
+            'post_type' => 'property',
+            'fields' => 'ids',
+            'meta_query' => array(
+                array(
+                    'key' => 'fave_agent_display_option',
+                    'value' => 'agency_info',
+                )
+            ),
+        );
+
+        $property_query = new WP_Query( $args );
+
+        if ( $property_query->have_posts() )
+        {
+            $args = array(
+                'post_type' => 'houzez_agency',
+                'nopaging' => true
+            );
+
+            $agent_query = new WP_Query( $args );
+
+            if ( $agent_query->have_posts() )
+            {
+                $branch_mapping_options['agency_info'] = array();
+
+                while ( $agent_query->have_posts() )
+                {
+                    $agent_query->the_post();
+
+                    $branch_mapping_options['agency_info'][get_the_ID()] = get_the_title();
+                }
+            }
+        }
+    }
+
+    $branch_mapping_fields = array(
+        array(
+            'type' => 'html',
+            'html' => '<p style="font-size:1.1em"><strong>' . __( 'Branch Codes', 'houzezpropertyfeed' ) . '</strong></p>',
+        )
+    );
+
+    foreach ( $branch_mapping_options as $type => $values )
+    {
+        foreach ( $values as $id => $name )
+        {
+            $branch_mapping_fields[] = array(
+                'type' => 'text',
+                'id' => 'branch_code_' . $type . '_' . $id . '_sales',
+                'label' => $name . ' (' . __( ucwords(str_replace("_info", "", $type)), 'houzezpropertyfeed' ) . ') - ' . __( 'Sales', 'houzezpropertyfeed' ),
+            );
+            $branch_mapping_fields[] = array(
+                'type' => 'text',
+                'id' => 'branch_code_' . $type . '_' . $id . '_lettings',
+                'label' => $name . ' (' . __( ucwords(str_replace("_info", "", $type)), 'houzezpropertyfeed' ) . ') - ' . __( 'Lettings', 'houzezpropertyfeed' ),
+            );
+        }
+    }
+
+    $formats = array(
+        'blm' => array(
+            'name' => __( 'BLM', 'houzezpropertyfeed' ),
+            'method' => 'cron', // cron / realtime
+            'fields' => array_merge(array(
+                array(
+                    'type' => 'html',
+                    'html' => '<p style="font-size:1.1em"><strong>' . __( 'FTP Details', 'houzezpropertyfeed' ) . '</strong></p>',
+                ),
+                array(
+                    'id' => 'ftp_host',
+                    'label' => __( 'FTP Host', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_user',
+                    'label' => __( 'FTP Username', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_pass',
+                    'label' => __( 'FTP Password', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_dir',
+                    'label' => __( 'FTP Directory', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_passive',
+                    'label' => __( 'Use FTP Passive Mode', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                )
+            ), $branch_mapping_fields, array(
+                array(
+                    'type' => 'html',
+                    'html' => '<p style="font-size:1.1em"><strong>' . __( 'Advanced Settings', 'houzezpropertyfeed' ) . '</strong></p>',
+                ),
+                array(
+                    'id' => 'overseas',
+                    'label' => __( 'Use Overseas Format', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'tooltip' => __( 'If selected, version 3i of the BLM format will be used<br>For overseas to work you must have the Houzez Country taxonomy enabled and a country selected that\'s not anything other than UK, United Kingdom, GB, Britain, Great Britain, England, Scotland, Wales or Ireland', 'houzezpropertyfeed' )
+                ),
+                array(
+                    'id' => 'media_sent_as',
+                    'label' => __( 'Media Sent as', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'urls' => 'URLs',
+                        'files' => 'Files',
+                    ),
+                    'tooltip' => 'URLs: Full URL to any media will be sent and the third party will need to download the files<br>Files: The physical media files will be sent to the portal'
+                ),
+                array(
+                    'id' => 'incremental',
+                    'label' => __( 'Incremental', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'tooltip' => 'Only applicable when \'Files\' is selected above. If this setting is checked only new or changed media will be included in the upload, thus preventing every media file to be sent every time an export runs. We advise leaving this unticked whilst the feed is being setup. Only tick this once it\'s all up and running'
+                ),
+                array(
+                    'id' => 'compressed',
+                    'label' => __( 'Compress Files Into ZIP', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'tooltip' => __( 'Compress everything into a single ZIP file and upload that one file', 'houzezpropertyfeed' ),
+                )
+            )),
+            'taxonomy_values' => array(
+                'status' => array(
+                    '0' => 'Available',
+                    '1' => 'SSTC',
+                    '2' => 'SSTCM (Scotland only)',
+                    '3' => 'Under Offer',
+                    '4' => 'Reserved',
+                    '5' => 'Let Agreed',
+                    '6' => 'Sold',
+                    '7' => 'Let',
+                ),
+                'property_type' => array(
+                    '0' => 'Not Specified',
+                    '1' => 'Terraced',
+                    '2' => 'End of Terrace',
+                    '3' => 'Semi-Detached ',
+                    '4' => 'Detached',
+                    '5' => 'Mews',
+                    '6' => 'Cluster House',
+                    '7' => 'Ground Flat',
+                    '8' => 'Flat',
+                    '9' => 'Studio',
+                    '10' => 'Ground Maisonette',
+                    '11' => 'Maisonette',
+                    '12' => 'Bungalow',
+                    '13' => 'Terraced Bungalow',
+                    '14' => 'Semi-Detached Bungalow',
+                    '15' => 'Detached Bungalow',
+                    '16' => 'Mobile Home',
+                    '17' => 'Hotel',
+                    '18' => 'Guest House',
+                    '20' => 'Land',
+                    '21' => 'Link Detached House',
+                    '22' => 'Town House',
+                    '23' => 'Cottage',
+                    '24' => 'Chalet',
+                    '27' => 'Villa',
+                    '28' => 'Apartment',
+                    '29' => 'Penthouse',
+                    '30' => 'Finca',
+                    '43' => 'Barn Conversion',
+                    '44' => 'Serviced Apartments',
+                    '45' => 'Parking',
+                    '46' => 'Sheltered Housing',
+                    '47' => 'Retirement Property',
+                    '48' => 'House Share',
+                    '49' => 'Flat Share',
+                    '51' => 'Garages',
+                    '52' => 'Farm House',
+                    '53' => 'Equestrian',
+                    '56' => 'Duplex',
+                    '59' => 'Triplex',
+                    '68' => 'Barn',
+                    '95' => 'Village House',
+                    '107' => 'Farm Land',
+                    '110' => 'Plot',
+                    '113' => 'Country House',
+                    '116' => 'Stone House',
+                    '117' => 'Caravan',
+                    '118' => 'Lodge',
+                    '120' => 'Manor House',
+                    '121' => 'Stately Home',
+                    '125' => 'Off-Plan',
+                    '128' => 'Semi-detached Villa',
+                    '131' => 'Detached Villa',
+                    '142' => 'Hotel Room',
+                    '143' => 'Block of Apartments',
+                    '144' => 'Private Halls',
+                    '253' => 'Commercial Property',
+                )
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/blm/',
+            'warnings' => array(), // maybe FTP warning? maybe ZipArchive warning
+        ),
+    );
+
+    $formats = apply_filters( 'houzez_property_feed_export_formats', $formats );
+
+    return $formats;
+}
+
+function get_houzez_property_feed_export_format( $key )
+{
+    $formats = get_houzez_property_feed_export_formats();
+    
+    return isset($formats[$key]) ? $formats[$key] : false;
+}
+
+function get_format_from_export_id( $export_id )
+{
+    $formats = get_houzez_property_feed_export_formats();
+
+    $options = get_option( 'houzez_property_feed' , array() );
+    $exports = ( isset($options['exports']) && is_array($options['exports']) && !empty($options['exports']) ) ? $options['exports'] : array();
+
+    if ( isset($exports[$export_id]) )
+    {
+        $format = $exports[$export_id]['format'];
+
+        return get_houzez_property_feed_export_format( $format );
     }
     
     return false;
