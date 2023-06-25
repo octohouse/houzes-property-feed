@@ -186,7 +186,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
                 foreach ( $address_taxonomies as $address_taxonomy )
                 {
-                    $terms = get_the_terms( $post_id, $address_taxonomy );
+                    $terms = get_the_terms( $post->ID, $address_taxonomy );
                     $term_ids_to_use = array();
                     if ( !is_wp_error($terms) && !empty($terms) )
                     {

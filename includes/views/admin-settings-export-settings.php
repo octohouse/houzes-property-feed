@@ -1,4 +1,4 @@
-<form method="POST" action="">
+<form method="POST" action="" enctype="multipart/form-data">
 
 	<input type="hidden" name="export_id" value="<?php echo ( $export_id !== FALSE ? $export_id : '' ); ?>">
 	<input type="hidden" name="save_export_settings" value="yes">

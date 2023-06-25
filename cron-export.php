@@ -78,6 +78,7 @@ if ( is_array($exports) && !empty($exports) )
 		}
 		else
 		{
+            //remove real-time feeds from being processed
 			unset($exports[$export_id]);
 		}
 	}
@@ -99,6 +100,7 @@ if ( is_array($exports) && !empty($exports) )
     }
     else
     {
+        // ensure only one export if pro not active
     	foreach ( $exports as $export_id => $export_settings )
 		{
 			if ( !isset($export_settings['running']) || ( isset($export_settings['running']) && $export_settings['running'] !== true ) )

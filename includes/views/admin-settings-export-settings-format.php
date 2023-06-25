@@ -74,7 +74,22 @@
 								placeholder="' . ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' ) . '"
 								style="width:100%; max-width:400px;"
 							>';
-							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
+							break;
+						}
+						case "file":
+						{
+							if ( isset($export_settings[$field['id']]) && !empty($export_settings[$field['id']]) )
+	                        {
+	                            $uploads_dir = wp_upload_dir();
+	                            $uploads_dir = $uploads_dir['baseurl'] . '/houzez_property_feed_export/';
+	                            echo '<a href="' . $uploads_dir . $export_settings[$field['id']] . '" target="_blank">Download Uploaded ' . $field['label'] . '</a><br><br>';
+	                        }
+							echo '<input 
+								type="' . esc_attr($field['type']) . '" 
+								name="' . esc_attr($key . '_' . $field['id']) . '" 
+							>';
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
 						}
 						case "checkbox":
@@ -85,7 +100,7 @@
 								value="yes"
 								' . ( ( isset($export_settings[$field['id']]) && $export_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
 							>';
-							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
 						}
 						case "select":
@@ -191,7 +206,7 @@
 								}
 							}
 							echo '</select>';
-							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
 						}
 						case "html":

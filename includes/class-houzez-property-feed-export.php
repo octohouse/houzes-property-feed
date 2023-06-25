@@ -86,7 +86,94 @@ class Houzez_Property_Feed_Export {
             {
                 foreach ( $formats[$format]['fields'] as $field )
                 {   
-                    if ( isset($field['type']) && $field['type'] != 'html' )
+                    if ( isset($field['type']) && $field['type'] == 'file' )
+                    {
+                        $uploaded_file_name = isset($options['exports'][$export_id][$field['id']]) ? $options['exports'][$export_id][$field['id']] : '';
+
+                        if ( !isset($_FILES[$format . '_' . $field['id']]) || $_FILES[$format . '_' . $field['id']]['size'] == 0 )
+                        {
+                            // No file uploaded
+                        }
+                        else
+                        {
+                            $error = '';
+                            try 
+                            {
+                                // Check $_FILES['upfile']['error'] value.
+                                switch ($_FILES[$format . '_' . $field['id']]['error']) {
+                                    case UPLOAD_ERR_OK:
+                                        break;
+                                    case UPLOAD_ERR_NO_FILE:
+                                        throw new RuntimeException('No file sent.');
+                                    case UPLOAD_ERR_INI_SIZE:
+                                    case UPLOAD_ERR_FORM_SIZE:
+                                        $error = __( 'File exceeded filesize limit.', 'propertyhive' );
+                                    default:
+                                        $error = __( 'Unknown error when uploading file.', 'propertyhive' );
+                                }
+
+                                if ($error == '')
+                                {  
+                                    // You should also check filesize here. 
+                                    if ($_FILES[$format . '_' . $field['id']]['size'] > 1000000) {
+                                        $error = __( 'Exceeded filesize limit.', 'propertyhive' );
+                                    }
+
+                                    if ($error == '')
+                                    {  
+                                        $ext = pathinfo($_FILES[$format . '_' . $field['id']]['name'], PATHINFO_EXTENSION);
+                                        // Check if the extension is active on the server
+                                        /*if (class_exists('finfo'))
+                                        {
+                                            // DO NOT TRUST $_FILES['upfile']['mime'] VALUE !!
+                                            // Check MIME Type by yourself.
+                                            $finfo = new finfo(FILEINFO_MIME_TYPE);
+                                            if (false === $ext = array_search(
+                                                $finfo->file($_FILES[$format . '_' . $field['id']]['tmp_name']),
+                                                array(
+                                                    'pem' => 'application/octet-stream',
+                                                    'pem' => 'text/plain'
+                                                ),
+                                                true
+                                            )) {
+                                                $error = __( 'Certificate file must be of type .pem', 'propertyhive' );
+                                            }
+                                        }*/
+
+                                        if ($error == '')
+                                        { 
+                                            $uploads_dir = wp_upload_dir();
+                                            $uploads_dir = $uploads_dir['basedir'] . '/houzez_property_feed_export/';
+
+                                            $uploaded_file_name = sha1_file($_FILES[$format . '_' . $field['id']]['tmp_name']) . '.' . $ext;
+
+                                            // You should name it uniquely.
+                                            // DO NOT USE $_FILES['upfile']['name'] WITHOUT ANY VALIDATION !!
+                                            // On this example, obtain safe unique name from its binary data.
+                                            if (!move_uploaded_file(
+                                                $_FILES[$format . '_' . $field['id']]['tmp_name'],
+                                                sprintf(
+                                                    $uploads_dir . '%s',
+                                                    $uploaded_file_name
+                                                )
+                                            )) {
+                                                $error = __( 'Failed to move uploaded file.', 'propertyhive' );
+                                            }
+                                        }
+
+                                    }
+
+                                }
+
+                            } catch (RuntimeException $e) 
+                            {
+                                $error = $e->getMessage();
+                            }
+                        }
+
+                        $export_options[$field['id']] = $uploaded_file_name;
+                    }
+                    elseif ( isset($field['type']) && $field['type'] != 'html' )
                     {
                         $field_value = '';
                         if ( isset($_POST[$format . '_' . $field['id']]) && !empty($_POST[$format . '_' . $field['id']]) )

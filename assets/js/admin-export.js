@@ -64,7 +64,7 @@ function hpf_show_format_settings()
 		{
 			if ( i == selected_format )
 			{
-				if ( hpf_admin_object.formats[i].method == 'cron' )
+				if ( hpf_admin_object.formats[i].method == 'cron' || hpf_admin_object.formats[i].method == 'url' )
 				{
 					jQuery('#export_setting_tab_frequency').show();
 				}

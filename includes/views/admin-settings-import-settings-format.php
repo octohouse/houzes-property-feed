@@ -62,7 +62,7 @@
 								placeholder="' . ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' ) . '"
 								style="width:100%; max-width:400px;"
 							>';
-							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
 						}
 						case "checkbox":
@@ -73,7 +73,7 @@
 								value="yes"
 								' . ( ( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
 							>';
-							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
 						}
 						case "select":
@@ -179,7 +179,7 @@
 								}
 							}
 							echo '</select>';
-							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . esc_html($field['tooltip']) . '</div>' : '' );
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
 						}
 						case "html":

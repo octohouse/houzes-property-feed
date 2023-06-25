@@ -436,12 +436,29 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                 $property_row_values['AGENT_REF'] = $agent_ref;
 
+                $address_fields = array();
+
+                $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
+                foreach ( $address_taxonomies as $address_taxonomy )
+                {
+                    $terms = get_the_terms( $post->ID, $address_taxonomy );
+                    $term_ids_to_use = array();
+                    if ( !is_wp_error($terms) && !empty($terms) )
+                    {
+                        foreach ( $terms as $term )
+                        {
+                            $address_fields[] = $term->name;
+                            break;
+                        }
+                    }
+                }
+
                 if ( isset($export_settings['overseas']) && $export_settings['overseas'] == 'yes' )
                 {
-                    $property_row_values['ADDRESS_1'] = '';
+                    $property_row_values['ADDRESS_1'] = get_post_meta( $post->ID, 'fave_property_address', TRUE );
                     $property_row_values['STREET_NAME'] = '';
-                    $property_row_values['OS_TOWN_CITY'] = '';
-                    $property_row_values['OS_REGION'] = '';
+                    $property_row_values['OS_TOWN_CITY'] = isset($address_fields[1]) ? $address_fields[1] : '';
+                    $property_row_values['OS_REGION'] = isset($address_fields[0]) ? $address_fields[0] : '';
                     $property_row_values['ZIPCODE'] = get_post_meta($post->ID, 'fave_property_zip', true);
                     $property_row_values['COUNTRY_CODE'] = '';
                     $fave_property_location = get_post_meta($post->ID, 'fave_property_location', true);
@@ -458,10 +475,10 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                 }
                 else
                 {
-                    $property_row_values['ADDRESS_1'] = '';
+                    $property_row_values['ADDRESS_1'] = get_post_meta( $post->ID, 'fave_property_address', TRUE );
                     $property_row_values['ADDRESS_2'] = '';
-                    $property_row_values['ADDRESS_3'] = '';
-                    $property_row_values['TOWN'] = '';
+                    $property_row_values['ADDRESS_3'] = isset($address_fields[0]) ? $address_fields[0] : '';
+                    $property_row_values['TOWN'] = isset($address_fields[1]) ? $address_fields[1] : '';
                     $explode_postcode = explode(" ", get_post_meta($post->ID, 'fave_property_zip', true));
                     $property_row_values['POSTCODE1'] = strtoupper(trim($explode_postcode[0]));
                     $property_row_values['POSTCODE2'] = ( (isset($explode_postcode[1])) ? strtoupper(trim($explode_postcode[1])) : '' );
