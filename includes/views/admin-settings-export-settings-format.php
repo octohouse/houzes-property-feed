@@ -51,10 +51,17 @@
 			{
 				if ( $field['type'] == 'hidden' )
 				{
+					$value = ( ( isset($export_settings[$field['id']]) ) ? esc_attr($export_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) );
+					if ( substr($field['id'], 0, 9) == 'previous_' && empty($value) )
+					{
+						$field_id_check = str_replace('previous_', '', $field['id']);
+						$value = ( ( isset($export_settings[$field_id_check]) ) ? esc_attr($export_settings[$field_id_check]) : '' );
+					}
+
 					echo '<input 
 						type="' . esc_attr($field['type']) . '" 
 						name="' . esc_attr($key . '_' . $field['id']) . '" 
-						value="' . ( ( isset($export_settings[$field['id']]) ) ? esc_attr($export_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
+						value="' . $value . '" 
 					>';
 					continue;
 				}

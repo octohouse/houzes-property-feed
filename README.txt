@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 2.0.2
-Version: 2.0.2
+Stable tag: 2.0.3
+Version: 2.0.3
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -39,6 +39,7 @@ We can export and upload feeds from Houzez to third party portals in the followi
 * BLM
 * Kyero v3
 * Rightmove and OnTheMarket Real-Time Format (RTDF)
+* Zoopla Real-Time Format
 
 Here's just a couple of reasons why you should choose the Houzez Property Feed plugin to import and export your property stock:
 
@@ -97,6 +98,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.3 - 2023-06-26 =
+* Added support for automatic exports to Zoopla
+* Corrections to RTDF format
 
 = 2.0.2 - 2023-06-25 =
 * Added support for automatic exports in the RTDF format for Rightmove and OnTheMarket

@@ -86,6 +86,11 @@ class Houzez_Property_Feed_Export {
             {
                 foreach ( $formats[$format]['fields'] as $field )
                 {   
+                    if ( isset($field['id']) && substr($field['id'], 0, 9) == 'previous_' ) // don't save any fields storing previous data
+                    {
+                        continue;
+                    }
+
                     if ( isset($field['type']) && $field['type'] == 'file' )
                     {
                         $uploaded_file_name = isset($options['exports'][$export_id][$field['id']]) ? $options['exports'][$export_id][$field['id']] : '';
@@ -185,6 +190,19 @@ class Houzez_Property_Feed_Export {
                             $field_value = stripslashes($field_value);
                         }
                         $export_options[$field['id']] = $field_value;
+
+                        // Clear any old SHA1s if the API urls have changed
+                        if ( 
+                            $field['id'] == 'send_property_url' && 
+                            isset($_POST[$format . '_previous_' . $field['id']]) && 
+                            !empty(sanitize_text_field($_POST[$format . '_previous_' . $field['id']])) &&
+                            sanitize_text_field($_POST[$format . '_' . $field['id']]) != sanitize_text_field($_POST[$format . '_previous_' . $field['id']])
+                        )
+                        {
+                            // we got a different URL. Clear the SHA1s
+                            delete_post_meta_by_key( '_realtime_sha1_' . $export_id );
+                            delete_post_meta_by_key( '_zoopla_sha1_' . $export_id );
+                        }
                     }
                 }
             }

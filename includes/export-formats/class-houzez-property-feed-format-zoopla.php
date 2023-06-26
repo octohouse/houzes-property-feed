@@ -1,12 +1,12 @@
 <?php
 /**
- * Class for managing the export process of an RTDF file
+ * Class for managing the export process of a Zoopla file
  *
  * @package WordPress
  */
 if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
-class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
+class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
     /**
      * @var array
@@ -67,9 +67,9 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             foreach ( $exports as $export_id => $export_settings  )
             {
                 $format = get_format_from_export_id( $export_id );
-                if ( $export_settings['format'] != 'rtdf' )
+                if ( $export_settings['format'] != 'zoopla' )
                 {
-                    //remove non-RTDF exports from being processed
+                    //remove non-Zoopla exports from being processed
                     unset($exports[$export_id]);
                 }
             }
@@ -144,7 +144,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             $args['tax_query'] = $tax_query;
 
             $args = apply_filters( 'houzez_property_feed_export_property_args', $args, $this->export_id );
-            $args = apply_filters( 'houzez_property_feed_export_rtdf_property_args', $args, $this->export_id );
+            $args = apply_filters( 'houzez_property_feed_export_zoopla_property_args', $args, $this->export_id );
 
             $property_query = new WP_Query( $args );
 
@@ -181,26 +181,22 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                             {
                                 // Should check branch properties before making remove request
                                 $request_data = array();
+                                $request_data['branch_reference'] = $branch_code;
 
-                                // Network
-                                $request_data['network'] = array();
-                                $request_data['network']['network_id'] = (int)$export_settings['network_id'];
-                                
-                                // Branch
-                                $request_data['branch'] = array();
-                                $request_data['branch']['branch_id'] = (int)$branch_code;
-                                $request_data['branch']['channel'] = ( $department == 'sales' ? 1 : 2 ); // 1 for sales, 2 for lettings
+                                $response = $this->do_curl_request( $request_data, $export_settings['get_branch_properties_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/list.json', $post->ID, false );
 
-                                $response = $this->do_curl_request( $request_data, $export_settings['get_branch_properties_url'], $post->ID, false );
-
-                                if ($response === FALSE) { return false; }
+                                if ($response === FALSE) 
+                                { 
+                                    $this->log_error('Failed to get branch properties', '', $post->ID);
+                                    $ok_to_send = false;
+                                }
 
                                 $this->get_branch_properties_responses[$this->export_id . '_' . (int)$branch_code . '_' . $department] = $response;
                             }
 
-                            if (isset($response['property']) && is_array($response['property']) && !empty($response['property']))
+                            if (isset($response['listings']) && is_array($response['listings']) && !empty($response['listings']))
                             {
-                                if ( count($response['property']) >= 25 )
+                                if ( count($response['listings']) >= 25 )
                                 {
                                     $this->log_error('25 or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
                                     $ok_to_send = false;
@@ -253,152 +249,17 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         $export_settings = get_export_settings_from_id( $this->export_id );
 
         $request_data = array();
-                        
-        // Network
-        $request_data['network'] = array();
-        $request_data['network']['network_id'] = (int)$export_settings['network_id'];
-        
-        // Branch
-        $request_data['branch'] = array();
+
+        $request_data['bathrooms'] = (int)get_post_meta( $post_id, 'fave_property_bathrooms', TRUE );
         $branch_code = $branch_code = $this->get_branch_code( $post_id );
-        $request_data['branch']['branch_id'] = (int)$branch_code;
-
-        // Property
-        $department = $this->get_department( $post_id );
-        
-        $request_data['property'] = array();
-        $request_data['property']['address'] = array();
-        $request_data['property']['price_information'] = array();
-        $request_data['property']['details'] = array();
-
-        $request_data['property']['agent_ref'] = (string)$post_id;
-        $request_data['property']['published'] = true;
-
-        // Do property type lookup
-        $property_type = $this->get_export_mapped_value($post_id, 'property_type');
-        $request_data['property']['property_type'] = ( ( $property_type != '' ) ? (int)$property_type : 0 );
-
-        //if ( !$overseas )
-        //{
-            $request_data['property']['status'] = (int)$this->get_export_mapped_value($post_id, 'availability');
-            $request_data['property']['student_property'] = FALSE;
-
-            $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
-            foreach ( $address_taxonomies as $address_taxonomy )
-            {
-                $terms = get_the_terms( $post_id, $address_taxonomy );
-                $term_ids_to_use = array();
-                if ( !is_wp_error($terms) && !empty($terms) )
-                {
-                    foreach ( $terms as $term )
-                    {
-                        $address_fields[] = $term->name;
-                        break;
-                    }
-                }
-            }
-
-            $request_data['property']['address']['house_name_number'] = get_post_meta( $post_id, 'fave_property_address', TRUE );
-            $request_data['property']['address']['address_2'] = '';
-            $request_data['property']['address']['address_3'] = isset($address_fields[0]) ? $address_fields[0] : '';
-            $request_data['property']['address']['address_4'] = isset($address_fields[1]) ? $address_fields[1] : '';
-            $request_data['property']['address']['town'] = isset($address_fields[2]) ? $address_fields[2] : '';
-
-            $explode_postcode = explode(" ", trim(strtoupper(get_post_meta($post_id, 'fave_property_zip', true))));
-            $request_data['property']['address']['postcode_1'] = strtoupper(trim($explode_postcode[0]));
-            $request_data['property']['address']['postcode_2'] = ( (isset($explode_postcode[1])) ? strtoupper(trim($explode_postcode[1])) : '' );
-            $request_data['property']['address']['display_address'] = get_the_title( $post_id );
-
-            $price_qualifier = 0;
-            $request_data['property']['price_information']['price_qualifier'] = (int)$price_qualifier;
-
-            $request_data['property']['price_information']['deposit'] = null;
-            $request_data['property']['price_information']['administration_fee'] = '';
-            $rent_frequency = null;
-            if ( $department == 'lettings' )
-            {
-                switch ( strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )) )
-                {
-                    case "pw":
-                    case "per week":
-                    case "weekly": { $rent_frequency = 52; break; }
-                    case "pq":
-                    case "per quarter":
-                    case "quarterly": { $rent_frequency = 4; break; }
-                    case "pa":
-                    case "per annum":
-                    case "per year":
-                    case "yearly": { $rent_frequency = 1; break; }
-                    case "pppw": { $rent_frequency = 52; break; }
-                    default: { $rent_frequency = 12; }
-                }
-            }
-            $request_data['property']['price_information']['rent_frequency'] = $rent_frequency;
-
-            $request_data['property']['price_information']['auction'] = false;
-
-            $request_data['property']['date_available'] = null;
-            $request_data['property']['contract_months'] = null;
-            $request_data['property']['minimum_term'] = null;
-            $request_data['property']['let_type'] = null;
-        /*}
-        else
-        {
-            $request_data['property']['os_status'] = (int)$this->get_mapped_value($post_id, 'overseas_availability');
-
-            $request_data['property']['address']['country_code'] = $country;
-            $request_data['property']['address']['region'] = ( get_post_meta($post->ID, '_address_four', true) != '' ? get_post_meta($post->ID, '_address_four', true) : get_post_meta($post->ID, '_address_three', true) );
-            $request_data['property']['address']['sub_region'] = get_post_meta($post->ID, '_address_three', true);
-            $request_data['property']['address']['town_city'] = ( get_post_meta($post->ID, '_address_two', true) != '' ? get_post_meta($post->ID, '_address_two', true) : get_post_meta($post->ID, '_address_three', true) );
-
-            $request_data['property']['price_information']['os_price_qualifier'] = (int)$this->get_mapped_value($post->ID, 'overseas_price_qualifier');
-        }*/
-
-        $request_data['property']['new_home'] = FALSE;
-        $request_data['property']['create_date'] = get_the_time('d-m-Y H:i:s', $post_id);
-        $request_data['property']['update_date'] = get_the_modified_time('d-m-Y H:i:s', $post_id);
-
-        $fave_property_location = get_post_meta($post_id, 'fave_property_location', true);
-        $explode_fave_property_location = explode(",", $fave_property_location);
-        $lat = '';
-        $lng = '';
-        if ( count($explode_fave_property_location) >= 2 )
-        {
-            $lat = $explode_fave_property_location[0];
-            $lng = $explode_fave_property_location[1];
-        }
-        $request_data['property']['address']['latitude'] = ( !empty($lat) ? (float)$lat : null );
-        $request_data['property']['address']['longitude'] = ( !empty($lng) ? (float)$lng : null );
-
-        $price = get_post_meta( $post_id, 'fave_property_price', TRUE );
-        
-        /*if ( 
-            $overseas && 
-            ( $department == 'sales' || ph_get_custom_department_based_on( $original_department ) == 'residential-sales' ) 
-        )
-        {
-            // overseas. Make sure price is in right currency
-            $gbp_countries = array( 'AE', 'AU', 'BG', 'BR', 'CZ', 'EG', 'HU', 'MA', 'NY', 'NZ', 'SG', 'TH', 'TR', 'ZA' );
-            $gbp_countries = apply_filters( 'propertyhive_rtdf_gbp_countries' , $gbp_countries );
-
-            if ( in_array($country, $gbp_countries) )
-            {
-                $price = get_post_meta( $post->ID, '_price_actual', TRUE );
-            }
-        }*/
-
-        $request_data['property']['price_information']['price'] = (float)$price;
-        
-        $full_description = get_the_content( $post_id );
-        $request_data['property']['details']['summary'] = ( get_the_excerpt( $post_id ) != '' ) ? substr(strip_tags(get_the_excerpt( $post_id )), 0, 999) : ( ( $full_description != '' ) ? substr(strip_tags($full_description), 0, 999) : '' );
-        if (trim(strip_tags($full_description)) == '')
-        {
-            $full_description = get_the_excerpt( $post_id );
-        }
-        $request_data['property']['details']['description'] = $full_description;
-        $request_data['property']['details']['bedrooms'] = ( (get_post_meta( $post_id, 'fave_property_bedrooms', TRUE ) != '') ? (int)get_post_meta( $post_id, 'fave_property_bedrooms', TRUE ) : 0 );
-        $request_data['property']['details']['bathrooms'] = ( (get_post_meta( $post_id, 'fave_property_bathrooms', TRUE ) != '') ? (int)get_post_meta( $post_id, 'fave_property_bathrooms', TRUE ) : null );
-        $request_data['property']['details']['reception_rooms'] = ( (get_post_meta( $post_id, 'fave_property_rooms', TRUE ) != '') ? (int)get_post_meta( $post_id, 'fave_property_rooms', TRUE ) : null );
+        $request_data['branch_reference'] = $branch_code;
+        $request_data['category'] = 'residential';
+        $request_data['detailed_description'] = array(
+            array(
+                'text' => trim( ( strip_tags(get_the_content($post_id)) != '' ) ? get_the_content($post_id) : get_the_excerpt($post_id) )
+            )
+        );
+        $request_data['display_address'] = get_the_title($post_id);
 
         $features = array();
         $term_list = wp_get_post_terms($post_id, 'property_feature', array("fields" => "all"));
@@ -409,44 +270,112 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                 $features[] = $term->name;
             }
         }
+        if ( !empty($features) ) { $request_data['feature_list'] = $features; }
 
-        for ($i = 0; $i < 10; ++$i)
+        $request_data['life_cycle_status'] = $this->get_export_mapped_value($post_id, ( $overseas ? 'overseas_' : '' ) . 'availability');
+        $request_data['listing_reference'] = $branch_code . '_' . $post_id;
+        $request_data['living_rooms'] = (int)get_post_meta( $post_id, 'fave_property_rooms', TRUE );
+        $request_data['location'] = array(
+            'country_code' => 'GB',
+        );
+        if ( get_post_meta( $post_id, 'fave_property_address', TRUE ) != '' ) { $request_data['location']['property_number_or_name'] = get_post_meta( $post_id, 'fave_property_address', TRUE ); }
+        
+        $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
+        foreach ( $address_taxonomies as $address_taxonomy )
         {
-            if ( isset($property_features[$i]) && trim($property_features[$i]) != '' )
+            $terms = get_the_terms( $post_id, $address_taxonomy );
+            $term_ids_to_use = array();
+            if ( !is_wp_error($terms) && !empty($terms) )
             {
-                $features[] = substr($property_features[$i], 0, 199);
+                foreach ( $terms as $term )
+                {
+                    $address_fields[] = $term->name;
+                    break;
+                }
             }
         }
-        $request_data['property']['details']['features'] = $features;
 
-        $request_data['property']['media'] = array();
+        if ( isset($address_fields[0]) ) { $request_data['location']['locality'] = $address_fields[0]; }
+        if ( isset($address_fields[1]) ) { $request_data['location']['town_or_city'] = $address_fields[1]; }
+        if ( isset($address_fields[2]) ) { $request_data['location']['county'] = $address_fields[2]; }
+        if ( get_post_meta($post_id, 'fave_property_zip', true) != '' ) { $request_data['location']['postal_code'] = strtoupper(get_post_meta($post_id, 'fave_property_zip', true)); }
+        
+        $fave_property_location = get_post_meta($post_id, 'fave_property_location', true);
+        $explode_fave_property_location = explode(",", $fave_property_location);
+        $lat = '';
+        $lng = '';
+        if ( count($explode_fave_property_location) >= 2 )
+        {
+            $lat = $explode_fave_property_location[0];
+            $lng = $explode_fave_property_location[1];
+        }
+        if ( floatval($lat) != '' && floatval($lng) != '' )
+        {
+            $request_data['location']['coordinates'] = array();
+            if ( floatval($lat) != '' ) { $request_data['location']['coordinates']['latitude'] = floatval($lat); }
+            if ( floatval($lng) != '' ) { $request_data['location']['coordinates']['longitude'] = floatval($lng); }
+        }
 
+        $rent_frequency = '';
+        if ( $department == 'lettings' )
+        {
+            switch ( strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )) )
+            {
+                case "pw":
+                case "per week":
+                case "weekly": { $rent_frequency = 52; break; }
+                case "pq":
+                case "per quarter":
+                case "quarterly": { $rent_frequency = 4; break; }
+                case "pa":
+                case "per annum":
+                case "per year":
+                case "yearly": { $rent_frequency = 1; break; }
+                case "pppw": { $rent_frequency = 52; break; }
+                default: { $rent_frequency = 12; }
+            }
+        }
+
+        $price_qualifier = '';
+        $request_data['pricing'] = array(
+            'transaction_type' => ( $department == "lettings" ? 'rent' : 'sale' ),
+            'currency_code' => 'GBP',
+            'price' => (int)get_post_meta( $post_id, 'fave_property_price', TRUE ),
+        );
+        if ( $rent_frequency != '' ) { $request_data['pricing']['rent_frequency'] = $rent_frequency; }
+        if ( $price_qualifier != '' ) { $request_data['pricing']['price_qualifier'] = $price_qualifier; }
+
+        $property_type = $this->get_export_mapped_value($post_id, 'property_type');
+        if ( $property_type != '' ) { $request_data['property_type'] = $property_type; }
+        $request_data['summary_description'] = trim(get_the_excerpt($post_id));
+
+        $request_data['total_bedrooms'] = (int)get_post_meta( $post_id, 'fave_property_bedrooms', TRUE );
+
+        $request_data['content'] = array();
+         
         // IMAGES
-        $i = 0;
         $attachment_ids = get_post_meta( $post_id, 'fave_property_images' );
         foreach ($attachment_ids as $attachment_id)
         {
-            $image_size = 'large';
-            $url = wp_get_attachment_image_src( $attachment_id, $image_size );
+            $url = wp_get_attachment_image_src( $attachment_id, 'large' );
             if ($url !== FALSE)
             {
                 $attachment_data = wp_prepare_attachment_for_js( $attachment_id );
 
                 $media = array(
-                    'media_type' => 1,
-                    'media_url' => $url[0],
-                    'caption' => ( ( isset($attachment_data['alt']) && is_string($attachment_data['alt']) && substr($attachment_data['alt'], 0, 50) !== FALSE ) ? substr($attachment_data['alt'], 0, 50) : '' ),
-                    'sort_order' => $i,
+                    'url' => $url[0],
+                    'type' => 'image',
                 );
+                if ( isset( $attachment_data['alt'] ) && $attachment_data['alt'] != '' )
+                {
+                    $media['caption'] = $attachment_data['alt'];
+                }
 
-                $request_data['property']['media'][] = $media;
-
-                ++$i;
+                $request_data['content'][] = $media;
             }
         }
 
         // FLOORPLANS
-        $i = 0;
         if ( get_post_meta( $post_id, 'fave_floor_plans_enable', true ) == 'enable' )
         {
             $floorplans = get_post_meta( $post_id, 'floor_plans', true );
@@ -459,22 +388,21 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                     if ( !empty($url) )
                     {
                         $media = array(
-                            'media_type' => 2,
-                            'media_url' => $url,
-                            'caption' => substr($text, 0, 50),
-                            'sort_order' => $i,
+                            'url' => $url,
+                            'type' => 'floor_plan',
                         );
+                        if ( $text != '' )
+                        {
+                            $media['caption'] = $text;
+                        }
 
-                        $request_data['property']['media'][] = $media;
-
-                        ++$i;
+                        $request_data['content'][] = $media;
                     }
                 }
             }
         }
 
         // BROCHURES
-        $i = 0;
         $attachment_ids = get_post_meta( $post_id, 'fave_attachments' );
         foreach ($attachment_ids as $attachment_id)
         {
@@ -484,15 +412,15 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                 $attachment_data = wp_prepare_attachment_for_js( $attachment_id );
 
                 $media = array(
-                    'media_type' => 3,
-                    'media_url' => $url,
-                    'caption' => ( ( isset($attachment_data['alt']) && is_string($attachment_data['alt']) && substr($attachment_data['alt'], 0, 50) !== FALSE ) ? substr($attachment_data['alt'], 0, 50) : '' ),
-                    'sort_order' => $i,
+                    'url' => $url,
+                    'type' => 'brochure',
                 );
+                if ( isset( $attachment_data['alt'] ) && $attachment_data['alt'] != '' )
+                {
+                    $media['caption'] = $attachment_data['alt'];
+                }
 
-                $request_data['property']['media'][] = $media;
-
-                ++$i;
+                $request_data['content'][] = $media;
             }
         }
 
@@ -505,37 +433,32 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
         if ( !empty($virtual_tour_urls) )
         {
-            $i = 0;
             foreach ($virtual_tour_urls as $url)
             {
                 if ( trim($url) != '' )
                 {
                     $media = array(
-                        'media_type' => 4,
-                        'media_url' => $url,
+                        'url' => $url,
+                        'type' => 'virtual_tour',
                         'caption' => 'Virtual Tour',
-                        'sort_order' => $i,
                     );
 
-                    $request_data['property']['media'][] = $media;
-
-                    ++$i;
+                    $request_data['content'][] = $media;
                 }
             }
         }
 
-        $request_data = apply_filters( 'houzez_property_feed_export_rtdf_send_property_request_data', $request_data, $post_id );
+        $request_data = apply_filters( 'houzez_property_feed_export_zoopla_send_property_request_data', $request_data, $post_id );
 
         array_walk_recursive( $request_data, array($this, 'replace_bad_characters' ) );
 
         $do_request = true;
         if ( isset($export_settings['only_send_if_different']) && $export_settings['only_send_if_different'] == 'yes' )
         {
-            $previous_hash = get_post_meta( $post_id, '_realtime_sha1_' . $this->export_id, TRUE );
+            $previous_hash = get_post_meta( $post_id, '_zoopla_sha1_' . $this->export_id, TRUE );
 
             $request_data_to_check = $request_data;
-            unset($request_data_to_check['property']['update_date']); // Remove update date as this is likely to differ each time and result in a different hash
-
+            
             if ( $previous_hash == sha1(json_encode($request_data_to_check)) )
             {
                 // Matches the data sent last time. Don't send again
@@ -545,16 +468,15 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
         if ( $do_request )
         {
-            $request = $this->do_curl_request( $request_data, $export_settings['send_property_url'], $post_id );
+            $request = $this->do_curl_request( $request_data, $export_settings['send_property_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/update.json', $post_id );
 
             if ( $request !== FALSE )
             {
                 $request_data_to_check = $request_data;
-                unset($request_data_to_check['property']['update_date']); // Remove update date as this is likely to differ each time and result in a different hash
-
+                
                 // Request was successful
                 // Save the SHA-1 hash so we know for next time whether to push it again or not
-                update_post_meta( $post_id, '_realtime_sha1_' . $this->export_id, sha1(json_encode($request_data_to_check)) );
+                update_post_meta( $post_id, '_zoopla_sha1_' . $this->export_id, sha1(json_encode($request_data_to_check)) );
             }
         }
         else
@@ -589,17 +511,9 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         {
             // Should check branch properties before making remove request
             $request_data = array();
+            $request_data['branch_reference'] = $branch_code;
 
-            // Network
-            $request_data['network'] = array();
-            $request_data['network']['network_id'] = (int)$export_settings['network_id'];
-            
-            // Branch
-            $request_data['branch'] = array();
-            $request_data['branch']['branch_id'] = (int)$branch_code;
-            $request_data['branch']['channel'] = ( $department == 'sales' ? 1 : 2 ); // 1 for sales, 2 for lettings
-
-            $response = $this->do_curl_request( $request_data, $export_settings['get_branch_properties_url'], $post_id, false );
+            $response = $this->do_curl_request( $request_data, $export_settings['get_branch_properties_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/list.json', $post_id, false );
 
             if ($response === FALSE) { return false; }
 
@@ -608,11 +522,12 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
         $ok_to_remove = false;
         $agent_ref = $post_id;
-        if (isset($response['property']) && is_array($response['property']) && !empty($response['property']))
+        if (isset($response['listings']) && is_array($response['listings']) && !empty($response['listings']))
         {
-            foreach ($response['property'] as $property)
+            foreach ($response['listings'] as $property)
             {
-                if ( $property['agent_ref'] == $post_id )
+                $agent_ref = str_replace($branch_code . '_', "", $property['listing_reference']);
+                if ( $agent_ref == $post_id )
                 {
                     // We found this property to be active on the site
                     $ok_to_remove = true;
@@ -624,27 +539,14 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         if (!$ok_to_remove) { return true; }
 
         $request_data = array();
+        $request_data['listing_reference'] = $branch_code . '_' . $agent_ref;
 
-        // Network
-        $request_data['network'] = array();
-        $request_data['network']['network_id'] = (int)$export_settings['network_id'];
-        
-        // Branch
-        $request_data['branch'] = array();
-        $request_data['branch']['branch_id'] = (int)$branch_code;
-        $request_data['branch']['channel'] = ( $department == 'sales' ? 1 : 2 ); // 1 for sales, 2 for lettings
-        
-        // Property
-        $request_data['property'] = array();
-        $request_data['property']['agent_ref'] = (string)$agent_ref;
-        $request_data['property']['removal_reason'] = 11; // Removed. Would be nice to set this to 'Sold' or 'Withdrawn' etc
-
-        $request_data = apply_filters( 'houzez_property_feed_export_rtdf_remove_property_request_data', $request_data );
+        $request_data = apply_filters( 'houzez_property_feed_export_zoopla_remove_property_request_data', $request_data );
 
         $do_request = true;
         if ( isset($export_settings['only_send_if_different']) && $export_settings['only_send_if_different'] == 'yes' )
         {
-            $previous_hash = get_post_meta( $post_id, '_realtime_sha1_' . $this->export_id, TRUE );
+            $previous_hash = get_post_meta( $post_id, '_zoopla_sha1_' . $this->export_id, TRUE );
 
             $request_data_to_check = $request_data;
 
@@ -657,7 +559,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
         if ( $do_request )
         {
-            $response = $this->do_curl_request( $request_data, $export_settings['remove_property_url'], $post_id );
+            $response = $this->do_curl_request( $request_data, $export_settings['remove_property_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/delete.json', $post_id );
 
             if ( $response !== FALSE )
             {
@@ -665,7 +567,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
                 // Request was successful
                 // Save the SHA-1 hash so we know for next time whether to push it again or not
-                update_post_meta( $post_id, '_realtime_sha1_' . $this->export_id, sha1(json_encode($request_data_to_check)) );
+                update_post_meta( $post_id, '_zoopla_sha1_' . $this->export_id, sha1(json_encode($request_data_to_check)) );
             }
         }
         else
@@ -676,15 +578,15 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         return $response;
     }
 
-    public function do_curl_request( $request_data, $api_url, $post_id, $log_success = true ) 
+    public function do_curl_request( $request_data, $api_url, $profile_url, $post_id, $log_success = true ) 
     {
         $export_settings = get_export_settings_from_id( $this->export_id );
 
         $request_data = json_encode($request_data);
 
-        if ( apply_filters( 'houzez_property_feed_export_rtdf_perform_request', true ) !== true )
+        if ( apply_filters( 'houzez_property_feed_export_zoopla_perform_request', true ) !== true )
         {
-            $this->log_error("Disabling request due to houzez_property_feed_export_rtdf_perform_request filter", '', $post_id);
+            $this->log_error("Disabling request due to houzez_property_feed_export_zoopla_perform_request filter", '', $post_id);
             return false;
         }
 
@@ -703,17 +605,12 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request_data);
 
         curl_setopt($ch, CURLOPT_URL, $api_url);
-        if ( $export_settings['certificate_file'] != '' )
-        {
-            curl_setopt($ch, CURLOPT_SSLCERT, $uploads_dir['basedir'] . '/houzez_property_feed_export/'. $export_settings['certificate_file']);
-        }
-        if ( $export_settings['certificate_password'] != '' )
-        {
-            curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $export_settings['certificate_password']);
-        }
+        curl_setopt($ch, CURLOPT_SSLKEY, $uploads_dir['basedir'] . '/houzez_property_feed_export/'. $export_settings['private_key_file']);
+        curl_setopt($ch, CURLOPT_SSLCERT, $uploads_dir['basedir'] . '/houzez_property_feed_export/'. $export_settings['certificate_file']);
+        
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'Accept: application/json'
+            'Content-Type: application/json; profile=' . $profile_url, // e.g. http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/update.json
+            'ZPG-Listing-ETag: ' . sha1($request_data) . time(),
         ));
 
         $output = curl_exec($ch);
@@ -728,13 +625,10 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         {
             $response = json_decode($output, TRUE);
 
-            if (isset($response['errors']) && !empty($response['errors']))
+            if (isset($response['error_name']) && !empty($response['error_name']))
             {
-                foreach ($response['errors'] as $error)
-                {
-                    $this->log_error("Error returned in response: " . $error['error_code'] . " - " . $error['error_description'], '', $post_id);
-                }
-
+                $this->log_error("Error returned in response: " . $response['error_name'] . ( ( isset($response['error_advice']) ) ? " - " . $response['error_advice'] : '' ), '', $post_id);
+                
                 return false;
             }
             else
@@ -828,4 +722,4 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
 }
 
-new Houzez_Property_Feed_Format_RTDF();
+new Houzez_Property_Feed_Format_Zoopla();

@@ -1454,6 +1454,117 @@ function get_houzez_property_feed_export_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/rtdf/',
             'warnings' => array_filter( array( $curl_warning ) ),
         ) ),
+        'zoopla' => apply_filters( 'houzez_property_feed_export_format_options_zoopla', array(
+            'name' => __( 'Zoopla Real-Time Data Feed', 'houzezpropertyfeed' ),
+            'method' => 'realtime', // cron / realtime / url
+            'fields' => array_merge(array(
+                array(
+                    'id' => 'certificate_file',
+                    'label' => __( 'Signed Certificate File (.crt)', 'houzezpropertyfeed' ),
+                    'type' => 'file',
+                ),
+                array(
+                    'id' => 'private_key_file',
+                    'label' => __( 'Private Key File (.pem)', 'houzezpropertyfeed' ),
+                    'type' => 'file',
+                ),
+            ), $branch_mapping_fields, array(
+                array(
+                    'type' => 'html',
+                    'html' => '<p style="font-size:1.1em"><strong>' . __( 'API URLs', 'houzezpropertyfeed' ) . '</strong></p>',
+                ),
+                array(
+                    'id' => 'send_property_url',
+                    'label' => __( 'Send Property URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'For Zoopla this will likely be:<br>
+                    Test: https://realtime-listings-api.webservices.zpg.co.uk/sandbox/v1/listing/update<br>
+                    Live: https://realtime-listings-api.webservices.zpg.co.uk/live/v1/listing/update', 'houzezpropertyfeed' )
+                ),
+                array(
+                    'id' => 'previous_send_property_url',
+                    'type' => 'hidden',
+                ),
+                array(
+                    'id' => 'remove_property_url',
+                    'label' => __( 'Remove Property URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'For Zoopla this will likely be:<br>
+                    Test: https://realtime-listings-api.webservices.zpg.co.uk/sandbox/v1/listing/delete<br>
+                    Live: https://realtime-listings-api.webservices.zpg.co.uk/live/v1/listing/delete', 'houzezpropertyfeed' )
+                ),
+                array(
+                    'id' => 'get_branch_properties_url',
+                    'label' => __( 'Get Branch Properties URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'For Zoopla this will likely be:<br>
+                    Test: https://realtime-listings-api.webservices.zpg.co.uk/sandbox/v1/listing/list<br>
+                    Live: https://realtime-listings-api.webservices.zpg.co.uk/live/v1/listing/list', 'houzezpropertyfeed' )
+                ),
+                array(
+                    'type' => 'html',
+                    'html' => '<p style="font-size:1.1em"><strong>' . __( 'Advanced Settings', 'houzezpropertyfeed' ) . '</strong></p>',
+                ),
+                array(
+                    'id' => 'overseas',
+                    'label' => __( 'Use Overseas Format', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'tooltip' => __( 'For overseas to work you must have the Houzez Country taxonomy enabled and a country selected that\'s not anything other than UK, United Kingdom, GB, Britain, Great Britain, England, Scotland, Wales or Ireland', 'houzezpropertyfeed' )
+                ),
+                array(
+                    'id' => 'only_send_if_different',
+                    'label' => __( 'Only Send When Data Has Changed', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'tooltip' => __( 'To reduce the number of requests tick this option to ensure we only send data if it\'s different to the last time we sent it', 'houzezpropertyfeed' )
+                ),
+            )),
+            'taxonomy_values' => array(
+                'status' => array(
+                    'available' => 'Available',
+                    'under_offer' => 'Under Offer',
+                    'sold_subject_to_contract' => 'Sold STC',
+                    'sold' => 'Sold',
+                    'let_agreed' => 'Let Agreed',
+                    'let' => 'Let',
+                ),
+                'property_type' => array(
+                    'barn_conversion' => 'Barn conversion',
+                    'block_of_flats' => 'Block of flats',
+                    'bungalow' => 'Bungalow',
+                    'chalet' => 'Chalet',
+                    'chateau' => 'Château',
+                    'cottage' => 'Cottage',
+                    'country_house' => 'Country house',
+                    'detached' => 'Detached house',
+                    'detached_bungalow' => 'Detached bungalow',
+                    'end_terrace' => 'End terrace house',
+                    'equestrian' => 'Equestrian property',
+                    'farm' => 'Farm',
+                    'farmhouse' => 'Farmhouse',
+                    'finca' => 'Finca',
+                    'flat' => 'Flat',
+                    'houseboat' => 'Houseboat',
+                    'land' => 'Land',
+                    'link_detached' => 'Link-detached house',
+                    'lodge' => 'Lodge',
+                    'longere' => 'Longère',
+                    'maisonette' => 'Maisonette',
+                    'mews' => 'Mews house',
+                    'park_home' => 'Mobile/park home',
+                    'parking' => 'Parking/garage',
+                    'riad' => 'Riad',
+                    'semi_detached' => 'Semi-detached house',
+                    'semi_detached_bungalow' => 'Semi-detached bungalow',
+                    'studio' => 'Studio',
+                    'terraced' => ' Terraced house',
+                    'terraced_bungalow' => 'Terraced bungalow',
+                    'town_house' => 'Town house',
+                    'villa' => 'Villa',
+                )
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/zoopla/',
+            'warnings' => array_filter( array( $curl_warning ) ),
+        ) ),
     );
 
     $formats = apply_filters( 'houzez_property_feed_export_formats', $formats );
