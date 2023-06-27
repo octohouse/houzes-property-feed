@@ -41,53 +41,56 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
 	    // Test FTP
         // Don't continue it we can't connect
-        $this->log("Testing FTP details are valid");
-
-        if ( function_exists('ftp_connect') )
+        if ( !isset($_GET['preview']) )
         {
-            $ftp_conn = ftp_connect( $export_settings['ftp_host'] );
-            if ($ftp_conn !== FALSE)
-            {
-                $ftp_login = ftp_login($ftp_conn, $export_settings['ftp_user'], $export_settings['ftp_pass']);
-                if ($ftp_login !== FALSE)
-                {
-                    if ( isset($export_settings['ftp_dir']) && !empty($export_settings['ftp_dir']) )
-                    {
-                        if ( ftp_chdir($ftp_conn, $export_settings['ftp_dir']) )
-                        {
+            $this->log("Testing FTP details are valid");
 
-                        }
-                        else
+            if ( function_exists('ftp_connect') )
+            {
+                $ftp_conn = ftp_connect( $export_settings['ftp_host'] );
+                if ($ftp_conn !== FALSE)
+                {
+                    $ftp_login = ftp_login($ftp_conn, $export_settings['ftp_user'], $export_settings['ftp_pass']);
+                    if ($ftp_login !== FALSE)
+                    {
+                        if ( isset($export_settings['ftp_dir']) && !empty($export_settings['ftp_dir']) )
                         {
-                            $this->log_error("Error encountered whilst trying to change to FTP directory: " . $export_settings['ftp_dir']);
-                            ftp_close($ftp_conn);
-                            return false;
+                            if ( ftp_chdir($ftp_conn, $export_settings['ftp_dir']) )
+                            {
+
+                            }
+                            else
+                            {
+                                $this->log_error("Error encountered whilst trying to change to FTP directory: " . $export_settings['ftp_dir']);
+                                ftp_close($ftp_conn);
+                                return false;
+                            }
                         }
                     }
+                    else
+                    {
+                        $this->log_error("Can't login to FTP host using login details " . $export_settings['ftp_user'] . ' and ' . $export_settings['ftp_pass']);
+                        ftp_close($ftp_conn);
+                        return false;
+                    }
+                    ftp_close($ftp_conn);
                 }
                 else
                 {
-                    $this->log_error("Can't login to FTP host using login details " . $export_settings['ftp_user'] . ' and ' . $export_settings['ftp_pass']);
-                    ftp_close($ftp_conn);
+                    $this->log_error("Can't connect to FTP host provided: " . $export_settings['ftp_host']);
                     return false;
                 }
-                ftp_close($ftp_conn);
             }
             else
             {
-                $this->log_error("Can't connect to FTP host provided: " . $export_settings['ftp_host']);
+                // FTP functionality not enabled
+                $this->log_error("FTP functionality not enabled in PHP");
                 return false;
             }
-        }
-        else
-        {
-            // FTP functionality not enabled
-            $this->log_error("FTP functionality not enabled in PHP");
-            return false;
-        }
 
-        $this->log("FTP details valid");
-
+            $this->log("FTP details valid");
+        }
+    
         $wp_upload_dir = wp_upload_dir();
         if( $wp_upload_dir['error'] !== FALSE )
         {
@@ -858,7 +861,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                     $new_property_row_values[$key] = $property_row_value;
                 }
 
-                $property_row_values = apply_filters( 'houzez_property_feed_export_blm_property_values', $new_property_row_values, $post->ID, $portal_id );
+                $property_row_values = apply_filters( 'houzez_property_feed_export_property_data', $new_property_row_values, $post->ID, $this->export_id );
+                $property_row_values = apply_filters( 'houzez_property_feed_export_blm_property_data', $property_row_values, $post->ID, $this->export_id );
 
                 $property_row = implode("^", $property_row_values) . "^~\n";
 
@@ -873,6 +877,26 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
         fwrite($handle, '#END#');
 
         fclose($handle);
+
+        if ( isset($_GET['preview']) )
+        {
+            $quoted = sprintf('"%s"', addcslashes(basename($blm_filename), '"\\'));
+            $size   = filesize($blm_filename);
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename=' . $quoted); 
+            header('Content-Transfer-Encoding: binary');
+            header('Connection: Keep-Alive');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            header('Content-Length: ' . $size);
+
+            readfile($blm_filename);
+
+            die();
+        }
 
         if ( $properties_added == 0 )
         {

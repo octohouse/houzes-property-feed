@@ -166,11 +166,8 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                     else
                     {
                         $ok_to_send = true;
-                        if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
-                        {
-                            
-                        }
-                        else
+                        $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+                        if ( $limit !== false )
                         {
                             // check no more than 25 properties exist
                             if ( isset($this->get_branch_properties_responses[$this->export_id . '_' . (int)$branch_code . '_' . $department]) )
@@ -200,9 +197,9 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
                             if (isset($response['property']) && is_array($response['property']) && !empty($response['property']))
                             {
-                                if ( count($response['property']) >= 25 )
+                                if ( count($response['property']) >= $limit )
                                 {
-                                    $this->log_error('25 or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
+                                    $this->log_error($limit . ' or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
                                     $ok_to_send = false;
                                 }
                             }
@@ -524,7 +521,8 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             }
         }
 
-        $request_data = apply_filters( 'houzez_property_feed_export_rtdf_send_property_request_data', $request_data, $post_id );
+        $request_data = apply_filters( 'houzez_property_feed_export_property_data', $request_data, $post->ID, $this->export_id );
+        $request_data = apply_filters( 'houzez_property_feed_export_rtdf_property_data', $request_data, $post_id, $this->export_id );
 
         array_walk_recursive( $request_data, array($this, 'replace_bad_characters' ) );
 
@@ -639,7 +637,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         $request_data['property']['agent_ref'] = (string)$agent_ref;
         $request_data['property']['removal_reason'] = 11; // Removed. Would be nice to set this to 'Sold' or 'Withdrawn' etc
 
-        $request_data = apply_filters( 'houzez_property_feed_export_rtdf_remove_property_request_data', $request_data );
+        $request_data = apply_filters( 'houzez_property_feed_export_rtdf_remove_property_request_data', $request_data, $post_id, $this->export_id );
 
         $do_request = true;
         if ( isset($export_settings['only_send_if_different']) && $export_settings['only_send_if_different'] == 'yes' )

@@ -27,21 +27,6 @@ class Houzez_Property_Feed_Process {
 	 */
 	public $properties = array();
 
-	/**
-	 * @var array
-	 */
-	public $errors;
-
-	/**
-	 * @var array
-	 */
-	public $mappings;
-
-	/**
-	 * @var array
-	 */
-	public $import_log;
-
     public function __construct() 
     {
 
@@ -170,8 +155,6 @@ class Houzez_Property_Feed_Process {
 		$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
 		$current_date = $current_date->format("Y-m-d H:i:s");
 
-		$this->errors[] = $current_date . ' - ' . ( ( $agent_ref != '' ) ? 'AGENT_REF: ' . $agent_ref . ' - ' : '' ) . $message;
-
 		if ( $this->instance_id != '' )
 		{
 			global $wpdb;
@@ -199,16 +182,6 @@ class Houzez_Property_Feed_Process {
 	            $data
 	        );
 		}
-	}
-
-	public function get_import_log()
-	{
-		return $this->import_log;
-	}
-
-	public function get_errors()
-	{
-		return $this->errors;
 	}
 
 	public function log( $message, $agent_ref = '', $post_id = 0, $received_data = '' )
@@ -243,8 +216,6 @@ class Houzez_Property_Feed_Process {
 	            $data
 	        );
 		}
-
-		$this->import_log[] = $current_date . ' - ' . ( ( $agent_ref != '' ) ? 'AGENT_REF: ' . $agent_ref . ' - ' : '' ) . $message;
 	}
 
 	public function open_ftp_connection( $host, $username, $password, $directory, $passive = '' )

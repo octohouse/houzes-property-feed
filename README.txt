@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 2.0.3
-Version: 2.0.3
+Stable tag: 2.0.4
+Version: 2.0.4
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -98,6 +98,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.4 - 2023-06-27 =
+* Added field mapping rules to BLM and Kyero so exported data can be customised
+* Added ability to preview the BLM
+* Tidying up of unused variables and methods
 
 = 2.0.3 - 2023-06-26 =
 * Added support for automatic exports to Zoopla

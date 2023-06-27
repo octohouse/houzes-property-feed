@@ -19,6 +19,7 @@ class Houzez_Property_Feed_Export {
 
         add_action( 'admin_init', array( $this, 'delete_export') );
 
+        add_filter( 'houzez_property_feed_export_property_data', array( $this, 'perform_field_mapping' ), 1, 3 );
 	}
 
     public function check_not_multiple_if_no_pro()
@@ -77,6 +78,41 @@ class Houzez_Property_Feed_Export {
             'name' => sanitize_text_field($_POST['export_name']),
             'frequency' => sanitize_text_field($_POST['frequency']), // might want to validate this is not a pro frequency
         );
+
+        $rules = array();
+        if ( 
+            isset($_POST['field_mapping_rules']) && 
+            is_array($_POST['field_mapping_rules']) && 
+            count($_POST['field_mapping_rules']) > 1 // more than 1 to ignore template
+        )
+        {
+            $rule_i = 0;
+            foreach ( $_POST['field_mapping_rules'] as $j => $field )
+            {
+                if ( $rule_i > 0 )
+                {
+                    $rules[$rule_i-1] = array(
+                        'field' => sanitize_text_field($field['field']),
+                        'result' => sanitize_text_field($field['result']),
+                        'rules' => array(),
+                    );
+
+                    unset($field['field']);
+                    unset($field['result']);
+
+                    foreach ( $field as $i => $rule_fields )
+                    {   
+                        foreach ( $rule_fields as $k => $rule_field )
+                        {
+                            $rules[$rule_i-1]['rules'][$k][$i] = sanitize_text_field($rule_field);
+                        }
+                    }
+                }
+
+                ++$rule_i;
+            }
+        }
+        $export_options['field_mapping_rules'] = $rules;
 
         // Save core format fields (FTP Details etc)
         $formats = get_houzez_property_feed_export_formats();
@@ -332,6 +368,93 @@ class Houzez_Property_Feed_Export {
             wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export deleted successfully', 'houzezpropertyfeed' ) ) );
             die();
         }
+    }
+
+    public function perform_field_mapping( $property, $post_id, $export_id )
+    {
+        $export_settings = get_export_settings_from_id( $export_id );
+
+        if ( $export_settings === false )
+        {
+            return false;
+        }
+
+        if ( !isset($export_settings['field_mapping_rules']) )
+        {
+            return false;
+        }
+
+        if ( empty($export_settings['field_mapping_rules']) )
+        {
+            return false;
+        }
+
+        $houzez_fields = get_houzez_fields_for_field_mapping();
+
+        foreach ( $export_settings['field_mapping_rules'] as $and_rules )
+        {
+            // houzez_field
+            // equal
+            // field
+            // result
+            $rules_met = 0;
+            foreach ( $and_rules['rules'] as $i => $rule )
+            {
+                if ( get_post_meta( $post_id, $rule['houzez_field'], TRUE ) == $rule['equal'] )
+                {
+                    ++$rules_met;
+                }
+            }
+
+            if ( $rules_met == count($and_rules['rules']) )
+            {
+                $result = $and_rules['result'];
+                
+                preg_match_all('/{[^}]*}/', $and_rules['result'], $matches);
+                if ( $matches !== FALSE && isset($matches[0]) && is_array($matches[0]) && !empty($matches[0]) )
+                {
+                    foreach ( $matches[0] as $match )
+                    {
+                        $field_name = str_replace(array("{", "}"), "", $match);
+
+                        $value_to_check = get_post_meta( $post_id, $field_name, TRUE );
+                        if ( empty($value_to_check) )
+                        {
+                            foreach ( $houzez_fields as $houzez_field_key => $houzez_field )
+                            {
+                                if ( isset($houzez_field['type']) && $houzez_field['type'] == 'meta' )
+                                {
+                                    if ( isset($houzez_field['label']) && $houzez_field['label'] == $field_name )
+                                    {
+                                        $value_to_check = get_post_meta( $post_id, $houzez_field_key, TRUE );
+                                    }
+                                }
+                            }
+                        }
+                        $result = str_replace($match, $value_to_check, $result);
+                    }
+                }
+
+                if ( is_object($property) )
+                {
+                    // must be SimpleXML like Kyero
+                    $property_nodes_to_update = $property->xpath($and_rules['field']);
+                    if ( $property_nodes_to_update !== FALSE && !empty($property_nodes_to_update) )
+                    {
+                        if ( isset($property_nodes_to_update[0][0]) )
+                        {
+                            $property_nodes_to_update[0][0] = $result;
+                        }
+                    }
+                }
+                else
+                {
+                    $property[$and_rules['field']] = $result;
+                }
+            }
+        }
+
+        return $property;
     }
 }
 

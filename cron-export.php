@@ -74,7 +74,10 @@ if ( is_array($exports) && !empty($exports) )
 		$format = get_format_from_export_id( $export_id );
 		if ( isset($format['method']) && ( $format['method'] == 'cron' || $format['method'] == 'url' ) )
 		{
-
+            if ( isset($_GET['preview']) && $export_id != (int)$_GET['preview'] )
+            {
+                unset($exports[$export_id]);
+            }
 		}
 		else
 		{
@@ -145,7 +148,7 @@ if ( is_array($exports) && !empty($exports) )
             }
         }
 
-        if ( !isset($_GET['force']) )
+        if ( !isset($_GET['force']) && !isset($_GET['preview']) )
     	{
     		// Make sure there's been no activity in the logs for at least 5 minutes for this feed as that indicates there's possible a feed running
         	$row = $wpdb->get_row( "
@@ -235,18 +238,23 @@ if ( is_array($exports) && !empty($exports) )
 
         if ($ok_to_run_export)
         {
-            // log instance start
-            $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
-			$current_date = $current_date->format("Y-m-d H:i:s");
+            $instance_id = '';
 
-            $wpdb->insert( 
-                $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
-                array(
-                	'export_id' => $export_id,
-                    'start_date' => $current_date
-                )
-            );
-            $instance_id = $wpdb->insert_id;
+            if ( !isset($_GET['preview']) )
+            {
+                // log instance start
+                $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+    			$current_date = $current_date->format("Y-m-d H:i:s");
+
+                $wpdb->insert( 
+                    $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
+                    array(
+                    	'export_id' => $export_id,
+                        'start_date' => $current_date
+                    )
+                );
+                $instance_id = $wpdb->insert_id;
+            }
 
 	    	$format = $export_settings['format'];
 
@@ -278,20 +286,23 @@ if ( is_array($exports) && !empty($exports) )
                 }
 	    	}
 
-            // log instance end
-            $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
-            $current_date = $current_date->format("Y-m-d H:i:s");
+            if ( !empty($instance_id) )
+            {
+                // log instance end
+                $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+                $current_date = $current_date->format("Y-m-d H:i:s");
 
-            $wpdb->update( 
-                $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
-                array( 
-                    'end_date' => $current_date
-                ),
-                array( 'id' => $instance_id )
-            );
+                $wpdb->update( 
+                    $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
+                    array( 
+                        'end_date' => $current_date
+                    ),
+                    array( 'id' => $instance_id )
+                );
 
-            do_action( 'houzez_property_feed_cron_end', $instance_id, $export_id );
-            do_action( 'houzez_property_feed_export_cron_end', $instance_id, $export_id );
+                do_action( 'houzez_property_feed_cron_end', $instance_id, $export_id );
+                do_action( 'houzez_property_feed_export_cron_end', $instance_id, $export_id );
+            }
 	    }
     }
 }
