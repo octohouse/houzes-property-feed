@@ -308,6 +308,12 @@ function get_houzez_property_feed_import_formats()
                     'label' => __( 'Account ID', 'houzezpropertyfeed' ),
                     'type' => 'text',
                 ),
+                array(
+                    'id' => 'base_url',
+                    'label' => __( 'API Base URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => 'https://api.bdphq.com',
+                )
             ),
             'address_fields' => array( 'addrL1', 'addrL2', 'addrL3', 'town' ),
             'taxonomy_values' => array(

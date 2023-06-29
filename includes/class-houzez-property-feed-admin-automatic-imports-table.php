@@ -182,7 +182,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                         }
                         switch ($import['frequency'])
                         {
-                            case "every_15_minutes":
+                            case "every_fifteen_minutes":
                             {
                                 if ( ( ($next_due - $last_start_date) / 60 / 60 ) >= 0.25 )
                                 {
@@ -263,7 +263,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                         <span class="trash"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=deleteimport&import_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Import', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
                     </div>',
                 'col_import_details' => $details,
-                'col_import_frequency' => ( isset($import['frequency']) ? str_replace("_", " ", ucwords($import['frequency'])) : '-' ),
+                'col_import_frequency' => ( isset($import['frequency']) ? ucwords(str_replace("_", " ", $import['frequency'])) : '-' ),
                 'col_import_last_ran' => $last_ran,
                 'col_import_next_due' => $next_due_display,
             );

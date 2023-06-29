@@ -232,7 +232,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
                     $next_due_display = '-';
                 }
 
-                $frequency = ( isset($export['frequency']) ? str_replace("_", " ", ucwords($export['frequency'])) : '-' );
+                $frequency = ( isset($export['frequency']) ? ucwords(str_replace("_", " ", $export['frequency'])) : '-' );
             }
             else
             {

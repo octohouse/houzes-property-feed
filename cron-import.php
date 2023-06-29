@@ -223,7 +223,7 @@ if ( is_array($imports) && !empty($imports) )
 
 	            switch ($import_settings['frequency'])
 	            {
-	            	case "every_15_minutes":
+	            	case "every_fifteen_minutes":
 	                {
 	                    if (($diff_secs / 60 / 60) < 0.25)
 	                    {

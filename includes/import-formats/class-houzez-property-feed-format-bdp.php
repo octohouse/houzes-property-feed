@@ -39,7 +39,8 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
             hash_hmac('sha1', utf8_encode($string_to_sign), $import_settings['secret'], true)
         );
 
-        $url = "https://api.bdphq.com/restapi/props";
+        $url = ( isset($import_settings['base_url']) && !empty($import_settings['base_url']) ) ? trim($import_settings['base_url'], '/') : 'https://api.bdphq.com';
+        $url .= "/restapi/props";
 
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -72,7 +73,8 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
             {
                 $property_id = $property['property_id'];
 
-                $url = "https://api.bdphq.com/restapi/property/" . $property_id;
+                $url = ( isset($import_settings['base_url']) && !empty($import_settings['base_url']) ) ? trim($import_settings['base_url'], '/') : 'https://api.bdphq.com';
+                $url .= "/restapi/property/" . $property_id;
 
                 $curl = curl_init($url);
                 curl_setopt($curl, CURLOPT_URL, $url);
@@ -114,7 +116,7 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
                 else
                 {
                     // Failed to parse JSON
-                    $this->log_error( 'Failed to parse property ' . $property_id . ' JSON file. Possibly invalid JSON' );
+                    $this->log_error( 'Failed to parse property ' . $property_id . ' JSON file: ' . $property_response );
                     return false;
                 }
 
@@ -124,7 +126,7 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
         else
         {
             // Failed to parse JSON
-            $this->log_error( 'Failed to parse JSON file. Possibly invalid JSON' );
+            $this->log_error( 'Failed to parse JSON file: ' . $response );
             return false;
         }
 
