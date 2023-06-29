@@ -630,9 +630,7 @@ class Houzez_Property_Feed_Admin {
     {
         global $wp_scripts;
 
-        $screen = get_current_screen();
-
-        if ( $screen->id == 'houzez_page_houzez-property-feed-import' || $screen->id == 'houzez_page_houzez-property-feed-export' ) 
+        if ( isset($_GET['page']) && ( sanitize_text_field($_GET['page']) == 'houzez-property-feed-import' || sanitize_text_field($_GET['page']) == 'houzez-property-feed-export' ) ) 
         {
             wp_enqueue_style( 'houzez_property_feed_admin_styles', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/css/admin.css', array(), HOUZEZ_PROPERTY_FEED_VERSION );
             wp_enqueue_style( 'select2_styles', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/css/select2.min.css', array(), '4.0.13' );
@@ -647,19 +645,17 @@ class Houzez_Property_Feed_Admin {
     {
         global $wp_query, $post, $tabs;
 
-        $screen = get_current_screen();
-
         $statuses = array();
         $property_types = array();
 
-        if ( $screen->id == 'houzez_page_houzez-property-feed-import' || $screen->id == 'houzez_page_houzez-property-feed-export' ) 
+        if ( isset($_GET['page']) && ( sanitize_text_field($_GET['page']) == 'houzez-property-feed-import' || sanitize_text_field($_GET['page']) == 'houzez-property-feed-export' ) ) 
         {
             // scripts used throughout import and export
             wp_register_script( 'select2', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/select2.min.js', array( 'jquery' ), '4.0.13' );
             wp_enqueue_script( 'select2' );
         }
 
-        if ( $screen->id == 'houzez_page_houzez-property-feed-import' ) 
+        if ( isset($_GET['page']) && sanitize_text_field($_GET['page']) == 'houzez-property-feed-import' ) 
         {
             $terms = get_terms( array(
                 'taxonomy'   => 'property_status',
@@ -785,7 +781,7 @@ class Houzez_Property_Feed_Admin {
             wp_enqueue_script( 'houzez_property_feed_admin_import_script' );
         }
 
-        if ( $screen->id == 'houzez_page_houzez-property-feed-export' ) 
+        if ( isset($_GET['page']) && sanitize_text_field($_GET['page']) == 'houzez-property-feed-export' ) 
         {
             wp_register_script( 'houzez_property_feed_admin_export_script', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/admin-export.js', array( 'jquery' ), HOUZEZ_PROPERTY_FEED_VERSION );
 
