@@ -915,7 +915,11 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
 											$media_ids[] = $attach_id;
 
+											if ( $image_i == 0 ) set_post_thumbnail( $post_id, $attach_id );
+
 											++$new;
+
+											++$image_i;
 										}
 									}
 
@@ -938,7 +942,11 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 										    wp_update_post( $my_post );
 										}
 
+										if ( $image_i == 0 ) set_post_thumbnail( $post_id, $previous_media_ids[$i] );
+
 										++$existing;
+
+										++$image_i;
                                 	}
 
                                 	$files_to_unlink[] =$local_directory . '/' . $media_file_name;
@@ -961,7 +969,11 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 									    wp_update_post( $my_post );
 									}
 
+									if ( $image_i == 0 ) set_post_thumbnail( $post_id, $previous_media_ids[$i] );
+
 									++$existing;
+
+									++$image_i;
 		                    	}
 							}
 						}
