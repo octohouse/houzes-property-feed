@@ -261,7 +261,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 		                foreach ($field_values as $field_number=>$field) 
 		                {
 		                    // Standard fields
-		                    $property[$this->definitions[$field_number]] = $field; // set by default to value in .blm
+		                    $property[$this->definitions[$field_number]] = utf8_encode($field); // set by default to value in .blm
 		                
 		                } // Finish looping through property fields 
 
