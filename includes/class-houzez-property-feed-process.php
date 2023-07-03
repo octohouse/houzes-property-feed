@@ -57,13 +57,6 @@ class Houzez_Property_Feed_Process {
 		wp_defer_comment_counting( false );
 	}
 
-	public function do_geocoding_lookup( $post_id, $agent_ref, $address, $country = 'GB' )
-	{
-		
-
-		return false;
-	}
-
 	public function do_remove_old_properties( $import_refs = array() )
 	{
 		global $wpdb, $post;
@@ -323,6 +316,138 @@ class Houzez_Property_Feed_Process {
 				$this->log( 'Updated ' . $taxonomy_name . '. Before: ' . ( ( is_array($taxonomy_terms_before[$taxonomy_name]) ) ? implode(", ", $taxonomy_terms_before[$taxonomy_name]) : $taxonomy_terms_before[$taxonomy_name] ) . ', After: ' . ( ( is_array($ids) ) ? implode(", ", $ids) : $ids ), $crm_id, $post_id );
 			}
 		}
+	}
+
+	public function do_geocoding_lookup( $post_id, $agent_ref, $address, $address_osm, $country = '' )
+	{
+		if ( empty($country) )
+		{
+			$country = 'GB';
+		}
+
+		//if ( get_option('propertyhive_geocoding_provider') == 'osm' )
+		//{
+			if ( empty($address_osm) )
+			{
+				$address_osm = $address;
+			}
+
+			$request_url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=" . strtolower($country) . "&addressdetails=1&q=" . urlencode(implode(", ", $address_osm));
+
+			$response = wp_remote_get($request_url);
+
+			if ( !is_wp_error( $response ))
+			{
+				if ( is_array( $response ) )
+				{
+					$body = wp_remote_retrieve_body( $response );
+					$json = json_decode($body, true);
+
+					if ( !empty($json) && isset($json[0]['lat']) && isset($json[0]['lon']) )
+					{
+						$lat = $json[0]['lat'];
+						$lng = $json[0]['lon'];
+
+						if ($lat != '' && $lng != '')
+						{
+							update_post_meta( $post_id, 'houzez_geolocation_lat', $lat );
+							update_post_meta( $post_id, 'houzez_geolocation_long', $lng );
+
+							return array( $lat, $lng );
+						}
+					}
+					else
+					{
+						$this->log_error( 'No co-ordinates returned for the address provided: ' . implode( ", ", $address_osm ), $agent_ref );
+					}
+				}
+				else
+				{
+					$this->log_error( 'Failed to parse JSON response from OSM Geocoding service.', $agent_ref );
+				}
+			}
+			else
+			{
+				$this->log_error( 'Error returned from geocoding service: ' . $response->get_error_message(), $agent_ref );
+			}
+
+			sleep(1); // Sleep due to nominatim throttling limits
+		/*}
+		else
+		{
+			$api_key = get_option('propertyhive_google_maps_geocoding_api_key', '');
+			if ( $api_key == '' )
+			{
+				$api_key = get_option('propertyhive_google_maps_api_key', '');
+			}
+			if ( $api_key != '' )
+			{
+				if ( ini_get('allow_url_fopen') )
+				{
+					$request_url = "https://maps.googleapis.com/maps/api/geocode/xml?address=" . urlencode( implode( ", ", $address ) ) . "&sensor=false&region=" . strtolower($country); // the request URL you'll send to google to get back your XML feed
+					
+					if ( $api_key != '' ) { $request_url .= "&key=" . $api_key; }
+
+					$response = wp_remote_get($request_url);
+
+					if ( is_array( $response ) && !is_wp_error( $response ) ) 
+					{
+						$header = $response['headers']; // array of http header lines
+						$body = $response['body']; // use the content
+
+						$xml = simplexml_load_string($body);
+
+						if ( $xml !== FALSE )
+						{
+							$status = $xml->status; // Get the request status as google's api can return several responses
+
+							if ($status == "OK") 
+							{
+								//request returned completed time to get lat / lng for storage
+								$lat = (string)$xml->result->geometry->location->lat;
+								$lng = (string)$xml->result->geometry->location->lng;
+								
+								if ($lat != '' && $lng != '')
+								{
+									update_post_meta( $post_id, 'houzez_geolocation_lat', $lat );
+									update_post_meta( $post_id, 'houzez_geolocation_long', $lng );
+
+									return true;
+								}
+							}
+							else
+							{
+								$this->log_error( 'Google Geocoding service returned status ' . $status, $agent_ref );
+								sleep(3);
+
+								if ( $status == "REQUEST_DENIED" )
+								{
+									return 'denied';
+								}
+							}
+						}
+						else
+						{
+							$this->log_error( 'Failed to parse XML response from Google Geocoding service', $agent_ref );
+						}
+					}
+					else
+					{
+						$this->log_error( 'Invalid response when trying to obtain co-ordinates', $agent_ref );
+					}
+				}
+				else
+				{
+					$this->log_error( 'Failed to obtain co-ordinates as allow_url_fopen setting is disabled', $agent_ref );
+				}
+			}
+			else
+			{
+				$this->log( 'Not performing Google Geocoding request as no API key present in settings', $agent_ref );
+			}
+		}*/
+
+		return false;
 	}
 }
 

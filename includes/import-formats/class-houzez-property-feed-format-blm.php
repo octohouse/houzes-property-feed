@@ -466,6 +466,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_id', $property['AGENT_REF'] );
 
 	            $address_parts = array();
+	            $address_to_geocode_osm = array();
+
 	            if ( isset($property['ADDRESS_2']) && $property['ADDRESS_2'] != '' )
 	            {
 	                $address_parts[] = $property['ADDRESS_2'];
@@ -485,6 +487,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 	            if ( isset($property['POSTCODE1']) && isset($property['POSTCODE2']) && ( $property['POSTCODE1'] != '' || $property['POSTCODE2'] != '' ) )
 	            {
 	                $address_parts[] = trim( ( ( isset($property['POSTCODE1']) ) ? $property['POSTCODE1'] : '' ) . ' ' . ( ( isset($property['POSTCODE2']) ) ? $property['POSTCODE2'] : '' ) );
+	                $address_to_geocode_osm[] = trim( ( ( isset($property['POSTCODE1']) ) ? $property['POSTCODE1'] : '' ) . ' ' . ( ( isset($property['POSTCODE2']) ) ? $property['POSTCODE2'] : '' ) );
 	            }
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
@@ -496,10 +499,37 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 	                update_post_meta( $post_id, 'houzez_geolocation_lat', $property['LATITUDE'] );
 	                $lat = $property['LATITUDE'];
 	            }
+	            if ( isset($property['EXACT_LATITUDE']) && !empty($property['EXACT_LATITUDE']) )
+	            {
+	                update_post_meta( $post_id, 'houzez_geolocation_lat', $property['EXACT_LATITUDE'] );
+	                $lat = $property['EXACT_LATITUDE'];
+	            }
 	            if ( isset($property['LONGITUDE']) && !empty($property['LONGITUDE']) )
 	            {
 	                update_post_meta( $post_id, 'houzez_geolocation_long', $property['LONGITUDE'] );
 	                $lng = $property['LONGITUDE'];
+	            }
+	            if ( isset($property['EXACT_LONGITUDE']) && !empty($property['EXACT_LONGITUDE']) )
+	            {
+	                update_post_meta( $post_id, 'houzez_geolocation_long', $property['EXACT_LONGITUDE'] );
+	                $lng = $property['EXACT_LONGITUDE'];
+	            }
+	            if ( empty($lat) || empty($lng) )
+	            {
+	            	// use existing
+	            	$lat = get_post_meta( $post_id, 'houzez_geolocation_lat', true );
+	            	$lng = get_post_meta( $post_id, 'houzez_geolocation_long', true );
+
+	            	if ( empty($lat) || empty($lng) )
+	            	{
+	            		// need to geocode
+	            		$geocoding_return = $this->do_geocoding_lookup( $post_id, $property['AGENT_REF'], $address_parts, $address_to_geocode_osm, 'GB' );
+						if ( is_array($geocoding_return) && !empty($geocoding_return) && count($geocoding_return) == 2 )
+						{
+							$lat = $geocoding_return[0];
+	            			$lng = $geocoding_return[1];
+						}
+	            	}
 	            }
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
 	            update_post_meta( $post_id, 'fave_property_country', 'GB' );

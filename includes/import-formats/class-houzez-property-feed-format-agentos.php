@@ -792,6 +792,7 @@ class Houzez_Property_Feed_Format_Agentos extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_id', $property['GlobalReference'] );
 
 	            $address_parts = array();
+	            $address_to_geocode_osm = array();
 	            if ( isset($property['Address1']) && $property['Address1'] != '' )
 	            {
 	                $address_parts[] = $property['Address1'];
@@ -811,22 +812,30 @@ class Houzez_Property_Feed_Format_Agentos extends Houzez_Property_Feed_Process {
 	            if ( isset($property['Postcode']) && $property['Postcode'] != '' )
 	            {
 	                $address_parts[] = $property['Postcode'];
+	                $address_to_geocode_osm[] = $property['Postcode'];
 	            }
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' ); // set to 0 as we don't get lat/lng through in the feee
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
 	            $lat = '';
 	            $lng = '';
-	            /*if ( isset($property['address']['latitude']) && !empty($property['address']['latitude']) )
+	            if ( empty($lat) || empty($lng) )
 	            {
-	                update_post_meta( $post_id, 'houzez_geolocation_lat', $property['address']['latitude'] );
-	                $lat = $property['address']['latitude'];
+	            	// use existing
+	            	$lat = get_post_meta( $post_id, 'houzez_geolocation_lat', true );
+	            	$lng = get_post_meta( $post_id, 'houzez_geolocation_long', true );
+
+	            	if ( empty($lat) || empty($lng) )
+	            	{
+	            		// need to geocode
+	            		$geocoding_return = $this->do_geocoding_lookup( $post_id, $property['OID'], $address_parts, $address_to_geocode_osm, 'GB' );
+						if ( is_array($geocoding_return) && !empty($geocoding_return) && count($geocoding_return) == 2 )
+						{
+							$lat = $geocoding_return[0];
+	            			$lng = $geocoding_return[1];
+						}
+	            	}
 	            }
-	            if ( isset($property['address']['longitude']) && !empty($property['address']['longitude']) )
-	            {
-	                update_post_meta( $post_id, 'houzez_geolocation_long', $property['address']['longitude'] );
-	                $lng = $property['address']['longitude'];
-	            }*/
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
 	            update_post_meta( $post_id, 'fave_property_country', 'GB' );
 	            
