@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 2.0.9
-Version: 2.0.9
+Stable tag: 2.0.10
+Version: 2.0.10
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -98,6 +98,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.10 - 2023-07-07 =
+* Added agent ID and agent name as possible contact information fields for the Kyero import format
 
 = 2.0.9 - 2023-07-03 =
 * Added geocoding functionality to formats that don't provide a lat/lng, specifically BLM and AgentOS. This will pass the postcode to the Nominatim geocoding service and store the lat/lng returned

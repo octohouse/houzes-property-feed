@@ -791,6 +791,10 @@ function get_houzez_property_feed_import_formats()
                     'Villa' => 'Villa',
                 )
             ),
+            'contact_information_fields' => array(
+                'Agent ID',
+                'Agent Name',
+            ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/kyero/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),

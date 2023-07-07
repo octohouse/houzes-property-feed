@@ -8,6 +8,11 @@ if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
 class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
+	/**
+	 * @var SimpleXMLObject
+	 */
+	private $agent_xml;
+
 	public function __construct( $instance_id = '', $import_id = '' )
 	{
 		$this->instance_id = $instance_id;
@@ -47,6 +52,11 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
 		if ( $xml !== FALSE )
 		{
+			if ( isset($xml->agent) )
+			{
+				$this->agent_xml = $xml->agent;
+			}
+
 			foreach ( $xml->property as $property )
 			{
                 $this->properties[] = $property;
@@ -288,7 +298,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_featured', ( ( isset($property->prime) && (string)$property->prime == '1' ) ? '1' : '0' ) );
 	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
-	            /*if ( 
+	            if ( 
 	            	isset($import_settings['agent_display_option']) && 
 	            	isset($import_settings['agent_display_option_rules']) && 
 	            	is_array($import_settings['agent_display_option_rules']) && 
@@ -304,9 +314,13 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				default:
+		            				case "Agent ID":
 		            				{
-		            					$value_in_feed_to_check = isset($property->{$rule['field']}) ? (string)$property->{$rule['field']} : '';
+		            					$value_in_feed_to_check = isset($this->agent_xml->id) ? (string)$this->agent_xml->id : '';
+		            				}
+		            				case "Agent Name":
+		            				{
+		            					$value_in_feed_to_check = isset($this->agent_xml->name) ? (string)$this->agent_xml->name : '';
 		            				}
 		            			}
 
@@ -333,9 +347,13 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				default:
+		            				case "Agent ID":
 		            				{
-		            					$value_in_feed_to_check = isset($property->{$rule['field']}) ? (string)$property->{$rule['field']} : '';
+		            					$value_in_feed_to_check = isset($this->agent_xml->id) ? (string)$this->agent_xml->id : '';
+		            				}
+		            				case "Agent Name":
+		            				{
+		            					$value_in_feed_to_check = isset($this->agent_xml->name) ? (string)$this->agent_xml->name : '';
 		            				}
 		            			}
 
@@ -354,9 +372,13 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				default:
+		            				case "Agent ID":
 		            				{
-		            					$value_in_feed_to_check = isset($property->{$rule['field']}) ? (string)$property->{$rule['field']} : '';
+		            					$value_in_feed_to_check = isset($this->agent_xml->id) ? (string)$this->agent_xml->id : '';
+		            				}
+		            				case "Agent Name":
+		            				{
+		            					$value_in_feed_to_check = isset($this->agent_xml->name) ? (string)$this->agent_xml->name : '';
 		            				}
 		            			}
 
@@ -369,7 +391,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		            		break;
 		            	}
 		            }
-	        	}*/
+	        	}
 	        	
 	            //turn bullets into property features
 	            $feature_term_ids = array();
