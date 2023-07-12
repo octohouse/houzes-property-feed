@@ -115,6 +115,48 @@ class Houzez_Property_Feed_License {
 	        }
 	    }*/
 
+	    // construct list of import and export formats being used
+	    $import_formats = array();
+	    $export_formats = array();
+
+	    $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+	    foreach ( $imports as $key => $import )
+        {
+            if ( isset($import['deleted']) && $import['deleted'] === true )
+            {
+                unset( $imports[$key] );
+            }
+            elseif ( !isset($import['running']) || ( isset($import['running']) && $import['running'] !== true ) )
+            {
+            	unset( $imports[$key] );
+            }
+        }
+        foreach ( $imports as $key => $import )
+        {
+        	$import_formats[] = $import['format'];
+        }
+
+        $exports = ( isset($options['exports']) && is_array($options['exports']) && !empty($options['exports']) ) ? $options['exports'] : array();
+	    foreach ( $exports as $key => $export )
+        {
+            if ( isset($export['deleted']) && $export['deleted'] === true )
+            {
+                unset( $exports[$key] );
+            }
+            elseif ( !isset($export['running']) || ( isset($export['running']) && $export['running'] !== true ) )
+            {
+            	unset( $exports[$key] );
+            }
+        }
+        foreach ( $exports as $key => $export )
+        {
+        	$export_formats[] = $export['format'];
+        }
+
+
+	    $import_formats = implode(",", $import_formats);
+	    $export_formats = implode(",", $export_formats);
+
         $instance_id = get_option( 'houzez_property_feed_instance_id', '' );
 
         $url = 'https://houzezpropertyfeed.com/?';
@@ -126,7 +168,9 @@ class Houzez_Property_Feed_License {
     	$url .= 'slug=houzez-property-feed-pro&';
     	$url .= 'plugin_name=houzez-property-feed-pro/houzez-property-feed-pro.php&';
     	$url .= 'version=' . HOUZEZ_PROPERTY_FEED_PRO_VERSION . '&';
-    	$url .= 'api_key=' . $license_key;
+    	$url .= 'api_key=' . $license_key . '&';
+    	$url .= 'imports=' . $import_formats . '&';
+    	$url .= 'exports=' . $export_formats;
 
     	$response = wp_remote_get( $url );
     	

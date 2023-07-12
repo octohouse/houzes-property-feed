@@ -812,6 +812,7 @@ function get_houzez_property_feed_import_formats()
                 'sales_status' => array(
                     'forSale' => 'forSale',
                     'underOffer' => 'underOffer',
+                    'soldSTC' => 'soldSTC',
                     'exchanged' => 'exchanged',
                     'completed' => 'completed',
                 ),

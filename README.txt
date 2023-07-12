@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.2.2
-Stable tag: 2.0.10
-Version: 2.0.10
+Stable tag: 2.0.11
+Version: 2.0.11
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -73,6 +73,7 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 * Houzez theme installed and activated
 * For formats that use XML the PHP SimpleXML library will need to installed
 * That WP Cron is firing automatically or an alternative cron job in place
+* For formats that send or receive files via FTP the PHP FTP functionality will need to be available
 
 = Automatic installation =
 
@@ -98,6 +99,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.11 - 2023-07-12 =
+* Added support for new Loop V2 status 'soldSTC' in mapping options
 
 = 2.0.10 - 2023-07-07 =
 * Added agent ID and agent name as possible contact information fields for the Kyero import format
