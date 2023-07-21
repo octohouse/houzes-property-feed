@@ -672,7 +672,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
 				}
 
-				if ( isset($property['STATUS_ID']) && !empty($property['STATUS_ID']) )
+				if ( isset($property['STATUS_ID']) && $property['STATUS_ID'] != '' )
 				{
 					if ( isset($taxonomy_mappings[$property['STATUS_ID']]) && !empty($taxonomy_mappings[$property['STATUS_ID']]) )
 					{
