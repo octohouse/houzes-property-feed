@@ -18,7 +18,6 @@ class Houzez_Property_Feed_Install {
 	public function __construct() {
 		register_activation_hook( HOUZEZ_PROPERTY_FEED_PLUGIN_FILE, array( $this, 'install' ) );
 		register_deactivation_hook( HOUZEZ_PROPERTY_FEED_PLUGIN_FILE, array( $this, 'deactivate' ) );
-		register_uninstall_hook( HOUZEZ_PROPERTY_FEED_PLUGIN_FILE, array( 'Houzez_Property_Feed_Install', 'uninstall' ) );
 
 		add_action( 'admin_init', array( $this, 'install_actions' ) );
 		add_action( 'admin_init', array( $this, 'check_version' ), 5 );
@@ -80,40 +79,7 @@ class Houzez_Property_Feed_Install {
 		$timestamp = wp_next_scheduled( 'houzezpropertyfeedcronhook' );
         wp_unschedule_event($timestamp, 'houzezpropertyfeedcronhook' );
 		wp_clear_scheduled_hook('houzezpropertyfeedcronhook');
-		
-        /*$timestamp = wp_next_scheduled( 'houzezpropertyfeedimportmediacronhook' );
-        wp_unschedule_event($timestamp, 'houzezpropertyfeedimportmediacronhook' );
-        wp_clear_scheduled_hook('houzezpropertyfeedimportmediacronhook');*/
 
-	}
-
-	/**
-	 * Uninstall Houzez Property Feed Plugin
-	 */
-	public function uninstall() {
-
-		$timestamp = wp_next_scheduled( 'houzezpropertyfeedcronhook' );
-        wp_unschedule_event($timestamp, 'houzezpropertyfeedcronhook' );
-		wp_clear_scheduled_hook('houzezpropertyfeedcronhook');
-		
-        /*$timestamp = wp_next_scheduled( 'houzezpropertyfeedimportmediacronhook' );
-        wp_unschedule_event($timestamp, 'houzezpropertyfeedimportmediacronhook' );
-        wp_clear_scheduled_hook('houzezpropertyfeedimportmediacronhook');*/
-
-        delete_option( 'houzez_property_feed' );
-
-        $this->delete_tables();
-	}
-
-	public function delete_tables() {
-
-		global $wpdb;
-
-		$wpdb->hide_errors();
-
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}houzez_property_feed_logs_instance" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}houzez_property_feed_logs_instance_log" );
-		//$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}houzez_property_feed_media_queue" );
 	}
 
 	/**
