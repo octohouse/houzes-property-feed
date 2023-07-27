@@ -129,11 +129,11 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 	        $property_query = new WP_Query($args);
 
 	        $display_address = (string)$property->location_detail;
-			if ( $display_address == '' )
+			if ( trim($display_address) == '' )
 			{
 				$display_address = (string)$property->town;
 			}
-			if ( $display_address == '' )
+			if ( trim($display_address) == '' )
 			{
 				$display_address = (string)$property->province;
 			}
