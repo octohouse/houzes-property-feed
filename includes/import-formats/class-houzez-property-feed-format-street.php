@@ -678,7 +678,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 				{
 					if ( isset($taxonomy_mappings[$property['attributes'][$status_field . '_status']]) && !empty($taxonomy_mappings[$property['attributes'][$status_field . '_status']]) )
 					{
-						wp_set_object_terms( $post_id, $taxonomy_mappings[$property['attributes'][$status_field . '_status']], "property_status" );
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['attributes'][$status_field . '_status']], "property_status" );
 					}
 					else
 					{
@@ -691,13 +691,31 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 
 				if ( isset($property['attributes']['property_type']) && !empty($property['attributes']['property_type']) )
 				{
-					if ( isset($taxonomy_mappings[$property['attributes']['property_type']]) && !empty($taxonomy_mappings[$property['attributes']['property_type']]) )
+					$type_mapped = false;
+
+					if ( 
+						isset($property['attributes']['property_type']) && 
+						$property['attributes']['property_type'] != '' &&
+						isset($property['attributes']['property_style']) && 
+						$property['attributes']['property_style'] != '' &&
+						isset($taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']]) && 
+						!empty($taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']])
+					)
 					{
-						wp_set_object_terms( $post_id, $taxonomy_mappings[$property['attributes']['property_type']], "property_type" );
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']], "property_type" );
+						$type_mapped = true;
 					}
-					else
+
+					if ( !$type_mapped )
 					{
-						$this->log( 'Received property type of ' . $property['attributes']['property_type'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+						if ( isset($taxonomy_mappings[$property['attributes']['property_type']]) && !empty($taxonomy_mappings[$property['attributes']['property_type']]) )
+						{
+							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['attributes']['property_type']], "property_type" );
+						}
+						else
+						{
+							$this->log( 'Received property type of ' . $property['attributes']['property_type'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+						}
 					}
 				}
 
