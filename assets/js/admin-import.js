@@ -679,7 +679,7 @@ function hpf_show_missing_mandatory_xml_field_mapping()
 
 function hpf_show_missing_mandatory_csv_field_mapping()
 {
-	jQuery('#missing_mandatory_csv_field_mapping').hide();
+	jQuery('#missing_mandatory_xml_field_mapping').hide();
 	jQuery('#field_mapping_warning').hide();
 
 	var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
@@ -702,7 +702,7 @@ function hpf_show_missing_mandatory_csv_field_mapping()
 
 		if ( !found_title_excerpt_or_content )
 		{
-			jQuery('#missing_mandatory_csv_field_mapping').show();
+			jQuery('#missing_mandatory_xml_field_mapping').show();
 			jQuery('#field_mapping_warning').show();
 		}
 	}
