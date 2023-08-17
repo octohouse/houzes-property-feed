@@ -376,17 +376,17 @@ class Houzez_Property_Feed_Export {
 
         if ( $export_settings === false )
         {
-            return false;
+            return $property;
         }
 
         if ( !isset($export_settings['field_mapping_rules']) )
         {
-            return false;
+            return $property;
         }
 
         if ( empty($export_settings['field_mapping_rules']) )
         {
-            return false;
+            return $property;
         }
 
         $houzez_fields = get_houzez_fields_for_field_mapping();

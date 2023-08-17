@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3
-Stable tag: 2.0.18
-Version: 2.0.18
+Stable tag: 2.0.19
+Version: 2.0.19
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -100,6 +100,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.19 - 2023-08-17 =
+* Corrected issue with field mapping filter returning false instead of property data if no field mapping setup
 
 = 2.0.18 - 2023-08-17 =
 * Added ability to map price qualifiers in exports. BLM exports only for now
