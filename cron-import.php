@@ -408,6 +408,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "mri":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-mri.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Mri( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "street":
 		    		{
 		                // includes

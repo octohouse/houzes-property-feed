@@ -852,6 +852,51 @@ function get_houzez_property_feed_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/loop/'
         ),
+        'mri' => array(
+            'name' => __( 'MRI XML', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://v4.salesandlettings.online/pls/{client}/aspasia_search.xml',
+                ),
+                array(
+                    'id' => 'password',
+                    'label' => __( 'Password', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                )
+            ),
+            'address_fields' => array( 'address3', 'town', 'county' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'AVAI' => 'For Sale',
+                    'REACTIVATE' => 'Reactivated',
+                    'UO' => 'Under Offer',
+                    'SSTC' => 'Sold STC',
+                ),
+                'lettings_status' => array(
+                    'AVAI' => 'Available to let',
+                    'AV_LET' => 'Available to let',
+                    'ARGAV' => 'Available arranging tenancy',
+                    'LETSTC' => 'Let - Subject to references',
+                    'LET' => 'Let',
+                    'QUBEUNAVIL' => 'Unavailable',
+                ),
+                'property_type' => array(
+                    'HOUSE-DETATCH' => 'House - Detached',
+                    'HOUSE-SEMID' => 'House - Semi Detached',
+                    'HOUSE-TERRACED' => 'House - Terraced',
+                    'FLATT-GRNDFLR' => 'Flat - Ground Floor',
+                    'FLATT-1STFLR' => 'Flat - First Floor',
+                )
+            ),
+            'contact_information_fields' => array(
+                'branch',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mri/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'street' => array(
             'name' => __( 'Street', 'houzezpropertyfeed' ),
             'fields' => array(

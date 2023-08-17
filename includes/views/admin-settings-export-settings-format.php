@@ -79,7 +79,7 @@
 								name="' . esc_attr($key . '_' . $field['id']) . '" 
 								value="' . ( ( isset($export_settings[$field['id']]) ) ? esc_attr($export_settings[$field['id']]) : ( isset($field['default']) ? esc_attr($field['default']) : '' ) ) . '" 
 								placeholder="' . ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' ) . '"
-								style="width:100%; max-width:400px;"
+								style="width:100%; max-width:450px;"
 							>';
 							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
