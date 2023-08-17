@@ -1334,7 +1334,20 @@ function get_houzez_property_feed_export_formats()
                     '143' => 'Block of Apartments',
                     '144' => 'Private Halls',
                     '253' => 'Commercial Property',
-                )
+                ),
+                'price_qualifier' => array(
+                    '1' => 'POA',
+                    '2' => 'Guide Price',
+                    '3' => 'Fixed Price',
+                    '4' => 'Offers in Excess of',
+                    '5' => 'OIRO',
+                    '6' => 'Sale by Tender',
+                    '7' => 'From',
+                    '9' => 'Shared Ownership',
+                    '10' => 'Offers Over',
+                    '11' => 'Part Buy Part Rent',
+                    '12' => 'Shared Equity',
+                ),
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/blm/',
             'warnings' => array(), // maybe FTP warning? maybe ZipArchive warning

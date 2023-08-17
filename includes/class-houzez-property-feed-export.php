@@ -260,7 +260,7 @@ class Houzez_Property_Feed_Export {
                     {
                         if ( $crm_id != '' )
                         {
-                            $export_mappings[$taxonomy][(int)$term_id] = $crm_id;
+                            $export_mappings[$taxonomy][$term_id] = $crm_id;
                         }
                     }
                 }

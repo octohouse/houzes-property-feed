@@ -235,44 +235,67 @@ class Houzez_Property_Feed_Process {
 		return $ftp_connected ? $ftp_conn : null;
 	}
 
-	public function get_export_mapped_value( $post_id, $taxonomy )
+	public function get_export_mapped_value( $post_id, $taxonomy = '', $field_type = '', $field_name = '' )
 	{
 		$return = '';
 
-		$terms = get_the_terms( $post_id, $taxonomy );
-		$term_ids_to_use = array();
-        if ( !is_wp_error($terms) && !empty($terms) )
-        {
-        	foreach ( $terms as $term )
-        	{
-        		if ( !empty($term->parent) )
-        		{
-        			array_unshift($term_ids_to_use, $term->term_id); // push to front of array to give it priority
-        		}
-        		else
-        		{
-	        		$term_ids_to_use[] = $term->term_id;
-	        	}
-        	}
-        }
-        
-        if ( !empty($term_ids_to_use) )
-        {
-        	$export_settings = get_export_settings_from_id( $this->export_id );
-
-        	$mappings = ( isset($export_settings['mappings'][$taxonomy]) && !empty($export_settings['mappings'][$taxonomy]) ) ? $export_settings['mappings'][$taxonomy] : array();
-
-        	if ( !empty($mappings) )
-        	{
-	        	foreach ( $term_ids_to_use as $term_id )
+		if ( !empty($taxonomy) )
+		{
+			$terms = get_the_terms( $post_id, $taxonomy );
+			$term_ids_to_use = array();
+	        if ( !is_wp_error($terms) && !empty($terms) )
+	        {
+	        	foreach ( $terms as $term )
 	        	{
-	        		if ( isset($mappings[$term_id]) )
+	        		if ( !empty($term->parent) )
 	        		{
-	        			return $mappings[$term_id];
+	        			array_unshift($term_ids_to_use, $term->term_id); // push to front of array to give it priority
 	        		}
+	        		else
+	        		{
+		        		$term_ids_to_use[] = $term->term_id;
+		        	}
 	        	}
 	        }
-        }
+	        
+	        if ( !empty($term_ids_to_use) )
+	        {
+	        	$export_settings = get_export_settings_from_id( $this->export_id );
+
+	        	$mappings = ( isset($export_settings['mappings'][$taxonomy]) && !empty($export_settings['mappings'][$taxonomy]) ) ? $export_settings['mappings'][$taxonomy] : array();
+
+	        	if ( !empty($mappings) )
+	        	{
+		        	foreach ( $term_ids_to_use as $term_id )
+		        	{
+		        		if ( isset($mappings[$term_id]) )
+		        		{
+		        			return $mappings[$term_id];
+		        		}
+		        	}
+		        }
+	        }
+	    }
+
+	    if ( !empty($field_type) && !empty($field_name) )
+		{
+			$field_value = get_post_meta( $post_id, $field_name, TRUE );
+
+			if ( !empty($field_value) )
+			{
+				$export_settings = get_export_settings_from_id( $this->export_id );
+
+	        	$mappings = ( isset($export_settings['mappings'][$field_type]) && !empty($export_settings['mappings'][$field_type]) ) ? $export_settings['mappings'][$field_type] : array();
+
+	        	if ( !empty($mappings) )
+	        	{
+	        		if ( isset($mappings[sanitize_title($field_value)]) )
+	        		{
+	        			return $mappings[sanitize_title($field_value)];
+	        		}
+		        }
+			}
+		}
 
 		return $return;
 	}

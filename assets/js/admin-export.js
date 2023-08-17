@@ -83,6 +83,7 @@ function hpf_show_format_settings()
 
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_property_type').hide();
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_status').hide();
+	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_price_qualifier').hide();
 
 	jQuery('#export_name_row').hide();
 
@@ -112,6 +113,9 @@ function hpf_show_format_settings()
 		var has_taxonomy_values_property_type = false;
 		var taxonomy_values_property_type = new Array();
 
+		var has_taxonomy_values_price_qualifier = false;
+		var taxonomy_values_price_qualifier = new Array();
+
 		for ( var i in hpf_admin_object.formats )
 		{
 			if ( i == selected_format )
@@ -136,6 +140,15 @@ function hpf_show_format_settings()
 					if (Object.keys(hpf_admin_object.formats[i].taxonomy_values.property_type).length > 0 ) 
 					{ 
 						taxonomy_values_property_type = hpf_admin_object.formats[i].taxonomy_values.property_type; 
+					}	
+				} 
+
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('price_qualifier') )
+				{
+					has_taxonomy_values_price_qualifier = true;
+					if (Object.keys(hpf_admin_object.formats[i].taxonomy_values.price_qualifier).length > 0 ) 
+					{ 
+						taxonomy_values_price_qualifier = hpf_admin_object.formats[i].taxonomy_values.price_qualifier; 
 					}	
 				} 
 
@@ -261,6 +274,48 @@ function hpf_show_format_settings()
 							// TO DO: set by default if match found
 						}
 						jQuery(this).append( '<option value="' + i + '"' + ( selected_status ? ' selected' : '' ) + '>' + taxonomy_values_property_type[i] + '</option>' );
+
+					}
+				}
+			});
+		}
+
+		// Price qualifier mapping
+		if ( has_taxonomy_values_price_qualifier )
+		{
+			jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_price_qualifier').show();
+
+			jQuery('select[name^=\'taxonomy_mapping[price_qualifier]\']').each(function()
+			{
+				jQuery(this).empty();
+
+				jQuery(this).append( '<option value=""></option>' );
+
+				var term_id = jQuery(this).attr('name').replace("taxonomy_mapping[price_qualifier][", "");
+				term_id = term_id.replace("]", "");
+				console.log(term_id);
+
+				if ( Object.keys(taxonomy_values_price_qualifier).length > 0 )
+				{
+					for ( var i in taxonomy_values_price_qualifier )
+					{
+						selected_status = false;
+						if ( 
+							hpf_admin_object.export_settings.hasOwnProperty('mappings') && 
+							hpf_admin_object.export_settings.mappings.hasOwnProperty('price_qualifier') &&
+							hpf_admin_object.export_settings.mappings.price_qualifier.hasOwnProperty(term_id)
+						)
+						{
+							if ( hpf_admin_object.export_settings.mappings.price_qualifier[term_id] == i )
+							{
+								selected_status = true;
+							}
+						}
+						if ( !selected_status )
+						{
+							// TO DO: set by default if match found
+						}
+						jQuery(this).append( '<option value="' + i + '"' + ( selected_status ? ' selected' : '' ) + '>' + taxonomy_values_price_qualifier[i] + '</option>' );
 
 					}
 				}

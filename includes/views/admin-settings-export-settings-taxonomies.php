@@ -83,3 +83,40 @@
 	</table>
 
 </div>
+
+<div id="taxonomy_mapping_price_qualifier">
+
+	<h3><?php echo __( 'Price Qualifier', 'houzezpropertyfeed' ); ?></h3>
+
+	<table class="form-table" id="taxonomy_mapping_table_price_qualifier">
+		<tbody>
+			<tr>
+				<th>Value In Houzez </th>
+				<td style="padding-left:0; font-weight:600">Value Sent In <span class="hpf-export-format-name"></span> Feed</td>
+			</tr>
+			<?php
+				// get unique price qualifiers
+				$unique_price_qualifier_values = $wpdb->get_results( "SELECT DISTINCT meta_value FROM $wpdb->postmeta pm, $wpdb->posts p WHERE meta_key = 'fave_property_price_prefix' and pm.post_id=p.ID and p.post_type='property' ORDER BY meta_value", ARRAY_A );
+				
+	            if ( is_array($unique_price_qualifier_values) && !empty($unique_price_qualifier_values) )
+	            {
+	                foreach ( $unique_price_qualifier_values as $unique_price_qualifier_value )
+	                {
+	                	if ( empty($unique_price_qualifier_value['meta_value']) ) { continue; }
+	        ?>
+	        <tr>
+				<td style="padding-left:0"><?php echo esc_html($unique_price_qualifier_value['meta_value']); ?></td>
+				<td style="padding-left:0">
+					<select name="taxonomy_mapping[price_qualifier][<?php echo sanitize_title($unique_price_qualifier_value['meta_value']); ?>]">
+						<option value=""></option>
+					</select>
+				</td>
+			</tr>
+	        <?php
+	                }
+	            }
+			?>
+		</tbody>
+	</table>
+
+</div>

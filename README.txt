@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3
-Stable tag: 2.0.17
-Version: 2.0.17
+Stable tag: 2.0.18
+Version: 2.0.18
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,6 +31,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Jupix
 * Kyero
 * Loop
+* MRI
 * Street
 * XML (any XML file hosted on a public URL)
 
@@ -99,6 +100,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.18 - 2023-08-17 =
+* Added ability to map price qualifiers in exports. BLM exports only for now
 
 = 2.0.17 - 2023-08-17 =
 * Added support for importing properties in the MRI XML format

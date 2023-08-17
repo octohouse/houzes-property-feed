@@ -562,21 +562,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                 }
 
                 $price_qualifier = '';
-                /*if ( isset($export_settings['overseas']) && $export_settings['overseas'] == 'yes' )
-                {
-                    $price_qualifier = $this->get_mapped_value($post->ID, 'overseas_price_qualifier');
-                }
-                else
-                {
-                    $price_qualifier = $this->get_mapped_value($post->ID, 'price_qualifier');
-
-                    $poa = get_post_meta($post->ID, '_poa', true);
-                    if ($poa == 'yes')
-                    {
-                        $price_qualifier = '1';
-                    }
-                }*/
-                
+                $price_qualifier_field_name = apply_filters( 'houzez_property_feed_price_qualifier_field', 'fave_property_price_prefix' );
+                $price_qualifier = $this->get_export_mapped_value($post->ID, '', 'price_qualifier', $price_qualifier_field_name);
                 $property_row_values['PRICE_QUALIFIER'] = $price_qualifier;
                 $property_type = $this->get_export_mapped_value($post->ID, 'property_type');
                 $property_row_values['PROP_SUB_ID'] = ( ( $property_type != '' ) ? $property_type : '0' );
