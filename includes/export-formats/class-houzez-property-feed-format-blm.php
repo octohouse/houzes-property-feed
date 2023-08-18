@@ -184,12 +184,6 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
         $properties_query = new WP_Query( $args );
         $num_properties = $properties_query->found_posts;
 
-        if ( $num_properties <= 0 ) 
-        {
-        	$this->log_error( "No properties to send" );
-        	return false;
-        }
-
         $files_to_zip = array();
         $files_to_ftp = array();
 
@@ -885,6 +879,12 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
             die();
         }
 
+        if ( $num_properties <= 0 ) 
+        {
+            $this->log_error( "No properties to send" );
+            return false;
+        }
+
         if ( $properties_added == 0 )
         {
             $this->log_error("No properties to add to BLM. Getting out of here...");
@@ -970,6 +970,26 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
         {
             $this->log_error("No files to upload via FTP");
         }
+
+        // Delete BLM files older than 7 days
+        $path = $wp_upload_dir['basedir'] . '/houzez_property_feed_export/'; 
+        if ( $handle = opendir($path) )  
+        {  
+            // Loop through the directory  
+            while ( false !== ($file = readdir($handle)) )  
+            {  
+                // Check the file we're doing is actually a BLM file  
+                if ( is_file($path.$file) && strpos(strtolower($file), '.blm') !== FALSE )  
+                {  
+                    // Check if the file is older than X days old  
+                    if ( filemtime($path.$file) < ( time() - ( 7 * 24 * 60 * 60 ) ) )  
+                    {  
+                        // Do the deletion  
+                        unlink($path . $file);  
+                    }  
+                }  
+            }  
+        } 
 
         return true;
 	}

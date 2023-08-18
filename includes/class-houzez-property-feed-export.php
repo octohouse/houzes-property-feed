@@ -400,7 +400,7 @@ class Houzez_Property_Feed_Export {
             $rules_met = 0;
             foreach ( $and_rules['rules'] as $i => $rule )
             {
-                if ( get_post_meta( $post_id, $rule['houzez_field'], TRUE ) == $rule['equal'] )
+                if ( $rule['equal'] == '*' || get_post_meta( $post_id, $rule['houzez_field'], TRUE ) == $rule['equal'] )
                 {
                     ++$rules_met;
                 }
