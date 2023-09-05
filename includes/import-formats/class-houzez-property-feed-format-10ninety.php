@@ -425,7 +425,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
 				}
 
-				if ( isset($property->STATUS_ID) && !empty((string)$property->STATUS_ID) )
+				if ( isset($property->STATUS_ID) && (string)$property->STATUS_ID != '' )
 				{
 					if ( isset($taxonomy_mappings[(string)$property->STATUS_ID]) && !empty($taxonomy_mappings[(string)$property->STATUS_ID]) )
 					{

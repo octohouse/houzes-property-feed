@@ -149,7 +149,7 @@ class Houzez_Property_Feed_Cron {
 
             do_action(sanitize_text_field($_GET['custom_property_export_cron']));
 
-            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export executed successfully. You can check the logs to see what happened during the import.', 'houzezpropertyfeed' ) ) );
+            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export executed successfully. You can check the logs to see what happened during the export.', 'houzezpropertyfeed' ) ) );
             die();
         }
     }

@@ -240,6 +240,42 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     $property_xml->addChild('baths', get_post_meta($post->ID, 'fave_property_bathrooms', true));
                 }
 
+                $surface_area_xml = $property_xml->addChild('surface_area');
+                if ( !empty(get_post_meta($post->ID, 'fave_property_size', true)) )
+                {
+                    $size = get_post_meta($post->ID, 'fave_property_size', true);
+                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_size_prefix', true)), 'ft') !== FALSE )
+                    {
+                        $size = get_post_meta($post->ID, 'fave_property_size', true) / 10.764; // convert from sqft to sqm
+                    }
+                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_size_prefix', true)), 'acre') !== FALSE )
+                    {
+                        $size = get_post_meta($post->ID, 'fave_property_size', true) * 4047; // convert from acre to sqm
+                    }
+                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_size_prefix', true)), 'hectare') !== FALSE )
+                    {
+                        $size = get_post_meta($post->ID, 'fave_property_size', true) * 10000; // convert from hectare to sqm
+                    }
+                    $surface_area_xml->addChild('built', $size);
+                }
+                if ( !empty(get_post_meta($post->ID, 'fave_property_land', true)) )
+                {
+                    $size = get_post_meta($post->ID, 'fave_property_land', true);
+                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_land_postfix', true)), 'ft') !== FALSE )
+                    {
+                        $size = get_post_meta($post->ID, 'fave_property_land', true) / 10.764; // convert from sqft to sqm
+                    }
+                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_land_postfix', true)), 'acre') !== FALSE )
+                    {
+                        $size = get_post_meta($post->ID, 'fave_property_land', true) * 4047; // convert from acre to sqm
+                    }
+                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_land_postfix', true)), 'hectare') !== FALSE )
+                    {
+                        $size = get_post_meta($post->ID, 'fave_property_land', true) * 10000; // convert from hectare to sqm
+                    }
+                    $surface_area_xml->addChild('plot', $size);
+                }
+
                 $url_xml = $property_xml->addChild('url');
                 $url_xml->addChild('en', get_permalink($post->ID));
 

@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
-Tested up to: 6.3
-Stable tag: 2.0.20
-Version: 2.0.20
+Tested up to: 6.3.1
+Stable tag: 2.0.21
+Version: 2.0.21
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -100,6 +100,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.21 - 2023-09-05 =
+* Added surface_area node to Kyero exports when applicable
+* Added new remove action of 'delete' property (PRO users only)
+* Corrected 0 STATUS_ID not importing in 10ninety format
+* Corrected message shown when export completed
+* Declared compatibility with WordPress 6.3.1
 
 = 2.0.20 - 2023-08-18 =
 * Only show 'View BLM' option when export is active
