@@ -426,7 +426,33 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
                 {
                 	$price = round(preg_replace("/[^0-9.]/", '', (string)$property->property_summary->price));
 
-                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
+                	$prefix = '';
+                	if ( $department == 'residential-sales' )
+                	{
+	                	$price_text = (string)$property->property_summary->price_text;
+	                	$explode_price_bits = explode(" ", $price_text);
+
+	                	$price_text_array = array();
+	                	foreach ( $explode_price_bits as $bit )
+	                	{
+	                		if ( preg_match('/\d/', $bit) )
+	                		{
+	                			// contains number
+	                			break;
+	                		}
+	                		else
+	                		{
+	                			$price_text_array[] = $bit;
+	                		}
+	                	}
+
+	                	if ( !empty($price_text_array) )
+	                	{
+	                		$prefix = trim(implode( ' ', $price_text_array ));
+	                	}
+	                }
+
+                    update_post_meta( $post_id, 'fave_property_price_prefix', $prefix );
                     update_post_meta( $post_id, 'fave_property_price', $price );
                     update_post_meta( $post_id, 'fave_property_price_postfix', '' );
 
