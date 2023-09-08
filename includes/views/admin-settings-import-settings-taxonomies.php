@@ -2,7 +2,8 @@
 
 <h3><?php echo __( 'Taxonomy Settings', 'houzezpropertyfeed' ); ?></h3>
 
-<p>Houzez has a number of <a href="<?php echo admin_url('admin.php?page=houzez_taxonomies'); ?>" target="_blank">taxonomies included</a> and we appreciate that everyone uses them slightly differently and that they come in differently depending on which format you're using. That's why we've added various options below to allow you to configure how these are used:</p>
+<p>Houzez has a number of <a href="<?php echo admin_url('admin.php?page=houzez_taxonomies'); ?>" target="_blank">taxonomies included</a> and we appreciate that everyone uses them slightly differently and that they come in differently depending on which format you're using. That's why we've added various options below to allow you to configure how these are used.</p>
+<p><strong>Need help?</strong> Our <a href="https://houzezpropertyfeed.com/documentation/managing-imports/taxonomies/" target="_blank">documentation</a> covers this step in more detail.</p>
 
 <hr>
 

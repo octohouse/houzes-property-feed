@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3.1
-Stable tag: 2.0.21
-Version: 2.0.21
+Stable tag: 2.0.22
+Version: 2.0.22
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,6 +28,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Dezrez Rezi
 * Domus
 * Expert Agent
+* Gnomen
 * Jupix
 * Kyero
 * Loop
@@ -100,6 +101,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.22 - 2023-09-08 =
+* Added support for Gnomen format
+* Remember the point an import gets to so if it times out we can continue from this property/image the next time an import runs. This will also be reflected in the logs
+* Added documentation links to taxonomy settings pages
+* Cast all types and statuses to integers across all import formats. Previously there would be cases where a new property type of '16' for example would be created
+* Corrected wrong post being referenced in remove logs
+* Corrected typo in variable name passed to action
 
 = 2.0.21 - 2023-09-05 =
 * Added surface_area node to Kyero exports when applicable

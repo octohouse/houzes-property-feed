@@ -34,6 +34,8 @@ class Houzez_Property_Feed_Process {
 
 	public function import_start()
 	{
+		$this->log( 'Starting import' );
+		
 		wp_suspend_cache_invalidation( true );
 
 		wp_defer_term_counting( true );
@@ -49,6 +51,10 @@ class Houzez_Property_Feed_Process {
 
 	public function import_end()
 	{
+		update_option( 'houzez_property_feed_property_' . $this->import_id, '', false );
+
+		$this->log( 'Finished import' );
+
 		wp_cache_flush();
 
 		wp_suspend_cache_invalidation( false );
@@ -88,6 +94,8 @@ class Houzez_Property_Feed_Process {
 				{
 					$property_query->the_post();
 
+					$property_post_id = get_the_ID();
+
 					wp_update_post(
 			            array(
 			                'ID' => get_the_ID(), 
@@ -95,12 +103,12 @@ class Houzez_Property_Feed_Process {
 			            )
 			        );
 
-			        $this->log( 'Property removed', get_post_meta(get_the_ID(), $imported_ref_key, TRUE), get_the_ID() );
+			        $this->log( 'Property removed', get_post_meta($property_post_id, $imported_ref_key, TRUE), $property_post_id );
 
-					do_action( "save_post_property", get_the_ID(), get_post(get_the_ID()), false );
-					do_action( "save_post", get_the_ID(), get_post(get_the_ID()), false );
+					do_action( "save_post_property", $property_post_id, get_post($property_post_id), false );
+					do_action( "save_post", $property_post_id, get_post($property_post_id), false );
 
-					do_action( "houzez_property_feed_property_removed", get_the_ID(), $this->import_id );
+					do_action( "houzez_property_feed_property_removed", $property_post_id, $this->import_id );
 				}
 			}
 			wp_reset_postdata();

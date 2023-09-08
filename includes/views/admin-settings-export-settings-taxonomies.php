@@ -2,7 +2,8 @@
 
 <h3><?php echo __( 'Taxonomy Settings', 'houzezpropertyfeed' ); ?></h3>
 
-<p>Below you can map the taxonomies you have setup in Houzez to the accepted values by the third party accepting the export:</p>
+<p>Below you can map the taxonomies you have setup in Houzez to the accepted values by the third party accepting the export.</p>
+<p><strong>Need help?</strong> Our <a href="https://houzezpropertyfeed.com/documentation/managing-exports/taxonomies/" target="_blank">documentation</a> covers this step in more detail.</p>
 
 <hr>
 

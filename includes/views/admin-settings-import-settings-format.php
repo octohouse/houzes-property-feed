@@ -18,6 +18,7 @@
 						}
 					?>
 				</select>
+				<input type="hidden" name="previous_format" value="<?php echo (isset($import_settings['format']) ? $import_settings['format'] : ''); ?>">
 			</td>
 		</tr>
 	</tbody>

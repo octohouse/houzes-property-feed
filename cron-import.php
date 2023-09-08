@@ -381,6 +381,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "gnomen":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-gnomen.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Gnomen( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "jupix":
 		    		{
 		                // includes

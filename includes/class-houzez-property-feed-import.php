@@ -77,6 +77,13 @@ class Houzez_Property_Feed_Import {
 
         $format = sanitize_text_field($_POST['format']);
 
+        if ( isset($_POST['previous_format']) && $format != sanitize_text_field($_POST['previous_format']) )
+        {
+            // remove any options we stored about current status
+            update_option( 'houzez_property_feed_property_' . $import_id, '', false );
+            update_option( 'houzez_property_feed_property_image_media_ids_' . $import_id, '', false );
+        }
+
         $running = ( isset($_POST['running']) && sanitize_text_field($_POST['running']) == 'yes' ) ? true : false;
 
         $agent_display_option = ( isset($_POST['agent_display_option']) ) ? sanitize_text_field($_POST['agent_display_option']) : 'author_info';
@@ -175,6 +182,11 @@ class Houzez_Property_Feed_Import {
             {
                 foreach ( $formats[$format]['fields'] as $field )
                 {   
+                    if ( isset($field['id']) && substr($field['id'], 0, 9) == 'previous_' ) // don't save any fields storing previous data
+                    {
+                        continue;
+                    }
+
                     if ( isset($field['type']) && $field['type'] != 'html' )
                     {
                         $field_value = '';
@@ -398,7 +410,7 @@ class Houzez_Property_Feed_Import {
                 if ( is_object($original_property) && substr($rule['field'], 0, 1) == '/' )
                 {
                     // Using XPATH syntax
-                    $values_to_check = $original_property->xpath('/' . $property_node . $rule['field']);
+                    $values_to_check = $original_property->xpath( ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'] );
                     if ( $values_to_check === FALSE || empty($values_to_check) )
                     {
                         continue;
@@ -460,7 +472,7 @@ class Houzez_Property_Feed_Import {
                         if ( is_object($original_property) && substr($field_name, 0, 1) == '/' )
                         {
                             // Using XPATH syntax
-                            $values_to_check = $original_property->xpath('/' . $property_node . $field_name);
+                            $values_to_check = $original_property->xpath(  ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $field_name );
                             if ( $values_to_check !== false && is_array($values_to_check) && !empty($values_to_check) )
                             {
                                 $value_to_check = (string)$values_to_check[0];

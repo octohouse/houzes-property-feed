@@ -699,6 +699,46 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/expert-agent/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'gnomen' => array(
+            'name' => __( 'Gnomen', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'address2', 'area', 'property_area' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For Sale' => 'For Sale',
+                    'Under Offer' => 'Under Offer',
+                    'Sold Subject to Contract' => 'Sold Subject to Contract',
+                ),
+                'lettings_status' => array(
+                    'To Let' => 'To Let',
+                    'Under Offer' => 'Under Offer',
+                    'Let Agreed' => 'Let Agreed',
+                ),
+                'property_type' => array(
+                    'Detached House' => 'Detached House',
+                    'Semi-Detached House' => 'Semi-Detached House',
+                    'Terraced House' => 'Terraced House',
+                    'End of Terrace House' => 'End of Terrace House',
+                    'Town House' => 'Town House',
+                    'Apartment' => 'Apartment',
+                    'Flat' => 'Flat',
+                    'Maisonette' => 'Maisonette'
+                )
+            ),
+            'contact_information_fields' => array(
+                'agent_name',
+                'branch_name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/gnomen/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'jupix' => array(
             'name' => __( 'Jupix', 'houzezpropertyfeed' ),
             'fields' => array(

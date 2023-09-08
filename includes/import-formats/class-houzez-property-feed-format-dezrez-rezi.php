@@ -203,8 +203,6 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
-		$this->log( 'Starting import' );
-
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
@@ -223,9 +221,29 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 
 		$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
 
+		$start_at_property = get_option( 'houzez_property_feed_property_' . $this->import_id );
+
 		$property_row = 1;
 		foreach ( $this->properties as $property )
 		{
+			if ( !empty($start_at_property) )
+			{
+				// we need to start on a certain property
+				if ( $property['RoleId'] == $start_at_property )
+				{
+					// we found the property. We'll continue for this property onwards
+					$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . $property['RoleId'] );
+					$start_at_property = false;
+				}
+				else
+				{
+					++$property_row;
+					continue;
+				}
+			}
+
+			update_option( 'houzez_property_feed_property_' . $this->import_id, $property['RoleId'], false );
+			
 			$this->log( 'Importing property ' . $property_row . ' with reference ' . $property['RoleId'], $property['RoleId'] );
 
 			$inserted_updated = false;
@@ -689,7 +707,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 						{
 							if ( isset($taxonomy_mappings[$flag['SystemName']]) && !empty($taxonomy_mappings[$flag['SystemName']]) )
 							{
-				                wp_set_post_terms( $post_id, $mapping[$flag['SystemName']], 'availability' );
+				                wp_set_post_terms( $post_id, (int)$taxonomy_mappings[$flag['SystemName']], 'availability' );
 				            }
 						}
 					}
@@ -713,7 +731,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 								{
 									if ( isset($taxonomy_mappings[$description['PropertyType']['SystemName']]) && !empty($taxonomy_mappings[$description['PropertyType']['SystemName']]) )
 									{
-										wp_set_object_terms( $post_id, $taxonomy_mappings[$description['PropertyType']['SystemName']], "property_type" );
+										wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$description['PropertyType']['SystemName']], "property_type" );
 									}
 									else
 									{
@@ -788,6 +806,26 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 				$image_i = 0;
 				$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
+				$start_at_image_i = false;
+				$previous_import_media_ids = get_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id );
+
+				if ( !empty($previous_import_media_ids) )
+				{
+					// an import stopped previously whilst doing images. Check if it was this post
+					$explode_previous_import_media_ids = explode("|", $previous_import_media_ids);
+					if ( $explode_previous_import_media_ids[0] == $post_id )
+					{
+						// yes it was this property. now loop through the media already imported to ensure it's not imported again
+						if ( isset($explode_previous_import_media_ids[1]) && !empty($explode_previous_import_media_ids[1]) )
+						{
+							$media_ids = explode(",", $explode_previous_import_media_ids[1]);
+							$start_at_image_i = count($media_ids);
+
+							$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', (string)$property->AGENT_REF, $post_id );
+						}
+					}
+				}
+
 				if ( isset($property['Images']) && !empty($property['Images']) )
 				{
 					foreach ( $property['Images'] as $image )
@@ -805,6 +843,17 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 							isset($image['DocumentSubType']['SystemName']) && $image['DocumentSubType']['SystemName'] == 'Photo'
 						)
 						{
+							if ( $start_at_image_i !== false )
+							{
+								// we need to start at a specific image
+								if ( $image_i < $start_at_image_i )
+								{
+									++$existing;
+									++$image_i;
+									continue;
+								}
+							}
+
 							// This is a URL
 							$url = $image['Url'];
 							if ( strpos(strtolower($url), 'width=') === FALSE )
@@ -863,6 +912,8 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 								++$existing;
 
 								++$image_i;
+
+								update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
 							}
 							else
 							{
@@ -900,6 +951,8 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 								    	++$new;
 
 								    	++$image_i;
+
+								    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
 								    }
 								}
 							}
@@ -931,6 +984,8 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 				}
 
 				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['RoleId'], $post_id );
+
+				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
 				// Floorplans
 				$floorplans = array();
@@ -1258,7 +1313,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 				}
 
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_dezrez_rezi", $post_id, $propert, $this->import_id );
+				do_action( "houzez_property_feed_property_imported_dezrez_rezi", $post_id, $property, $this->import_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
@@ -1277,8 +1332,6 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 		do_action( "houzez_property_feed_post_import_properties_dezrez_rezi", $this->import_id );
 
 		$this->import_end();
-
-		$this->log( 'Finished import' );
 	}
 
 	public function remove_old_properties()

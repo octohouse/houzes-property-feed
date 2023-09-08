@@ -103,8 +103,6 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
-		$this->log( 'Starting import' );
-
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
@@ -127,6 +125,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		$explode_property_node = explode("/", $property_node);
 		$property_node = $explode_property_node[count($explode_property_node)-1];
 
+		$start_at_property = get_option( 'houzez_property_feed_property_' . $this->import_id );
+
 		$property_row = 1;
 		foreach ( $this->properties as $property )
 		{
@@ -148,6 +148,24 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 				$this->log_error( 'Unique ID empty. Please ensure you have a field specified that we can use as the unique identifer in the import setting under the \'Format\' tab and that is has a value set in the XML' );
 				continue;
 			}
+
+			if ( !empty($start_at_property) )
+			{
+				// we need to start on a certain property
+				if ( $property_id == $start_at_property )
+				{
+					// we found the property. We'll continue for this property onwards
+					$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . $property_id );
+					$start_at_property = false;
+				}
+				else
+				{
+					++$property_row;
+					continue;
+				}
+			}
+
+			update_option( 'houzez_property_feed_property_' . $this->import_id, $property_id, false );
 
 			$this->log( 'Importing property ' . $property_row . ' with reference ' . $property_id, $property_id );
 
@@ -257,6 +275,26 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 				$image_i = 0;
 				$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
+				$start_at_image_i = false;
+				$previous_import_media_ids = get_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id );
+
+				if ( !empty($previous_import_media_ids) )
+				{
+					// an import stopped previously whilst doing images. Check if it was this post
+					$explode_previous_import_media_ids = explode("|", $previous_import_media_ids);
+					if ( $explode_previous_import_media_ids[0] == $post_id )
+					{
+						// yes it was this property. now loop through the media already imported to ensure it's not imported again
+						if ( isset($explode_previous_import_media_ids[1]) && !empty($explode_previous_import_media_ids[1]) )
+						{
+							$media_ids = explode(",", $explode_previous_import_media_ids[1]);
+							$start_at_image_i = count($media_ids);
+
+							$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', (string)$property->AGENT_REF, $post_id );
+						}
+					}
+				}
+
 				if ( isset($import_settings['image_fields']) && !empty($import_settings['image_fields']) )
 				{
 					$explode_media = explode("\n", $import_settings['image_fields']);
@@ -324,6 +362,17 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 							substr( strtolower($url), 0, 4 ) == 'http'
 						)
 						{
+							if ( $start_at_image_i !== false )
+							{
+								// we need to start at a specific image
+								if ( $image_i < $start_at_image_i )
+								{
+									++$existing;
+									++$image_i;
+									continue;
+								}
+							}
+
 							$filename = basename( $url );
 
 							// Check, based on the URL, whether we have previously imported this media
@@ -368,6 +417,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 								++$existing;
 
 								++$image_i;
+
+								update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
 							}
 							else
 							{
@@ -405,6 +456,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 								    	++$new;
 
 								    	++$image_i;
+
+								    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
 								    }
 								}
 							}
@@ -437,6 +490,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 				}
 
 				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->propertyID, $post_id );
+
+				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
 				// Floorplans
 				$floorplans = array();
@@ -713,7 +768,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 				$this->log( 'Imported ' . count($media_ids) . ' documents (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->propertyID, $post_id );
 				
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_xml", $post_id, $propert, $this->import_id );
+				do_action( "houzez_property_feed_property_imported_xml", $post_id, $property, $this->import_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
@@ -732,8 +787,6 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		do_action( "houzez_property_feed_post_import_properties_xml", $this->import_id );
 
 		$this->import_end();
-
-		$this->log( 'Finished import' );
 	}
 
 	public function remove_old_properties()
