@@ -103,7 +103,7 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 			        }
 			        else
 			        {
-			        	$this->log_error( 'Failed to obtain property (id: ' . (string)$property->id . ', url: ' . $url . ') XML file.' );
+			        	$this->log_error( 'Failed to obtain property (id: ' . (string)$property->id . ', url: ' . $url . ') XML file. Response: ' . print_r($response, TRUE) );
 				        return false;
 			        }
 			    }

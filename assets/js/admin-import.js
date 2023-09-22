@@ -1,11 +1,27 @@
 var hpf_original_property_node = ''; // used for XML format
 var hpf_original_property_id_node = ''; // used for XML format
 var hpf_original_property_id_field = ''; // used for CSV format
+var hpf_original_image_field = ''; // used for CSV format, comma-delimited images
+var hpf_original_floorplan_field = ''; // used for CSV format, comma-delimited floorplans
+var hpf_original_document_field = ''; // used for CSV format, comma-delimited documents
 
 jQuery(document).ready(function()
 {
 	jQuery('.hpf-admin-settings-import-settings .settings-panel #format').select2({ allowClear: true, placeholder:"Select..." });
 	jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
+
+	jQuery('.settings-panels input[name=\'image_field_arrangement\']').change(function()
+	{
+		jQuery('.hpf-admin-settings-import-settings .left-tabs ul li.active a').trigger('click');
+	});
+	jQuery('.settings-panels input[name=\'floorplan_field_arrangement\']').change(function()
+	{
+		jQuery('.hpf-admin-settings-import-settings .left-tabs ul li.active a').trigger('click');
+	});
+	jQuery('.settings-panels input[name=\'document_field_arrangement\']').change(function()
+	{
+		jQuery('.hpf-admin-settings-import-settings .left-tabs ul li.active a').trigger('click');
+	});
 
 	jQuery('.hpf-admin-settings-import-settings .left-tabs ul li a').click(function(e)
 	{
@@ -17,7 +33,7 @@ jQuery(document).ready(function()
 		jQuery(this).parent().addClass('active');
 
 		jQuery('.hpf-admin-settings-import-settings .settings-panel').hide();
-		jQuery(this_href).fadeIn('fast');
+		jQuery(this_href).show();
 
 		hpf_set_xml_fields_size_properties();
 		hpf_set_csv_fields_size_properties();
@@ -28,6 +44,42 @@ jQuery(document).ready(function()
 		{
 			hpf_create_csv_field_mapping_options();
 
+			jQuery('.settings-panels .xml-tip').hide();
+			jQuery('.settings-panels .csv-tip').show();
+
+			if ( jQuery('.settings-panels input[name=\'image_field_arrangement\']:checked').val() == '' )
+			{
+				jQuery('.settings-panels .media-image-settings .media-comma-delimited-row').hide();
+				jQuery('.settings-panels .media-image-settings .media-individual-row').show();
+			}
+			if ( jQuery('.settings-panels input[name=\'image_field_arrangement\']:checked').val() == 'comma_delimited' )
+			{
+				jQuery('.settings-panels .media-image-settings .media-comma-delimited-row').show();
+				jQuery('.settings-panels .media-image-settings .media-individual-row').hide();
+			}
+
+			if ( jQuery('.settings-panels input[name=\'floorplan_field_arrangement\']:checked').val() == '' )
+			{
+				jQuery('.settings-panels .media-floorplan-settings .media-comma-delimited-row').hide();
+				jQuery('.settings-panels .media-floorplan-settings .media-individual-row').show();
+			}
+			if ( jQuery('.settings-panels input[name=\'floorplan_field_arrangement\']:checked').val() == 'comma_delimited' )
+			{
+				jQuery('.settings-panels .media-floorplan-settings .media-comma-delimited-row').show();
+				jQuery('.settings-panels .media-floorplan-settings .media-individual-row').hide();
+			}
+
+			if ( jQuery('.settings-panels input[name=\'document_field_arrangement\']:checked').val() == '' )
+			{
+				jQuery('.settings-panels .media-document-settings .media-comma-delimited-row').hide();
+				jQuery('.settings-panels .media-document-settings .media-individual-row').show();
+			}
+			if ( jQuery('.settings-panels input[name=\'document_field_arrangement\']:checked').val() == 'comma_delimited' )
+			{
+				jQuery('.settings-panels .media-document-settings .media-comma-delimited-row').show();
+				jQuery('.settings-panels .media-document-settings .media-individual-row').hide();
+			}
+
 			jQuery('#image_fields').attr('placeholder', '{Image 1}|{Image 1 Caption}' + "\n" + '{Image 2}');
 			jQuery('#floorplan_fields').attr('placeholder', '{Floorplan 1}' + "\n" + '{Floorplan 2}');
 			jQuery('#document_fields').attr('placeholder', '{Brochure}' + "\n" + '{EPC}' + "\n" + '{Document 1}|Brochure');
@@ -35,6 +87,12 @@ jQuery(document).ready(function()
 
 		if ( selected_format == 'xml' )
 		{
+			jQuery('.settings-panels .xml-tip').show();
+			jQuery('.settings-panels .csv-tip').hide();
+
+			jQuery('.media-comma-delimited-row').hide();
+			jQuery('.media-individual-row').show();
+
 			jQuery('#image_fields').attr('placeholder', '{/images/image[1]}' + "\n" + '{/images/image[2]}' + "\n" + '{/images/image[3]/url}|{/images/image[3]/caption}' + "\n" + '{/image[1]}.jpg');
 			jQuery('#floorplan_fields').attr('placeholder', '{/floorplans/floorplan[1]/url}|{/floorplans/floorplan[1]/caption}' + "\n" + '{/floorplans/floorplan[2]}');
 			jQuery('#document_fields').attr('placeholder', '{/brochureURL}|Brochure' + "\n" + '{/epcs/epc[1]}' + "\n" + '{/documents/document[1]/url}|{/documents/document[1]/caption}');
@@ -256,6 +314,9 @@ jQuery(document).ready(function()
 		e.preventDefault();
 
 		hpf_original_property_id_field = jQuery('select[name=\'csv_property_id_field\']').val();
+		hpf_original_image_field = jQuery('select[name=\'image_field\']').val();
+		hpf_original_floorplan_field = jQuery('select[name=\'floorplan_field\']').val();
+		hpf_original_document_field = jQuery('select[name=\'document_field\']').val();
 		
 		jQuery('a.hpf-fetch-csv-fields').text('Fetching...');
 		jQuery('a.hpf-fetch-csv-fields').attr('disabled', 'disabled');
@@ -489,6 +550,9 @@ function hpf_create_xml_property_id_node_options()
 function hpf_create_csv_property_id_field_options()
 {
 	jQuery('select[name=\'csv_property_id_field\']').empty();
+	jQuery('select[name=\'image_field\']').empty();
+	jQuery('select[name=\'floorplan_field\']').empty();
+	jQuery('select[name=\'document_field\']').empty();
 
 	var fields = jQuery('input[name=\'csv_property_field_options\']').val();
 
@@ -507,8 +571,31 @@ function hpf_create_csv_property_id_field_options()
 		{
 			selected_html = ' selected';
 		}
-
 		jQuery('select[name=\'csv_property_id_field\']').append('<option value="' + field + '"' + selected_html + '>' + field + '</option>');
+
+		var selected_html = '';
+		var field = fields[i];
+		if ( hpf_original_image_field == field )
+		{
+			selected_html = ' selected';
+		}
+		jQuery('select[name=\'image_field\']').append('<option value="' + field + '"' + selected_html + '>' + field + '</option>');
+
+		var selected_html = '';
+		var field = fields[i];
+		if ( hpf_original_floorplan_field == field )
+		{
+			selected_html = ' selected';
+		}
+		jQuery('select[name=\'floorplan_field\']').append('<option value="' + field + '"' + selected_html + '>' + field + '</option>');
+
+		var selected_html = '';
+		var field = fields[i];
+		if ( hpf_original_document_field == field )
+		{
+			selected_html = ' selected';
+		}
+		jQuery('select[name=\'document_field\']').append('<option value="' + field + '"' + selected_html + '>' + field + '</option>');
 	}
 }
 

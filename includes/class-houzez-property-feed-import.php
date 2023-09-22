@@ -243,13 +243,39 @@ class Houzez_Property_Feed_Import {
 
         $import_options['mappings'] = $import_mappings;
 
+        if ( isset($_POST['image_field_arrangement']) && in_array($_POST['image_field_arrangement'], array('', 'comma_delimited')) )
+        {
+            $import_options['image_field_arrangement'] = sanitize_text_field($_POST['image_field_arrangement']);
+        }
+        if ( isset($_POST['image_field']) )
+        {
+            $import_options['image_field'] = sanitize_text_field($_POST['image_field']);
+        }
         if ( isset($_POST['image_fields']) )
         {
             $import_options['image_fields'] = sanitize_textarea_field($_POST['image_fields']);
         }
+
+        if ( isset($_POST['floorplan_field_arrangement']) && in_array($_POST['floorplan_field_arrangement'], array('', 'comma_delimited')) )
+        {
+            $import_options['floorplan_field_arrangement'] = sanitize_text_field($_POST['floorplan_field_arrangement']);
+        }
+        if ( isset($_POST['floorplan_field']) )
+        {
+            $import_options['floorplan_field'] = sanitize_text_field($_POST['floorplan_field']);
+        }
         if ( isset($_POST['floorplan_fields']) )
         {
             $import_options['floorplan_fields'] = sanitize_textarea_field($_POST['floorplan_fields']);
+        }
+
+        if ( isset($_POST['document_field_arrangement']) && in_array($_POST['document_field_arrangement'], array('', 'comma_delimited')) )
+        {
+            $import_options['document_field_arrangement'] = sanitize_text_field($_POST['document_field_arrangement']);
+        }
+        if ( isset($_POST['document_field']) )
+        {
+            $import_options['document_field'] = sanitize_text_field($_POST['document_field']);
         }
         if ( isset($_POST['document_fields']) )
         {
