@@ -15,7 +15,7 @@
 				</label>
 				<label style="display:block; padding:3px 0">
 					<input type="radio" name="image_field_arrangement" id="image_field_arrangement_comma_delimited" value="comma_delimited"<?php echo ( isset($import_settings['image_field_arrangement']) && $import_settings['image_field_arrangement'] == 'comma_delimited' ) ? ' checked' : ''; ?>>
-					All URL's in one comma-delimited field
+					All URL's in one field
 				</label>
 			</td>
 		</tr>
@@ -49,6 +49,12 @@
 				</select>
 			</td>
 		</tr>
+		<tr class="media-comma-delimited-row">
+			<th><label for="image_field_delimiter"><?php echo __( 'Delimiter Character', 'houzezpropertyfeed' ); ?></label></th>
+			<td>
+				<input type="text" name="image_field_delimiter" id="image_field_delimiter" style="width:50px;" value="<?php echo isset($import_settings['image_field_delimiter']) ? $import_settings['image_field_delimiter'] : ','; ?>">
+			</td>
+		</tr>
 		<tr class="media-individual-row">
 			<th><label for="image_fields"><?php echo __( 'Fields Containing Images', 'houzezpropertyfeed' ); ?></label></th>
 			<td>
@@ -78,7 +84,7 @@
 				</label>
 				<label style="display:block; padding:3px 0">
 					<input type="radio" name="floorplan_field_arrangement" id="floorplan_field_arrangement_comma_delimited" value="comma_delimited"<?php echo ( isset($import_settings['floorplan_field_arrangement']) && $import_settings['floorplan_field_arrangement'] == 'comma_delimited' ) ? ' checked' : ''; ?>>
-					All URL's in one comma-delimited field
+					All URL's in one field
 				</label>
 			</td>
 		</tr>
@@ -112,6 +118,12 @@
 				</select>
 			</td>
 		</tr>
+		<tr class="media-comma-delimited-row">
+			<th><label for="floorplan_field_delimiter"><?php echo __( 'Delimiter Character', 'houzezpropertyfeed' ); ?></label></th>
+			<td>
+				<input type="text" name="floorplan_field_delimiter" id="floorplan_field_delimiter" style="width:50px;" value="<?php echo isset($import_settings['floorplan_field_delimiter']) ? $import_settings['floorplan_field_delimiter'] : ','; ?>">
+			</td>
+		</tr>
 		<tr class="media-individual-row">
 			<th><label for="floorplan_fields"><?php echo __( 'Fields Containing Floorplans', 'houzezpropertyfeed' ); ?></label></th>
 			<td>
@@ -141,7 +153,7 @@
 				</label>
 				<label style="display:block; padding:3px 0">
 					<input type="radio" name="document_field_arrangement" id="document_field_arrangement_comma_delimited" value="comma_delimited"<?php echo ( isset($import_settings['document_field_arrangement']) && $import_settings['document_field_arrangement'] == 'comma_delimited' ) ? ' checked' : ''; ?>>
-					All URL's in one comma-delimited field
+					All URL's in one field
 				</label>
 			</td>
 		</tr>
@@ -173,6 +185,12 @@
 						} 
 					?>
 				</select>
+			</td>
+		</tr>
+		<tr class="media-comma-delimited-row">
+			<th><label for="document_field_delimiter"><?php echo __( 'Delimiter Character', 'houzezpropertyfeed' ); ?></label></th>
+			<td>
+				<input type="text" name="document_field_delimiter" id="document_field_delimiter" style="width:50px;" value="<?php echo isset($import_settings['document_field_delimiter']) ? $import_settings['document_field_delimiter'] : ','; ?>">
 			</td>
 		</tr>
 		<tr class="media-individual-row">

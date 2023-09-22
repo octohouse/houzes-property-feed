@@ -251,6 +251,10 @@ class Houzez_Property_Feed_Import {
         {
             $import_options['image_field'] = sanitize_text_field($_POST['image_field']);
         }
+        if ( isset($_POST['image_field_delimiter']) )
+        {
+            $import_options['image_field_delimiter'] = sanitize_text_field($_POST['image_field_delimiter']);
+        }
         if ( isset($_POST['image_fields']) )
         {
             $import_options['image_fields'] = sanitize_textarea_field($_POST['image_fields']);
@@ -264,6 +268,10 @@ class Houzez_Property_Feed_Import {
         {
             $import_options['floorplan_field'] = sanitize_text_field($_POST['floorplan_field']);
         }
+        if ( isset($_POST['floorplan_field_delimiter']) )
+        {
+            $import_options['floorplan_field_delimiter'] = sanitize_text_field($_POST['floorplan_field_delimiter']);
+        }
         if ( isset($_POST['floorplan_fields']) )
         {
             $import_options['floorplan_fields'] = sanitize_textarea_field($_POST['floorplan_fields']);
@@ -276,6 +284,10 @@ class Houzez_Property_Feed_Import {
         if ( isset($_POST['document_field']) )
         {
             $import_options['document_field'] = sanitize_text_field($_POST['document_field']);
+        }
+        if ( isset($_POST['document_field_delimiter']) )
+        {
+            $import_options['document_field_delimiter'] = sanitize_text_field($_POST['document_field_delimiter']);
         }
         if ( isset($_POST['document_fields']) )
         {

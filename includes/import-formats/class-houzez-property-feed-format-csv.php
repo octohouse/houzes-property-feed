@@ -445,7 +445,9 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                         if ( $value_to_check !== false )
                         {
                             // we found this field
-                            $explode_image_urls = explode(",", $value_to_check);
+                        	$delimiter = ( isset($import_settings['image_field_delimiter']) && !empty($import_settings['image_field_delimiter']) ) ? $import_settings['image_field_delimiter'] : ',';
+
+                            $explode_image_urls = explode($delimiter, $value_to_check);
                             $explode_image_urls = array_map('trim', $explode_image_urls);
                             $explode_image_urls = array_filter($explode_image_urls);
 
@@ -674,7 +676,9 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                         if ( $value_to_check !== false )
                         {
                             // we found this field
-                            $explode_floorplan_urls = explode(",", $value_to_check);
+                            $delimiter = ( isset($import_settings['floorplan_field_delimiter']) && !empty($import_settings['floorplan_field_delimiter']) ) ? $import_settings['floorplan_field_delimiter'] : ',';
+
+                            $explode_floorplan_urls = explode($delimiter, $value_to_check);
                             $explode_floorplan_urls = array_map('trim', $explode_floorplan_urls);
                             $explode_floorplan_urls = array_filter($explode_floorplan_urls);
 
@@ -870,7 +874,9 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                         if ( $value_to_check !== false )
                         {
                             // we found this field
-                            $explode_document_urls = explode(",", $value_to_check);
+                            $delimiter = ( isset($import_settings['document_field_delimiter']) && !empty($import_settings['document_field_delimiter']) ) ? $import_settings['document_field_delimiter'] : ',';
+                            
+                            $explode_document_urls = explode($delimiter, $value_to_check);
                             $explode_document_urls = array_map('trim', $explode_document_urls);
                             $explode_document_urls = array_filter($explode_document_urls);
 
