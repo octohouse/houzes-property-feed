@@ -622,6 +622,7 @@ class Houzez_Property_Feed_Import {
         add_post_meta( $post_id, 'fave_single_content_area', 'global', TRUE );
         add_post_meta( $post_id, 'fave_single_top_area', 'global', TRUE );
         add_post_meta( $post_id, 'fave_prop_homeslider', 'no', TRUE );
+        add_post_meta( $post_id, 'fave_featured', '0', TRUE );
     }
 
     public function get_xml_mapped_field_value( $value, $property, $field_name, $import_id )

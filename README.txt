@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3.1
-Stable tag: 2.0.25
-Version: 2.0.25
+Stable tag: 2.0.26
+Version: 2.0.26
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -101,6 +101,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.26 - 2023-09-24 =
+* Ensure fave_featured meta key always set as it's sometimes used for ordering and often resulted in no results showing if meta key didn't exist
 
 = 2.0.25 - 2023-09-22 =
 * Added ability to specify media field character delimiter when media all sent in one CSV column. Defaults to comma
