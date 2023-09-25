@@ -590,6 +590,27 @@ class Houzez_Property_Feed_Import {
                 }
                 else
                 {
+                    if ( 
+                        $result != '' &&
+                        (
+                            $and_rules['houzez_field'] == 'houzez_geolocation_lat' ||
+                            $and_rules['houzez_field'] == 'houzez_geolocation_long' ||
+                            $and_rules['houzez_field'] == 'fave_property_location'
+                        )
+                    )
+                    {
+                        // ensure non-numeric characters stripped from any lat/lng based fields
+                        $explode_result = explode(",", $result);
+                        $new_result = array();
+                        foreach ( $explode_result as $result_item )
+                        {
+                            $result_item = trim($result_item);
+                            $result_item = preg_replace("/[^0-9.-]/", "", $result_item);
+
+                            $new_result[] = $result_item;
+                        }
+                        $result = implode(",", $new_result);
+                    }
                     update_post_meta( $post_id, $and_rules['houzez_field'], $result );
                 }
             }
