@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3.1
-Stable tag: 2.0.27
-Version: 2.0.27
+Stable tag: 2.0.28
+Version: 2.0.28
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -101,6 +101,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.28 - 2023-09-28 =
+* Improvements to Gnomen format (import price qualifier, area, exclude withdrawn properties and more)
+* Add filters 'houzez_property_feed_xml_request_args' and 'houzez_property_feed_csv_request_args' so XML/CSV request arguments can be customised to add headers etc
 
 = 2.0.27 - 2023-09-25 =
 * Remove non-numeric characters from lat/lng related fields during CSV import

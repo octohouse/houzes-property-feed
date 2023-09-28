@@ -733,8 +733,9 @@ function get_houzez_property_feed_import_formats()
                 )
             ),
             'contact_information_fields' => array(
-                'agent_name',
                 'branch_name',
+                'negotiator_id',
+                'negotiator',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/gnomen/',
             'warnings' => array_filter( array( $simplexml_warning ) ),

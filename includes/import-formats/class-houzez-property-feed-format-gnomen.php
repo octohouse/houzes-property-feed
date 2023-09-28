@@ -38,18 +38,20 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 				{
 					// This feed has an API key which I think means it uses a format whereby we don't need to go off and get the full details
 
-					$property->area = $property->town;
-					$property->description = $property->short_description;
-					$property->beds = $property->bedrooms;
-					$property->baths = $property->bathrooms;
-					$property->base_price = $property->price;
-					$property->full_description = $property->full_details;
-					$property->videotour = $property->video_tour;
+					$property->area = isset($property->town) ? $property->town : '';
+					$property->description = isset($property->short_description) ? $property->short_description : '';
+					$property->beds = isset($property->bedrooms) ? $property->bedrooms : '';
+					$property->baths = isset($property->bathrooms) ? $property->bathrooms : '';
+					$property->base_price = isset($property->price) ? $property->price : '';
+					$property->videotour = isset($property->video_tour) ? $property->video_tour : '';
 
 					$property->branch_name = '';
-					$property->tenure = '';
+					$property->tenure = isset($property->tenure) ? $property->tenure : '';
 
-                	$this->properties[] = $property;
+					if ( !isset($property->status) || ( isset($property->status) && strtolower((string)$property->status) != 'withdrawn' ) )
+					{
+	                	$this->properties[] = $property;
+	                }
 				}
 				else
 				{
@@ -89,10 +91,15 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 							$property_xml->virtualtour = ( isset($property->virtualtour) ? (string)$property->virtualtour : '' );
 							$property_xml->addChild( 'epc' );
 							$property_xml->epc = ( isset($property->epc) ? (string)$property->epc : '' );
-							$property_xml->addChild( 'brochure' );
-							$property_xml->brochure = ( isset($property->brochure) ? (string)$property->brochure : '' );
+							$property_xml->addChild( 'short_description' );
+							$property_xml->short_description = ( isset($property->description) ? (string)$property->description : '' );
+							$property_xml->addChild( 'full_details' );
+							$property_xml->full_details = ( isset($property->description) ? (string)$property->description : '' );
 
-		                	$this->properties[] = $property_xml;
+							if ( !isset($property_xml->status) || ( isset($property_xml->status) && strtolower((string)$property_xml->status) != 'withdrawn' ) )
+							{
+			                	$this->properties[] = $property_xml;
+			                }
 		                }
 		                else
 				        {
@@ -233,8 +240,8 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 	                $my_post = array(
 				    	'ID'          	 => $post_id,
 				    	'post_title'     => wp_strip_all_tags( $display_address ),
-				    	'post_excerpt'   => html_entity_decode(html_entity_decode((string)$property->description)),
-				    	'post_content' 	 => (string)$property->full_description,
+				    	'post_excerpt'   => (string)$property->short_description,
+				    	'post_content' 	 => (string)$property->full_details,
 				    	'post_status'    => 'publish',
 				  	);
 
@@ -258,7 +265,7 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 	        	// We've not imported this property before
 				$postdata = array(
 					'post_excerpt'   => html_entity_decode(html_entity_decode((string)$property->description)),
-				    'post_content' 	 => (string)$property->full_description,
+				    'post_content' 	 => (string)$property->description,
 					'post_title'     => wp_strip_all_tags( $display_address ),
 					'post_status'    => 'publish',
 					'post_type'      => 'property',
@@ -315,7 +322,7 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
                 }
                 else
                 {
-                	$price = round(preg_replace("/[^0-9.]/", '', (string)$property->base_price));
+                	$price = round(preg_replace("/[^0-9.]/", '', (string)$property->price));
 
                     update_post_meta( $post_id, 'fave_property_price_prefix', '' );
                     update_post_meta( $post_id, 'fave_property_price', $price );
@@ -326,13 +333,22 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
                     	$rent_frequency = isset($property->frequency) ? strtolower((string)$property->frequency) : 'pcm';
 						update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
                     }
+                    else
+                    {
+                    	$price_qualifier = isset($property->price_qualifier) ? (string)$property->price_qualifier : '';
+						update_post_meta( $post_id, 'fave_property_price_prefix', $price_qualifier );
+                    }
                 }
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property->beds) ) ? round((int)$property->beds) : '' ) );
 	            update_post_meta( $post_id, 'fave_property_bathrooms', ( ( isset($property->baths) ) ? round((int)$property->baths) : '' ) );
 	            update_post_meta( $post_id, 'fave_property_rooms', ( ( isset($property->receptions) ) ? round((int)$property->receptions) : '' ) );
 	            update_post_meta( $post_id, 'fave_property_garage', '' ); // need to look at parking
-	            update_post_meta( $post_id, 'fave_property_id', (string)$property->reference );
+	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property->living_space) && !empty((int)$property->living_space) ) ? round((int)$property->living_space) : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', 'sq ft' );
+	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property->land_size) && !empty((int)$property->land_size) ) ? round((int)$property->land_size) : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', 'sq ft' );
+	            update_post_meta( $post_id, 'fave_property_id', ( isset($property->reference) && (string)$property->reference != '' ) ? (string)$property->reference : (string)$property->id );
 
 	            $address_parts = array();
 	            if ( isset($property->address1) && (string)$property->address1 != '' )
