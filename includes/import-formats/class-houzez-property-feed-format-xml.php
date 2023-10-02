@@ -59,6 +59,13 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
         	return false;
 		}
 
+		// Remove namespaces. Done because if the namespace isn't a URL it had problems with xpath
+		// Gets rid of all namespace definitions (https://stackoverflow.com/questions/1245902/remove-namespace-from-xml-using-php)
+		$contents = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $contents);
+
+		// Gets rid of all namespace references (https://stackoverflow.com/questions/1245902/remove-namespace-from-xml-using-php)
+		$contents = preg_replace('/[a-zA-Z]+:([a-zA-Z]+[=>])/', '$1', $contents);
+
 		$test_xml = simplexml_load_string($contents);
 		if ($test_xml === FALSE)
 		{
