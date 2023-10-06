@@ -433,6 +433,11 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 							{
 								$tmp = download_url( $url );
 
+								if ( strlen($filename) > 100 )
+								{
+									$filename = substr($filename, -100);
+								}
+
 							    $file_array = array(
 							        'name' => $filename,
 							        'tmp_name' => $tmp
@@ -711,6 +716,11 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 							else
 							{
 								$tmp = download_url( $url );
+
+								if ( strlen($filename) > 100 )
+								{
+									$filename = substr($filename, -100);
+								}
 
 							    $file_array = array(
 							        'name' => $filename,

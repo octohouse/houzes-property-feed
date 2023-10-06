@@ -151,7 +151,7 @@ class Houzez_Property_Feed_Import {
             {
                 if ( $rule_i > 0 ) // ignore template
                 {
-                    $result = sanitize_text_field($field['result']);
+                    $result = stripslashes(sanitize_text_field($field['result']));
                     if ( $field['result_type'] == 'dropdown' )
                     {
                         $result = sanitize_text_field($field['result_option']);
@@ -171,7 +171,7 @@ class Houzez_Property_Feed_Import {
                     {
                         foreach ( $rule_fields as $k => $rule_field )
                         {
-                            $rules[$rule_i-1]['rules'][$k][$i] = sanitize_text_field($rule_field);
+                            $rules[$rule_i-1]['rules'][$k][$i] = stripslashes(sanitize_text_field($rule_field));
                         }
                     }
                 }

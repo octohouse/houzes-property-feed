@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3.1
-Stable tag: 2.0.30
-Version: 2.0.30
+Stable tag: 2.0.31
+Version: 2.0.31
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -101,6 +101,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.31 - 2023-10-06 =
+* Run field mapping rule input data through stripslashes(). Checks for XPath selectors like [@lang='en'] would get escaped and therefore not executed
+* Trim media filenames in XML imports if filename over 100 characters. Long filenames caused attachment not be inserted into database
 
 = 2.0.30 - 2023-10-06 =
 * When mapping fields in import settings, change ones that have a list of finite values (i.e. 'Featured') to a dropdown instead of freetype text

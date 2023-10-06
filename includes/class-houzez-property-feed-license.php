@@ -87,7 +87,7 @@ class Houzez_Property_Feed_License {
     	
     	$options = get_option( 'houzez_property_feed', array() );
         
-        $license_key = $options['license_key'];
+        $license_key = isset($options['license_key']) ? $options['license_key'] : '';
 
         if ( empty($license_key) )
         {
