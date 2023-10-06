@@ -64,25 +64,25 @@ function get_houzez_fields_for_field_mapping()
         // Houzez Fields
         'fave_property_sec_price' => array( 'type' => 'meta', 'label' => __( 'Second Price (Optional)', 'houzez' ) ),
         'fave_property_price_prefix' => array( 'type' => 'meta', 'label' => __( 'Price Prefix', 'houzez' ) ),
-        'fave_property_price_postfix' => array( 'type' => 'meta', 'label' => __( 'After The Price', 'houzez' ) ),
+        'fave_property_price_postfix' => array( 'type' => 'meta', 'label' => __( 'Price Postfix', 'houzez' ) ),
         'fave_property_size' => array( 'type' => 'meta', 'label' => __( 'Area Size', 'houzez' ) ),
-        'fave_property_size_prefix' => array( 'type' => 'meta', 'label' => __( 'Size Postfix', 'houzez' ) ),
+        'fave_property_size_prefix' => array( 'type' => 'meta', 'label' => __( 'Area Size Postfix', 'houzez' ) ),
         'fave_property_bedrooms' => array( 'type' => 'meta', 'label' => __( 'Bedrooms', 'houzez' ) ),
         'fave_property_rooms' => array( 'type' => 'meta', 'label' => __( 'Rooms', 'houzez' ) ),
         'fave_property_bathrooms' => array( 'type' => 'meta', 'label' => __( 'Bathrooms', 'houzez' ) ),
         'fave_property_garage' => array( 'type' => 'meta','label' =>  __( 'Garages', 'houzez' ) ),
         'fave_property_garage_size' => array( 'type' => 'meta', 'label' => __( 'Garage Size', 'houzez' ) ),
         'fave_property_year' => array( 'type' => 'meta', 'label' => __( 'Year Built', 'houzez' ) ),
-        'fave_property_id' => array( 'type' => 'meta', 'label' => __( 'Property ID', 'houzez' ) ),
+        'fave_property_id' => array( 'type' => 'meta', 'label' => __( 'Property ID / Reference Number', 'houzez' ) ),
         'fave_property_address' => array( 'type' => 'meta', 'label' => __( 'Street Address', 'houzez' ) ),
         'fave_property_zip' => array( 'type' => 'meta', 'label' => __( 'Zip/Postal Code', 'houzez' ) ),
-        'fave_property_map' => array( 'type' => 'meta', 'label' => __( 'Show Map', 'houzez' ) . ' (0 or 1)' ),
-        'fave_property_map_street_view' => array( 'type' => 'meta', 'label' => __( 'Show Street View', 'houzez' ) . ' (\'hide\' or \'show\')' ),
+        'fave_property_map' => array( 'type' => 'meta', 'label' => __( 'Show Map', 'houzez' ), 'options' => array( 0 => 0, 1 => 1) ),
+        'fave_property_map_street_view' => array( 'type' => 'meta', 'label' => __( 'Show Street View', 'houzez' ), 'options' => array( 'hide' => 'Hide', 'show' => 'Show') ),
         'fave_property_map_address' => array( 'type' => 'meta', 'label' => __( 'Map Address', 'houzez' ) ),
         'houzez_geolocation_lat' => array( 'type' => 'meta', 'label' => __( 'Latitude', 'houzez' ) ),
         'houzez_geolocation_long' => array( 'type' => 'meta', 'label' => __( 'Longitude', 'houzez' ) ),
         'fave_property_location' => array( 'type' => 'meta', 'label' => __( 'Location', 'houzez' ) . ' (format: lat,lng,zoom)' ),
-        'fave_featured' => array( 'type' => 'meta', 'label' => __( 'Featured', 'houzez' ) . ' (0 or 1)' ),
+        'fave_featured' => array( 'type' => 'meta', 'label' => __( 'Featured', 'houzez' ), 'options' => array( 0 => 0, 1 => 1) ),
         'fave_property_disclaimer' => array( 'type' => 'meta', 'label' => __( 'Disclaimer', 'houzez' ) ),
         'fave_video_url' => array( 'type' => 'meta', 'label' => __( 'Video URL', 'houzez' ) ),
         'fave_virtual_tour' => array( 'type' => 'meta', 'label' => __( '360° Virtual Tour', 'houzez' ) ),
@@ -96,6 +96,87 @@ function get_houzez_fields_for_field_mapping()
         'fave_property_land_postfix' => array( 'type' => 'meta', 'label' => __( 'Land Area Size Postfix', 'houzez' ) ),
         'fave_property_price' => array( 'type' => 'meta', 'label' => __( 'Sale or Rent Price', 'houzez' ) ),
     );
+    
+    // Contact agent related fields
+    $fave_agent_display_options = array(
+        'author_info' => __( 'Author / WordPress User', 'houzezpropertyfeed' )
+    );
+
+    $houzez_ptype_settings = get_option('houzez_ptype_settings', array() );
+
+    if ( !isset($houzez_ptype_settings['houzez_agents_post']) || ( isset($houzez_ptype_settings['houzez_agents_post']) && $houzez_ptype_settings['houzez_agents_post'] != 'disabled' ) )
+    {
+        $fave_agent_display_options['agent_info'] = __( 'Houzez Agent', 'houzezpropertyfeed' );
+    }
+    if ( !isset($houzez_ptype_settings['houzez_agencies_post']) || ( isset($houzez_ptype_settings['houzez_agencies_post']) && $houzez_ptype_settings['houzez_agencies_post'] != 'disabled' ) )
+    {
+        $fave_agent_display_options['agency_info'] = __( 'Houzez Agency', 'houzezpropertyfeed' );
+    }
+
+    $fave_agent_display_options['none'] = __( 'Do Not Display', 'houzezpropertyfeed' );
+
+    $houzez_fields['fave_agent_display_option'] = array( 'type' => 'meta', 'label' => __( 'Agent Display Option', 'houzez' ), 'options' => $fave_agent_display_options );
+
+    // user/agent/agency fields
+    $wp_users = array();
+
+    $users = get_users( array( 'orderby' => 'name' ) );
+    foreach ( $users as $user ) 
+    {
+        $wp_users[$user->ID] = $user->display_name;
+    }
+
+    $houzez_fields['post_author'] = array( 'type' => 'post_field', 'label' => __( 'Author / WordPress User', 'houzez' ), 'options' => $wp_users );
+
+    if ( !isset($houzez_ptype_settings['houzez_agents_post']) || ( isset($houzez_ptype_settings['houzez_agents_post']) && $houzez_ptype_settings['houzez_agents_post'] != 'disabled' ) )
+    {
+        $houzez_agents = array();
+
+        $args = array(
+            'post_type' => 'houzez_agent',
+            'nopaging' => true
+        );
+
+        $agent_query = new WP_Query( $args );
+
+        if ( $agent_query->have_posts() )
+        {
+            while ( $agent_query->have_posts() )
+            {
+                $agent_query->the_post();
+
+                $houzez_agents[get_the_ID()] = get_the_title();
+            }
+        }
+        wp_reset_postdata();
+
+        $houzez_fields['fave_agents'] = array( 'type' => 'meta', 'label' => __( 'Agent Name', 'houzez' ), 'options' => $houzez_agents );
+    }
+
+    if ( !isset($houzez_ptype_settings['houzez_agencies_post']) || ( isset($houzez_ptype_settings['houzez_agencies_post']) && $houzez_ptype_settings['houzez_agencies_post'] != 'disabled' ) )
+    {
+        $houzez_agencies = array();
+
+        $args = array(
+            'post_type' => 'houzez_agency',
+            'nopaging' => true
+        );
+
+        $agency_query = new WP_Query( $args );
+
+        if ( $agency_query->have_posts() )
+        {
+            while ( $agency_query->have_posts() )
+            {
+                $agency_query->the_post();
+
+                $houzez_agencies[get_the_ID()] = get_the_title();
+            }
+        }
+        wp_reset_postdata();
+
+        $houzez_fields['fave_property_agency'] = array( 'type' => 'meta', 'label' => __( 'Agency Name', 'houzez' ), 'options' => $houzez_agencies );
+    }
 
     // add any fields from field builder
     $houzez_fields_builder = new Houzez_Fields_Builder();

@@ -345,9 +345,9 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_rooms', ( ( isset($property->receptions) ) ? round((int)$property->receptions) : '' ) );
 	            update_post_meta( $post_id, 'fave_property_garage', '' ); // need to look at parking
 	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property->living_space) && !empty((int)$property->living_space) ) ? round((int)$property->living_space) : '' ) );
-	            update_post_meta( $post_id, 'fave_property_size_prefix', 'sq ft' );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', 'sq m' );
 	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property->land_size) && !empty((int)$property->land_size) ) ? round((int)$property->land_size) : '' ) );
-	            update_post_meta( $post_id, 'fave_property_land_postfix', 'sq ft' );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', 'sq m' );
 	            update_post_meta( $post_id, 'fave_property_id', ( isset($property->reference) && (string)$property->reference != '' ) ? (string)$property->reference : (string)$property->id );
 
 	            $address_parts = array();

@@ -149,16 +149,23 @@ class Houzez_Property_Feed_Import {
             $rule_i = 0;
             foreach ( $_POST['field_mapping_rules'] as $j => $field )
             {
-                if ( $rule_i > 0 )
+                if ( $rule_i > 0 ) // ignore template
                 {
+                    $result = sanitize_text_field($field['result']);
+                    if ( $field['result_type'] == 'dropdown' )
+                    {
+                        $result = sanitize_text_field($field['result_option']);
+                    }
                     $rules[$rule_i-1] = array(
                         'houzez_field' => sanitize_text_field($field['houzez_field']),
-                        'result' => sanitize_text_field($field['result']),
+                        'result' => $result,
                         'rules' => array(),
                     );
 
                     unset($field['houzez_field']);
                     unset($field['result']);
+                    unset($field['result_option']);
+                    unset($field['result_type']);
 
                     foreach ( $field as $i => $rule_fields )
                     {

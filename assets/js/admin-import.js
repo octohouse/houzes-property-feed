@@ -172,6 +172,46 @@ jQuery(document).ready(function()
 		hpf_set_csv_fields_size_properties();
 	});
 
+	jQuery('body').on('change', 'select[name*=\'[houzez_field]\']', function()
+	{
+		var selected_houzez_field = jQuery(this).val();
+		var houzez_field_options = new Array();
+
+		if ( hpf_admin_object.houzez_fields_for_field_mapping )
+		{
+			for ( var i in hpf_admin_object.houzez_fields_for_field_mapping )
+			{
+				if ( i == selected_houzez_field )
+				{
+					if ( hpf_admin_object.houzez_fields_for_field_mapping[i].hasOwnProperty('options') )
+					{
+						houzez_field_options = hpf_admin_object.houzez_fields_for_field_mapping[i].options;
+					}
+				}
+			}
+		}
+
+		jQuery(this).parent().parent().find('.result-dropdown select').empty();
+
+		if ( Object.keys(houzez_field_options).length > 0 )
+		{
+			jQuery(this).parent().parent().find('.result-dropdown select').append('<option value=""></option>');
+			for ( var i in houzez_field_options )
+			{
+				jQuery(this).parent().parent().find('.result-dropdown select').append('<option value="' + i + '">' + houzez_field_options[i] + '</option>');
+			}
+			jQuery(this).parent().parent().find('.result-text').hide();
+			jQuery(this).parent().parent().find('.result-dropdown').show();
+			jQuery(this).parent().parent().find('input[name*=\'result_type\']').val('dropdown');
+		}
+		else
+		{
+			jQuery(this).parent().parent().find('.result-text').show();
+			jQuery(this).parent().parent().find('.result-dropdown').hide();
+			jQuery(this).parent().parent().find('input[name*=\'result_type\']').val('text');
+		}
+	});
+
 	jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
 
 	jQuery('body').on('click', '.rule-actions a.add-and-rule-action', function(e)
@@ -695,6 +735,8 @@ function add_field_mapping_or_rule()
 
 		var template_html = jQuery('#field_mapping_rule_template').html();
 
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
 		template_html = template_html.replace("{rule_count}", hpf_rule_count);
 		template_html = template_html.replace("{rule_count}", hpf_rule_count);
 		template_html = template_html.replace("{rule_count}", hpf_rule_count);

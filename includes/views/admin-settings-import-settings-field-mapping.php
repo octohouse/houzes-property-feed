@@ -60,7 +60,9 @@
 									</div>
 									<div>
 										To
-										<input type="text" name="field_mapping_rules[{rule_count}][result]" style="width:100%; max-width:340px;" value="" placeholder="Enter value or {field_name_here} to use value sent">
+										<span class="result-text"><input type="text" name="field_mapping_rules[{rule_count}][result]" style="width:100%; max-width:340px;" value="" placeholder="Enter value or {field_name_here} to use value sent"></span>
+										<span class="result-dropdown" style="display:none"><select name="field_mapping_rules[{rule_count}][result_option]"></select></span>
+										<input type="hidden" name="field_mapping_rules[{rule_count}][result_type]" value="text">
 									</div>
 								</div>
 							</div>
@@ -100,12 +102,20 @@
 										<select name="field_mapping_rules[<?php echo $i; ?>][houzez_field]" style="width:250px;">
 											<option value=""></option>
 											<?php
+												$houzez_field_options = array();
 												if ( !empty($houzez_fields) )
 												{
 													foreach ( $houzez_fields as $key => $value )
 													{
 														echo '<option value="' . esc_attr($key) . '"';
-														if ( $key == $and_rules['houzez_field'] ) { echo ' selected'; }
+														if ( $key == $and_rules['houzez_field'] ) 
+														{ 
+															echo ' selected'; 
+															if ( isset($value['options']) && is_array($value['options']) && !empty($value['options']) )
+															{
+																$houzez_field_options = $value['options'];
+															}
+														}
 														echo '>' . esc_html($value['label']) . '</option>';
 													}
 												}
@@ -115,7 +125,29 @@
 									</div>
 									<div>
 										To
-										<input type="text" name="field_mapping_rules[<?php echo $i; ?>][result]" style="width:100%; max-width:340px;" value="<?php echo esc_attr($and_rules['result']); ?>" placeholder="Enter value or {field_name_here} to use value sent">
+										<span class="result-text"<?php if ( !empty($houzez_field_options) ) { echo ' style="display:none"'; } ?>>
+											<input type="text" name="field_mapping_rules[<?php echo $i; ?>][result]" style="width:100%; max-width:340px;" value="<?php echo esc_attr($and_rules['result']); ?>" placeholder="Enter value or {field_name_here} to use value sent">
+										</span>
+										<span class="result-dropdown"<?php if ( empty($houzez_field_options) ) { echo ' style="display:none"'; } ?>>
+											<select name="field_mapping_rules[<?php echo $i; ?>][result_option]"><?php
+												$result_type = 'text';
+												if ( !empty($houzez_field_options) )
+												{
+													$result_type = 'dropdown';
+													echo '<option value=""></option>';
+													foreach ( $houzez_field_options as $key => $value )
+													{
+														echo '<option value="' . $key . '"';
+														if ( $and_rules['result'] == $key )
+														{
+															echo ' selected';
+														}
+														echo '>' . $value . '</option>';
+													}
+												}
+											?></select>
+										</span>
+										<input type="hidden" name="field_mapping_rules[<?php echo $i; ?>][result_type]" value="<?php echo esc_attr($result_type); ?>">
 									</div>
 								</div>
 							</div>

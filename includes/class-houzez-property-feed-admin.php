@@ -775,6 +775,7 @@ class Houzez_Property_Feed_Admin {
                 'import_settings' => $import_settings,
                 'statuses' => $statuses,
                 'property_types' => $property_types,
+                'houzez_fields_for_field_mapping' => get_houzez_fields_for_field_mapping(),
                 'ajax_nonce' => wp_create_nonce("hpf_ajax_nonce"),
             ) );
 
