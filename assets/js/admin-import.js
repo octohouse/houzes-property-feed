@@ -433,6 +433,7 @@ jQuery(document).ready(function()
 	jQuery('body').on('change', 'select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']', function(e)
 	{
 		hpf_show_missing_mandatory_xml_field_mapping();
+		hpf_show_missing_mandatory_csv_field_mapping();
 		hpf_show_already_mapped_warning();
 	});
 
@@ -808,7 +809,7 @@ function hpf_show_missing_mandatory_xml_field_mapping()
 
 function hpf_show_missing_mandatory_csv_field_mapping()
 {
-	jQuery('#missing_mandatory_xml_field_mapping').hide();
+	jQuery('#missing_mandatory_csv_field_mapping').hide();
 	jQuery('#field_mapping_warning').hide();
 
 	var selected_format = jQuery('.hpf-admin-settings-import-settings .settings-panel #format').val();
@@ -831,7 +832,7 @@ function hpf_show_missing_mandatory_csv_field_mapping()
 
 		if ( !found_title_excerpt_or_content )
 		{
-			jQuery('#missing_mandatory_xml_field_mapping').show();
+			jQuery('#missing_mandatory_csv_field_mapping').show();
 			jQuery('#field_mapping_warning').show();
 		}
 	}
@@ -890,6 +891,7 @@ function hpf_show_format_settings()
 	jQuery('#import_setting_tab_media').hide();
 
 	jQuery('#missing_mandatory_xml_field_mapping').hide();
+	jQuery('#missing_mandatory_csv_field_mapping').hide();
 
 	jQuery('.hpf-admin-settings-import-settings #property_city_address_field').empty();
 	jQuery('.hpf-admin-settings-import-settings #property_area_address_field').empty();

@@ -384,6 +384,18 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 							$filename = basename( $url );
 
+							if (
+								strpos(strtolower($filename), '.jpg') === false &&
+								strpos(strtolower($filename), '.gif') === false &&
+								strpos(strtolower($filename), '.jpeg') === false &&
+								strpos(strtolower($filename), '.png') === false &&
+								strpos(strtolower($filename), '.bmp') === false
+							)
+							{
+								// No extension found. Probably links to a PHP/ASP URL to generate the image dynamically
+								$filename .= '.jpg';
+							}
+
 							// Check, based on the URL, whether we have previously imported this media
 							$imported_previously = false;
 							$imported_previously_id = '';

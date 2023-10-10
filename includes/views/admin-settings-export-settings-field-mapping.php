@@ -16,7 +16,6 @@
 
 <div class="rules-table-available-fields">
 	<div class="rules-table">
-		<div class="notice notice-info inline" id="missing_mandatory_xml_field_mapping" style="display:none"><p><?php echo __( 'No title, excerpt or content fields mapped. At least one of these is mandatory for a property to import.', 'houzezpropertyfeed' ); ?></p></div>
 		<table class="form-table">
 			<tbody>
 				<tr>
