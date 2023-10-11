@@ -61,6 +61,7 @@ function get_houzez_fields_for_field_mapping()
         'post_title' => array( 'type' => 'post_field', 'label' => __( 'Post Title', 'houzez' ) ),
         'post_excerpt' => array( 'type' => 'post_field', 'label' => __( 'Post Excerpt', 'houzez' ) ),
         'post_content' => array( 'type' => 'post_field', 'label' => __( 'Post Content', 'houzez' ) ),
+        'post_status' => array( 'type' => 'post_field', 'label' => __( 'Post Status', 'houzez' ), 'options' => array( 'publish' => 'Publish', 'private' => 'Private', 'draft' => 'Draft') ),
         // Houzez Fields
         'fave_property_sec_price' => array( 'type' => 'meta', 'label' => __( 'Second Price (Optional)', 'houzez' ) ),
         'fave_property_price_prefix' => array( 'type' => 'meta', 'label' => __( 'Price Prefix', 'houzez' ) ),

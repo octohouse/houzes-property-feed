@@ -299,7 +299,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 							$media_ids = explode(",", $explode_previous_import_media_ids[1]);
 							$start_at_image_i = count($media_ids);
 
-							$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', (string)$property->AGENT_REF, $post_id );
+							$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', $property_id, $post_id );
 						}
 					}
 				}
@@ -458,7 +458,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 							    // Check for download errors
 							    if ( is_wp_error( $tmp ) ) 
 							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->propertyID, $post_id );
+							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property_id, $post_id );
 							    }
 							    else
 							    {
@@ -469,7 +469,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 								    {
 								        @unlink( $file_array['tmp_name'] );
 								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->propertyID, $post_id );
+								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property_id, $post_id );
 								    }
 								    else
 								    {
@@ -515,7 +515,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->propertyID, $post_id );
+				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property_id, $post_id );
 
 				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
@@ -607,7 +607,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
 	            }
 
-				$this->log( 'Imported ' . count($floorplans) . ' floorplans', (string)$property->propertyID, $post_id );
+				$this->log( 'Imported ' . count($floorplans) . ' floorplans', $property_id, $post_id );
 
 				// Documents
 				$media_ids = array();
@@ -742,7 +742,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 							    // Check for download errors
 							    if ( is_wp_error( $tmp ) ) 
 							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->propertyID, $post_id );
+							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property_id, $post_id );
 							    }
 							    else
 							    {
@@ -756,7 +756,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 								    {
 								        @unlink( $file_array['tmp_name'] );
 								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->propertyID, $post_id );
+								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property_id, $post_id );
 								    }
 								    else
 								    {
@@ -796,7 +796,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				$this->log( 'Imported ' . count($media_ids) . ' documents (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->propertyID, $post_id );
+				$this->log( 'Imported ' . count($media_ids) . ' documents (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property_id, $post_id );
 				
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
 				do_action( "houzez_property_feed_property_imported_xml", $post_id, $property, $this->import_id );

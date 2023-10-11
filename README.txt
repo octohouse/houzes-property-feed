@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3.1
-Stable tag: 2.0.34
-Version: 2.0.34
+Stable tag: 2.0.35
+Version: 2.0.35
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -101,6 +101,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.35 - 2023-10-11 =
+* Added ability to set post status in import field mapping rules
+* Corrected property ID variable used when writing various logs
 
 = 2.0.34 - 2023-10-11 =
 * Use local PHP class to sign AWS requests instead of including full AWS SDK to keep filesize of plugin down

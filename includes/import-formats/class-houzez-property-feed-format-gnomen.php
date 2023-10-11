@@ -643,7 +643,7 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 							$media_ids = explode(",", $explode_previous_import_media_ids[1]);
 							$start_at_image_i = count($media_ids);
 
-							$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', (string)$property->AGENT_REF, $post_id );
+							$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', (string)$property->id, $post_id );
 						}
 					}
 				}

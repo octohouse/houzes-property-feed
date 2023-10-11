@@ -219,6 +219,11 @@ jQuery(document).ready(function()
 		build_field_mapping_rule_accordions();
 	});
 
+	jQuery('body').on('change', '.field-mapping-rule select', function()
+	{
+		build_field_mapping_rule_accordions();
+	});
+
 	jQuery('body').on('change', 'select[name*=\'[houzez_field]\']', function()
 	{
 		var selected_houzez_field = jQuery(this).val();
@@ -566,7 +571,17 @@ function build_field_mapping_rule_accordions()
 
 				rule_description += '<span>to</span>';
 
-				var value_in_houzez = jQuery(this).find('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').val();
+				var result_type = jQuery(this).find('input[name*=\'field_mapping_rules\'][name*=\'[result_type]\']').val();
+
+				if ( result_type == 'dropdown' )
+				{
+					var value_in_houzez = jQuery(this).find('select[name*=\'field_mapping_rules\'][name*=\'[result_option]\'] option:selected').text();
+				}
+				else
+				{
+					var value_in_houzez = jQuery(this).find('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').val();
+				}
+
 				if ( value_in_houzez == '' ) { value_in_houzez = '<em>(no value specified)</em>'; }
 				rule_description += '<span><code>' + value_in_houzez + '</code></span>';
 
