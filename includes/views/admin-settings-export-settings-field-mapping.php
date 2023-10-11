@@ -46,7 +46,7 @@
 											<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
 										</div>
 										<div class="rule-actions">
-											<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus2"></span> Add AND Rule</a> | <a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+											<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a><a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
 										</div>
 									</div>
 								</div>
@@ -101,7 +101,7 @@
 											<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
 										</div>
 										<div class="rule-actions">
-											<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a> | <a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+											<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a><a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
 										</div>
 									</div>
 									<?php ++$rule_i; } // end foreach AND rules ?>

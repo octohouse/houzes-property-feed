@@ -18,152 +18,177 @@
 	<div class="rules-table">
 		<div class="notice notice-info inline" id="missing_mandatory_xml_field_mapping" style="display:none"><p><?php echo __( 'No title, excerpt or content fields mapped. At least one of these is mandatory for a property to import.', 'houzezpropertyfeed' ); ?></p></div>
 		<div class="notice notice-info inline" id="missing_mandatory_csv_field_mapping" style="display:none"><p><?php echo __( 'No title, excerpt or content fields mapped. At least one of these is mandatory for a property to import.', 'houzezpropertyfeed' ); ?></p></div>
-		<table class="form-table">
-			<tbody>
-				<tr>
-					<th>Rules</th>
-					<td>
-		 				<div id="field_mapping_rule_template" style="display:none">
-							<div class="field-mapping-rule">
-								<div class="and-rules">
-									<div class="or-rule">
-										<div>
-											If 
-											<input type="text" name="field_mapping_rules[{rule_count}][field][]" value="">
-											field in <span class="hpf-import-format-name"></span> feed
-										</div>
-										<div>
-											Is equal to 
-											<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
-										</div>
-										<div class="rule-actions">
-											<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus2"></span> Add AND Rule</a> | <a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
-										</div>
-									</div>
+		
+		<br>
+		
+		<div id="no_field_mappings" style="display:none; border:3px dashed #CCC; text-align:center; font-size:1.1em; padding:40px 30px">
+			No field mapping rules exist. Create your first one below.
+		</div>
+			
+		<div id="field_mapping_rules">
+			<?php
+				if ( isset($import_settings['field_mapping_rules']) && !empty($import_settings['field_mapping_rules']) )
+				{
+					foreach ( $import_settings['field_mapping_rules'] as $i => $and_rules )
+					{
+			?>
+			<div class="rule-accordion">
+				<div class="rule-accordion-header">
+
+					<span class="dashicons dashicons-arrow-down-alt2"></span>
+					&nbsp; 
+					<span class="rule-description">
+						Rule description here
+					</span>
+
+					<div class="icons">
+						<span class="delete-rule dashicons dashicons-trash" title="<?php echo esc_html(__( 'Delete Rule', 'houzezpropertyfeed' )); ?>"></span>
+					</div>
+
+				</div>
+				<div class="rule-accordion-contents">
+					<div class="field-mapping-rule no-border no-margin">
+						<div class="and-rules">
+							<?php $rule_i = 0; foreach ( $and_rules['rules'] as $or_rule ) { ?>
+							<div class="or-rule">
+								<div style="padding:20px 0; font-weight:600" class="and-label">AND</div>
+								<div>
+									If 
+									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][field][]" value="<?php echo esc_attr($or_rule['field']); ?>">
+									field in <span class="hpf-import-format-name"></span> feed
 								</div>
-								<div class="then">
-									<div style="padding:20px 0; font-weight:600">THEN</div>
-									<div>
-										Set Houzez field
-										<select name="field_mapping_rules[{rule_count}][houzez_field]" style="width:250px;">
-											<option value=""></option>
-											<?php
-												if ( !empty($houzez_fields) )
-												{
-													foreach ( $houzez_fields as $key => $value )
+								<div>
+									Is equal to 
+									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
+								</div>
+								<div class="rule-actions">
+									<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a><a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+								</div>
+							</div>
+							<?php ++$rule_i; } // end foreach AND rules ?>
+						</div>
+						<div class="then">
+							<div style="padding:20px 0; font-weight:600">THEN</div>
+							<div>
+								Set Houzez field
+								<select name="field_mapping_rules[<?php echo $i; ?>][houzez_field]" style="width:250px;">
+									<option value=""></option>
+									<?php
+										$houzez_field_options = array();
+										if ( !empty($houzez_fields) )
+										{
+											foreach ( $houzez_fields as $key => $value )
+											{
+												echo '<option value="' . esc_attr($key) . '"';
+												if ( $key == $and_rules['houzez_field'] ) 
+												{ 
+													echo ' selected'; 
+													if ( isset($value['options']) && is_array($value['options']) && !empty($value['options']) )
 													{
-														echo '<option value="' . esc_attr($key) . '">' . esc_html($value['label']) . '</option>';
+														$houzez_field_options = $value['options'];
 													}
 												}
-											?>
-										</select>
-										<div class="notice notice-info inline already-mapped-warning" style="margin-top:15px; display:none"><p>The <span class="already-mapped-field"></span> field is already mapped by default in the <span class="hpf-import-format-name"></span> feed. Creating a mapping here will overwrite this.</p></div>
-									</div>
-									<div>
-										To
-										<span class="result-text"><input type="text" name="field_mapping_rules[{rule_count}][result]" style="width:100%; max-width:340px;" value="" placeholder="Enter value or {field_name_here} to use value sent"></span>
-										<span class="result-dropdown" style="display:none"><select name="field_mapping_rules[{rule_count}][result_option]"></select></span>
-										<input type="hidden" name="field_mapping_rules[{rule_count}][result_type]" value="text">
-									</div>
-								</div>
+												echo '>' . esc_html($value['label']) . '</option>';
+											}
+										}
+									?>
+								</select> 
+								<div class="notice notice-info inline already-mapped-warning" style="margin-top:15px; display:none"><p>The <span class="already-mapped-field"></span> field is already mapped by default in the <span class="hpf-import-format-name"></span> feed. Creating a mapping here will overwrite this.</p></div>
+							</div>
+							<div>
+								To
+								<span class="result-text"<?php if ( !empty($houzez_field_options) ) { echo ' style="display:none"'; } ?>>
+									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][result]" style="width:100%; max-width:340px;" value="<?php echo esc_attr($and_rules['result']); ?>" placeholder="Enter value or {field_name_here} to use value sent">
+								</span>
+								<span class="result-dropdown"<?php if ( empty($houzez_field_options) ) { echo ' style="display:none"'; } ?>>
+									<select name="field_mapping_rules[<?php echo $i; ?>][result_option]"><?php
+										$result_type = 'text';
+										if ( !empty($houzez_field_options) )
+										{
+											$result_type = 'dropdown';
+											echo '<option value=""></option>';
+											foreach ( $houzez_field_options as $key => $value )
+											{
+												echo '<option value="' . $key . '"';
+												if ( $and_rules['result'] == $key )
+												{
+													echo ' selected';
+												}
+												echo '>' . $value . '</option>';
+											}
+										}
+									?></select>
+								</span>
+								<input type="hidden" name="field_mapping_rules[<?php echo $i; ?>][result_type]" value="<?php echo esc_attr($result_type); ?>">
 							</div>
 						</div>
+					</div>
+				</div>
+			</div>
+			<?php
+					}
+				}
+			?>
+		</div>
 
-						<div id="field_mapping_rules">
+		<br>
+
+		<hr>
+		<h3>Create New Field Mapping</h3>
+
+		<div id="field_mapping_rule_template">
+			
+			<div class="field-mapping-rule no-border no-margin">
+
+				<div class="and-rules">
+					<div class="or-rule">
+						<div>
+							If 
+							<input type="text" name="field_mapping_rules[{rule_count}][field][]" value="">
+							field in <span class="hpf-import-format-name"></span> feed
+						</div>
+						<div>
+							Is equal to 
+							<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
+						</div>
+						<div class="rule-actions">
+							<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a><a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
+						</div>
+					</div>
+				</div>
+				<div class="then">
+					<div style="padding:20px 0; font-weight:600">THEN</div>
+					<div>
+						Set Houzez field
+						<select name="field_mapping_rules[{rule_count}][houzez_field]" style="width:250px;">
+							<option value=""></option>
 							<?php
-								if ( isset($import_settings['field_mapping_rules']) && !empty($import_settings['field_mapping_rules']) )
+								if ( !empty($houzez_fields) )
 								{
-									foreach ( $import_settings['field_mapping_rules'] as $i => $and_rules )
+									foreach ( $houzez_fields as $key => $value )
 									{
-							?>
-							<div class="field-mapping-rule">
-								<div class="and-rules">
-									<?php $rule_i = 0; foreach ( $and_rules['rules'] as $or_rule ) { ?>
-									<div class="or-rule">
-										<div style="padding:20px 0; font-weight:600" class="and-label">AND</div>
-										<div>
-											If 
-											<input type="text" name="field_mapping_rules[<?php echo $i; ?>][field][]" value="<?php echo esc_attr($or_rule['field']); ?>">
-											field in <span class="hpf-import-format-name"></span> feed
-										</div>
-										<div>
-											Is equal to 
-											<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
-										</div>
-										<div class="rule-actions">
-											<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a> | <a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
-										</div>
-									</div>
-									<?php ++$rule_i; } // end foreach AND rules ?>
-								</div>
-								<div class="then">
-									<div style="padding:20px 0; font-weight:600">THEN</div>
-									<div>
-										Set Houzez field
-										<select name="field_mapping_rules[<?php echo $i; ?>][houzez_field]" style="width:250px;">
-											<option value=""></option>
-											<?php
-												$houzez_field_options = array();
-												if ( !empty($houzez_fields) )
-												{
-													foreach ( $houzez_fields as $key => $value )
-													{
-														echo '<option value="' . esc_attr($key) . '"';
-														if ( $key == $and_rules['houzez_field'] ) 
-														{ 
-															echo ' selected'; 
-															if ( isset($value['options']) && is_array($value['options']) && !empty($value['options']) )
-															{
-																$houzez_field_options = $value['options'];
-															}
-														}
-														echo '>' . esc_html($value['label']) . '</option>';
-													}
-												}
-											?>
-										</select> 
-										<div class="notice notice-info inline already-mapped-warning" style="margin-top:15px; display:none"><p>The <span class="already-mapped-field"></span> field is already mapped by default in the <span class="hpf-import-format-name"></span> feed. Creating a mapping here will overwrite this.</p></div>
-									</div>
-									<div>
-										To
-										<span class="result-text"<?php if ( !empty($houzez_field_options) ) { echo ' style="display:none"'; } ?>>
-											<input type="text" name="field_mapping_rules[<?php echo $i; ?>][result]" style="width:100%; max-width:340px;" value="<?php echo esc_attr($and_rules['result']); ?>" placeholder="Enter value or {field_name_here} to use value sent">
-										</span>
-										<span class="result-dropdown"<?php if ( empty($houzez_field_options) ) { echo ' style="display:none"'; } ?>>
-											<select name="field_mapping_rules[<?php echo $i; ?>][result_option]"><?php
-												$result_type = 'text';
-												if ( !empty($houzez_field_options) )
-												{
-													$result_type = 'dropdown';
-													echo '<option value=""></option>';
-													foreach ( $houzez_field_options as $key => $value )
-													{
-														echo '<option value="' . $key . '"';
-														if ( $and_rules['result'] == $key )
-														{
-															echo ' selected';
-														}
-														echo '>' . $value . '</option>';
-													}
-												}
-											?></select>
-										</span>
-										<input type="hidden" name="field_mapping_rules[<?php echo $i; ?>][result_type]" value="<?php echo esc_attr($result_type); ?>">
-									</div>
-								</div>
-							</div>
-							<?php
+										echo '<option value="' . esc_attr($key) . '">' . esc_html($value['label']) . '</option>';
 									}
 								}
 							?>
-						</div>
+						</select>
+						<div class="notice notice-info inline already-mapped-warning" style="margin-top:15px; display:none"><p>The <span class="already-mapped-field"></span> field is already mapped by default in the <span class="hpf-import-format-name"></span> feed. Creating a mapping here will overwrite this.</p></div>
+					</div>
+					<div>
+						To
+						<span class="result-text"><input type="text" name="field_mapping_rules[{rule_count}][result]" style="width:100%; max-width:340px;" value="" placeholder="Enter value or {field_name_here} to use value sent"></span>
+						<span class="result-dropdown" style="display:none"><select name="field_mapping_rules[{rule_count}][result_option]"></select></span>
+						<input type="hidden" name="field_mapping_rules[{rule_count}][result_type]" value="text">
+					</div>
+				</div>
+				
+			</div>
 
-						<a href="" class="button field-mapping-add-or-rule-button">Add Additional Field Mapping Rule</a>
-					
-					</td>
-				</tr>
-			</tbody>
-		</table>
+		</div>
+
+		<br>
+		<a href="" class="button button-primary field-mapping-add-or-rule-button">Add Rule</a>
+
 	</div>
 
 	<div class="xml-rules-available-fields" style="display:none">

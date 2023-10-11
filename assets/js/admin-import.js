@@ -127,6 +127,19 @@ jQuery(document).ready(function()
 		return confirm_box;
 	});
 
+	jQuery('body').on('click', '.settings-panels .rule-accordion-header > span:first-child', function()
+	{
+		if ( jQuery(this).parent().parent().find('.rule-accordion-contents').css('display') == 'none' )
+		{
+			jQuery(this).removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
+		}
+		else
+		{
+			jQuery(this).removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+		}
+		jQuery(this).parent().parent().find('.rule-accordion-contents').slideToggle();
+	});
+
 	jQuery('.agent-display-option-add-rule-button').click(function(e)
 	{
 		e.preventDefault();
@@ -152,6 +165,25 @@ jQuery(document).ready(function()
 		add_field_mapping_or_rule();
 	});
 
+	jQuery('body').on('click', '.rule-accordion-header .delete-rule', function(e)
+	{
+		e.preventDefault();
+
+		var confirm_box = confirm( "Are you sure you want to delete this rule?" );
+
+		if (!confirm_box)
+		{
+			return;
+		}
+
+		jQuery(this).parent().parent().parent().remove();
+
+		last_safe_scroll = 0;
+		build_field_mapping_rule_accordions();
+		hpf_set_xml_fields_size_properties();
+		hpf_set_csv_fields_size_properties();
+	});
+
 	jQuery('body').on('click', '.field-mapping-rule .rule-actions a.delete-action', function(e)
 	{
 		e.preventDefault();
@@ -167,9 +199,24 @@ jQuery(document).ready(function()
 			jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
 		});
 
+		jQuery('.and-rules .or-rule .delete-action').show();
+		jQuery('.and-rules').each(function()
+		{
+			if ( jQuery(this).find('.or-rule').length == 1 )
+			{
+				jQuery(this).find('.delete-action').hide();
+			}
+		});
+
 		last_safe_scroll = 0;
+		build_field_mapping_rule_accordions();
 		hpf_set_xml_fields_size_properties();
 		hpf_set_csv_fields_size_properties();
+	});
+
+	jQuery('body').on('change', '.field-mapping-rule input', function()
+	{
+		build_field_mapping_rule_accordions();
 	});
 
 	jQuery('body').on('change', 'select[name*=\'[houzez_field]\']', function()
@@ -210,6 +257,8 @@ jQuery(document).ready(function()
 			jQuery(this).parent().parent().find('.result-dropdown').hide();
 			jQuery(this).parent().parent().find('input[name*=\'result_type\']').val('text');
 		}
+
+		build_field_mapping_rule_accordions();
 	});
 
 	jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
@@ -232,6 +281,15 @@ jQuery(document).ready(function()
 			jQuery(this).val('');
 		});
 
+		jQuery('.and-rules .or-rule .delete-action').show();
+		jQuery('.and-rules').each(function()
+		{
+			if ( jQuery(this).find('.or-rule').length == 1 )
+			{
+				jQuery(this).find('.delete-action').hide();
+			}
+		});
+
 		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
 		    drop: function (event, ui) {
 		        this.value += jQuery(ui.draggable).text();
@@ -246,8 +304,18 @@ jQuery(document).ready(function()
 
 		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
 
+		build_field_mapping_rule_accordions();
 		hpf_set_xml_fields_size_properties();
 		hpf_set_csv_fields_size_properties();
+	});
+
+	jQuery('.and-rules .or-rule .delete-action').show();
+	jQuery('.and-rules').each(function()
+	{
+		if ( jQuery(this).find('.or-rule').length == 1 )
+		{
+			jQuery(this).find('.delete-action').hide();
+		}
 	});
 
 	jQuery('body').on('click', '.hpf-admin-settings-import-settings a.add-additional-mapping', function(e)
@@ -405,6 +473,7 @@ jQuery(document).ready(function()
 	hpf_show_email_reports_settings();
 	hpf_show_format_settings();
 	hpf_show_contact_info_rules();
+	build_field_mapping_rule_accordions();
 
 	jQuery('.xml-rules-available-fields a').draggable({
 	    revert: true,
@@ -437,10 +506,10 @@ jQuery(document).ready(function()
 		hpf_show_already_mapped_warning();
 	});
 
-	if ( jQuery('#field_mapping_rules .field-mapping-rule').length == 0 )
+	/*if ( jQuery('#field_mapping_rules .field-mapping-rule').length == 0 )
 	{
 		add_field_mapping_or_rule();
-	}
+	}*/
 });
 
 jQuery(window).on( "resize", function() 
@@ -454,6 +523,58 @@ jQuery(window).on( "scroll", function()
 	hpf_set_xml_fields_size_properties();
 	hpf_set_csv_fields_size_properties();
 });
+
+function build_field_mapping_rule_accordions()
+{
+	if ( jQuery('#field_mapping_rules').length > 0 )
+	{
+		if ( jQuery('#field_mapping_rules').children().length == 0 )
+		{
+			jQuery('#no_field_mappings').show();
+		}
+		else
+		{
+			jQuery('#no_field_mappings').hide();
+
+			// loop through accordions and set rule descriptions
+			jQuery('.rule-accordion').each(function()
+			{
+				var rule_description = '<span>If</span>';
+
+				var field_in_feed = jQuery(this).find('.and-rules .or-rule').eq(0).find('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').val();
+				if ( field_in_feed == '' ) { field_in_feed = '<em>(no field specified)</em>'; }
+
+				rule_description += '<span><code>' + field_in_feed + '</code></span>';
+
+				rule_description += '<span>is equal to</span>';
+
+				var value_in_feed = jQuery(this).find('.and-rules .or-rule').eq(0).find('input[name*=\'field_mapping_rules\'][name*=\'[equal]\']').val();
+				if ( value_in_feed == '' ) { value_in_feed = '<em>(no value specified)</em>'; }
+				rule_description += '<span><code>' + value_in_feed + '</code></span>';
+
+				var num_or_rules = jQuery(this).find('.and-rules .or-rule').length;
+				if ( num_or_rules > 1 )
+				{
+					rule_description += '<span>(+ ' + (num_or_rules - 1) + ' rule' + ( (num_or_rules-1) != 1 ? 's' : '' ) + ')</span>';
+				}
+
+				rule_description += '<span>then set</span>';
+
+				var field_in_houzez = jQuery(this).find('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\'] option:selected').text();
+				if ( field_in_houzez == '' ) { field_in_houzez = '<em>(no field specified)</em>'; }
+				rule_description += '<span><code>' + field_in_houzez + '</code></span>';
+
+				rule_description += '<span>to</span>';
+
+				var value_in_houzez = jQuery(this).find('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').val();
+				if ( value_in_houzez == '' ) { value_in_houzez = '<em>(no value specified)</em>'; }
+				rule_description += '<span><code>' + value_in_houzez + '</code></span>';
+
+				jQuery(this).find('.rule-description').html(rule_description);
+			});
+		}
+	}
+}
 
 var last_safe_scroll = 0;
 function hpf_set_xml_fields_size_properties()
@@ -734,8 +855,35 @@ function add_field_mapping_or_rule()
 
 		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2("destroy");
 
+		jQuery("#field_mapping_rule_template input").each(function()
+		{
+		    jQuery(this).attr("value", jQuery(this).val());
+		});
+		jQuery('#field_mapping_rule_template select option').each(function()
+		{ 
+			this.defaultSelected = this.selected; 
+		});
+
 		var template_html = jQuery('#field_mapping_rule_template').html();
 
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
+		template_html = template_html.replace("{rule_count}", hpf_rule_count);
 		template_html = template_html.replace("{rule_count}", hpf_rule_count);
 		template_html = template_html.replace("{rule_count}", hpf_rule_count);
 		template_html = template_html.replace("{rule_count}", hpf_rule_count);
@@ -745,7 +893,18 @@ function add_field_mapping_or_rule()
 
 		hpf_rule_count = hpf_rule_count + 1;
 
-		jQuery('#field_mapping_rules').append(template_html);
+		jQuery('#field_mapping_rules').append('<div class="rule-accordion" style="display:none"><div class="rule-accordion-header"><span class="dashicons dashicons-arrow-down-alt2"></span>&nbsp; <span class="rule-description">Rule description here</span><div class="icons"><span class="delete-rule dashicons dashicons-trash" title="Delete Rule"></span></div></div><div class="rule-accordion-contents">' + template_html + '</div></div>');
+		jQuery('#field_mapping_rules .rule-accordion:last-child').slideDown();
+
+		// empty template fields
+		jQuery("#field_mapping_rule_template input").each(function()
+		{
+		    jQuery(this).val('');
+		});
+		jQuery('#field_mapping_rule_template select').each(function()
+		{ 
+			jQuery(this).val('');
+		});
 
 		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
 		    drop: function (event, ui) {
@@ -762,6 +921,7 @@ function add_field_mapping_or_rule()
 		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
 	}
 
+	build_field_mapping_rule_accordions()
 	hpf_set_xml_fields_size_properties();
 	hpf_set_csv_fields_size_properties();
 }

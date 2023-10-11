@@ -700,7 +700,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 					}
 					else
 					{
-						$this->log( 'Received status of ' . $property['status'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+						$this->log( 'Received status of ' . $property['attributes'][$status_field . '_status'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
 					}
 				}
 

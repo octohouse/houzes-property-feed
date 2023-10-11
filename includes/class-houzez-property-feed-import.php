@@ -149,7 +149,7 @@ class Houzez_Property_Feed_Import {
             $rule_i = 0;
             foreach ( $_POST['field_mapping_rules'] as $j => $field )
             {
-                if ( $rule_i > 0 ) // ignore template
+                if ($j != '{rule_count}') // ignore template
                 {
                     $result = stripslashes(sanitize_text_field($field['result']));
                     if ( $field['result_type'] == 'dropdown' )

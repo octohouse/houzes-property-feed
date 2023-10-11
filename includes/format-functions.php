@@ -938,6 +938,63 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mri/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'remax' => array(
+            'name' => __( 'RE/MAX', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'access_key',
+                    'label' => __( 'Access Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'secret_key',
+                    'label' => __( 'Secret Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'agent_id',
+                    'label' => __( 'Agent ID(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'Enter a comma-delimited list of agent IDs if only wanting to import specific agents listings', 'houzezpropertyfeed' ),
+                )
+            ),
+            'address_fields' => array( 'suburb', 'city', 'province' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For Sale' => 'For Sale',
+                    'New' => 'New',
+                    'Price Reduced' => 'Price Reduced',
+                    'Offer Made' => 'Offer Made',
+                    'Sold' => 'Sold',
+                ),
+                'lettings_status' => array(
+                    'To Rent' => 'To Rent',
+                ),
+                'property_type' => array(
+                    'Apartment / Flat' => 'Apartment / Flat',
+                    'House' => 'House',
+                    'Townhouse' => 'Townhouse',
+                    'Vacant Land / Plot' => 'Vacant Land / Plot',
+                    'Farm' => 'Farm',
+                    'Commercial Property: Office' => 'Commercial Property: Office',
+                    'Commercial Property: Retail' => 'Commercial Property: Retail',
+                    'Commercial Property: Accommodation' => 'Commercial Property: Accommodation',
+                    'Commercial Property: Flatlet' => 'Commercial Property: Flatlet',
+                    'Industrial Property: Factory' => 'Industrial Property: Factory',
+                    'Industrial Property: Warehouse' => 'Industrial Property: Warehouse',
+                    'Industrial Property: Storage' => 'Industrial Property: Storage',
+                )
+            ),
+            'contact_information_fields' => array(
+                'agent_id',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/remax/'
+        ),
         'street' => array(
             'name' => __( 'Street', 'houzezpropertyfeed' ),
             'fields' => array(

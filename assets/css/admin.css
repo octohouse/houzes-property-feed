@@ -82,9 +82,9 @@
 .hpf-admin-settings-import-settings .add-additional-mapping span    { vertical-align:middle; margin-top:-2px; margin-right:3px; }
 .hpf-admin-settings-import-settings .rules-table-available-fields   { display: flex; }
 .hpf-admin-settings-import-settings .rules-table                    { flex: 1; }
-.hpf-admin-settings-import-settings .xml-rules-available-fields         { overflow-y:auto; overflow-x:hidden; min-height:270px; flex: 0 0 230px; margin-top:20px; background:#F8F8F8; padding:25px; border:1px solid #DDD; }
+.hpf-admin-settings-import-settings .xml-rules-available-fields         { overflow-y:auto; overflow-x:hidden; min-height:270px; margin-left:30px; flex: 0 0 230px; margin-top:20px; background:#F8F8F8; padding:25px; border:1px solid #DDD; }
 .hpf-admin-settings-import-settings .xml-rules-available-fields #xml-nodes-found a { display:block; margin:3px 0; }
-.hpf-admin-settings-import-settings .csv-rules-available-fields         { overflow-y:auto; overflow-x:hidden; min-height:270px; flex: 0 0 230px; margin-top:20px; background:#F8F8F8; padding:25px; border:1px solid #DDD; }
+.hpf-admin-settings-import-settings .csv-rules-available-fields         { overflow-y:auto; overflow-x:hidden; min-height:270px; margin-left:30px; flex: 0 0 230px; margin-top:20px; background:#F8F8F8; padding:25px; border:1px solid #DDD; }
 .hpf-admin-settings-import-settings .csv-rules-available-fields #csv-fields-found a { display:block; margin:3px 0; }
 
 .agent-display-option-rule { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #CCC }
@@ -94,11 +94,25 @@
 .agent-display-option-rule .delete-rule a { text-decoration:none }
 
 .field-mapping-rule { margin-bottom:35px; padding-bottom:30px; border-bottom:1px solid #CCC }
+.field-mapping-rule.no-border { border:0 }
+.field-mapping-rule.no-margin { margin:0; padding:0; }
 .field-mapping-rule .and-rules > div > div { margin-bottom:5px; }
 .field-mapping-rule .then > div { margin-bottom:5px; }
 .field-mapping-rule input[type='text'] { width:220px; }
 .field-mapping-rule .rule-actions {  }
 .field-mapping-rule .rule-actions a { text-decoration:none }
+.field-mapping-rule .rule-actions a.delete-action { margin-left:12px; }
+
+.rule-accordion { margin-bottom:10px; border:1px solid #CCC; }
+.rule-accordion .rule-accordion-header { background:#f6f7f7; padding:17px 20px; position:relative; }
+.rule-accordion .rule-accordion-header > span:first-child { cursor:pointer; }
+.rule-accordion .rule-accordion-header .rule-description { }
+.rule-accordion .rule-accordion-header .rule-description span { display:inline-block; margin-right:7px; }
+.rule-accordion .rule-accordion-header .rule-description span code { font-weight:700 }
+.rule-accordion .rule-accordion-header .icons { position:absolute; right:25px; top:17px; text-align:right; }
+.rule-accordion .rule-accordion-header .icons span { cursor:pointer; display:inline-block; margin-left:5px; }
+.rule-accordion .rule-accordion-contents { display:none; padding:30px 35px; }
+.rule-accordion .rule-accordion-contents .field-mapping-rule {  }
 
 .hpf-admin-settings-import-settings .running-status-toggle { font-weight:500; float:left; font-size:1.3em }
 .hpf-switch {

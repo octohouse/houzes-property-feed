@@ -426,6 +426,16 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "remax":
+		    		{
+		                // includes
+		                require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-remax.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Remax( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "street":
 		    		{
 		                // includes
