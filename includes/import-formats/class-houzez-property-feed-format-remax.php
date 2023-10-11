@@ -5,10 +5,6 @@
  * @package WordPress
  */
 
-use Aws\Credentials\Credentials;
-use Aws\Signature\SignatureV4;
-use Psr\Http\Message\RequestInterface;
-
 if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
 class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
@@ -39,34 +35,36 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		$url .= '/feeds_default/lists';
         $region = 'eu-west-1';
 
-        $credentials = new Credentials( $import_settings['access_key'], $import_settings['secret_key'] );
         $event = array( "token" => $import_settings['api_key'], "agents" => true );
         $json = json_encode($event);
 
-        try 
-        {
-	        $client = new \GuzzleHttp\Client();
-	        $request = new GuzzleHttp\Psr7\Request(
-	            'POST',
-	            $url,
-	            array( 'x-api-key' => $import_settings['api_key'] ), // headers
-	            $json
-	        );
+        $aws = new AWSV4(
+        	$import_settings['access_key'],
+        	$import_settings['secret_key']
+        );
+        $aws->setRegionName( $region );
+		$aws->setServiceName( 'execute-api' );
+		$aws->setPath( '/feeds_default/lists' );
+		$aws->setPayload( $json );
+		$aws->setRequestMethod( 'POST' );
+		$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
+		$aws->addHeader( 'host', $host );
 
-	        $s4 = new SignatureV4('execute-api', $region);
-	        $signedrequest = $s4->signRequest($request, $credentials);
+        $headers = $aws->getHeaders();
 
-	        $response = $client->send($signedrequest);
-        }
-		catch (Exception $exception) {
-		    $response = $exception->getResponse()->getBody(true);
-		    $this->log_error( 'Response: ' . $response );
-			return false;
-		}
+        $response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'POST',
+				'timeout' => 60,
+				'headers' => $headers,
+				'body' => $json
+			)
+		);
 
-        if ( $response->getBody() ) 
-        {
-        	$body = $response->getBody();
+        if ( !is_wp_error($response) && is_array( $response ) ) 
+		{
+        	$body = $response['body'];
         	$json = json_decode( $body, TRUE );
 
 		    if ( $json === FALSE )
@@ -113,7 +111,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		}
 		else
 		{
-			$this->log_error( 'No body found in agent response' );
+			$this->log_error( 'Failed to obtain agents JSON. Dump of response as follows:' . print_r($response, TRUE) );
 			return false;
 		}
 
@@ -163,34 +161,36 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			$url .= '/feeds_default/agent';
 	        $region = 'eu-west-1';
 
-	        $credentials = new Credentials( $import_settings['access_key'], $import_settings['secret_key'] );
 	        $event = array( "token" => $import_settings['api_key'], "agent_id" => $agent_id );
 	        $json = json_encode($event);
 
-	        try 
-	        {
-		        $client = new \GuzzleHttp\Client();
-		        $request = new GuzzleHttp\Psr7\Request(
-		            'POST',
-		            $url,
-		            array( 'x-api-key' => $import_settings['api_key'] ), // headers
-		            $json
-		        );
+	        $aws = new AWSV4(
+	        	$import_settings['access_key'],
+	        	$import_settings['secret_key']
+	        );
+	        $aws->setRegionName( $region );
+			$aws->setServiceName( 'execute-api' );
+			$aws->setPath( '/feeds_default/agent' );
+			$aws->setPayload( $json );
+			$aws->setRequestMethod( 'POST' );
+			$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
+			$aws->addHeader( 'host', $host );
 
-		        $s4 = new SignatureV4('execute-api', $region);
-		        $signedrequest = $s4->signRequest($request, $credentials);
+	        $headers = $aws->getHeaders();
 
-		        $response = $client->send($signedrequest);
-	        }
-			catch (Exception $exception) {
-			    $response = $exception->getResponse()->getBody(true);
-			    $this->log_error( 'Response: ' . $response );
-				return false;
-			}
+	        $response = wp_remote_request(
+				$url,
+				array(
+					'method' => 'POST',
+					'timeout' => 60,
+					'headers' => $headers,
+					'body' => $json
+				)
+			);
 
-	        if ( $response->getBody() ) 
-	        {
-	        	$body = $response->getBody();
+	        if ( !is_wp_error($response) && is_array( $response ) ) 
+			{
+	        	$body = $response['body'];
 	        	$json = json_decode( $body, TRUE );
 
 			    if ( $json === FALSE )
@@ -238,7 +238,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			}
 			else
 			{
-				$this->log_error( 'No body found in response' );
+				$this->log_error( 'Failed to obtain properties JSON. Dump of response as follows:' . print_r($response, TRUE) );
 				return false;
 			}
 		}
