@@ -199,6 +199,11 @@ jQuery(document).ready(function()
 			jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
 		});
 
+		jQuery('#field_mapping_rule_template .field-mapping-rule').each(function()
+		{
+			jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
+		});
+
 		jQuery('.and-rules .or-rule .delete-action').show();
 		jQuery('.and-rules').each(function()
 		{

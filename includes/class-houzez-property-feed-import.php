@@ -156,7 +156,7 @@ class Houzez_Property_Feed_Import {
                     {
                         $result = sanitize_text_field($field['result_option']);
                     }
-                    $rules[$rule_i-1] = array(
+                    $rules[$rule_i] = array(
                         'houzez_field' => sanitize_text_field($field['houzez_field']),
                         'result' => $result,
                         'rules' => array(),
@@ -171,12 +171,12 @@ class Houzez_Property_Feed_Import {
                     {
                         foreach ( $rule_fields as $k => $rule_field )
                         {
-                            $rules[$rule_i-1]['rules'][$k][$i] = stripslashes(sanitize_text_field($rule_field));
+                            $rules[$rule_i]['rules'][$k][$i] = stripslashes(sanitize_text_field($rule_field));
                         }
                     }
-                }
 
-                ++$rule_i;
+                    ++$rule_i;
+                }
             }
         }
         $import_options['field_mapping_rules'] = $rules;
@@ -712,6 +712,7 @@ class Houzez_Property_Feed_Import {
                             }
                             
                         }
+
                         if ( $found )
                         {
                             ++$rules_met;

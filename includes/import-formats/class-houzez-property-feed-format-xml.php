@@ -209,7 +209,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 				    	'post_title'     => wp_strip_all_tags( apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_title', $this->import_id ) ),
 				    	'post_excerpt'   => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_excerpt', $this->import_id ),
 				    	'post_content' 	 => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_content', $this->import_id ),
-				    	'post_status'    => 'publish',
+				    	'post_status'    => apply_filters( 'houzez_property_feed_xml_mapped_field_value', 'publish', $property, 'post_status', $this->import_id ),
 				  	);
 
 				 	// Update the post into the database
@@ -234,7 +234,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 					'post_title'     => wp_strip_all_tags( apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_title', $this->import_id ) ),
 				    'post_excerpt'   => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_excerpt', $this->import_id ),
 				    'post_content' 	 => apply_filters( 'houzez_property_feed_xml_mapped_field_value', '', $property, 'post_content', $this->import_id ),
-					'post_status'    => 'publish',
+					'post_status'    => apply_filters( 'houzez_property_feed_xml_mapped_field_value', 'publish', $property, 'post_status', $this->import_id ),
 					'post_type'      => 'property',
 					'comment_status' => 'closed',
 				);

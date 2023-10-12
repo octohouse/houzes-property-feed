@@ -89,9 +89,9 @@ class Houzez_Property_Feed_Export {
             $rule_i = 0;
             foreach ( $_POST['field_mapping_rules'] as $j => $field )
             {
-                if ( $rule_i > 0 )
+                if ($j != '{rule_count}') // ignore template
                 {
-                    $rules[$rule_i-1] = array(
+                    $rules[$rule_i] = array(
                         'field' => sanitize_text_field($field['field']),
                         'result' => sanitize_text_field($field['result']),
                         'rules' => array(),
@@ -104,12 +104,12 @@ class Houzez_Property_Feed_Export {
                     {   
                         foreach ( $rule_fields as $k => $rule_field )
                         {
-                            $rules[$rule_i-1]['rules'][$k][$i] = sanitize_text_field($rule_field);
+                            $rules[$rule_i]['rules'][$k][$i] = sanitize_text_field($rule_field);
                         }
                     }
-                }
 
-                ++$rule_i;
+                    ++$rule_i;
+                }
             }
         }
         $export_options['field_mapping_rules'] = $rules;
