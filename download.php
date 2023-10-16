@@ -24,6 +24,7 @@ if ( $import_settings === false )
 switch ( $import_settings['format'] )
 {
 	case "blm_local":
+	case "rentman":
 	{
 		$file = $import_settings['local_directory'] . '/' . base64_decode($_GET['file']);
 		header('Content-Disposition: attachment; filename="' . base64_decode($_GET['file']) . '"');

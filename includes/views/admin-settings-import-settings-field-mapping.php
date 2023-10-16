@@ -58,7 +58,10 @@
 									field in <span class="hpf-import-format-name"></span> feed
 								</div>
 								<div>
-									Is equal to 
+									Is <select name="field_mapping_rules[<?php echo $i; ?>][operator][]">
+										<option value="="<?php if ( !isset($or_rule['operator']) || ( isset($or_rule['operator']) && $or_rule['operator'] == '=' ) ) { echo ' selected'; } ?>>equal to</option>
+										<option value="!="<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == '!=' ) { echo ' selected'; } ?>>not equal to</option>
+									</select>
 									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
 								</div>
 								<div class="rule-actions">
@@ -148,7 +151,10 @@
 							field in <span class="hpf-import-format-name"></span> feed
 						</div>
 						<div>
-							Is equal to 
+							Is <select name="field_mapping_rules[{rule_count}][operator][]">
+								<option value="=">equal to</option>
+								<option value="!=">not equal to</option>
+							</select>
 							<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
 						</div>
 						<div class="rule-actions">
@@ -193,7 +199,7 @@
 
 	<div class="xml-rules-available-fields" style="display:none">
 		<h3 style="margin-top:0">Fields found in the XML</h3>
-		<p>Below is a list of the fields we found in the XML provided using the <a href="https://www.w3schools.com/xml/xpath_syntax.asp" target="_blank">XPath syntax</a>.</p>
+		<p>Below is a list of fields found in the XML using the <a href="https://www.w3schools.com/xml/xpath_syntax.asp" target="_blank">XPath syntax</a>.</p>
 		<p>You can <strong>click and drag</strong> the fields below into the rule.</p>
 		<hr>
 		<?php echo '<p id="no_nodes_found"' . ( ( !isset($import_settings['property_node_options']) || ( isset($import_settings['property_node_options']) && empty($import_settings['property_node_options']) ) ) ? '' : ' style="display:none"' ) . '><em>' . __( 'No XML fields found. Please go to the \'Import Format\' tab and click \'Fetch XML\' to obtain a list of these.', 'houzezpropertyfeed' ) . '</em></p>'; ?>

@@ -995,6 +995,50 @@ function get_houzez_property_feed_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/remax/'
         ),
+        'rentman' => array(
+            'name' => __( 'Rentman', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'local_directory',
+                    'label' => __( 'Local Directory', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => $uploads_dir,
+                    'tooltip' => __( 'The full server path to where the XML files will be received into', 'houzezpropertyfeed' ),
+                ),
+            ),
+            'address_fields' => array( 'Address3', 'Address4' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'Unavailable' => 'Unavailable',
+                    'For Sale' => 'For Sale',
+                    'ForSale&ToLet' => 'ForSale&ToLet',
+                    'Sold' => 'Sold',
+                ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'Unavailable' => 'Unavailable',
+                    'ForSale&ToLet' => 'ForSale&ToLet',
+                ),
+                'property_type' => array(
+                    'Detached' => 'Detached',
+                    'Semi' => 'Semi',
+                    'Terrace' => 'Terrace',
+                    'Apartment' => 'Apartment',
+                    'Flat' => 'Flat',
+                    'Studio' => 'Studio',
+                    'Cottage' => 'Cottage',
+                    'Bungalow' => 'Bungalow',
+                )
+            ),
+            'contact_information_fields' => array(
+                'Branch',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/rentman/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'street' => array(
             'name' => __( 'Street', 'houzezpropertyfeed' ),
             'fields' => array(

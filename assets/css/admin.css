@@ -98,7 +98,7 @@
 .field-mapping-rule.no-margin { margin:0; padding:0; }
 .field-mapping-rule .and-rules > div > div { margin-bottom:5px; }
 .field-mapping-rule .then > div { margin-bottom:5px; }
-.field-mapping-rule input[type='text'] { width:220px; }
+.field-mapping-rule input[type='text'] { width:220px; vertical-align:middle; }
 .field-mapping-rule .rule-actions {  }
 .field-mapping-rule .rule-actions a { text-decoration:none }
 .field-mapping-rule .rule-actions a.delete-action { margin-left:12px; }

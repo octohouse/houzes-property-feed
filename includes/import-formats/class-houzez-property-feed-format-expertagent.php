@@ -110,8 +110,12 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
         	// Failed to parse XML
         	$this->log_error( 'Failed to parse XML file: ' . file_get_contents($xml_file) );
 
+        	unlink($xml_file);
+
         	return false;
 		}
+
+		unlink($xml_file);
 
 		if ( empty($this->properties) )
 		{

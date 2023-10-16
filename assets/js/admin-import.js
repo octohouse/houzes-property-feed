@@ -286,7 +286,7 @@ jQuery(document).ready(function()
 		var previous_rule_html = jQuery(this).parent().parent().html();
 		var and_html = '<div style="padding:20px 0; font-weight:600" class="and-label">AND</div>';
 		jQuery(this).parent().parent().parent().append( '<div class="or-rule">' + ( previous_rule_html.indexOf('>AND<') == -1 ? and_html : '' ) + previous_rule_html + '</div>' );
-		jQuery(this).parent().parent().parent().find('.or-rule:last-child').find('input, select').each(function()
+		jQuery(this).parent().parent().parent().find('.or-rule:last-child').find('input').each(function()
 		{
 			jQuery(this).val('');
 		});
@@ -556,7 +556,10 @@ function build_field_mapping_rule_accordions()
 
 				rule_description += '<span><code>' + field_in_feed + '</code></span>';
 
-				rule_description += '<span>is equal to</span>';
+				rule_description += '<span>is</span>';
+
+				var operator = jQuery(this).find('.and-rules .or-rule').eq(0).find('select[name*=\'field_mapping_rules\'][name*=\'[operator]\'] option:selected').text();
+				rule_description += '<span><code>' + operator + '</code></span>';
 
 				var value_in_feed = jQuery(this).find('.and-rules .or-rule').eq(0).find('input[name*=\'field_mapping_rules\'][name*=\'[equal]\']').val();
 				if ( value_in_feed == '' ) { value_in_feed = '<em>(no value specified)</em>'; }

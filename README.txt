@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
-Tested up to: 6.3.1
-Stable tag: 2.0.36
-Version: 2.0.36
+Tested up to: 6.3.2
+Stable tag: 2.0.37
+Version: 2.0.37
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,6 +33,8 @@ We can import properties from the following estate agency CRMs/formats:
 * Kyero
 * Loop
 * MRI
+* RE/MAX
+* Rentman
 * Street
 * XML (any XML file hosted on a public URL)
 
@@ -101,6 +103,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.37 - 2023-10-12 =
+* Added support for Rentman XML format
+* Added ability to set 'Not Equal' rule in import setting field mapping
+* Declared compatibility with WordPress 6.3.2
 
 = 2.0.36 - 2023-10-12 =
 * Creating a field mapping rule to set post_status to take effect in XML and CSV imports

@@ -470,7 +470,11 @@ class Houzez_Property_Feed_Import {
                         {
                             $found = true;
                         }
-                        elseif ( $value_to_check == $rule['equal'] )
+                        elseif (
+                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
+                            ||
+                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
+                        )
                         {
                             $found = true;
                         }
@@ -493,8 +497,11 @@ class Houzez_Property_Feed_Import {
                             continue;
                         }
 
-                        // we found a field with this key
-                        if ( $rule['equal'] != '*' && $value_to_check != $rule['equal'] )
+                        if (
+                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check != $rule['equal'] )
+                            ||
+                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check == $rule['equal'] )
+                        )
                         {
                             continue;
                         }
@@ -706,7 +713,11 @@ class Houzez_Property_Feed_Import {
                             {
                                 $found = true;
                             }
-                            elseif ( $value_to_check == $rule['equal'] )
+                            elseif (
+                                ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
+                                ||
+                                ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
+                            )
                             {
                                 $found = true;
                             }
@@ -793,7 +804,11 @@ class Houzez_Property_Feed_Import {
                     {
                         $found = true;
                     }
-                    elseif ( $value_to_check == $rule['equal'] )
+                    elseif (
+                        ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
+                        ||
+                        ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
+                    )
                     {
                         $found = true;
                     }
