@@ -42,6 +42,7 @@
 					</span>
 
 					<div class="icons">
+						<span class="duplicate-rule dashicons dashicons-admin-page" title="<?php echo esc_html(__( 'Duplicate Rule', 'houzezpropertyfeed' )); ?>"></span>
 						<span class="delete-rule dashicons dashicons-trash" title="<?php echo esc_html(__( 'Delete Rule', 'houzezpropertyfeed' )); ?>"></span>
 					</div>
 

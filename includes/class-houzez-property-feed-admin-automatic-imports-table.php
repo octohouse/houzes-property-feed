@@ -260,6 +260,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                         ) . ' | </span>
                         <span class="edit"><a href="' . admin_url('/admin.php?page=houzez-property-feed-import&tab=logs&import_id=' . (int)$key) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a> | </span>
                         <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a> | </span>
+                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=cloneimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Clone Import', 'houzezpropertyfeed' ) . '">' . __( 'Clone', 'houzezpropertyfeed' ) . '</a> | </span>
                         <span class="trash"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=deleteimport&import_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Import', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
                     </div>',
                 'col_import_details' => $details,

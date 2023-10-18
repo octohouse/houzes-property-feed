@@ -13,6 +13,8 @@ class Houzez_Property_Feed_Import {
 
         add_action( 'admin_init', array( $this, 'check_not_multiple_if_no_pro') );
 
+        add_action( 'admin_init', array( $this, 'check_clone'), 11 );
+
         add_action( 'admin_init', array( $this, 'save_import_settings') );
 
         add_action( 'admin_init', array( $this, 'toggle_import_running_status') );
@@ -31,7 +33,7 @@ class Houzez_Property_Feed_Import {
 
     public function check_not_multiple_if_no_pro()
     {
-        if ( isset($_GET['action']) && $_GET['action'] == 'addimport' )
+        if ( isset($_GET['action']) && ( $_GET['action'] == 'addimport' || $_GET['action'] == 'cloneimport' ) )
         {
             if ( apply_filters( 'houzez_property_feed_pro_active', false ) !== true ) 
             {
@@ -52,6 +54,40 @@ class Houzez_Property_Feed_Import {
                     die();
                 }
             }
+        }
+    }
+
+    public function check_clone()
+    {
+        if ( isset($_GET['action']) && $_GET['action'] == 'cloneimport' )
+        {
+            $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
+
+            if ( $import_id === false )
+            {
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . urlencode(__( 'No import ID to clone found', 'houzezpropertyfeed' ) ) ) );
+                die();
+            }
+
+            $options = get_option( 'houzez_property_feed' , array() );
+
+            $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+            if ( !isset($imports[$import_id]) )
+            {
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . urlencode(__( 'Import wanting to clone not found', 'houzezpropertyfeed' ) ) ) );
+                die();
+            }
+
+            $import_settings = $imports[$import_id];
+
+            $new_import_id = time();
+
+            $options['imports'][$new_import_id] = $import_settings;
+
+            update_option( 'houzez_property_feed', $options );
+
+            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . __( 'Import cloned successfully', 'houzezpropertyfeed' ) ) );
+            die();
         }
     }
 

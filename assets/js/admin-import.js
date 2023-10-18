@@ -184,6 +184,88 @@ jQuery(document).ready(function()
 		hpf_set_csv_fields_size_properties();
 	});
 
+	jQuery('body').on('click', '.rule-accordion-header .duplicate-rule', function(e)
+	{
+		e.preventDefault();
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable( "destroy" );
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').droppable( "destroy" );
+
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2("destroy");
+
+		jQuery(this).parent().parent().parent().find("input").each(function()
+		{
+		    jQuery(this).attr("value", jQuery(this).val());
+		});
+		jQuery(this).parent().parent().parent().find('select option').each(function()
+		{ 
+			this.defaultSelected = this.selected; 
+		});
+
+		/// get rule count of rule being cloned
+		var field_to_look_at_for_id = jQuery(this).parent().parent().parent().find('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']');
+		var field_name = jQuery(field_to_look_at_for_id).attr('name');
+		//alert(field_name);
+		var arrStr = field_name.split(/\[(.*?)\]/);
+		var existing_rule_count = arrStr[1];
+
+		var rule_html = jQuery(this).parent().parent().parent().html();
+
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+		rule_html = rule_html.replace("field_mapping_rules[" + existing_rule_count + "]", "field_mapping_rules[" + hpf_rule_count + "]");
+
+		hpf_rule_count = hpf_rule_count + 1;
+
+		jQuery('<div class="rule-accordion">' + rule_html + '</div>').insertAfter(jQuery(this).parent().parent().parent());
+
+		// close any existing rules and open the new one
+		jQuery('.rule-accordion-header > span:first-child').removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
+		jQuery(this).parent().parent().parent().next('.rule-accordion').find('.rule-accordion-header > span:first-child').removeClass('dashicons-arrow-down-alt2').addClass('dashicons-arrow-up-alt2');
+		
+		jQuery('.rule-accordion .rule-accordion-contents').slideUp();
+		jQuery(this).parent().parent().parent().next('.rule-accordion').find('.rule-accordion-contents').slideDown();
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
+		    drop: function (event, ui) {
+		        this.value += jQuery(ui.draggable).text();
+		    }
+		});
+
+		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').droppable({
+		    drop: function (event, ui) {
+		        this.value += '{' + jQuery(ui.draggable).text() + '}';
+		    }
+		});
+
+		jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
+
+		last_safe_scroll = 0;
+		build_field_mapping_rule_accordions();
+		hpf_set_xml_fields_size_properties();
+		hpf_set_csv_fields_size_properties();
+	});
+
 	jQuery('body').on('click', '.field-mapping-rule .rule-actions a.delete-action', function(e)
 	{
 		e.preventDefault();
@@ -916,7 +998,7 @@ function add_field_mapping_or_rule()
 
 		hpf_rule_count = hpf_rule_count + 1;
 
-		jQuery('#field_mapping_rules').append('<div class="rule-accordion" style="display:none"><div class="rule-accordion-header"><span class="dashicons dashicons-arrow-down-alt2"></span>&nbsp; <span class="rule-description">Rule description here</span><div class="icons"><span class="delete-rule dashicons dashicons-trash" title="Delete Rule"></span></div></div><div class="rule-accordion-contents">' + template_html + '</div></div>');
+		jQuery('#field_mapping_rules').append('<div class="rule-accordion" style="display:none"><div class="rule-accordion-header"><span class="dashicons dashicons-arrow-down-alt2"></span>&nbsp; <span class="rule-description">Rule description here</span><div class="icons"><span class="duplicate-rule dashicons dashicons-admin-page" title="Duplicate Rule"></span><span class="delete-rule dashicons dashicons-trash" title="Delete Rule"></span></div></div><div class="rule-accordion-contents">' + template_html + '</div></div>');
 		jQuery('#field_mapping_rules .rule-accordion:last-child').slideDown();
 
 		// empty template fields
