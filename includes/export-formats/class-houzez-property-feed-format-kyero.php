@@ -88,12 +88,6 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
         $properties_query = new WP_Query( $args );
         $num_properties = $properties_query->found_posts;
 
-        if ( $num_properties <= 0 ) 
-        {
-        	$this->log_error( "No properties to include" );
-        	return false;
-        }
-
         $xml = new SimpleXMLExtendedHpf("<?xml version=\"1.0\" encoding=\"utf-8\"?><root></root>");
 
         $kyero_xml = $xml->addChild('kyero');
@@ -328,12 +322,6 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
                 ++$properties_added;
             }
-        }
-
-        if ( $properties_added == 0 )
-        {
-            $this->log_error("No properties to add to Kyero XML file. Getting out of here...");
-            return false;
         }
 
         $xml = $xml->asXML();

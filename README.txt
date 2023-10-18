@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3.2
-Stable tag: 2.0.37
-Version: 2.0.37
+Stable tag: 2.0.38
+Version: 2.0.38
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -104,7 +104,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 
 == Changelog ==
 
-= 2.0.37 - 2023-10-12 =
+= 2.0.38 - 2023-10-18 =
+* Still send exports even if no properties selected to be sent. Trying to be too helpful before by stopping them
+
+= 2.0.37 - 2023-10-16 =
 * Added support for Rentman XML format
 * Added ability to set 'Not Equal' rule in import setting field mapping
 * Declared compatibility with WordPress 6.3.2

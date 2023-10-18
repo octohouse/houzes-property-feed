@@ -879,18 +879,6 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
             die();
         }
 
-        if ( $num_properties <= 0 ) 
-        {
-            $this->log_error( "No properties to send" );
-            return false;
-        }
-
-        if ( $properties_added == 0 )
-        {
-            $this->log_error("No properties to add to BLM. Getting out of here...");
-            return false;
-        }
-
         // do compression if necessary
         if ( isset($export_settings['compressed']) && $export_settings['compressed'] == 'yes' )
         {
