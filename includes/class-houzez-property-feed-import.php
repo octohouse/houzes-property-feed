@@ -533,16 +533,25 @@ class Houzez_Property_Feed_Import {
                             continue;
                         }
 
-                        if (
-                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check != $rule['equal'] )
+                        $found = false;
+                    
+                        if ( $rule['equal'] == '*' )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
                             ||
-                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check == $rule['equal'] )
+                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
                         )
                         {
-                            continue;
+                            $found = true;
                         }
 
-                        ++$rules_met;
+                        if ( $found )
+                        {
+                            ++$rules_met;
+                        }
                     }
                 }
             }
