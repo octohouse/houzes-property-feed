@@ -46,6 +46,11 @@ function houzez_property_feed_export_format_error( $errno, $errstr, $errfile, $e
 
 error_reporting( 0 );
 
+if ( !defined('HPF_EXPORT') )
+{
+    define( "HPF_EXPORT", true );
+}
+
 $instance_id = 0;
 
 global $wpdb, $post, $instance_id;

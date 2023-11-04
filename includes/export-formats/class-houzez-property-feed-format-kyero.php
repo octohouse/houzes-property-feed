@@ -199,7 +199,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $property_xml->addChild('province', $province);
 
                 $country = 'Spain';
-                $terms = get_the_terms( $post_id, 'property_country' );
+                $terms = get_the_terms( $post->ID, 'property_country' );
                 $term_ids_to_use = array();
                 if ( !is_wp_error($terms) && !empty($terms) )
                 {

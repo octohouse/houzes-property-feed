@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.3.2
-Stable tag: 2.0.40
-Version: 2.0.40
+Stable tag: 2.0.41
+Version: 2.0.41
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,6 +33,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Kyero
 * Loop
 * MRI
+* MLS/IDX (assuming XML URL can be provided)
 * RE/MAX
 * Rentman
 * Street
@@ -41,7 +42,7 @@ We can import properties from the following estate agency CRMs/formats:
 We can export and upload feeds from Houzez to third party portals in the following formats:
 
 * BLM
-* Kyero v3
+* Kyero v3 (including WPML support)
 * Rightmove and OnTheMarket Real-Time Format (RTDF)
 * Zoopla Real-Time Format
 
@@ -103,6 +104,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.41 - 2023-11-04 =
+* Added support for WPML in Kyero XML exports where URLs and descriptions can be sent in different languages
+* New HPF_EXPORT constant defined during exports
 
 = 2.0.40 - 2023-11-01 =
 * Corrected field mapping
