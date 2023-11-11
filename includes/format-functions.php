@@ -1039,6 +1039,36 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/rentman/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'resales_online' => array(
+            'name' => __( 'ReSales Online', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'area', 'town', 'province' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'Sold' => 'Sold',
+                ),
+                'property_type' => array(
+                    'Apartment - Ground Floor' => 'Apartment - Ground Floor',
+                    'Apartment - Middle Floor' => 'Apartment - Middle Floor',
+                    'Apartment - Penthouse' => 'Apartment - Penthouse',
+                    'Plot - Land' => 'Plot - Land',
+                    'Plot - Residential' => 'Plot - Residential',
+                    'Townhouse - Terraced' => 'Townhouse - Terraced',
+                    'Villa - Detached' => 'Villa - Detached',
+                )
+            ),
+            'contact_information_fields' => array(),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/resales-online/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'street' => array(
             'name' => __( 'Street', 'houzezpropertyfeed' ),
             'fields' => array(

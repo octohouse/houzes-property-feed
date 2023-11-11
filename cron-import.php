@@ -449,6 +449,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "resales_online":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-resales-online.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Resales_Online( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "street":
 		    		{
 		                // includes

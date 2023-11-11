@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
-Tested up to: 6.3.2
-Stable tag: 2.0.41
-Version: 2.0.41
+Tested up to: 6.4.1
+Stable tag: 2.0.42
+Version: 2.0.42
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -36,6 +36,7 @@ We can import properties from the following estate agency CRMs/formats:
 * MLS/IDX (assuming XML URL can be provided)
 * RE/MAX
 * Rentman
+* ReSales Online
 * Street
 * XML (any XML file hosted on a public URL)
 
@@ -104,6 +105,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.42 - 2023-11-11 =
+* Added support for importing properties in the ReSales Online XML format
 
 = 2.0.41 - 2023-11-04 =
 * Added support for WPML in Kyero XML exports where URLs and descriptions can be sent in different languages
