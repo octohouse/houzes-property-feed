@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.1
-Stable tag: 2.0.42
-Version: 2.0.42
+Stable tag: 2.0.43
+Version: 2.0.43
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -43,6 +43,7 @@ We can import properties from the following estate agency CRMs/formats:
 We can export and upload feeds from Houzez to third party portals in the following formats:
 
 * BLM
+* Idealista
 * Kyero v3 (including WPML support)
 * Rightmove and OnTheMarket Real-Time Format (RTDF)
 * Zoopla Real-Time Format
@@ -105,6 +106,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.43 - 2023-11-13 =
+* Added support for exporting properties to Idealista
+* Ensure post related fields (i.e. Post Title, Post Content etc) are replaced in export field mapping rules
 
 = 2.0.42 - 2023-11-11 =
 * Added support for importing properties in the ReSales Online XML format

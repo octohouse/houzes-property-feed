@@ -28,7 +28,7 @@
 		?>
 
 		<div class="log-buttons log-buttons-bottom">
-			<a href="<?php echo admin_url('admin.php?page=v&tab=logs'); ?>" class="button">Back To Logs</a>
+			<a href="<?php echo admin_url('admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=logs'); ?>" class="button">Back To Logs</a>
 		
 			<?php
 				if ( $previous_instance !== false )

@@ -1524,6 +1524,111 @@ function get_houzez_property_feed_export_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/blm/',
             'warnings' => array(), // maybe FTP warning? maybe ZipArchive warning
         ) ),
+        'idealista' => apply_filters( 'houzez_property_feed_export_format_options_idealista', array(
+            'name' => __( 'Idealista', 'houzezpropertyfeed' ),
+            'method' => 'cron', // cron / realtime / url
+            'fields' => array_merge(array(
+                array(
+                    'type' => 'html',
+                    'html' => '<p style="font-size:1.1em"><strong>' . __( 'Details', 'houzezpropertyfeed' ) . '</strong></p>',
+                ),
+                array(
+                    'id' => 'customer_code',
+                    'label' => __( 'Customer Code', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'country',
+                    'label' => __( 'Country', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'contact_name',
+                    'label' => __( 'Contact Name', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'contact_email',
+                    'label' => __( 'Contact Email Address', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'primary_telephone_number_prefix',
+                    'label' => __( 'Primary Telephone Number Prefix', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'primary_telephone_number',
+                    'label' => __( 'Primary Telephone Number', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'type' => 'html',
+                    'html' => '<p style="font-size:1.1em"><strong>' . __( 'FTP Details', 'houzezpropertyfeed' ) . '</strong></p>',
+                ),
+                array(
+                    'id' => 'ftp_host',
+                    'label' => __( 'FTP Host', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_user',
+                    'label' => __( 'FTP Username', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_pass',
+                    'label' => __( 'FTP Password', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_dir',
+                    'label' => __( 'FTP Directory', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'ftp_passive',
+                    'label' => __( 'Use FTP Passive Mode', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                )
+            )
+            ),
+            'field_mapping_fields' => array(
+                'ADDRESS_1' => 'ADDRESS_1',
+            ),
+            'taxonomy_values' => array(
+                'property_type' => array(
+                    "flat" => "",
+                    "house" => "",
+                    "house_andar_moradia" => "",
+                    "house_independent" => "",
+                    "house_semidetached" => "",
+                    "house_terraced" => "",
+                    "house_villa" => "",
+                    "rustic" => "",
+                    "rustic_house" => "",
+                    "rustic_village" => "",
+                    "rustic_castle" => "",
+                    "rustic_palace" => "",
+                    "rustic_baita" => "",
+                    "rustic_rural" => "",
+                    "rustic_casalecascina" => "",
+                    "rustic_caseron" => "",
+                    "rustic_cortijo" => "",
+                    "rustic_masia" => "",
+                    "rustic_masseria" => "",
+                    "rustic_moinho" => "",
+                    "rustic_montealentejano" => "",
+                    "rustic_quinta" => "",
+                    "rustic_solar" => "",
+                    "rustic_terrera" => "",
+                    "rustic_torre" => "",
+                    "rustic_trullo" => "",
+                ),
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/idealista/',
+            'warnings' => array(),
+        ) ),
         'kyero' => apply_filters( 'houzez_property_feed_export_format_options_kyero', array(
             'name' => __( 'Kyero', 'houzezpropertyfeed' ),
             'method' => 'url', // cron / realtime / url

@@ -429,6 +429,17 @@ class Houzez_Property_Feed_Export {
                                         $value_to_check = get_post_meta( $post_id, $houzez_field_key, TRUE );
                                     }
                                 }
+                                if ( isset($houzez_field['type']) && $houzez_field['type'] == 'post_field' )
+                                {
+                                    if ( isset($houzez_field['label']) && $houzez_field['label'] == $field_name )
+                                    {
+                                        $temp_post = get_post($post_id, ARRAY_A);
+                                        if ( isset($temp_post[$houzez_field_key]) )
+                                        {
+                                            $value_to_check = $temp_post[$houzez_field_key];
+                                        }
+                                    }
+                                }
                             }
                         }
                         $result = str_replace($match, $value_to_check, $result);
