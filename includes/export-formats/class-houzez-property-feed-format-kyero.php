@@ -273,6 +273,42 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $url_xml = $property_xml->addChild('url');
                 $url_xml->addChild('en', get_permalink($post->ID));
 
+                $videos = array();
+                $virtual_tours = array();
+                if ( get_post_meta( $post->ID, 'fave_video_url', true ) != '' )
+                {
+                    if ( 
+                        strpos( get_post_meta( $post->ID, 'fave_video_url', true ), 'youtu' ) !== false
+                        ||
+                        strpos( get_post_meta( $post->ID, 'fave_video_url', true ), 'vimeo' ) !== false
+                    )
+                    {
+                        $videos[] = get_post_meta( $post->ID, 'fave_video_url', true );
+                    }
+                    else
+                    {
+                        $virtual_tours[] = get_post_meta( $post->ID, 'fave_video_url', true );
+                    }
+                }
+
+                if ( !empty($videos) )
+                {
+                    foreach ($videos as $video)
+                    {
+                        $property_xml->addChild('video_url', $video);
+                        break;
+                    }
+                }
+
+                if ( !empty($virtual_tours) )
+                {
+                    foreach ($virtual_tours as $virtual_tour)
+                    {
+                        $property_xml->addChild('virtual_tour_url', $virtual_tour);
+                        break;
+                    }
+                }
+
                 $description = get_the_content();
                 if ( trim(strip_tags($description)) == '' )
                 {
