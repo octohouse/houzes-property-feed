@@ -126,7 +126,7 @@ class Houzez_Property_Feed_Ajax {
         }
 
         $lines = explode( "\n", $contents );
-        $headers = str_getcsv( array_shift( $lines ) );
+        $headers = str_getcsv( array_shift( $lines ), ( isset($_GET['delimiter']) ? sanitize_text_field($_GET['delimiter']) : ',' ) );
 
         $return = array(
             'success' => true,

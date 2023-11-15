@@ -85,6 +85,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		global $wpdb;
 
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
+		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 

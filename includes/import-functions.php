@@ -194,6 +194,7 @@ function get_houzez_fields_for_field_mapping()
     $taxonomies = array(
         'property_type' => array( 'type' => 'taxonomy', 'label' => __( 'Property Type', 'houzez' ) ),
         'property_status' => array( 'type' => 'taxonomy', 'label' => __( 'Status', 'houzez' ) ),
+        'property_feature' => array( 'type' => 'taxonomy', 'label' => __( 'Property Features', 'houzez' ), 'delimited' => true ),
     );
 
     for ( $i = 0; $i < apply_filters( 'houzez_property_feed_field_mapping_feature_count', 10 ); ++$i )

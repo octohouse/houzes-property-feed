@@ -58,7 +58,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 		$fields = array(); 
 		$i = 0;
 
-		while ( ($row = fgetcsv($temp, 10000)) !== false ) 
+		while ( ($row = fgetcsv($temp, 10000, ( isset($import_settings['csv_delimiter']) ? $import_settings['csv_delimiter'] : ',' ))) !== false ) 
 		{
 	        if ( empty($fields) ) 
 	        {
@@ -89,6 +89,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 		global $wpdb;
 
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
+		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
@@ -287,6 +288,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 							$explode_media_item = explode("|", $media_item); // 0 => URL, 1 => Description
 
 							$url = trim($explode_media_item[0]);
+							$url = apply_filters( 'houzez_property_feed_csv_image_url', $url, $this->import_id );
 							$description = isset($explode_media_item[1]) ? trim($explode_media_item[1]) : '';
 
 							preg_match_all('/{[^}]*}/', $url, $matches);
@@ -458,6 +460,8 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                             	// we found image URLs
                             	foreach ( $explode_image_urls as $url )
                             	{
+                            		$url = apply_filters( 'houzez_property_feed_csv_image_url', $url, $this->import_id );
+
                             		$description = '';
 
                             		if ( 
@@ -613,6 +617,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 							$explode_media_item = explode("|", $media_item); // 0 => URL, 1 => Description
 
 							$url = trim($explode_media_item[0]);
+							$url = apply_filters( 'houzez_property_feed_csv_floorplan_url', $url, $this->import_id );
 							$description = isset($explode_media_item[1]) ? trim($explode_media_item[1]) : '';
 
 							preg_match_all('/{[^}]*}/', $url, $matches);
@@ -689,6 +694,8 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                             	// we found floorplan URLs
                             	foreach ( $explode_floorplan_urls as $url )
                             	{
+                            		$url = apply_filters( 'houzez_property_feed_csv_floorplan_url', $url, $this->import_id );
+
                             		if ( 
 										substr( strtolower($url), 0, 2 ) == '//' || 
 										substr( strtolower($url), 0, 4 ) == 'http'
@@ -735,6 +742,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 							$explode_media_item = explode("|", $media_item); // 0 => URL, 1 => Description
 
 							$url = trim($explode_media_item[0]);
+							$url = apply_filters( 'houzez_property_feed_csv_document_url', $url, $this->import_id );
 							$description = isset($explode_media_item[1]) ? trim($explode_media_item[1]) : '';
 
 							preg_match_all('/{[^}]*}/', $url, $matches);
@@ -887,6 +895,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                             	// we found image URLs
                             	foreach ( $explode_document_urls as $url )
                             	{
+                            		$url = apply_filters( 'houzez_property_feed_csv_document_url', $url, $this->import_id );
                             		$description = '';
 
                             		if ( 

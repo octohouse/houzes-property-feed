@@ -78,6 +78,7 @@
 								<select name="field_mapping_rules[<?php echo $i; ?>][houzez_field]" style="width:250px;">
 									<option value=""></option>
 									<?php
+										$houzez_field_delimited = false;
 										$houzez_field_options = array();
 										if ( !empty($houzez_fields) )
 										{
@@ -90,6 +91,10 @@
 													if ( isset($value['options']) && is_array($value['options']) && !empty($value['options']) )
 													{
 														$houzez_field_options = $value['options'];
+													}
+													if ( isset($value['delimited']) && $value['delimited'] === true )
+													{
+														$houzez_field_delimited = true;
 													}
 												}
 												echo '>' . esc_html($value['label']) . '</option>';
@@ -124,6 +129,11 @@
 									?></select>
 								</span>
 								<input type="hidden" name="field_mapping_rules[<?php echo $i; ?>][result_type]" value="<?php echo esc_attr($result_type); ?>">
+							</div>
+							<div style="display:<?php if ( $houzez_field_delimited ) { echo 'block'; }else{ echo 'none'; } ?>" class="delimited">
+								<label><input type="checkbox" name="field_mapping_rules[<?php echo $i; ?>][delimited]" value="1"<?php if ( isset($and_rules['delimited']) && $and_rules['delimited'] === true ) { echo ' checked'; } ?>> Delimited?</label>
+								<span class="delimited-character" style="display:<?php if ( isset($and_rules['delimited']) && $and_rules['delimited'] === true ) { echo 'inline'; }else{ echo 'none'; } ?>;">By character <input type="text" name="field_mapping_rules[<?php echo $i; ?>][delimited_character]" style="max-width:50px;" value="<?php echo ( isset($and_rules['delimited_character']) ? esc_attr($and_rules['delimited_character']) : ',' ); ?>"></span>
+								<div style="font-style:italic; margin-top:6px; color:#AAA"><span class="dashicons dashicons-info"></span> Tick 'Delimited' if all features are provided in one single field separated by a specific character. If features are provided as individual fields in the third party data use the 'Property Feature [1-9]' field(s)</div>
 							</div>
 						</div>
 					</div>
@@ -186,6 +196,11 @@
 						<span class="result-text"><input type="text" name="field_mapping_rules[{rule_count}][result]" style="width:100%; max-width:340px;" value="" placeholder="Enter value or {field_name_here} to use value sent"></span>
 						<span class="result-dropdown" style="display:none"><select name="field_mapping_rules[{rule_count}][result_option]"></select></span>
 						<input type="hidden" name="field_mapping_rules[{rule_count}][result_type]" value="text">
+					</div>
+					<div style="display:none" class="delimited">
+						<label><input type="checkbox" name="field_mapping_rules[{rule_count}][delimited]" value="1"> Delimited?</label>
+						<span class="delimited-character" style="display:none;">By character <input type="text" name="field_mapping_rules[{rule_count}][delimited_character]" style="max-width:50px;" value=","></span>
+						<div style="font-style:italic; margin-top:6px; color:#AAA"><span class="dashicons dashicons-info"></span> Tick 'Delimited' if all features are provided in one single field separated by a specific character. If features are provided as individual fields in the third party data use the 'Property Feature [1-9]' field(s)</div>
 					</div>
 				</div>
 				

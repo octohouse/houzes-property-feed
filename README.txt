@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.1
-Stable tag: 2.0.45
-Version: 2.0.45
+Stable tag: 2.0.46
+Version: 2.0.46
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -106,6 +106,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.46 - 2023-11-15 =
+* Added ability to specify CSV delimiter character when setting up a CSV import. Defaults to comma
+* Added ability to specify that property features are delimited when setting up import field mapping. Useful if all features are sent in a single field
+* Added new filters to XML import media URLs: houzez_property_feed_xml_image_url, houzez_property_feed_xml_floorplan_url and houzez_property_feed_xml_document_url
+* Added new filters to CSV import media URLs: houzez_property_feed_csv_image_url, houzez_property_feed_csv_floorplan_url and houzez_property_feed_csv_document_url
 
 = 2.0.45 - 2023-11-15 =
 * Update to last release to also extract virtual tour URL from iframe and send that as the virtual tour in Kyero XML exports

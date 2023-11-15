@@ -315,6 +315,7 @@ jQuery(document).ready(function()
 	{
 		var selected_houzez_field = jQuery(this).val();
 		var houzez_field_options = new Array();
+		var houzez_field_delimited = false;
 
 		if ( hpf_admin_object.houzez_fields_for_field_mapping )
 		{
@@ -326,8 +327,22 @@ jQuery(document).ready(function()
 					{
 						houzez_field_options = hpf_admin_object.houzez_fields_for_field_mapping[i].options;
 					}
+
+					if ( hpf_admin_object.houzez_fields_for_field_mapping[i].hasOwnProperty('delimited') && hpf_admin_object.houzez_fields_for_field_mapping[i].delimited == true )
+					{
+						houzez_field_delimited = true;
+					}
 				}
 			}
+		}
+
+		if (houzez_field_delimited)
+		{
+			jQuery(this).parent().parent().find('.delimited').show();
+		}
+		else
+		{
+			jQuery(this).parent().parent().find('.delimited').hide();
 		}
 
 		jQuery(this).parent().parent().find('.result-dropdown select').empty();
@@ -351,6 +366,22 @@ jQuery(document).ready(function()
 		}
 
 		build_field_mapping_rule_accordions();
+
+		hpf_show_missing_mandatory_xml_field_mapping();
+		hpf_show_missing_mandatory_csv_field_mapping();
+		hpf_show_already_mapped_warning();
+	});
+
+	jQuery('body').on('change', 'input[name*=\'[delimited]\']', function()
+	{
+		if ( jQuery(this).is(':checked') )
+		{
+			jQuery(this).parent().parent().find('.delimited-character').show();
+		}
+		else
+		{
+			jQuery(this).parent().parent().find('.delimited-character').hide();
+		}
 	});
 
 	jQuery(this).find('.and-rules .or-rule:nth-child(1) .and-label').remove();
@@ -529,6 +560,7 @@ jQuery(document).ready(function()
         	data : {
         		action: "houzez_property_feed_fetch_csv_fields", 
         		url : jQuery(this).parent().parent().parent().find('input[name=\'csv_csv_url\']').val(), 
+        		delimiter : jQuery(this).parent().parent().parent().find('input[name=\'csv_csv_delimiter\']').val(), 
         		ajax_nonce: hpf_admin_object.ajax_nonce
         	},
         	dataType : "json",
@@ -589,13 +621,6 @@ jQuery(document).ready(function()
 	    drop: function (event, ui) {
 	        this.value += '{' + jQuery(ui.draggable).text() + '}';
 	    }
-	});
-
-	jQuery('body').on('change', 'select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']', function(e)
-	{
-		hpf_show_missing_mandatory_xml_field_mapping();
-		hpf_show_missing_mandatory_csv_field_mapping();
-		hpf_show_already_mapped_warning();
 	});
 
 	/*if ( jQuery('#field_mapping_rules .field-mapping-rule').length == 0 )

@@ -456,6 +456,13 @@ function get_houzez_property_feed_import_formats()
                     'placeholder' => 'https://',
                 ),
                 array(
+                    'id' => 'csv_delimiter',
+                    'label' => __( 'CSV Delimiter Character', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => ',',
+                    'css' => 'max-width:50px;'
+                ),
+                array(
                     'type' => 'html',
                     'label' => '',
                     'html' => '<a href="" class="button hpf-fetch-csv-fields">' . __( 'Fetch CSV', 'houzezpropertyfeed' ) . '</a>'

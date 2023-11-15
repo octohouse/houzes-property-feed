@@ -70,6 +70,7 @@ class Houzez_Property_Feed_Process {
 		if ( !empty($import_refs) )
 		{
 			$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
+			$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
 			// Get all properties that don't have an _imported_ref matching the properties in $this->properties
 

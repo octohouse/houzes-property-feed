@@ -195,12 +195,16 @@ class Houzez_Property_Feed_Import {
                     $rules[$rule_i] = array(
                         'houzez_field' => sanitize_text_field($field['houzez_field']),
                         'result' => $result,
+                        'delimited' => ( isset($field['delimited']) && $field['delimited'] == '1' ) ? true : false,
+                        'delimited_character' => ( isset($field['delimited_character']) ) ? $field['delimited_character'] : '',
                         'rules' => array(),
                     );
 
                     unset($field['houzez_field']);
                     unset($field['result']);
                     unset($field['result_option']);
+                    unset($field['delimited']);
+                    unset($field['delimited_character']);
                     unset($field['result_type']);
 
                     foreach ( $field as $i => $rule_fields )
@@ -646,7 +650,43 @@ class Houzez_Property_Feed_Import {
                     }
                     else
                     {
-                        wp_set_object_terms( $post_id, $result, $and_rules['houzez_field'] );
+                        if ( isset($and_rules['delimited']) && $and_rules['delimited'] === true && isset($and_rules['delimited_character']) && !empty($and_rules['delimited_character']) )
+                        {
+                            $taxonomy = $and_rules['houzez_field'];
+
+                            if ( !isset($taxonomies_with_multiple_values[$taxonomy]) ) { $taxonomies_with_multiple_values[$taxonomy] = array(); }
+
+                            $results = explode($and_rules['delimited_character'], $result);
+                            $results = array_map('trim', $results);
+                            $results = array_filter($results);
+
+                            foreach ( $results as $result )
+                            {
+                                // create if not exists
+                                $term = term_exists( $result, $taxonomy );
+                                if ( $term !== 0 && $term !== null && isset($term['term_id']) )
+                                {
+                                    $term_id = (int)$term['term_id'];
+                                }
+                                else
+                                {
+                                    $term = wp_insert_term( $result, $taxonomy );
+                                    if ( is_array($term) && isset($term['term_id']) )
+                                    {
+                                        $term_id = (int)$term['term_id'];
+                                    }
+                                }
+
+                                if ( !empty($term_id) )
+                                {
+                                    $taxonomies_with_multiple_values[$taxonomy][] = $term_id;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            wp_set_object_terms( $post_id, $result, $and_rules['houzez_field'] );
+                        }
                     }
                 }
                 else
