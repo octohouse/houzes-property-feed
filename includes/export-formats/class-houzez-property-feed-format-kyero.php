@@ -275,7 +275,13 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
                 $videos = array();
                 $virtual_tours = array();
-                if ( get_post_meta( $post->ID, 'fave_video_url', true ) != '' )
+                if ( 
+                    get_post_meta( $post->ID, 'fave_video_url', true ) != '' &&
+                    (
+                        substr( strtolower(get_post_meta( $post->ID, 'fave_video_url', true )), 0, 2 ) == '//' || 
+                        substr( strtolower(get_post_meta( $post->ID, 'fave_video_url', true )), 0, 4 ) == 'http'
+                    )
+                )
                 {
                     if ( 
                         strpos( get_post_meta( $post->ID, 'fave_video_url', true ), 'youtu' ) !== false
@@ -288,6 +294,23 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     else
                     {
                         $virtual_tours[] = get_post_meta( $post->ID, 'fave_video_url', true );
+                    }
+                }
+
+                if ( get_post_meta( $post->ID, 'fave_virtual_tour', true ) != '' )
+                {
+                    preg_match('/src="([^"]+)"/', get_post_meta( $post->ID, 'fave_virtual_tour', true ), $match);
+                    if ( isset($match[1]) )
+                    {
+                        $url = $match[1];
+
+                        if ( 
+                            substr( strtolower($url), 0, 2 ) == '//' || 
+                            substr( strtolower($url), 0, 4 ) == 'http'
+                        )
+                        {
+                            $virtual_tours[] = $url;
+                        }
                     }
                 }
 

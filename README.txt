@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.1
-Stable tag: 2.0.44
-Version: 2.0.44
+Stable tag: 2.0.45
+Version: 2.0.45
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -106,6 +106,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.45 - 2023-11-15 =
+* Update to last release to also extract virtual tour URL from iframe and send that as the virtual tour in Kyero XML exports
+* Ensure video URLs are valid URL's before including in Kyero XML exports
 
 = 2.0.44 - 2023-11-14 =
 * Support added for video URL on a property being included in Kyero XML exports
