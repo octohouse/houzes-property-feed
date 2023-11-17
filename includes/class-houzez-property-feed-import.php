@@ -29,6 +29,7 @@ class Houzez_Property_Feed_Import {
 
         add_action( 'add_meta_boxes', array( $this, 'import_data_meta_box') );
 
+        add_action( "houzez_property_feed_post_import_properties", array( $this, 'set_location_taxonomy_parents' ) );
 	}
 
     public function check_not_multiple_if_no_pro()
@@ -960,6 +961,108 @@ class Houzez_Property_Feed_Import {
             else
             {
                 echo __( 'No import data to display', 'houzezpropertyfeed' );
+            }
+        }
+    }
+
+    public function set_location_taxonomy_parents( $import_id )
+    {
+        $houzez_tax_settings = get_option('houzez_tax_settings', array() );
+
+        $taxonomies = array(
+            array(
+                'taxonomy' => 'property_area',
+                'parent_taxonomy' => 'property_city',
+            ),
+            array(
+                'taxonomy' => 'property_city',
+                'parent_taxonomy' => 'property_state',
+            ),
+            array(
+                'taxonomy' => 'property_state',
+                'parent_taxonomy' => 'property_country',
+            )
+        );
+
+        foreach ( $taxonomies as $taxonomy_data )
+        {
+            $taxonomy = $taxonomy_data['taxonomy'];
+            $parent_taxonomy = $taxonomy_data['parent_taxonomy'];
+
+            if ( !isset($houzez_tax_settings[$taxonomy]) || ( isset($houzez_tax_settings[$taxonomy]) && $houzez_tax_settings[$taxonomy] != 'disabled' ) )
+            {
+                if ( !isset($houzez_tax_settings[$parent_taxonomy]) || ( isset($houzez_tax_settings[$parent_taxonomy]) && $houzez_tax_settings[$parent_taxonomy] != 'disabled' ) )
+                {
+                    // get current terms
+                    $terms = get_terms( array( 
+                        'taxonomy' => $taxonomy,
+                        'hide_empty' => true
+                    ) );
+
+                    if ( !empty($terms) )
+                    {
+                        foreach ( $terms as $term ) 
+                        {
+                            $term_id = $term->term_id;
+
+                            // ensure this term doesn't already have a parent set
+                            $current_parent = get_option( '_houzez_' . $taxonomy . '_' . $term_id, '' );
+
+                            if ( !empty($current_parent) && isset($current_parent[$parent_taxonomy]) && !empty($current_parent[$parent_taxonomy]) )
+                            {
+                                // already has a parent set
+                                continue;
+                            }
+
+                            $parent_term_ids_found = array();
+
+                            // get all properties with this term set
+                            $args = array(
+                                'post_type' => 'property',
+                                'fields' => 'ids',
+                                'tax_query' => array(
+                                    array(
+                                        'taxonomy' => $taxonomy,
+                                        'field' => 'term_id',
+                                        'terms' => $term_id
+                                    )
+                                )
+                            );
+                            $property_query = new WP_Query( $args );
+
+                            if ( $property_query->have_posts() )
+                            {
+                                while ( $property_query->have_posts() )
+                                {
+                                    $property_query->the_post();
+
+                                    // ensure this property only has one taxonomy and parent taxonomy set
+                                    $term_list = wp_get_post_terms( get_the_ID(), $taxonomy, array( 'fields' => 'ids' ) );
+                                    if ( !empty($term_list) && count($term_list) == 1 )
+                                    {
+                                        $parent_term_list = wp_get_post_terms( get_the_ID(), $parent_taxonomy, array( 'fields' => 'all' ) );
+                                        if ( !empty($parent_term_list) && count($parent_term_list) == 1 && isset($parent_term_list[0]) && isset($parent_term_list[0]->slug) )
+                                        {
+                                            // we have one taxonomy and one parent taxonomy. Good to continue
+                                            if ( !in_array($parent_term_list[0]->slug, $parent_term_ids_found) ) { $parent_term_ids_found[] = $parent_term_list[0]->slug; }
+                                        }
+                                    }
+                                }
+                            }
+                            wp_reset_postdata();
+
+                            $parent_term_ids_found = array_unique($parent_term_ids_found);
+                            $parent_term_ids_found = array_filter($parent_term_ids_found);
+                            $parent_term_ids_found = array_values($parent_term_ids_found);
+
+                            if ( count($parent_term_ids_found) == 1 )
+                            {
+                                // Yes! we found one parent term for this term across all properties
+                                update_option( '_houzez_' . $taxonomy . '_' . $term_id, array(str_replace("property_", "parent_", $parent_taxonomy) => $parent_term_ids_found[0]) );
+                            }
+                        }
+                    }
+                }
             }
         }
     }

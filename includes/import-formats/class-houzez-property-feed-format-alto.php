@@ -764,7 +764,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
 				}
 
-				if ( isset($property->web_status) && !empty((string)$property->web_status) )
+				if ( isset($property->web_status) && (string)$property->web_status != '' )
 				{
 					if ( isset($taxonomy_mappings[(string)$property->web_status]) && !empty($taxonomy_mappings[(string)$property->web_status]) )
 					{
@@ -1389,6 +1389,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 			$import_refs = array();
 			foreach ($this->properties as $property)
 			{
+				$property_attributes = $property->attributes();
 				$import_refs[] = (string)$property_attributes['id'];
 			}
 

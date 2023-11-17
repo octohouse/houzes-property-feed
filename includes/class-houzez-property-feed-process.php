@@ -53,6 +53,8 @@ class Houzez_Property_Feed_Process {
 	{
 		update_option( 'houzez_property_feed_property_' . $this->import_id, '', false );
 
+		do_action( "houzez_property_feed_post_import_properties", $this->import_id );
+
 		$this->log( 'Finished import' );
 
 		wp_cache_flush();
