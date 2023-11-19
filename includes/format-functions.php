@@ -747,6 +747,37 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/gnomen/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'inmobalia' => array(
+            'name' => __( 'Inmobalia API', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( 'locationProvince', 'locationCity', 'locationArea', 'locationSubarea' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'UnderOffer' => 'UnderOffer',
+                    'Sold' => 'Sold',
+                ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                    'Rented' => 'Rented',
+                ),
+                'property_type' => array(
+                    'Studio' => 'Studio',
+                    'Apartment' => 'Apartment',
+                    'Penthouse' => 'Penthouse',
+                )
+            ),
+            'contact_information_fields' => array(
+                'agency',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/inmobalia/'
+        ),
         'jupix' => array(
             'name' => __( 'Jupix', 'houzezpropertyfeed' ),
             'fields' => array(
