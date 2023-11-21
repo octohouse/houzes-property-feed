@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.1
-Stable tag: 2.0.48
-Version: 2.0.48
+Stable tag: 2.0.49
+Version: 2.0.49
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -107,6 +107,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.49 - 2023-11-21 =
+* Added ability to choose property selection on a per export basis should you want some exports to include all properties, and others to receive individual properties (requires pro subscription)
+* Support for additional fields when importing virtual tours in Gnomen import
+* Corrected fields used for descriptions in Gnomen import when a property is imported for the first time
+* Reset filename if error when uploading file to export settings so it doesn't give the illusion it uploaded fine
+* Added permissions check for creating export folder too and show warning if permissions not correct
 
 = 2.0.48 - 2023-11-19 =
 * Initial support for importing properties from Inmobalia

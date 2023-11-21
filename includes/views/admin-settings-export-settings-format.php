@@ -110,6 +110,33 @@
 							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
 						}
+						case "radio":
+						{
+							$options = array();
+							if ( isset($field['options']) && is_array($field['options']) && !empty($field['options']) )
+							{
+								$options = $field['options'];
+							}
+
+							if ( !empty($options) )
+							{
+								foreach ( $options as $option_key => $option_value )
+								{
+									echo '<div style="margin-bottom:5px;"><label><input type="radio" name="' . esc_attr($key . '_' . $field['id']) . '" value="' . $option_key . '"';
+									if (
+										( isset($export_settings[$field['id']]) && $export_settings[$field['id']] == $option_key )
+										||
+										( !isset($export_settings[$field['id']]) && ( isset($field['default']) && $field['default'] == $option_key ) )
+									)
+									{
+										echo ' checked';
+									}
+									echo '> ' . esc_html($option_value) . '</label></div>';
+								}
+							}
+							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
+							break;
+						}
 						case "select":
 						{
 							echo '<select 

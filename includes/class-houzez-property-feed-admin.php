@@ -34,20 +34,37 @@ class Houzez_Property_Feed_Admin {
         $uploads_dir = wp_upload_dir();
         if( $uploads_dir['error'] === FALSE )
         {
-            $uploads_dir = $uploads_dir['basedir'] . '/houzez_property_feed_import/';
+            $uploads_dir_import = $uploads_dir['basedir'] . '/houzez_property_feed_import/';
             
-            if ( ! @file_exists($uploads_dir) )
+            if ( ! @file_exists($uploads_dir_import) )
             {
-                if ( ! @mkdir($uploads_dir) )
+                if ( ! @mkdir($uploads_dir_import) )
                 {
                     $error = 'Unable to create subdirectory in uploads folder for use by Houzez Property Feed plugin. Please ensure the <a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank" title="WordPress Codex - Changing File Permissions">correct permissions</a> are set.';
                 }
             }
             else
             {
-                if ( ! @is_writeable($uploads_dir) )
+                if ( ! @is_writeable($uploads_dir_import) )
                 {
                     $error = 'The uploads folder is not currently writeable and will need to be before properties can be imported. Please ensure the <a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank" title="WordPress Codex - Changing File Permissions">correct permissions</a> are set.';
+                }
+            }
+
+            $uploads_dir_export = $uploads_dir['basedir'] . '/houzez_property_feed_export/';
+            
+            if ( ! @file_exists($uploads_dir_export) )
+            {
+                if ( ! @mkdir($uploads_dir_export) )
+                {
+                    $error = 'Unable to create subdirectory in uploads folder for use by Houzez Property Feed plugin. Please ensure the <a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank" title="WordPress Codex - Changing File Permissions">correct permissions</a> are set.';
+                }
+            }
+            else
+            {
+                if ( ! @is_writeable($uploads_dir_export) )
+                {
+                    $error = 'The uploads folder is not currently writeable and will need to be before properties can be exported. Please ensure the <a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank" title="WordPress Codex - Changing File Permissions">correct permissions</a> are set.';
                 }
             }
         }
@@ -63,7 +80,7 @@ class Houzez_Property_Feed_Admin {
         
         if( $error != '' )
         {
-            echo '<div class="error"><p><strong>' . esc_html($error) . '</strong></p></div>';
+            echo '<div class="error"><p><strong>' . $error . '</strong></p></div>';
         }
     }
 

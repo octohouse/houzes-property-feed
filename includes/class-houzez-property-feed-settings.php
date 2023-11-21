@@ -44,7 +44,7 @@ class Houzez_Property_Feed_Settings {
             $new_options = array(
                 'sales_statuses' => ( ( isset($_POST['sales_statuses']) && !empty($_POST['sales_statuses']) ) ? hpf_clean( $_POST['sales_statuses'] ) : array() ),
                 'lettings_statuses' => ( ( isset($_POST['lettings_statuses']) && !empty($_POST['lettings_statuses']) ) ? hpf_clean( $_POST['lettings_statuses'] ) : array() ),
-                'property_selection' => ( ( isset($_POST['property_selection']) && in_array($_POST['property_selection'], array( '', 'individual' )) ) ? sanitize_text_field($_POST['property_selection']) : '' ),
+                'property_selection' => ( ( isset($_POST['property_selection']) && in_array($_POST['property_selection'], array( '', 'individual', 'per_export' )) ) ? sanitize_text_field($_POST['property_selection']) : '' ),
             );
         }
 

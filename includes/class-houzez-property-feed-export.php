@@ -199,6 +199,7 @@ class Houzez_Property_Feed_Export {
                                                 )
                                             )) {
                                                 $error = __( 'Failed to move uploaded file.', 'propertyhive' );
+                                                $uploaded_file_name = '';
                                             }
                                         }
 

@@ -265,8 +265,8 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
 
 	        	// We've not imported this property before
 				$postdata = array(
-					'post_excerpt'   => html_entity_decode(html_entity_decode((string)$property->description)),
-				    'post_content' 	 => (string)$property->description,
+					'post_excerpt'   => (string)$property->short_description,
+				    'post_content' 	 => (string)$property->full_details,
 					'post_title'     => wp_strip_all_tags( $display_address ),
 					'post_status'    => 'publish',
 					'post_type'      => 'property',
@@ -1183,6 +1183,14 @@ class Houzez_Property_Feed_Format_Gnomen extends Houzez_Property_Feed_Process {
                 if ( isset($property->virtual_tour) && trim((string)$property->virtual_tour) != '' )
                 {
                     $virtual_tours[] = (string)$property->virtual_tour;
+                }
+                if ( isset($property->external_vtour) && trim((string)$property->external_vtour) != '' )
+                {
+                    $virtual_tours[] = (string)$property->external_vtour;
+                }
+                if ( isset($property->external_vtour2) && trim((string)$property->external_vtour2) != '' )
+                {
+                    $virtual_tours[] = (string)$property->external_vtour2;
                 }
 
 				if ( !empty($virtual_tours) )
