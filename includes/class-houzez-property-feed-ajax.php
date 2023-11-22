@@ -35,7 +35,7 @@ class Houzez_Property_Feed_Ajax {
 
         $contents = '';
 
-        $args = array( 'timeout' => 120 );
+        $args = array( 'timeout' => 120, 'sslverify' => false );
         $args = apply_filters( 'houzez_property_feed_xml_request_args', $args, $_GET['url'] );
         $response = wp_remote_get( $_GET['url'], $args );
         if ( !is_wp_error($response) && is_array( $response ) ) 
@@ -103,7 +103,7 @@ class Houzez_Property_Feed_Ajax {
 
         $contents = '';
 
-        $args = array( 'timeout' => 120 );
+        $args = array( 'timeout' => 120, 'sslverify' => false );
         $args = apply_filters( 'houzez_property_feed_csv_request_args', $args, $_GET['url'] );
         $response = wp_remote_get( $_GET['url'], $args );
         if ( !is_wp_error($response) && is_array( $response ) ) 

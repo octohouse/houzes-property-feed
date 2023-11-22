@@ -45,7 +45,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		$contents = '';
 
-		$args = array( 'timeout' => 120 );
+		$args = array( 'timeout' => 120, 'sslverify' => false );
         $args = apply_filters( 'houzez_property_feed_xml_request_args', $args, $import_settings['xml_url'] );
 		$response = wp_remote_get( $import_settings['xml_url'], $args );
 		if ( !is_wp_error($response) && is_array( $response ) ) 

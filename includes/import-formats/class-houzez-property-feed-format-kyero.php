@@ -36,7 +36,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
 		$contents = '';
 
-		$response = wp_remote_get( $import_settings['xml_url'], array( 'timeout' => 120 ) );
+		$response = wp_remote_get( $import_settings['xml_url'], array( 'timeout' => 120, 'sslverify' => false ) );
 		if ( !is_wp_error($response) && is_array( $response ) ) 
 		{
 			$contents = $response['body'];

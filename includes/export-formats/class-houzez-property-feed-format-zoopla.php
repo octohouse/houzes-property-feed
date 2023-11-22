@@ -269,13 +269,37 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         }
         if ( !empty($features) ) { $request_data['feature_list'] = $features; }
 
-        $request_data['life_cycle_status'] = $this->get_export_mapped_value($post_id, ( $overseas ? 'overseas_' : '' ) . 'availability');
+        $request_data['life_cycle_status'] = $this->get_export_mapped_value($post_id, 'property_status');
         $request_data['listing_reference'] = $branch_code . '_' . $post_id;
         $request_data['living_rooms'] = (int)get_post_meta( $post_id, 'fave_property_rooms', TRUE );
         $request_data['location'] = array(
             'country_code' => 'GB',
         );
-        if ( get_post_meta( $post_id, 'fave_property_address', TRUE ) != '' ) { $request_data['location']['property_number_or_name'] = get_post_meta( $post_id, 'fave_property_address', TRUE ); }
+        if ( get_post_meta( $post_id, 'fave_property_address', TRUE ) != '' ) 
+        {
+            $number = '';
+            $street = '';
+
+            $property_address = get_post_meta( $post_id, 'fave_property_address', TRUE );
+            $property_address = str_replace(',', ' ', $property_address);
+
+            $explode_address = explode(" ", $property_address);
+            if ( preg_match('/\d/', $explode_address[0]) )
+            {
+                $number = $explode_address[0];
+                $street = str_replace($number, '', get_post_meta( $post_id, 'fave_property_address', TRUE ));
+                $street = trim($street);
+                $street = trim($street, ',');
+                $street = trim($street);
+            }
+            else
+            {
+                $street = get_post_meta( $post_id, 'fave_property_address', TRUE );
+            }
+
+            if ( !empty($number) ) { $request_data['location']['property_number_or_name'] = $number; }
+            if ( !empty($street) ) { $request_data['location']['street_name'] = $street; }
+        }
         
         $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
         foreach ( $address_taxonomies as $address_taxonomy )
@@ -293,7 +317,18 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         }
 
         if ( isset($address_fields[0]) ) { $request_data['location']['locality'] = $address_fields[0]; }
-        if ( isset($address_fields[1]) ) { $request_data['location']['town_or_city'] = $address_fields[1]; }
+        if ( isset($address_fields[1]) ) 
+        { 
+            $request_data['location']['town_or_city'] = $address_fields[1]; 
+        }
+        elseif ( isset($address_fields[0]) ) 
+        { 
+            $request_data['location']['town_or_city'] = $address_fields[0]; 
+        }
+        elseif ( isset($address_fields[2]) ) 
+        { 
+            $request_data['location']['town_or_city'] = $address_fields[2]; 
+        }
         if ( isset($address_fields[2]) ) { $request_data['location']['county'] = $address_fields[2]; }
         if ( get_post_meta($post_id, 'fave_property_zip', true) != '' ) { $request_data['location']['postal_code'] = strtoupper(get_post_meta($post_id, 'fave_property_zip', true)); }
         
