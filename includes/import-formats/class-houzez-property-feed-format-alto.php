@@ -325,7 +325,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
             $database_id_mappings = array(
                 '1' => 'residential-sales',
                 '2' => 'residential-lettings',
-                //'5' => 'commercial',
+                '5' => 'commercial',
                 '15' => 'residential-sales',
             );
             $this->database_ids = apply_filters( 'houzez_property_feed_alto_include_database_ids', $database_id_mappings, $this->import_id );
@@ -546,6 +546,17 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 				if ( isset($this->database_ids[(string)$property_attributes['database']]) )
 				{
 					$department = $this->database_ids[(string)$property_attributes['database']];
+					if ( $department == 'commercial' )
+					{
+						if ( (string)$property->commercial->transaction == 'sale' )
+						{
+							$department = 'residential-sales';
+						}
+						if ( (string)$property->commercial->transaction == 'rental' )
+						{
+							$department = 'residential-lettings';
+						}
+					}
 				}
 
 				$poa = false;

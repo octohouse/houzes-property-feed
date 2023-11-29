@@ -485,6 +485,10 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		default:
+		    		{
+		    			$import_object = apply_filters( 'houzez_property_feed_import_object', $instance_id, $import_id );
+		    		}
 		    	}
 
 		    	if ( !$parsed_in_class && isset($import_object) )

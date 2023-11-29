@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.1
-Stable tag: 2.0.50
-Version: 2.0.50
+Stable tag: 2.0.51
+Version: 2.0.51
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -107,6 +107,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.51 - 2023-11-29 =
+* Include commercial properties in Vebra Alto imports
+* Output whole response from Zoopla when error occurs
+* Add ability for third party formats to be added
 
 = 2.0.50 - 2023-11-22 =
 * Better detection of name/number and street in Zoopla exports

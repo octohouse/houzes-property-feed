@@ -660,7 +660,8 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
             if (isset($response['error_name']) && !empty($response['error_name']))
             {
-                $this->log_error("Error returned in response: " . $response['error_name'] . ( ( isset($response['error_advice']) ) ? " - " . $response['error_advice'] : '' ), '', $post_id);
+                //$this->log_error("Error returned in response: " . $response['error_name'] . ( ( isset($response['error_advice']) ) ? " - " . $response['error_advice'] : '' ), '', $post_id);
+                $this->log_error("Request failed. Response: " . $output, '', $post_id);
                 
                 return false;
             }
