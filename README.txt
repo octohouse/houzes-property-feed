@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.1
-Stable tag: 2.0.51
-Version: 2.0.51
+Stable tag: 2.0.52
+Version: 2.0.52
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -107,6 +107,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.52 - 2023-11-30 =
+* Corrections to BLM overseas export format
+* Add 'HOUSE_NAME_NUMBER' to list of BLM export fields for use in field mapping
+* Add countries array and separate functions for use in overseas feeds
 
 = 2.0.51 - 2023-11-29 =
 * Include commercial properties in Vebra Alto imports

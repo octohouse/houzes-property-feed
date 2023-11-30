@@ -155,13 +155,13 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
         if ( !isset($houzez_tax_settings['property_country']) || ( isset($houzez_tax_settings['property_country']) && $houzez_tax_settings['property_country'] != 'disabled' ) )
         {
             // Country taxonomy enabled. Look for overseas country or not
-            if ( isset($export_settings['overseas']) && $export_settings['overseas'] == '1' )
+            if ( isset($export_settings['overseas']) && $export_settings['overseas'] == 'yes' )
             {
                 $tax_query[] = array(
                     'taxonomy' => 'property_country',
                     'field' => 'name',
                     'terms' => $countries_array,
-                    'compare' => 'NOT IN'
+                    'operator' => 'NOT IN'
                 );
             }
             else
@@ -170,7 +170,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                     'taxonomy' => 'property_country',
                     'field' => 'name',
                     'terms' => $countries_array,
-                    'compare' => 'IN'
+                    'operator' => 'IN'
                 );
             }
         }
@@ -223,7 +223,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
         $this->log("Writing header to BLM");
         $header_row = "#HEADER#\n";
-        $header_row .= "Version : 3" . ( ( isset($export_settings['overseas']) && $export_settings['overseas'] == '1' ) ? 'i' : '' ) . "\n";
+        $header_row .= "Version : 3" . ( ( isset($export_settings['overseas']) && $export_settings['overseas'] == 'yes' ) ? 'i' : '' ) . "\n";
         $header_row .= "EOF : '^'\n";
         $header_row .= "EOR : '~'\n";
 
@@ -452,12 +452,80 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                 if ( isset($export_settings['overseas']) && $export_settings['overseas'] == 'yes' )
                 {
-                    $property_row_values['ADDRESS_1'] = get_post_meta( $post->ID, 'fave_property_address', TRUE );
-                    $property_row_values['STREET_NAME'] = '';
-                    $property_row_values['OS_TOWN_CITY'] = isset($address_fields[1]) ? $address_fields[1] : '';
-                    $property_row_values['OS_REGION'] = isset($address_fields[0]) ? $address_fields[0] : '';
+                    $number = '';
+                    $street = '';
+
+                    if ( get_post_meta( $post->ID, 'fave_property_address', TRUE ) != '' ) 
+                    {
+                        $property_address = get_post_meta( $post->ID, 'fave_property_address', TRUE );
+                        $property_address = str_replace(',', ' ', $property_address);
+
+                        $explode_address = explode(" ", $property_address);
+                        if ( preg_match('/\d/', $explode_address[0]) )
+                        {
+                            $number = $explode_address[0];
+                            $street = str_replace($number, '', get_post_meta( $post->ID, 'fave_property_address', TRUE ));
+                            $street = trim($street);
+                            $street = trim($street, ',');
+                            $street = trim($street);
+                        }
+                        else
+                        {
+                            $street = get_post_meta( $post->ID, 'fave_property_address', TRUE );
+                        }
+                    }
+
+                    $property_row_values['HOUSE_NAME_NUMBER'] = $number;
+                    $property_row_values['STREET_NAME'] = $street;
+
+                    $town_city = '';
+                    if ( isset($address_fields[1]) ) 
+                    { 
+                        $town_city = $address_fields[1]; 
+                    }
+                    elseif ( isset($address_fields[0]) ) 
+                    { 
+                        $town_city = $address_fields[0]; 
+                    }
+                    elseif ( isset($address_fields[2]) ) 
+                    { 
+                        $town_city = $address_fields[2]; 
+                    }
+                    $property_row_values['OS_TOWN_CITY'] = $town_city;
+
+                    $region = '';
+                    if ( isset($address_fields[0]) ) 
+                    { 
+                        $region = $address_fields[0]; 
+                    }
+                    elseif ( isset($address_fields[1]) ) 
+                    { 
+                        $region = $address_fields[1]; 
+                    }
+                    elseif ( isset($address_fields[2]) ) 
+                    { 
+                        $region = $address_fields[2]; 
+                    }
+                    $property_row_values['OS_REGION'] = $region;
                     $property_row_values['ZIPCODE'] = get_post_meta($post->ID, 'fave_property_zip', true);
-                    $property_row_values['COUNTRY_CODE'] = '';
+
+                    $country_code = '';
+                    $terms = get_the_terms( $post->ID, 'property_country' );
+                    $term_ids_to_use = array();
+                    if ( !is_wp_error($terms) && !empty($terms) )
+                    {
+                        foreach ( $terms as $term )
+                        {
+                            $temp_country_code = get_houzez_property_feed_country_by_name($term->name);
+                            if ( $temp_country_code !== FALSE )
+                            {
+                                $country_code = $temp_country_code;
+                                break;
+                            }
+                        }
+                    }
+                    $property_row_values['COUNTRY_CODE'] = $country_code;
+
                     $fave_property_location = get_post_meta($post->ID, 'fave_property_location', true);
                     $explode_fave_property_location = explode(",", $fave_property_location);
                     $lat = '';

@@ -302,6 +302,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         }
         
         $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
+        $address_fields = array();
         foreach ( $address_taxonomies as $address_taxonomy )
         {
             $terms = get_the_terms( $post_id, $address_taxonomy );

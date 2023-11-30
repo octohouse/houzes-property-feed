@@ -1429,6 +1429,7 @@ function get_houzez_property_feed_export_formats()
                 'TOWN' => 'TOWN (non-overseas only)',
                 'POSTCODE1' => 'POSTCODE1 (non-overseas only)',
                 'POSTCODE2' => 'POSTCODE2 (non-overseas only)',
+                'HOUSE_NAME_NUMBER' => 'HOUSE_NAME_NUMBER (overseas only)',
                 'STREET_NAME' => 'STREET_NAME (overseas only)',
                 'OS_TOWN_CITY' => 'OS_TOWN_CITY (overseas only)',
                 'OS_REGION' => 'OS_REGION (overseas only)',
