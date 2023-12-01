@@ -18,7 +18,19 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 		$this->is_import = false;
 
 		add_action( 'save_post', array( $this, 'send_realtime_feed_request' ), 99 );
+
+        add_filter( 'houzez_before_submit_property', array( $this, 'remove_save_post_hook' ) );
+        add_filter( 'houzez_before_update_property', array( $this, 'remove_save_post_hook' ) );
+
+        add_action( 'houzez_after_property_submit', array( $this, 'send_realtime_feed_request' ), 99 );
+        add_action( 'houzez_after_property_update', array( $this, 'send_realtime_feed_request' ), 99 );
 	}
+
+    public function remove_save_post_hook($new_property)
+    {
+        remove_action( 'save_post', array( $this, 'send_realtime_feed_request' ), 99 );
+        return $new_property;
+    }
 
     public function send_realtime_feed_request( $post_id ) 
     {

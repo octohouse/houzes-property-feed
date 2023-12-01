@@ -89,7 +89,7 @@ class Houzez_Property_Feed_Export {
             $rule_i = 0;
             foreach ( $_POST['field_mapping_rules'] as $j => $field )
             {
-                if ($j != '{rule_count}') // ignore template
+                if ($j !== '{rule_count}') // ignore template
                 {
                     $rules[$rule_i] = array(
                         'field' => sanitize_text_field($field['field']),

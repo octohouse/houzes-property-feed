@@ -18,7 +18,19 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 		$this->is_import = false;
 
 		add_action( 'save_post', array( $this, 'send_realtime_feed_request' ), 99 );
+
+        add_filter( 'houzez_before_submit_property', array( $this, 'remove_save_post_hook' ) );
+        add_filter( 'houzez_before_update_property', array( $this, 'remove_save_post_hook' ) );
+
+        add_action( 'houzez_after_property_submit', array( $this, 'send_realtime_feed_request' ), 99 );
+        add_action( 'houzez_after_property_update', array( $this, 'send_realtime_feed_request' ), 99 );
 	}
+
+    public function remove_save_post_hook($new_property)
+    {
+        remove_action( 'save_post', array( $this, 'send_realtime_feed_request' ), 99 );
+        return $new_property;
+    }
 
     public function send_realtime_feed_request( $post_id ) 
     {
@@ -245,10 +257,12 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
     {
         $export_settings = get_export_settings_from_id( $this->export_id );
 
+        $department = $this->get_department( $post_id );
+
         $request_data = array();
 
         $request_data['bathrooms'] = (int)get_post_meta( $post_id, 'fave_property_bathrooms', TRUE );
-        $branch_code = $branch_code = $this->get_branch_code( $post_id );
+        $branch_code = $this->get_branch_code( $post_id );
         $request_data['branch_reference'] = $branch_code;
         $request_data['category'] = 'residential';
         $request_data['detailed_description'] = array(
@@ -271,7 +285,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
         $request_data['life_cycle_status'] = $this->get_export_mapped_value($post_id, 'property_status');
         $request_data['listing_reference'] = $branch_code . '_' . $post_id;
-        $request_data['living_rooms'] = (int)get_post_meta( $post_id, 'fave_property_rooms', TRUE );
+        if ( !empty(get_post_meta( $post_id, 'fave_property_rooms', TRUE )) ) { $request_data['living_rooms'] = (int)get_post_meta( $post_id, 'fave_property_rooms', TRUE ); }
         $request_data['location'] = array(
             'country_code' => 'GB',
         );
@@ -352,20 +366,42 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         $rent_frequency = '';
         if ( $department == 'lettings' )
         {
-            switch ( strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )) )
+            if ( 
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'pm') !== FALSE ||
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'pcm') !== FALSE ||
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'month') !== FALSE
+            )
             {
-                case "pw":
-                case "per week":
-                case "weekly": { $rent_frequency = 52; break; }
-                case "pq":
-                case "per quarter":
-                case "quarterly": { $rent_frequency = 4; break; }
-                case "pa":
-                case "per annum":
-                case "per year":
-                case "yearly": { $rent_frequency = 1; break; }
-                case "pppw": { $rent_frequency = 52; break; }
-                default: { $rent_frequency = 12; }
+                $rent_frequency = 'per_month';
+            }
+            elseif ( 
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'person') !== FALSE ||
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'pppw') !== FALSE
+            )
+            {
+                $rent_frequency = 'per_week';
+            }
+            elseif ( 
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'week') !== FALSE ||
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'pw') !== FALSE
+            )
+            {
+                $rent_frequency = 'per_week';
+            }
+            elseif ( 
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'pq') !== FALSE ||
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'quarter') !== FALSE
+            )
+            {
+                $rent_frequency = 'per_quarter';
+            }
+            elseif ( 
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'pa') !== FALSE ||
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'annu') !== FALSE ||
+                strpos(strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )), 'year') !== FALSE
+            )
+            {
+                $rent_frequency = 'per_year';
             }
         }
 
