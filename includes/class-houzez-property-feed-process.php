@@ -492,6 +492,7 @@ class SimpleXMLExtendedHpf extends SimpleXMLElement {
         $base = dom_import_simplexml($new);
         $docOwner = $base->ownerDocument;
         $base->appendChild($docOwner->createCDATASection($value));
+        return $new;
     } 
 
 }

@@ -378,8 +378,6 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $property_xml = apply_filters( 'houzez_property_feed_export_kyero_property_data', $property_xml, $post->ID, $this->export_id );
 
                 $this->log("Property written to Kyero XML file", '', $post->ID);
-
-                ++$properties_added;
             }
         }
 

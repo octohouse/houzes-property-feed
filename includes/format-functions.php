@@ -1564,6 +1564,50 @@ function get_houzez_property_feed_export_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/blm/',
             'warnings' => array(), // maybe FTP warning? maybe ZipArchive warning
         ) ),
+        'facebook' => apply_filters( 'houzez_property_feed_export_format_options_facebook', array(
+            'name' => __( 'Facebook', 'houzezpropertyfeed' ),
+            'method' => 'url', // cron / realtime / url
+            'fields' => array(),
+            'field_mapping_fields' => array(
+                'name' => 'name',
+                'availability' => 'availability',
+                'description' => 'description',
+                'latitude' => 'latitude',
+                'longitude' => 'longitude',
+                'listing_type' => 'listing_type',
+                'num_baths' => 'num_baths',
+                'num_beds' => 'num_beds',
+                'price' => 'price',
+                'property_type' => 'property_type',
+                'url' => 'url',
+                'year_built' => 'year_built',
+            ),
+            'taxonomy_values' => array(
+                'status' => array(
+                    'for_sale' => 'for_sale',
+                    'for_rent' => 'for_rent',
+                    'sale_pending' => 'sale_pending',
+                    'recently_sold' => 'recently_sold',
+                    'off_market' => 'off_market',
+                    'available_soon' => 'available_soon',
+                ),
+                'property_type' => array(
+                    'apartment' => 'apartment',
+                    'builder_floor' => 'builder_floor',
+                    'condo' => 'condo',
+                    'house' => 'house',
+                    'house_in_condominium' => 'house_in_condominium',
+                    'house_in_villa' => 'house_in_villa',
+                    'loft' => 'loft',
+                    'penthouse' => 'penthouse',
+                    'studio' => 'studio',
+                    'townhouse' => 'townhouse',
+                    'other' => 'other',
+                )
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/facebook/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ) ),
         'idealista' => apply_filters( 'houzez_property_feed_export_format_options_idealista', array(
             'name' => __( 'Idealista', 'houzezpropertyfeed' ),
             'method' => 'cron', // cron / realtime / url
