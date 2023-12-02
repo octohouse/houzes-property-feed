@@ -1179,6 +1179,7 @@ function hpf_show_format_settings()
 	jQuery('#import_setting_tab_taxonomies').show();
 	jQuery('#import_setting_tab_contactinfo').show();
 	jQuery('#import_setting_tab_media').hide();
+	jQuery('#import_setting_tab_enquiries').hide();
 
 	jQuery('#missing_mandatory_xml_field_mapping').hide();
 	jQuery('#missing_mandatory_csv_field_mapping').hide();
@@ -1266,6 +1267,12 @@ function hpf_show_format_settings()
 				if ( hpf_admin_object.formats[i].hasOwnProperty('contact_information_fields') && Object.keys(hpf_admin_object.formats[i].contact_information_fields).length > 0 ) { contact_information_fields = hpf_admin_object.formats[i].contact_information_fields; }
 
 				jQuery('.hpf-import-format-name').html(hpf_admin_object.formats[i].name);
+
+				if ( hpf_admin_object.formats[i].hasOwnProperty('export_enquiries') && hpf_admin_object.formats[i].hasOwnProperty('export_enquiries') == true )
+				{
+					jQuery('#import_setting_tab_enquiries').show();
+				}
+
 				break;
 			}
 		}

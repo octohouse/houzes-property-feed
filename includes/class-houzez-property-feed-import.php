@@ -343,6 +343,13 @@ class Houzez_Property_Feed_Import {
         }
         $import_options['media_download_clause'] = ( isset($_POST['media_download_clause']) ? sanitize_text_field($_POST['media_download_clause']) : 'url_change' );
 
+        $export_enquiries_enabled = '';
+        if ( isset($_POST['export_enquiries_enabled']) && sanitize_text_field($_POST['export_enquiries_enabled']) == 'yes' )
+        {
+            $export_enquiries_enabled = 'yes';
+        }
+        $import_options['export_enquiries_enabled'] = $export_enquiries_enabled;
+
         $options['imports'][$import_id] = $import_options;
 
         update_option( 'houzez_property_feed', $options );

@@ -1147,6 +1147,7 @@ function get_houzez_property_feed_import_formats()
             'contact_information_fields' => array(
                 'branch_uuid',
             ),
+            'export_enquiries' => true,
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/street/'
         ),
         'xml' => array(

@@ -109,6 +109,15 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                     }
                 }
             }
+            if ( isset($format['export_enquiries']) && $format['export_enquiries'] === true )
+            {
+                $value = 'No';
+                if ( isset($import['export_enquiries_enabled']) && $import['export_enquiries_enabled'] == 'yes' )
+                {
+                    $value = 'Yes';
+                }
+                $details .= '<strong>' . __( 'Export Enquiries', 'houzezpropertyfeed' ) . '</strong>: ' . $value;
+            }
             
             $running = false;
             if ( isset($import['running']) && $import['running'] === true )
