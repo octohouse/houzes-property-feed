@@ -554,6 +554,10 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_country', 'GB' );
 	            
 	            $address_parts = array();
+	            if ( isset($property['ADDRESS_1']) && $property['ADDRESS_1'] != '' )
+	            {
+	                $address_parts[] = $property['ADDRESS_1'];
+	            }
 	            if ( isset($property['ADDRESS_2']) && $property['ADDRESS_2'] != '' )
 	            {
 	                $address_parts[] = $property['ADDRESS_2'];

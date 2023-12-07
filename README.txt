@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
-Tested up to: 6.4.1
-Stable tag: 2.0.55
-Version: 2.0.55
+Tested up to: 6.4.2
+Stable tag: 2.0.56
+Version: 2.0.56
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -108,6 +108,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.56 - 2023-12-07 =
+* Corrected property type mapping in Resales Online XML imports
+* Import ADDRESS_1 from BLM files as part of the address field in Houzez
+* Default currency in Facebook exports to GBP
+* Declared compatibility with WordPress 6.4.2
 
 = 2.0.55 - 2023-12-02 =
 * Added support for exporting to Facebook

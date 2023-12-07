@@ -434,17 +434,40 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 				// property type taxonomies
 				$taxonomy_mappings = ( isset($mappings['property_type']) && is_array($mappings['property_type']) && !empty($mappings['property_type']) ) ? $mappings['property_type'] : array();
 
-				if ( isset($property->type->uk) && isset($property->propertyStyle) )
+				$found_property_type_mapping = false;
+
+				if ( isset($property->type->uk) && isset($property->subtype->uk) )
 				{
-					$resales_online_type = (string)$property->propertyType . ' - ' . (string)$property->subtype->uk;
+					$resales_online_type = (string)$property->type->uk . ' - ' . (string)$property->subtype->uk;
 					if ( isset($taxonomy_mappings[$resales_online_type]) && !empty($taxonomy_mappings[$resales_online_type]) )
 					{
 						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$resales_online_type], "property_type" );
+						$found_property_type_mapping = true;
 					}
 					else
 					{
-						$this->log( 'Received property type of ' . $resales_online_type . ' that isn\'t mapped in the import settings', (string)$property->id, $post_id );
+						$type_to_show_in_log = $resales_online_type;
 					}
+				}
+				if ( !$found_property_type_mapping && isset($property->type->uk) )
+				{
+					$resales_online_type = (string)$property->type->uk;
+					if ( isset($taxonomy_mappings[$resales_online_type]) && !empty($taxonomy_mappings[$resales_online_type]) )
+					{
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$resales_online_type], "property_type" );
+						$found_property_type_mapping = true;
+					}
+					else
+					{
+						if ( empty($type_to_show_in_log) )
+						{
+							$type_to_show_in_log = $resales_online_type;
+						}
+					}
+				}
+				if ( !$found_property_type_mapping )
+				{
+					$this->log( 'Received property type of ' . $type_to_show_in_log . ' that isn\'t mapped in the import settings', (string)$property->id, $post_id );
 				}
 
 				// Location taxonomies
