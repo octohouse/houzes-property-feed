@@ -311,6 +311,17 @@ if ( is_array($exports) && !empty($exports) )
 
                     break;
                 }
+                case "thribee":
+                {
+                    // includes
+                    require_once dirname( __FILE__ ) . '/includes/export-formats/class-houzez-property-feed-format-thribee.php';
+
+                    $export_object = new Houzez_Property_Feed_Format_Thribee( $instance_id, $export_id );
+
+                    $exported = $export_object->export();
+
+                    break;
+                }
 	    	}
 
             if ( !empty($instance_id) )
