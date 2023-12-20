@@ -133,6 +133,8 @@ function get_houzez_fields_for_field_mapping()
     {
         $houzez_agents = array();
 
+        $houzez_agents['auto'] = __( 'Automatically match based on name', 'houzezpropertyfeed' );
+
         $args = array(
             'post_type' => 'houzez_agent',
             'nopaging' => true
@@ -157,6 +159,8 @@ function get_houzez_fields_for_field_mapping()
     if ( !isset($houzez_ptype_settings['houzez_agencies_post']) || ( isset($houzez_ptype_settings['houzez_agencies_post']) && $houzez_ptype_settings['houzez_agencies_post'] != 'disabled' ) )
     {
         $houzez_agencies = array();
+
+        $houzez_agencies['auto'] = __( 'Automatically match based on name', 'houzezpropertyfeed' );
 
         $args = array(
             'post_type' => 'houzez_agency',
@@ -187,7 +191,7 @@ function get_houzez_fields_for_field_mapping()
     {
         foreach ( $houzez_fields_built as $field_build )
         {
-            $houzez_fields['fave_' . $field_build->field_id] = array( 'type' => 'meta', 'label' => __( $field_build->label, 'houzez' ) );
+            $houzez_fields['fave_' . $field_build->field_id] = array( 'type' => 'meta', 'label' => __( $field_build->label, 'houzez' ), 'custom_field' => true, 'field_type' => $field_build->type );
         }
     }
 

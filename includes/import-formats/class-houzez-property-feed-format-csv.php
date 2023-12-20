@@ -19,6 +19,8 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 
 	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ) );
 	    }
+
+	    if ( !defined('ALLOW_UNFILTERED_UPLOADS') ) { define( 'ALLOW_UNFILTERED_UPLOADS', true ); }
 	}
 
 	public function parse()
@@ -481,6 +483,17 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 										}
 
 										$filename = basename( $url );
+
+										$extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+									    // List of allowed image file extensions
+									    $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif', 'bmp');
+
+									    // Check if the extension is empty or not in the allowed extensions list
+									    if (empty($extension) || !in_array(strtolower($extension), $allowed_extensions)) {
+									        // Append '.jpg' if the extension is missing or not valid
+									        $filename .= '.jpg';
+									    }
 
 										// Check, based on the URL, whether we have previously imported this media
 										$imported_previously = false;

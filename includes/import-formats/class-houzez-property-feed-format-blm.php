@@ -55,7 +55,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
 			if (!empty($zip_files))
 			{
-				$this->log('Found ' . count($zip_file) . ' ZIPs ready to extract'); 
+				$this->log('Found ' . count($zip_files) . ' ZIPs ready to extract'); 
 
 				if ( !class_exists('ZipArchive') ) 
 				{ 

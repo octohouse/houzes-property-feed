@@ -493,6 +493,8 @@ class Houzez_Property_Feed_Import {
 
         $taxonomies_with_multiple_values = array();
 
+        $multiselect_meta = array();
+
         foreach ( $import_settings['field_mapping_rules'] as $and_rules )
         {
             // field
@@ -720,8 +722,171 @@ class Houzez_Property_Feed_Import {
                         }
                         $result = implode(",", $new_result);
                     }
-                    update_post_meta( $post_id, $and_rules['houzez_field'], $result );
+                    elseif ( $and_rules['houzez_field'] == 'fave_agents' && $result == 'auto' )
+                    {
+                        foreach ( $and_rules['rules'] as $i => $rule )
+                        {
+                            if ( is_object($original_property) && substr($rule['field'], 0, 1) == '/' )
+                            {
+                                // Using XPATH syntax
+                                $values_to_check = $original_property->xpath( ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'] );
+                                if ( $values_to_check === FALSE || empty($values_to_check) )
+                                {
+                                    continue;
+                                }
+
+                                foreach ( $values_to_check as $value_to_check )
+                                {
+                                    // see if an agent exists with this name
+                                    $args = array(
+                                        'post_type' => 'houzez_agent',
+                                        'posts_per_page' => 1,
+                                        's' => (string)$value_to_check
+                                    );
+
+                                    $agent_query = new WP_Query( $args );
+
+                                    if ( $agent_query->have_posts() )
+                                    {
+                                        while ( $agent_query->have_posts() )
+                                        {
+                                            $agent_query->the_post();
+
+                                            $result = get_the_ID();
+                                        }
+                                    }
+                                    wp_reset_postdata();
+                                }
+                            }
+                            else
+                            {
+                                // loop through all fields in data and see if $rule['field'] is found
+                                if ( is_array($property) )
+                                {
+                                    $value_to_check = check_array_for_matching_key( $property, $rule['field'] );
+
+                                    if ( $value_to_check === false )
+                                    {
+                                        continue;
+                                    }
+
+                                    // see if an agent exists with this name
+                                    $args = array(
+                                        'post_type' => 'houzez_agent',
+                                        'posts_per_page' => 1,
+                                        's' => (string)$value_to_check
+                                    );
+
+                                    $agent_query = new WP_Query( $args );
+
+                                    if ( $agent_query->have_posts() )
+                                    {
+                                        while ( $agent_query->have_posts() )
+                                        {
+                                            $agent_query->the_post();
+
+                                            $result = get_the_ID();
+                                        }
+                                    }
+                                    wp_reset_postdata();
+                                }
+                            }
+                        }
+                    }
+                    elseif ( $and_rules['houzez_field'] == 'fave_property_agency' && $result == 'auto' )
+                    {
+                        foreach ( $and_rules['rules'] as $i => $rule )
+                        {
+                            if ( is_object($original_property) && substr($rule['field'], 0, 1) == '/' )
+                            {
+                                // Using XPATH syntax
+                                $values_to_check = $original_property->xpath( ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'] );
+                                if ( $values_to_check === FALSE || empty($values_to_check) )
+                                {
+                                    continue;
+                                }
+
+                                foreach ( $values_to_check as $value_to_check )
+                                {
+                                    // see if an agent exists with this name
+                                    $args = array(
+                                        'post_type' => 'houzez_agency',
+                                        'posts_per_page' => 1,
+                                        's' => (string)$value_to_check
+                                    );
+
+                                    $agent_query = new WP_Query( $args );
+
+                                    if ( $agent_query->have_posts() )
+                                    {
+                                        while ( $agent_query->have_posts() )
+                                        {
+                                            $agent_query->the_post();
+
+                                            $result = get_the_ID();
+                                        }
+                                    }
+                                    wp_reset_postdata();
+                                }
+                            }
+                            else
+                            {
+                                // loop through all fields in data and see if $rule['field'] is found
+                                if ( is_array($property) )
+                                {
+                                    $value_to_check = check_array_for_matching_key( $property, $rule['field'] );
+
+                                    if ( $value_to_check === false )
+                                    {
+                                        continue;
+                                    }
+
+                                    // see if an agent exists with this name
+                                    $args = array(
+                                        'post_type' => 'houzez_agent',
+                                        'posts_per_page' => 1,
+                                        's' => (string)$value_to_check
+                                    );
+
+                                    $agent_query = new WP_Query( $args );
+
+                                    if ( $agent_query->have_posts() )
+                                    {
+                                        while ( $agent_query->have_posts() )
+                                        {
+                                            $agent_query->the_post();
+
+                                            $result = get_the_ID();
+                                        }
+                                    }
+                                    wp_reset_postdata();
+                                }
+                            }
+                        }
+                    }
+
+                    if ( isset($houzez_fields[$and_rules['houzez_field']]) && isset($houzez_fields[$and_rules['houzez_field']]['field_type']) && $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'multiselect' )
+                    {
+                        if ( !isset($multiselect_meta[$and_rules['houzez_field']]) ) { $multiselect_meta[$and_rules['houzez_field']] = array(); }
+                        $multiselect_meta[$and_rules['houzez_field']][] = $result;
+                    }
+                    else
+                    {
+                        update_post_meta( $post_id, $and_rules['houzez_field'], $result );
+                    }
                 }
+            }
+        }
+
+        if ( !empty($multiselect_meta) )
+        {
+            foreach ( $multiselect_meta as $field_name => $values )
+            {
+                delete_post_meta( $post_id, $field_name );
+                foreach ( $values as $value )
+                {
+                    add_post_meta( $post_id, $field_name, $value );
+                } 
             }
         }
 
