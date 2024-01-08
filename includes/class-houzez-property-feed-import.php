@@ -504,10 +504,12 @@ class Houzez_Property_Feed_Import {
             $rules_met = 0;
             foreach ( $and_rules['rules'] as $i => $rule )
             {
-                if ( is_object($original_property) && substr($rule['field'], 0, 1) == '/' )
+                if ( is_object($original_property) && $original_property instanceof SimpleXMLElement )
                 {
                     // Using XPATH syntax
-                    $values_to_check = $original_property->xpath( ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'] );
+                    $xpath = ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'];
+                    $values_to_check = $original_property->xpath( $xpath );
+
                     if ( $values_to_check === FALSE || empty($values_to_check) )
                     {
                         continue;
@@ -582,7 +584,7 @@ class Houzez_Property_Feed_Import {
                         $field_name = str_replace(array("{", "}"), "", $match);
                         $value_to_check = '';
 
-                        if ( is_object($original_property) && substr($field_name, 0, 1) == '/' )
+                        if ( is_object($original_property) && $original_property instanceof SimpleXMLElement )
                         {
                             // Using XPATH syntax
                             $values_to_check = $original_property->xpath(  ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $field_name );
@@ -726,7 +728,7 @@ class Houzez_Property_Feed_Import {
                     {
                         foreach ( $and_rules['rules'] as $i => $rule )
                         {
-                            if ( is_object($original_property) && substr($rule['field'], 0, 1) == '/' )
+                            if ( is_object($original_property) && $original_property instanceof SimpleXMLElement )
                             {
                                 // Using XPATH syntax
                                 $values_to_check = $original_property->xpath( ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'] );
@@ -797,7 +799,7 @@ class Houzez_Property_Feed_Import {
                     {
                         foreach ( $and_rules['rules'] as $i => $rule )
                         {
-                            if ( is_object($original_property) && substr($rule['field'], 0, 1) == '/' )
+                            if ( is_object($original_property) && $original_property instanceof SimpleXMLElement )
                             {
                                 // Using XPATH syntax
                                 $values_to_check = $original_property->xpath( ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'] );
@@ -955,7 +957,7 @@ class Houzez_Property_Feed_Import {
                 $rules_met = 0;
                 foreach ( $and_rules['rules'] as $i => $rule )
                 {
-                    if ( is_object($property) && substr($rule['field'], 0, 1) == '/' )
+                    if ( is_object($property) && $property instanceof SimpleXMLElement )
                     {
                         // Using XPATH syntax
                         $values_to_check = $property->xpath('/' . $property_node . $rule['field']);

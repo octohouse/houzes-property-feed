@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.2
-Stable tag: 2.0.58
-Version: 2.0.58
+Stable tag: 2.0.59
+Version: 2.0.59
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -109,6 +109,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.59 - 2024-01-08 =
+* Support for lettings properties in ReSales Online XML format
+* Exclude off market properties from ReSales Online XML format
+* Tweaks to how we check if XML xpath field mapping should be used
 
 = 2.0.58 - 2023-12-20 =
 * Cater for multiselect custom fields in import field mapping

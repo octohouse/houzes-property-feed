@@ -1093,6 +1093,9 @@ function get_houzez_property_feed_import_formats()
                     'Available' => 'Available',
                     'Sold' => 'Sold',
                 ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                ),
                 'property_type' => array(
                     'Apartment - Ground Floor' => 'Apartment - Ground Floor',
                     'Apartment - Middle Floor' => 'Apartment - Middle Floor',

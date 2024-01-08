@@ -49,7 +49,10 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 		{
 			foreach ( $xml->property as $property )
 			{
-                $this->properties[] = $property;
+				if ( !isset($property->status) || ( isset($property->status) && (string)$property->status != 'Off Market' ) )
+				{
+                	$this->properties[] = $property;
+                }
             } // end foreach property
         }
         else
@@ -235,6 +238,10 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 				update_post_meta( $post_id, '_property_import_data', $property->asXML() );
 
 				$department = 'residential-sales';
+				if ( isset($property->shortterm_low) )
+				{
+					$department = 'residential-lettings';
+				}
 
 				$poa = false;
 
@@ -245,11 +252,34 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
                 }
                 else
                 {
-                	$price = round(preg_replace("/[^0-9.]/", '', (string)$property->price));
+                	if ( $department == 'residential-sales' )
+                	{
+	                	$price = '';
+	                	if ( (string)$property->price != '' )
+	                	{
+		                	$price = round(preg_replace("/[^0-9.]/", '', (string)$property->price));
+		                }
+	                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
+	                    update_post_meta( $post_id, 'fave_property_price', $price );
+	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
+	                }
+	                elseif ( $department == 'residential-lettings' )
+                	{
+                		$price = (string)$property->shortterm_low;
+						if ( empty($price) && isset($property->shortterm_high) )
+						{
+							$price = (string)$property->shortterm_high;
+						}
+						if ( empty($price) && isset($property->longterm) )
+						{
+							$price = (string)$property->longterm;
+						}
+						$price = round(preg_replace("/[^0-9.]/", '', $price));
 
-                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
-                    update_post_meta( $post_id, 'fave_property_price', $price );
-                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
+						update_post_meta( $post_id, 'fave_property_price_prefix', '' );
+	                    update_post_meta( $post_id, 'fave_property_price', $price );
+	                    update_post_meta( $post_id, 'fave_property_price_postfix', 'pcm' );
+	                }
                 }
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property->beds) ) ? (string)$property->beds : '' ) );
