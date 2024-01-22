@@ -58,6 +58,8 @@ class Houzez_Property_Feed_License {
             die( __( "Failed security check", 'houzezpropertyfeed' ) );
         }
 
+        delete_transient( 'houzez_property_feed_license_status' );
+
         // ready to save
         $options = get_option( 'houzez_property_feed' , array() );
         
@@ -115,6 +117,18 @@ class Houzez_Property_Feed_License {
 	        }
 	    }*/
 
+	    if ( $force !== true )
+    	{
+    		// Not forcing. Get from transient if possible
+    		$license_status = get_transient( 'houzez_property_feed_license_status' );
+
+    		if ( $license_status !== false ) 
+    		{
+    			// return transient value
+				return $license_status;
+			}
+    	}
+
 	    // construct list of import and export formats being used
 	    $import_formats = array();
 	    $export_formats = array();
@@ -152,7 +166,6 @@ class Houzez_Property_Feed_License {
         {
         	$export_formats[] = $export['format'];
         }
-
 
 	    $import_formats = implode(",", $import_formats);
 	    $export_formats = implode(",", $export_formats);
@@ -238,6 +251,7 @@ class Houzez_Property_Feed_License {
 			update_option( 'houzez_property_feed_license_key_status', $return );
 
 			$this->license_status = $return;
+			set_transient( 'houzez_property_feed_license_status', $return, HOUR_IN_SECONDS );
 			return $return;
 		}
 		else
