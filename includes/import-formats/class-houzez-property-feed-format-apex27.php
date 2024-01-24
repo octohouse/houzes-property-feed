@@ -457,14 +457,13 @@ class Houzez_Property_Feed_Format_Apex27 extends Houzez_Property_Feed_Process {
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
 				// status taxonomies
+				$mapping_name = 'lettings_status';
 				if ( $department == 'residential-sales' )
 				{
-					$taxonomy_mappings = ( isset($mappings['sales_status']) && is_array($mappings['sales_status']) && !empty($mappings['sales_status']) ) ? $mappings['sales_status'] : array();
+					$mapping_name = 'sales_status';
 				}
-				else
-				{
-					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
-				}
+
+				$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
 
 				if ( isset($property->Status) && !empty((string)$property->Status) )
 				{
@@ -475,6 +474,8 @@ class Houzez_Property_Feed_Format_Apex27 extends Houzez_Property_Feed_Process {
 					else
 					{
 						$this->log( 'Received status of ' . (string)$property->Status . ' that isn\'t mapped in the import settings', (string)$property->ID, $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, (string)$property->Status, $this->import_id );
 					}
 				}
 
@@ -490,6 +491,8 @@ class Houzez_Property_Feed_Format_Apex27 extends Houzez_Property_Feed_Process {
 					else
 					{
 						$this->log( 'Received property type of ' . (string)$property->PropertyType . ' that isn\'t mapped in the import settings', (string)$property->ID, $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', (string)$property->PropertyType, $this->import_id );
 					}
 				}
 
@@ -724,7 +727,7 @@ class Houzez_Property_Feed_Format_Apex27 extends Houzez_Property_Feed_Process {
 				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
 				// Floorplans
-				$floorplans = array();
+				$property_floorplans = array();
 
 				if (isset($property->Floorplans) && !empty($property->Floorplans))
                 {
@@ -744,7 +747,7 @@ class Houzez_Property_Feed_Format_Apex27 extends Houzez_Property_Feed_Process {
 									$url = $explode_url[0];
 									$description = ( isset($floorplan->Caption) && !empty((string)$floorplan->Caption) ) ? (string)$floorplan->Caption : __( 'Floorplan', 'houzezpropertyfeed' );
 
-									$floorplans[] = array( 
+									$property_floorplans[] = array( 
 										"fave_plan_title" => $description, 
 										"fave_plan_image" => $url
 									);
@@ -754,9 +757,9 @@ class Houzez_Property_Feed_Format_Apex27 extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				if ( !empty($floorplans) )
+				if ( !empty($property_floorplans) )
 				{
-	                update_post_meta( $post_id, 'floor_plans', $floorplans );
+	                update_post_meta( $post_id, 'floor_plans', $property_floorplans );
 	                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
 	            }
 	            else

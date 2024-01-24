@@ -682,14 +682,13 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
 				// status taxonomies
+				$mapping_name = 'lettings_status';
 				if ( $department == 'residential-sales' )
 				{
-					$taxonomy_mappings = ( isset($mappings['sales_status']) && is_array($mappings['sales_status']) && !empty($mappings['sales_status']) ) ? $mappings['sales_status'] : array();
+					$mapping_name = 'sales_status';
 				}
-				else
-				{
-					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
-				}
+
+				$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
 
 				$status_field = str_replace('residential-', '', str_replace('sales', 'sale', $department));
 
@@ -702,6 +701,8 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 					else
 					{
 						$this->log( 'Received status of ' . $property['attributes'][$status_field . '_status'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property['attributes'][$status_field . '_status'], $this->import_id );
 					}
 				}
 
@@ -716,13 +717,23 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 						isset($property['attributes']['property_type']) && 
 						$property['attributes']['property_type'] != '' &&
 						isset($property['attributes']['property_style']) && 
-						$property['attributes']['property_style'] != '' &&
-						isset($taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']]) && 
-						!empty($taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']])
+						$property['attributes']['property_style'] != ''
 					)
 					{
-						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']], "property_type" );
-						$type_mapped = true;
+						if ( 
+							isset($taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']]) && 
+							!empty($taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']]) 
+						)
+						{
+							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style']], "property_type" );
+							$type_mapped = true;
+						}
+						else
+						{
+							$this->log( 'Received property type of ' . $property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['attributes']['property_type'] . ' - ' . $property['attributes']['property_style'], $this->import_id );
+						}
 					}
 
 					if ( !$type_mapped )
@@ -734,6 +745,8 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 						else
 						{
 							$this->log( 'Received property type of ' . $property['attributes']['property_type'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['attributes']['property_type'], $this->import_id );
 						}
 					}
 				}

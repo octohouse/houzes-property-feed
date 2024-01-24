@@ -544,14 +544,13 @@ class Houzez_Property_Feed_Format_Rentman extends Houzez_Property_Feed_Process {
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
 				// status taxonomies
+				$mapping_name = 'lettings_status';
 				if ( $department == 'residential-sales' )
 				{
-					$taxonomy_mappings = ( isset($mappings['sales_status']) && is_array($mappings['sales_status']) && !empty($mappings['sales_status']) ) ? $mappings['sales_status'] : array();
+					$mapping_name = 'sales_status';
 				}
-				else
-				{
-					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
-				}
+
+				$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
 
 				if ( isset($property->Status) && !empty((string)$property->Status) )
 				{
@@ -562,6 +561,8 @@ class Houzez_Property_Feed_Format_Rentman extends Houzez_Property_Feed_Process {
 					else
 					{
 						$this->log( 'Received status of ' . (string)$property->Status . ' that isn\'t mapped in the import settings', (string)$property->Refnumber, $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, (string)$property->Status, $this->import_id );
 					}
 				}
 
@@ -576,7 +577,9 @@ class Houzez_Property_Feed_Format_Rentman extends Houzez_Property_Feed_Process {
 					}
 					else
 					{
-						$this->log( 'Received property type of ' . (string)$property->Type . '-' . (string)$property->extra_info->prst_code . ' that isn\'t mapped in the import settings', (string)$property->Refnumber, $post_id );
+						$this->log( 'Received property type of ' . (string)$property->Type . ' that isn\'t mapped in the import settings', (string)$property->Refnumber, $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', (string)$property->Type, $this->import_id );
 					}
 				}
 

@@ -522,6 +522,8 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 					else
 					{
 						$this->log( 'Received property type of ' . $property['propertyType']['name'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['propertyType']['name'], $this->import_id );
 					}
 				}
 

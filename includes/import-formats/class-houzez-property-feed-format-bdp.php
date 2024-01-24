@@ -528,6 +528,8 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
 						else
 						{
 							$this->log( 'Received status of ' . $property['sellingStatus'] . ' that isn\'t mapped in the import settings', $property['property_id'], $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'sales_status', $property['sellingStatus'], $this->import_id );
 						}
 					}
 				}
@@ -544,6 +546,8 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
 						else
 						{
 							$this->log( 'Received status of ' . $property['letting']['status'] . ' that isn\'t mapped in the import settings', $property['property_id'], $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'lettings_status', $property['letting']['status'], $this->import_id );
 						}
 					}
 				}
@@ -563,6 +567,8 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
                         else
                         {
                             $this->log( 'Received property type of ' . $bdp_type . ' that isn\'t mapped in the import settings', $property['property_id'], $post_id );
+
+                            $import_settings = $this->add_missing_mapping( $mappings, 'property_type', $bdp_type, $this->import_id );
                         }
                     }
                 }

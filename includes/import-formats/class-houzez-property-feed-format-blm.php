@@ -686,14 +686,13 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
 				// status taxonomies
+				$mapping_name = 'lettings_status';
 				if ( $department == 'residential-sales' )
 				{
-					$taxonomy_mappings = ( isset($mappings['sales_status']) && is_array($mappings['sales_status']) && !empty($mappings['sales_status']) ) ? $mappings['sales_status'] : array();
+					$mapping_name = 'sales_status';
 				}
-				else
-				{
-					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
-				}
+
+				$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
 
 				if ( isset($property['STATUS_ID']) && $property['STATUS_ID'] != '' )
 				{
@@ -704,6 +703,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 					else
 					{
 						$this->log( 'Received status of ' . $property['STATUS_ID'] . ' that isn\'t mapped in the import settings', $property['AGENT_REF'], $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property['STATUS_ID'], $this->import_id );
 					}
 				}
 
@@ -719,6 +720,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 					else
 					{
 						$this->log( 'Received property type of ' . $property['PROP_SUB_ID'] . ' that isn\'t mapped in the import settings', $property['AGENT_REF'], $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['PROP_SUB_ID'], $this->import_id );
 					}
 				}
 

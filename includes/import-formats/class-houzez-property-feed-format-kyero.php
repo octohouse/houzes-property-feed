@@ -458,6 +458,8 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 					else
 					{
 						$this->log( 'Received property type of ' . (string)$property->type . ' that isn\'t mapped in the import settings', (string)$property->id, $post_id );
+
+						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', (string)$property->type, $this->import_id );
 					}
 				}
 

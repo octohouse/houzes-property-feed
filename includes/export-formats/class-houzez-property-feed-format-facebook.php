@@ -201,9 +201,9 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
 
                 $currency = 'EUR';
                 // check if multi-currency enabled
-                if ( houzez_option('multi_currency') == 1 )
+                if ( fave_option('multi_currency') == 1 )
                 {
-                    $default_multi_currency = houzez_option('default_multi_currency');
+                    $default_multi_currency = fave_option('default_multi_currency');
                     if ( !empty( $default_multi_currency ) && strlen($default_multi_currency) == 3 )
                     {
                         $currency = strtoupper($default_multi_currency);
@@ -218,7 +218,8 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
                 else
                 {
                     // look at symbol set in settings
-                    $symbol = houzez_option('currency_symbol', '£');
+                    $symbol = fave_option('currency_symbol', '£');
+                    $this->log($symbol, '', $post->ID);
                     switch ( $symbol )
                     {
                         case "£": { $currency = 'GBP'; break; }

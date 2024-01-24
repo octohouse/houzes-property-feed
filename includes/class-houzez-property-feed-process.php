@@ -147,9 +147,28 @@ class Houzez_Property_Feed_Process {
 		update_post_meta( $post_id, $meta_key, $media_ids );
 	}
 
-	public function add_missing_mapping( $mappings, $custom_field, $value, $import_id = '' )
+	public function add_missing_mapping( $mappings, $custom_field, $value, $import_id )
 	{
-		
+		$options = get_option( 'houzez_property_feed', array() );
+
+		if ( $value != '' && !isset($mappings[$custom_field][$value]) )
+		{
+			$mappings[$custom_field][$value] = '';
+
+			if ( $import_id != '' && isset($options['imports'][$import_id]) )
+			{
+				$options['imports'][$import_id]['mappings'][$custom_field][$value] = '';
+
+				update_option( 'houzez_property_feed', $options );
+
+				//$this->log( 'Added new option (' . $value . ') to ' . $custom_field . ' mappings that you will need to assign' );
+			}
+		}
+
+		if ( $import_id != '' && isset($options['imports'][$import_id]) )
+		{
+			return $options['imports'][$import_id];
+		}
 
 		return array();
 	}
