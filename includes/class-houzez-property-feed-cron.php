@@ -152,6 +152,14 @@ class Houzez_Property_Feed_Cron {
             wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export executed successfully. You can check the logs to see what happened during the export.', 'houzezpropertyfeed' ) ) );
             die();
         }
+
+        if ( isset($_GET['custom_property_export_cron']) && sanitize_text_field($_GET['custom_property_export_cron']) == 'houzezpropertyfeedreconcilecronhook' )
+        {
+            do_action(sanitize_text_field($_GET['custom_property_export_cron']));
+
+            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Reconcilliation executed successfully. You can check the logs to see what happened during the reconcilliation.', 'houzezpropertyfeed' ) ) );
+            die();
+        }
     }
 
     public function check_cron_is_scheduled()

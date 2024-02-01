@@ -24,6 +24,8 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
         add_action( 'houzez_after_property_submit', array( $this, 'send_realtime_feed_request' ), 99 );
         add_action( 'houzez_after_property_update', array( $this, 'send_realtime_feed_request' ), 99 );
+
+        add_action( 'houzezpropertyfeedreconcilecronhook', array( $this, 'reconcile' ) );
 	}
 
     public function remove_save_post_hook($new_property)
@@ -648,7 +650,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         return $response;
     }
 
-    public function do_curl_request( $request_data, $api_url, $profile_url, $post_id, $log_success = true ) 
+    public function do_curl_request( $request_data, $api_url, $profile_url, $post_id = 0, $log_success = true ) 
     {
         $export_settings = get_export_settings_from_id( $this->export_id );
 
@@ -788,6 +790,246 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             // Replace bad dash and apostrophe character that breaks JSON
             $value = str_replace( "’", "'", str_replace( '–', '-', $value ));
         }
+    }
+
+    public function reconcile()
+    {
+        global $wpdb;
+
+        $options = get_option( 'houzez_property_feed' , array() );
+        $exports = ( isset($options['exports']) && is_array($options['exports']) && !empty($options['exports']) ) ? $options['exports'] : array();
+
+        $this->items = array();
+
+        foreach ( $exports as $key => $export )
+        {
+            if ( isset($exports[$key]['deleted']) && $exports[$key]['deleted'] === true )
+            {
+                unset( $exports[$key] );
+            }
+
+            if ( isset($exports[$key]['format']) && $exports[$key]['format'] !== 'zoopla' )
+            {
+                unset( $exports[$key] );
+            }
+
+            if ( isset($exports[$key]['running']) && $exports[$key]['running'] !== true )
+            {
+                unset( $exports[$key] );
+            }
+        }
+
+        // here we should be left with all active Zoopla exports
+        foreach ( $exports as $export_id => $export )
+        {
+            $this->export_id = $export_id;
+
+            // log instance start
+            $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+            $current_date = $current_date->format("Y-m-d H:i:s");
+
+            $wpdb->insert( 
+                $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
+                array(
+                    'export_id' => $export_id,
+                    'start_date' => $current_date
+                )
+            );
+
+            $this->instance_id = $wpdb->insert_id;
+
+            $this->log("Reconciling properties in " . $export['name'] . " export");
+
+            // Get array of sales branch codes we need to check for reconcilliation
+            $branch_codes = array();
+            foreach ( $export as $export_key => $value ) 
+            {
+                // Check if the key starts with 'branch_code_' and ends with '_sales'
+                if ( strpos($export_key, 'branch_code_') === 0 && substr($export_key, -6) === '_sales' ) 
+                {
+                    $branch_codes[] = $value;
+                }
+            }
+            $branch_codes = array_unique($branch_codes);
+
+            if ( !empty($branch_codes) )
+            {
+                foreach ( $branch_codes as $branch_code )
+                {
+                    // Make request to get sales branch properties
+                    $request_data = array();
+
+                    $request_data['branch_reference'] = $branch_code;
+
+                    $response = $this->do_curl_request( $request_data, $export['get_branch_properties_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/list.json', '', false );
+
+                    if ($response !== FALSE) 
+                    {
+                        if (isset($response['listings']) && is_array($response['listings']) && !empty($response['listings']))
+                        {
+                            // Loop through the listings and ensure they're published / should be sent in HPF
+                            foreach ($response['listings'] as $property)
+                            {
+                                $agent_ref = str_replace($branch_code . '_', "", $property['listing_reference']);
+
+                                $ok_to_remove = false;
+
+                                // Check if this agent ref is active, on market and selected to be sent to the portal
+                                $args = array(
+                                    'post_type' => 'property',
+                                    'nopaging' => true,
+                                    'p' => $post_id,
+                                    'post_status' => 'publish',
+                                );
+
+                                $meta_query = array();
+                                $tax_query = array();
+
+                                $args['meta_query'] = $meta_query;
+                                $args['tax_query'] = $tax_query;
+
+                                $args = apply_filters( 'houzez_property_feed_export_property_args', $args, $export_id );
+                                $args = apply_filters( 'houzez_property_feed_export_zoopla_property_args', $args, $export_id );
+                                
+                                $property_query = new WP_Query( $args );
+                                if ( $property_query->have_posts() )
+                                {
+                                    // Don't do anything, we found this property
+                                }
+                                else
+                                {
+                                    $ok_to_remove = true;
+                                }
+
+                                if ($ok_to_remove)
+                                {
+                                    // Hmm.. This property was on the portal but not an active in HPF
+                                    // Let's remove it.
+                                    $request_data = array();
+
+                                    $request_data['listing_reference'] = $branch_code . '_' . $agent_ref;
+                                    //$request_data['deletion_reason'] = '';
+
+                                    $request_data = apply_filters( 'ph_zoopla_rtdf_remove_request_data', $request_data );
+                                    
+                                    $this->log("Removing property " . $branch_code . '_' . $agent_ref . " as not found when reconciling. Nothing will be done at present as this feature is in BETA");
+                                    //$this->do_curl_request( $request_data, $export['remove_property_api_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/delete.json', '' );
+                                }
+                                wp_reset_postdata();
+
+                            } // end foreach property
+
+                        } // end if properties set
+                    }
+
+                } // end foreach sales branch codes
+            }
+
+            // Get array of lettings branch codes we need to check for reconcilliation
+            $branch_codes = array();
+            foreach ( $export as $export_key => $value ) 
+            {
+                // Check if the key starts with 'branch_code_' and ends with '_lettings'
+                if ( strpos($export_key, 'branch_code_') === 0 && substr($export_key, -9) === '_lettings' ) 
+                {
+                    $branch_codes[] = $value;
+                }
+            }
+            $branch_codes = array_unique($branch_codes);
+
+            if ( !empty($branch_codes) )
+            {
+                foreach ( $branch_codes as $branch_code )
+                {
+                    // Make request to get sales branch properties
+                    $request_data = array();
+
+                    $request_data['branch_reference'] = $branch_code;
+
+                    $response = $this->do_curl_request( $request_data, $export['get_branch_properties_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/list.json', '', false );
+
+                    if ($response !== FALSE) 
+                    {
+                        if (isset($response['listings']) && is_array($response['listings']) && !empty($response['listings']))
+                        {
+                            // Loop through the listings and ensure they're published / should be sent in HPF
+                            foreach ($response['listings'] as $property)
+                            {
+                                $agent_ref = str_replace($branch_code . '_', "", $property['listing_reference']);
+
+                                $ok_to_remove = false;
+
+                                // Check if this agent ref is active, on market and selected to be sent to the portal
+                                $args = array(
+                                    'post_type' => 'property',
+                                    'nopaging' => true,
+                                    'p' => $post_id,
+                                    'post_status' => 'publish',
+                                );
+
+                                $meta_query = array();
+                                $tax_query = array();
+
+                                $args['meta_query'] = $meta_query;
+                                $args['tax_query'] = $tax_query;
+
+                                $args = apply_filters( 'houzez_property_feed_export_property_args', $args, $export_id );
+                                $args = apply_filters( 'houzez_property_feed_export_zoopla_property_args', $args, $export_id );
+                                
+                                $property_query = new WP_Query( $args );
+                                if ( $property_query->have_posts() )
+                                {
+                                    // Don't do anything, we found this property
+                                }
+                                else
+                                {
+                                    $ok_to_remove = true;
+                                }
+
+                                if ($ok_to_remove)
+                                {
+                                    // Hmm.. This property was on the portal but not an active in HPF
+                                    // Let's remove it.
+                                    $request_data = array();
+
+                                    $request_data['listing_reference'] = $branch_code . '_' . $agent_ref;
+                                    //$request_data['deletion_reason'] = '';
+
+                                    $request_data = apply_filters( 'ph_zoopla_rtdf_remove_request_data', $request_data );
+                                    
+                                    $this->log("Removing property " . $branch_code . '_' . $agent_ref . " as not found when reconciling. Nothing will be done at present as this feature is in BETA");
+                                    //$this->do_curl_request( $request_data, $export['remove_property_api_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/delete.json', '' );
+                                }
+                                wp_reset_postdata();
+
+                            } // end foreach property
+
+                        } // end if properties set
+                    }
+
+                } // end foreach lettings branch codes
+            }
+
+            if ( !empty($this->instance_id) )
+            {
+                $this->log("Reconciling complete");
+
+                // log instance end
+                $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+                $current_date = $current_date->format("Y-m-d H:i:s");
+
+                $wpdb->update( 
+                    $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
+                    array( 
+                        'end_date' => $current_date
+                    ),
+                    array( 'id' => $this->instance_id )
+                );
+
+                do_action( 'houzez_property_feed_cron_end', $this->instance_id, $export_id );
+                do_action( 'houzez_property_feed_export_cron_end', $this->instance_id, $export_id );
+            }
+        } // end foreach export
     }
 }
 

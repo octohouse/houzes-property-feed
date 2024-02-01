@@ -108,12 +108,12 @@ class Houzez_Property_Feed_Install {
         $next_schedule = time() - 60;
 		wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_cron_frequency', 'every_five_minutes' ), 'houzezpropertyfeedcronhook' );
 
-        /*$timestamp = wp_next_scheduled( 'houzezpropertyfeedimportmediacronhook' );
-        wp_unschedule_event($timestamp, 'houzezpropertyfeedimportmediacronhook' );
-        wp_clear_scheduled_hook('houzezpropertyfeedimportmediacronhook');
+		$timestamp = wp_next_scheduled( 'houzezpropertyfeedreconcilecronhook' );
+        wp_unschedule_event($timestamp, 'houzezpropertyfeedreconcilecronhook' );
+        wp_clear_scheduled_hook('houzezpropertyfeedreconcilecronhook');
 
         $next_schedule = time() - 60;
-        wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_media_cron_frequency', 'every_fifteen_minutes' ), 'houzezpropertyfeedimportmediacronhook' );*/
+        wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_reconcile_cron_frequency', 'twicedaily' ), 'houzezpropertyfeedreconcilecronhook' );
     }
 
     /**

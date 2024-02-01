@@ -100,6 +100,8 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 		$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
 
 		$start_at_property = get_option( 'houzez_property_feed_property_' . $this->import_id );
+
+		$houzez_tax_settings = get_option('houzez_tax_settings', array() );
 		
 		$property_row = 1;
 		foreach ( $this->properties as $property )
@@ -305,6 +307,18 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 	            }
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
 	            update_post_meta( $post_id, 'fave_property_country', 'GB' );
+
+	            if ( !isset($houzez_tax_settings['property_country']) || ( isset($houzez_tax_settings['property_country']) && $houzez_tax_settings['property_country'] != 'disabled' ) )
+			    {
+			    	if ( isset($property->COUNTRY) && (string)$property->COUNTRY != '' )
+	            	{
+	            		$term = term_exists( trim((string)$property->COUNTRY), 'property_country');
+						if ( $term !== 0 && $term !== null && isset($term['term_id']) )
+						{
+	            			wp_set_object_terms( $post_id, trim((string)$property->COUNTRY), "property_country" );
+	            		}
+			    	}
+			    }
 	            
 	            $address_parts = array();
 	            if ( isset($property->ADDRESS_2) && (string)$property->ADDRESS_2 != '' )
@@ -477,8 +491,6 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 				// Location taxonomies
 				$create_location_taxonomy_terms = isset( $import_settings['create_location_taxonomy_terms'] ) ? $import_settings['create_location_taxonomy_terms'] : false;
 
-				$houzez_tax_settings = get_option('houzez_tax_settings', array() );
-				
 				$location_taxonomies = array();
 				if ( !isset($houzez_tax_settings['property_city']) || ( isset($houzez_tax_settings['property_city']) && $houzez_tax_settings['property_city'] != 'disabled' ) )
 				{

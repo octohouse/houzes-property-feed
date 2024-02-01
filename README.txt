@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
-Tested up to: 6.4.2
-Stable tag: 2.0.61
-Version: 2.0.61
+Tested up to: 6.4.3
+Stable tag: 2.0.62
+Version: 2.0.62
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -109,6 +109,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.0.62 - 2024-02-01 =
+* Set property_country taxonomy in 10ninetty imports when applicable
+* First steps in reconciling Zoopla exports. Just logged for now whilst we trial this feature
+* Declared compatibility with WordPress 6.4.3
 
 = 2.0.61 - 2024-01-24 =
 * If new status or type received that's not been mapped before add it to the 'Taxonomy' settings area as an option ready to be mapped
