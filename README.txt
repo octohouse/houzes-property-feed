@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.3
-Stable tag: 2.0.62
-Version: 2.0.62
+Stable tag: 2.0.63
+Version: 2.0.63
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -110,8 +110,15 @@ Updating should work like a charm; as always though, ensure you backup your site
 
 == Changelog ==
 
+= 2.0.63 - 2024-02-07 =
+* New filter 'houzez_property_feed_properties_loop_endpoints' to customise Loop API endpoints
+* New filter 'houzez_property_feed_export_kyero_url_filename' to change Kyero export filename (mainly for Idealista as they use the Kyero format apparently, but need a specific filename)
+* Add notice when Idealista format is selected about using Kyero instead
+* Import sizes in Kyero imports
+* Remove empty branch codes when reconciling Zoopla exports
+
 = 2.0.62 - 2024-02-01 =
-* Set property_country taxonomy in 10ninetty imports when applicable
+* Set property_country taxonomy in 10ninety imports when applicable
 * First steps in reconciling Zoopla exports. Just logged for now whilst we trial this feature
 * Declared compatibility with WordPress 6.4.3
 

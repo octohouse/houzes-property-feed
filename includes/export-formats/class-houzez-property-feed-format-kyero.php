@@ -384,7 +384,9 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
         $xml = $xml->asXML();
 
         // Write XML string to file
-        $handle = fopen($uploads_dir . $this->export_id . '.xml', 'w+');
+        $filename = $this->export_id . '.xml';
+        $filename = apply_filters( 'houzez_property_feed_export_kyero_url_filename', $filename, $this->export_id );
+        $handle = fopen($uploads_dir . $filename, 'w+');
         fwrite($handle, $xml);
         fclose($handle);
 

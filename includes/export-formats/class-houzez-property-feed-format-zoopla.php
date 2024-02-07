@@ -850,6 +850,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                     $branch_codes[] = $value;
                 }
             }
+            $branch_codes = array_filter($branch_codes);
             $branch_codes = array_unique($branch_codes);
 
             if ( !empty($branch_codes) )
@@ -935,6 +936,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                     $branch_codes[] = $value;
                 }
             }
+            $branch_codes = array_filter($branch_codes);
             $branch_codes = array_unique($branch_codes);
 
             if ( !empty($branch_codes) )

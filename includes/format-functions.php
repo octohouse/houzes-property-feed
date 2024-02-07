@@ -1617,6 +1617,13 @@ function get_houzez_property_feed_export_formats()
             'fields' => array_merge(array(
                 array(
                     'type' => 'html',
+                    'html' => '<div style="border:1px solid #c3c4c7; border-left:2px solid #2271b1; padding:1px 12px; box-shadow:0 1px 1px rgba(0,0,0,.04)">
+                        <p style="margin:0.5em 0; padding:2px">Please note we have been made aware that Idealista no longer support this format but instead use the \'Kyero\' format to accept properties export.</p>
+                        <p style="margin:0.5em 0; padding:2px"><a href="https://houzezpropertyfeed.com/documentation/managing-exports/formats/idealista/" target="_blank">Read more here</a></p>
+                    </div>',
+                ),
+                array(
+                    'type' => 'html',
                     'html' => '<p style="font-size:1.1em"><strong>' . __( 'Details', 'houzezpropertyfeed' ) . '</strong></p>',
                 ),
                 array(

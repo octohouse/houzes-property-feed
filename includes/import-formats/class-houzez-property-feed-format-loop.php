@@ -35,6 +35,8 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 			'property/residential/lettings/listed/100',
 		);
 
+		$loop_endpoints = apply_filters( 'houzez_property_feed_properties_loop_endpoints' , $loop_endpoints );
+
 		foreach ( $loop_endpoints as $loop_endpoint )
 		{
 			$response = wp_remote_get( 'https://api.loop.software/' . $loop_endpoint, array( 'timeout' => 120, 'headers' => array(

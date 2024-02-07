@@ -276,6 +276,12 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property->beds) ) ? (string)$property->beds : '' ) );
 	            update_post_meta( $post_id, 'fave_property_bathrooms', ( ( isset($property->baths) ) ? (string)$property->baths : '' ) );
 	            update_post_meta( $post_id, 'fave_property_rooms', '' );
+	            
+	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property->surface_area->built) && !empty((string)$property->surface_area->built) ) ? (string)$property->surface_area->built : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( isset($property->surface_area->built) && !empty((string)$property->surface_area->built) ) ? 'Sq M' : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property->surface_area->plot) && !empty((string)$property->surface_area->plot) ) ? (string)$property->surface_area->plot : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property->surface_area->plot) && !empty((string)$property->surface_area->plot) ) ? 'Sq M' : '' ) );
+
 	            update_post_meta( $post_id, 'fave_property_garage', '' );
 	            update_post_meta( $post_id, 'fave_property_id', (string)$property->ref );
 
