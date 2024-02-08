@@ -233,7 +233,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             if ( !$property_send_request_send )
             {
                 // send request not sent. Must need to remove it
-                $success = $this->create_remove_property_request( $post->ID );
+                $success = $this->create_remove_property_request( $post_id );
 
                 /*if ($success === FALSE)
                 {
@@ -879,7 +879,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                                 $args = array(
                                     'post_type' => 'property',
                                     'nopaging' => true,
-                                    'p' => $post_id,
+                                    'p' => $agent_ref,
                                     'post_status' => 'publish',
                                 );
 
@@ -911,10 +911,10 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                                     $request_data['listing_reference'] = $branch_code . '_' . $agent_ref;
                                     //$request_data['deletion_reason'] = '';
 
-                                    $request_data = apply_filters( 'ph_zoopla_rtdf_remove_request_data', $request_data );
+                                    $request_data = apply_filters( 'houzez_property_feed_export_zoopla_remove_property_request_data', $request_data, $post_id, $export_id );
                                     
-                                    $this->log("Removing property " . $branch_code . '_' . $agent_ref . " as not found when reconciling. Nothing will be done at present as this feature is in BETA");
-                                    //$this->do_curl_request( $request_data, $export['remove_property_api_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/delete.json', '' );
+                                    $this->log("Removing property " . $branch_code . '_' . $agent_ref . " as not found when reconciling");
+                                    $this->do_curl_request( $request_data, $export['remove_property_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/delete.json', '' );
                                 }
                                 wp_reset_postdata();
 
@@ -965,7 +965,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                                 $args = array(
                                     'post_type' => 'property',
                                     'nopaging' => true,
-                                    'p' => $post_id,
+                                    'p' => $agent_ref,
                                     'post_status' => 'publish',
                                 );
 
@@ -997,10 +997,10 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                                     $request_data['listing_reference'] = $branch_code . '_' . $agent_ref;
                                     //$request_data['deletion_reason'] = '';
 
-                                    $request_data = apply_filters( 'ph_zoopla_rtdf_remove_request_data', $request_data );
+                                    $request_data = apply_filters( 'houzez_property_feed_export_zoopla_remove_property_request_data', $request_data, $post_id, $export_id );
                                     
-                                    $this->log("Removing property " . $branch_code . '_' . $agent_ref . " as not found when reconciling. Nothing will be done at present as this feature is in BETA");
-                                    //$this->do_curl_request( $request_data, $export['remove_property_api_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/delete.json', '' );
+                                    $this->log("Removing property " . $branch_code . '_' . $agent_ref . " as not found when reconciling");
+                                    $this->do_curl_request( $request_data, $export['remove_property_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/delete.json', '' );
                                 }
                                 wp_reset_postdata();
 

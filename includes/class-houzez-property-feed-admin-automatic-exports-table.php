@@ -254,8 +254,14 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
                 }
                 else
                 {
-                    $url = $wp_upload_dir['baseurl'] . '/houzez_property_feed_export/' . $key . '.xml';
-                    if ( file_exists($wp_upload_dir['basedir'] . '/houzez_property_feed_export/' . $key . '.xml') )
+                    $filename = $key . '.xml';
+                    if ( $export['format'] == 'kyero' )
+                    {
+                        $filename = apply_filters( 'houzez_property_feed_export_kyero_url_filename', $filename, $key );
+                    }
+
+                    $url = $wp_upload_dir['baseurl'] . '/houzez_property_feed_export/' . $filename;
+                    if ( file_exists($wp_upload_dir['basedir'] . '/houzez_property_feed_export/' . $filename) )
                     {
                         $before = '<a href="' . $url . '" target="_blank">';
                         $after = '</a>';
