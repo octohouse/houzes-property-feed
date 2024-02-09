@@ -861,6 +861,12 @@ function get_houzez_property_feed_import_formats()
             ),
             'address_fields' => array( 'town', 'province', 'location_detail' ),
             'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Sales' => 'Sales',
+                ),
+                'lettings_status' => array(
+                    'Lettings' => 'Lettings',
+                ),
                 'property_type' => array(
                     'Apartment' => 'Apartment',
                     'Finca' => 'Finca',

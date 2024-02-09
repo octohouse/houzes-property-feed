@@ -561,8 +561,6 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
     {
         $export_settings = get_export_settings_from_id( $this->export_id );
 
-        $branch_codes = $export_settings['branch_codes'];
-
         $department = $this->get_department( $post_id );
 
         $response = true;

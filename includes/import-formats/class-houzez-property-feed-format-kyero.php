@@ -452,6 +452,29 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
+				if ( $department == 'residential-sales' )
+				{
+					$mapping_name = 'sales_status';
+
+					$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
+
+					if ( isset($taxonomy_mappings['Sales']) && !empty($taxonomy_mappings['Sales']) )
+					{
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings['Sales'], "property_status" );
+					}
+				}
+				elseif ( $department == 'residential-lettings' )
+				{
+					$mapping_name = 'lettings_status';
+
+					$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
+
+					if ( isset($taxonomy_mappings['Lettings']) && !empty($taxonomy_mappings['Lettings']) )
+					{
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings['Lettings'], "property_status" );
+					}
+				}
+
 				// property type taxonomies
 				$taxonomy_mappings = ( isset($mappings['property_type']) && is_array($mappings['property_type']) && !empty($mappings['property_type']) ) ? $mappings['property_type'] : array();
 
