@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.3
-Stable tag: 2.0.65
-Version: 2.0.65
+Stable tag: 2.1.0
+Version: 2.1.0
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -109,6 +109,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.1.0 - 2024-02-15 =
+* Added new PRO import setting allowing media to be downloaded in the background in a separate queue. Useful for large imports that are timing out
+* Allow filtering of properties imported by office ID(s) in RE/MAX format
 
 = 2.0.65 - 2024-02-09 =
 * Add ability to map statuses for sales and lettings properties in Kyero imports

@@ -547,6 +547,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 				$existing = 0;
 				$deleted = 0;
 				$image_i = 0;
+				$queued = 0;
 				$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
 				$start_at_image_i = false;
@@ -616,7 +617,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 								}
 							}
 
-							if ($imported_previously)
+							if ( $imported_previously )
 							{
 								$media_ids[] = $imported_previously_id;
 
@@ -641,43 +642,51 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 							}
 							else
 							{
-								$tmp = download_url( $url );
+								if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->AGENT_REF, $url, $explode_url[0], $description, 'image', $image_i, '' ) === true )
+								{
+									$tmp = download_url( $url );
 
-							    $file_array = array(
-							        'name' => $filename . '.jpg',
-							        'tmp_name' => $tmp
-							    );
+								    $file_array = array(
+								        'name' => $filename . '.jpg',
+								        'tmp_name' => $tmp
+								    );
 
-							    // Check for download errors
-							    if ( is_wp_error( $tmp ) ) 
-							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
-							    }
-							    else
-							    {
-								    $id = media_handle_sideload( $file_array, $post_id, $description );
-
-								    // Check for handle sideload errors.
-								    if ( is_wp_error( $id ) ) 
+								    // Check for download errors
+								    if ( is_wp_error( $tmp ) ) 
 								    {
-								        @unlink( $file_array['tmp_name'] );
-								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
 								    }
 								    else
 								    {
-								    	$media_ids[] = $id;
+									    $id = media_handle_sideload( $file_array, $post_id, $description );
 
-								    	update_post_meta( $id, '_imported_url', $explode_url[0]);
+									    // Check for handle sideload errors.
+									    if ( is_wp_error( $id ) ) 
+									    {
+									        @unlink( $file_array['tmp_name'] );
+									        
+									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+									    }
+									    else
+									    {
+									    	$media_ids[] = $id;
 
-								    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
+									    	update_post_meta( $id, '_imported_url', $explode_url[0]);
 
-								    	++$new;
+									    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
 
-								    	++$image_i;
+									    	++$new;
 
-								    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
-								    }
+									    	++$image_i;
+
+									    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
+									    }
+									}
+								}
+								else
+								{
+									++$queued;
+									++$image_i;
 								}
 							}
 						}
@@ -708,6 +717,10 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 				}
 
 				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->AGENT_REF, $post_id );
+				if ( $queued > 0 ) 
+				{
+					$this->log( $queued . ' photos added to download queue', (string)$property->AGENT_REF, $post_id );
+				}
 
 				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
@@ -750,6 +763,8 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 				$new = 0;
 				$existing = 0;
 				$deleted = 0;
+				$attachment_i = 0;
+				$queued = 0;
 				$previous_media_ids = get_post_meta( $post_id, 'fave_attachments' );
 
 				for ( $i = 0; $i <= 10; ++$i )
@@ -766,7 +781,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 							// This is a URL
 							$url = (string)$property->{'MEDIA_DOCUMENT_' . $j};
 							$explode_url = explode('?', $url);
-							$description = ( ( isset($property->{'MEDIA_DOCUMENT_TEXT_' . $j}) && (string)$property->{'MEDIA_DOCUMENT_TEXT_' . $j} != '' ) ? $property->{'MEDIA_DOCUMENT_TEXT_' . $j} : __( 'Brochure', 'houzezpropertyfeed' ) );
+							$description = ( ( isset($property->{'MEDIA_DOCUMENT_TEXT_' . $j}) && (string)$property->{'MEDIA_DOCUMENT_TEXT_' . $j} != '' ) ? (string)$property->{'MEDIA_DOCUMENT_TEXT_' . $j} : __( 'Brochure', 'houzezpropertyfeed' ) );
 							
 							$filename = basename( $url );
 
@@ -804,43 +819,61 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 								}
 
 								++$existing;
+
+								++$attachment_i;
 							}
 							else
 							{
-								$tmp = download_url( $url );
+								if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->AGENT_REF, $url, $explode_url[0], $description, 'brochure', $attachment_i, '' ) === true )
+								{
+									$tmp = download_url( $url );
 
-							    $file_array = array(
-							        'name' => $filename,
-							        'tmp_name' => $tmp
-							    );
+									if ( strpos($filename, '.') === FALSE )
+									{
+										// No extension. Let's put one on as a worst case scenario
+										$filename .= '.pdf' ;
+									}
 
-							    // Check for download errors
-							    if ( is_wp_error( $tmp ) ) 
-							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
-							    }
-							    else
-							    {
-								    $id = media_handle_sideload( $file_array, $post_id, $description, array(
-                                        'post_title' => $description,
-                                        'post_excerpt' => $description
-                                    ) );
+								    $file_array = array(
+								        'name' => $filename,
+								        'tmp_name' => $tmp
+								    );
 
-								    // Check for handle sideload errors.
-								    if ( is_wp_error( $id ) ) 
+								    // Check for download errors
+								    if ( is_wp_error( $tmp ) ) 
 								    {
-								        @unlink( $file_array['tmp_name'] );
-								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
 								    }
 								    else
 								    {
-								    	$media_ids[] = $id;
+									    $id = media_handle_sideload( $file_array, $post_id, $description, array(
+	                                        'post_title' => $description,
+	                                        'post_excerpt' => $description
+	                                    ) );
 
-								    	update_post_meta( $id, '_imported_url', $explode_url[0]);
+									    // Check for handle sideload errors.
+									    if ( is_wp_error( $id ) ) 
+									    {
+									        @unlink( $file_array['tmp_name'] );
+									        
+									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+									    }
+									    else
+									    {
+									    	$media_ids[] = $id;
 
-								    	++$new;
-								    }
+									    	update_post_meta( $id, '_imported_url', $explode_url[0]);
+
+									    	++$new;
+
+									    	++$attachment_i;
+									    }
+									}
+								}
+								else
+								{
+									++$queued;
+									++$attachment_i;
 								}
 							}
 						}
@@ -862,7 +895,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 							$url = (string)$property->{'MEDIA_IMAGE_' . $j};
 							$explode_url = explode('?', $url);
 
-							$description = ( ( isset($property->{'MEDIA_IMAGE_TEXT_' . $j}) && (string)$property->{'MEDIA_IMAGE_TEXT_' . $j} != '' ) ? (string)$property->{'MEDIA_IMAGE_TEXT_' . $j} : '' );
+							$description = ( ( isset($property->{'MEDIA_IMAGE_TEXT_' . $j}) && (string)$property->{'MEDIA_IMAGE_TEXT_' . $j} != '' ) ? (string)$property->{'MEDIA_IMAGE_TEXT_' . $j} : __( 'EPC', 'houzezpropertyfeed' ) );
 						    
 							$filename = basename( $url );
 
@@ -898,39 +931,51 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 								}
 
 								++$existing;
+
+								++$attachment_i;
 							}
 							else
 							{
-								$tmp = download_url( $url );
-							    $file_array = array(
-							        'name' => $filename . '.jpg',
-							        'tmp_name' => $tmp
-							    );
+								if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->AGENT_REF, $url, $explode_url[0], $description, 'epc', $attachment_i, '' ) === true )
+								{
+									$tmp = download_url( $url );
+								    $file_array = array(
+								        'name' => $filename . '.jpg',
+								        'tmp_name' => $tmp
+								    );
 
-							    // Check for download errors
-							    if ( is_wp_error( $tmp ) ) 
-							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
-							    }
-							    else
-							    {
-								    $id = media_handle_sideload( $file_array, $post_id, $description );
-
-								    // Check for handle sideload errors.
-								    if ( is_wp_error( $id ) ) 
+								    // Check for download errors
+								    if ( is_wp_error( $tmp ) ) 
 								    {
-								        @unlink( $file_array['tmp_name'] );
-								        
-								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
 								    }
 								    else
 								    {
-								    	$media_ids[] = $id;
+									    $id = media_handle_sideload( $file_array, $post_id, $description );
 
-								    	update_post_meta( $id, '_imported_url', $explode_url[0]);
+									    // Check for handle sideload errors.
+									    if ( is_wp_error( $id ) ) 
+									    {
+									        @unlink( $file_array['tmp_name'] );
+									        
+									        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+									    }
+									    else
+									    {
+									    	$media_ids[] = $id;
 
-								    	++$new;
-								    }
+									    	update_post_meta( $id, '_imported_url', $explode_url[0]);
+
+									    	++$new;
+
+									    	++$attachment_i;
+									    }
+									}
+								}
+								else
+								{
+									++$queued;
+									++$attachment_i;
 								}
 							}
 						}
@@ -951,7 +996,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 							// This is a URL
 							$url = (string)$property->{'MEDIA_DOCUMENT_' . $j};
 							$explode_url = explode('?', $url);
-							$description = '';
+							$description = ( ( isset($property->{'MEDIA_DOCUMENT_TEXT_' . $j}) && (string)$property->{'MEDIA_DOCUMENT_TEXT_' . $j} != '' ) ? (string)$property->{'MEDIA_DOCUMENT_TEXT_' . $j} : __( 'EPC', 'houzezpropertyfeed' ) );
 						    
 							$filename = basename( $url );
 
@@ -989,43 +1034,55 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 								}
 
 								++$existing;
+
+								++$attachment_i;
 							}
 							else
 							{
-								$tmp = download_url( $url );
+								if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->AGENT_REF, $url, $explode_url[0], $description, 'epc', $attachment_i, '' ) === true )
+								{
+									$tmp = download_url( $url );
 
-							    $file_array = array(
-							        'name' => $filename,
-							        'tmp_name' => $tmp
-							    );
+								    $file_array = array(
+								        'name' => $filename,
+								        'tmp_name' => $tmp
+								    );
 
-							    // Check for download errors
-							    if ( is_wp_error( $tmp ) ) 
-							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
-							    }
-							    else
-							    {
-								    $id = media_handle_sideload( $file_array, $post_id, $description, array(
-                                        'post_title' => __( 'EPC', 'houzezpropertyfeed' ),
-                                        'post_excerpt' => $description
-                                    ) );
-
-								    // Check for handle sideload errors.
-								    if ( is_wp_error( $id ) ) 
+								    // Check for download errors
+								    if ( is_wp_error( $tmp ) ) 
 								    {
-								        @unlink( $file_array['tmp_name'] );
-								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->AGENT_REF, $post_id );
 								    }
 								    else
 								    {
-								    	$media_ids[] = $id;
+									    $id = media_handle_sideload( $file_array, $post_id, $description, array(
+	                                        'post_title' => __( 'EPC', 'houzezpropertyfeed' ),
+	                                        'post_excerpt' => $description
+	                                    ) );
 
-								    	update_post_meta( $id, '_imported_url', $explode_url[0]);
+									    // Check for handle sideload errors.
+									    if ( is_wp_error( $id ) ) 
+									    {
+									        @unlink( $file_array['tmp_name'] );
+									        
+									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->AGENT_REF, $post_id );
+									    }
+									    else
+									    {
+									    	$media_ids[] = $id;
 
-								    	++$new;
-								    }
+									    	update_post_meta( $id, '_imported_url', $explode_url[0]);
+
+									    	++$new;
+
+									    	++$attachment_i;
+									    }
+									}
+								}
+								else
+								{
+									++$queued;
+									++$attachment_i;
 								}
 							}
 
@@ -1058,7 +1115,11 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 				}
 
 				$this->log( 'Imported ' . count($media_ids) . ' brochures and EPCs (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->AGENT_REF, $post_id );
-				
+				if ( $queued > 0 ) 
+				{
+					$this->log( $queued . ' brochures and EPCs added to download queue', (string)$property->AGENT_REF, $post_id );
+				}
+
 				update_post_meta( $post_id, 'fave_video_url', '' );
 				update_post_meta( $post_id, 'fave_virtual_tour', '' );
 

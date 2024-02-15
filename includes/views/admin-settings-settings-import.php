@@ -17,6 +17,7 @@
 					<ul>
 						<li class="active"><a href="#emailreports"><span class="dashicons dashicons-email"></span> <?php echo __( 'Email Reports', 'houzezpropertyfeed' ); ?></a></li>
 						<li><a href="#offmarket"><span class="dashicons dashicons-trash"></span> <?php echo __( 'Removing Properties', 'houzezpropertyfeed' ); ?></a></li>
+						<li><a href="#media"><span class="dashicons dashicons-admin-media"></span> <?php echo __( 'Media Processing', 'houzezpropertyfeed' ); ?></a></li>
 					</ul>
 				</div>
 
@@ -36,6 +37,10 @@
 
 						<div class="settings-panel" id="offmarket" style="display:none">
 							<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-settings-import-off-market.php' ); ?>
+						</div>
+
+						<div class="settings-panel" id="media" style="display:none">
+							<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-settings-import-media.php' ); ?>
 						</div>
 						
 					</div>

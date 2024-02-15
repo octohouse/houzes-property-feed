@@ -197,7 +197,6 @@ class Houzez_Property_Feed_Cron {
     {
         require( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/cron-export.php' );
     }
-
 }
 
 new Houzez_Property_Feed_Cron();

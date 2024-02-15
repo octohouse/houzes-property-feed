@@ -1001,11 +1001,17 @@ function get_houzez_property_feed_import_formats()
                     'type' => 'text',
                 ),
                 array(
+                    'id' => 'office_id',
+                    'label' => __( 'Office ID(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'Enter a comma-delimited list of office IDs if only wanting to import specific office listings. Enter only Agent ID(s) or Office ID(s). Not both.', 'houzezpropertyfeed' ),
+                ),
+                array(
                     'id' => 'agent_id',
                     'label' => __( 'Agent ID(s)', 'houzezpropertyfeed' ),
                     'type' => 'text',
-                    'tooltip' => __( 'Enter a comma-delimited list of agent IDs if only wanting to import specific agents listings', 'houzezpropertyfeed' ),
-                )
+                    'tooltip' => __( 'Enter a comma-delimited list of agent IDs if only wanting to import specific agents listings. Enter only Agent ID(s) or Office ID(s). Not both.', 'houzezpropertyfeed' ),
+                ),
             ),
             'address_fields' => array( 'suburb', 'city', 'province' ),
             'taxonomy_values' => array(

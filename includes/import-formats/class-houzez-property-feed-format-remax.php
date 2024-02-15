@@ -118,6 +118,96 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		return $agent_ids_to_import;
 	}
 
+	private function get_agents_from_office_id( $office_ids = array() )
+	{
+		$this->log("Obtaining agents for office IDs");
+
+		$agent_ids_to_import = array();
+
+		if ( !empty($office_ids) )
+        {
+        	$import_settings = get_import_settings_from_id( $this->import_id );
+
+	        foreach ( $office_ids as $office_id )
+	        {
+		        $this->log("Obtaining agents for office ID " . $office_id);
+
+		        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
+				$url = 'https://' . $host;
+				$url .= '/feeds_default/office';
+		        $region = 'eu-west-1';
+
+		        $event = array( "token" => $import_settings['api_key'], "office_id" => $office_id );
+		        $json = json_encode($event);
+
+		        $aws = new AWSV4(
+		        	$import_settings['access_key'],
+		        	$import_settings['secret_key']
+		        );
+		        $aws->setRegionName( $region );
+				$aws->setServiceName( 'execute-api' );
+				$aws->setPath( '/feeds_default/office' );
+				$aws->setPayload( $json );
+				$aws->setRequestMethod( 'POST' );
+				$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
+				$aws->addHeader( 'host', $host );
+
+		        $headers = $aws->getHeaders();
+
+		        $response = wp_remote_request(
+					$url,
+					array(
+						'method' => 'POST',
+						'timeout' => 60,
+						'headers' => $headers,
+						'body' => $json
+					)
+				);
+
+		        if ( !is_wp_error($response) && is_array( $response ) ) 
+				{
+		        	$body = $response['body'];
+		        	$json = json_decode( $body, TRUE );
+
+				    if ( $json === FALSE )
+				    {
+				    	// Failed to parse JSON
+						$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
+						return array();
+				    }
+
+				    if ( !isset($json['data']) )
+				    {
+				    	// Failed to parse JSON
+						$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
+						return array();
+				    }
+
+				    $data_json = json_decode( $json['data'], TRUE );
+
+				    if (!empty($data_json['agents']['agent']))
+				    {
+				    	$this->log( 'Found ' . count($data_json['agents']['agent']) . ' agents belonging to office ID ' . $office_id );
+				    	foreach ( $data_json['agents']['agent'] as $agent )
+				    	{
+				    		$agent_ids_to_import[] = $agent['agent_id'];
+				    	}
+				    }
+				}
+				else
+				{
+					$this->log_error( 'Failed to obtain offices JSON. Dump of response as follows:' . print_r($response, TRUE) );
+					return array();
+				}
+			}
+		}
+
+		$agent_ids_to_import = array_unique($agent_ids_to_import);
+		$agent_ids_to_import = array_filter($agent_ids_to_import);
+
+		return $agent_ids_to_import;
+	}
+
 	public function parse()
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
@@ -127,10 +217,21 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
 		$agent_ids_to_import = array();
+		$office_ids_to_import = array();
 
-        if ( !isset($import_settings['agent_id']) || ( isset($import_settings['agent_id']) && empty($import_settings['agent_id']) ) )
+        if ( 
+        	(
+	        	!isset($import_settings['agent_id']) || 
+	        	( isset($import_settings['agent_id']) && empty($import_settings['agent_id']) ) 
+	        )
+	        &&
+	    	(
+	        	!isset($import_settings['office_id']) || 
+	        	( isset($import_settings['office_id']) && empty($import_settings['office_id']) ) 
+	        )
+        )
         {
-        	// no agents specified, get all
+        	// no agents or offices specified, get all agents
         	$agent_ids_to_import = $this->get_agents();
 
         	if ( $agent_ids_to_import === false )
@@ -140,106 +241,128 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
         }
         else
         {
-        	$agent_ids_to_import = explode(",", $import_settings['agent_id']);
-        	$agent_ids_to_import = array_map('trim', $agent_ids_to_import);
-        	$agent_ids_to_import = array_filter($agent_ids_to_import);
-        	$agent_ids_to_import = array_unique($agent_ids_to_import);
+        	if ( isset($import_settings['agent_id']) && !empty($import_settings['agent_id']) )
+        	{
+	        	$agent_ids_to_import = explode(",", $import_settings['agent_id']);
+	        	$agent_ids_to_import = array_map('trim', $agent_ids_to_import);
+	        	$agent_ids_to_import = array_filter($agent_ids_to_import);
+	        	$agent_ids_to_import = array_unique($agent_ids_to_import);
+	        }
+
+	        if ( isset($import_settings['office_id']) && !empty($import_settings['office_id']) )
+        	{
+        		$office_ids_to_import = explode(",", $import_settings['office_id']);
+	        	$office_ids_to_import = array_map('trim', $office_ids_to_import);
+	        	$office_ids_to_import = array_filter($office_ids_to_import);
+	        	$office_ids_to_import = array_unique($office_ids_to_import);
+        	}
         }
 
-        if ( empty($agent_ids_to_import) )
+        if ( empty($agent_ids_to_import) && empty($office_ids_to_import) )
         {
-        	$this->log_error( 'No agent IDs to process' );
+        	$this->log_error( 'No agents or offices to process' );
         	return false;
         }
 
-        foreach ( $agent_ids_to_import as $agent_id )
+        if ( empty($agent_ids_to_import) && !empty($office_ids_to_import) )
         {
-	        $this->log("Obtaining properties for agent ID " . $agent_id);
+        	$agent_ids_to_import = $this->get_agents_from_office_id($office_ids_to_import);
+        }
 
-	        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
-			$url = 'https://' . $host;
-			$url .= '/feeds_default/agent';
-	        $region = 'eu-west-1';
+        if ( !empty($agent_ids_to_import) )
+        {
+	        foreach ( $agent_ids_to_import as $agent_id )
+	        {
+		        $this->log("Obtaining properties for agent ID " . $agent_id);
 
-	        $event = array( "token" => $import_settings['api_key'], "agent_id" => $agent_id );
-	        $json = json_encode($event);
+		        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
+				$url = 'https://' . $host;
+				$url .= '/feeds_default/agent';
+		        $region = 'eu-west-1';
 
-	        $aws = new AWSV4(
-	        	$import_settings['access_key'],
-	        	$import_settings['secret_key']
-	        );
-	        $aws->setRegionName( $region );
-			$aws->setServiceName( 'execute-api' );
-			$aws->setPath( '/feeds_default/agent' );
-			$aws->setPayload( $json );
-			$aws->setRequestMethod( 'POST' );
-			$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
-			$aws->addHeader( 'host', $host );
+		        $event = array( "token" => $import_settings['api_key'], "agent_id" => $agent_id );
+		        $json = json_encode($event);
 
-	        $headers = $aws->getHeaders();
+		        $aws = new AWSV4(
+		        	$import_settings['access_key'],
+		        	$import_settings['secret_key']
+		        );
+		        $aws->setRegionName( $region );
+				$aws->setServiceName( 'execute-api' );
+				$aws->setPath( '/feeds_default/agent' );
+				$aws->setPayload( $json );
+				$aws->setRequestMethod( 'POST' );
+				$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
+				$aws->addHeader( 'host', $host );
 
-	        $response = wp_remote_request(
-				$url,
-				array(
-					'method' => 'POST',
-					'timeout' => 60,
-					'headers' => $headers,
-					'body' => $json
-				)
-			);
+		        $headers = $aws->getHeaders();
 
-	        if ( !is_wp_error($response) && is_array( $response ) ) 
-			{
-	        	$body = $response['body'];
-	        	$json = json_decode( $body, TRUE );
+		        $response = wp_remote_request(
+					$url,
+					array(
+						'method' => 'POST',
+						'timeout' => 60,
+						'headers' => $headers,
+						'body' => $json
+					)
+				);
 
-			    if ( $json === FALSE )
-			    {
-			    	// Failed to parse JSON
-					$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
+		        if ( !is_wp_error($response) && is_array( $response ) ) 
+				{
+		        	$body = $response['body'];
+		        	$json = json_decode( $body, TRUE );
+
+				    if ( $json === FALSE )
+				    {
+				    	// Failed to parse JSON
+						$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
+						return false;
+				    }
+
+				    if ( !isset($json['data']) )
+				    {
+				    	// Failed to parse JSON
+						$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
+						return false;
+				    }
+
+				    $data_json = json_decode( $json['data'], TRUE );
+
+				    if ( $data_json === FALSE )
+				    {
+				    	// Failed to parse JSON
+						$this->log_error( 'Failed to parse JSON data: ' . print_r($json['data'], true) );
+						return false;
+				    }
+
+				    if ( !isset($data_json['properties']) )
+				    {
+						$this->log_error( 'Properties data missing from JSON: ' . print_r($data_json, true) );
+						//return false;
+				    }
+				    else
+				    {
+					    if ( !isset($data_json['properties']['property']) )
+					    {
+							$this->log_error( 'Property data missing from JSON: ' . print_r($data_json, true) );
+							//return false;
+					    }
+					}
+
+				    if ( isset($data_json['properties']['property']) && !empty($data_json['properties']['property']) )
+				    {
+					    foreach ( $data_json['properties']['property'] as $property )
+					    {
+					    	$property['agent_details'] = $data_json['agent_details'];
+					    	$this->properties[] = $property;
+					    }
+					}
+				}
+				else
+				{
+					$this->log_error( 'Failed to obtain properties JSON. Dump of response as follows:' . print_r($response, TRUE) );
 					return false;
-			    }
-
-			    if ( !isset($json['data']) )
-			    {
-			    	// Failed to parse JSON
-					$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
-					return false;
-			    }
-
-			    $data_json = json_decode( $json['data'], TRUE );
-
-			    if ( $data_json === FALSE )
-			    {
-			    	// Failed to parse JSON
-					$this->log_error( 'Failed to parse JSON data: ' . print_r($json['data'], true) );
-					return false;
-			    }
-
-			    if ( !isset($data_json['properties']) )
-			    {
-			    	// Failed to parse JSON
-					$this->log_error( 'Properties data missing from JSON: ' . print_r($data_json, true) );
-					return false;
-			    }
-
-			    if ( !isset($data_json['properties']['property']) )
-			    {
-			    	// Failed to parse JSON
-					$this->log_error( 'Property data missing from JSON: ' . print_r($data_json, true) );
-					return false;
-			    }
-
-			    foreach ( $data_json['properties']['property'] as $property )
-			    {
-			    	$property['agent_details'] = $data_json['agent_details'];
-			    	$this->properties[] = $property;
-			    }
-			}
-			else
-			{
-				$this->log_error( 'Failed to obtain properties JSON. Dump of response as follows:' . print_r($response, TRUE) );
-				return false;
+				}
 			}
 		}
 
@@ -249,6 +372,8 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 			return false;
 		}
+
+		
 
 		return true;
 	}
@@ -708,6 +833,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 				$existing = 0;
 				$deleted = 0;
 				$image_i = 0;
+				$queued = 0;
 				$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
 				$start_at_image_i = false;
@@ -732,6 +858,10 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 				if ( isset($property['photos']['photo']) && !empty($property['photos']['photo']) )
 				{
+					usort($property['photos']['photo'], function($a, $b) {
+					    return $a['order'] - $b['order'];
+					});
+
 					foreach ( $property['photos']['photo'] as $image )
 					{
 						$url = $image['url'];
@@ -771,14 +901,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 									if ( 
 										get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
 										&&
-										(
-											get_post_meta( $previous_media_id, '_modified', TRUE ) == '' 
-											||
-											(
-												get_post_meta( $previous_media_id, '_modified', TRUE ) != '' &&
-												get_post_meta( $previous_media_id, '_modified', TRUE ) == $modified
-											)
-										)
+										get_post_meta( $previous_media_id, '_modified', TRUE ) == $modified
 									)
 									{
 										$imported_previously = true;
@@ -813,44 +936,52 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 							}
 							else
 							{
-								$tmp = download_url( $url );
+								if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, $property['property_id'], $url, $url, $description, 'image', $image_i, $modified ) === true )
+								{
+									$tmp = download_url( $url );
 
-							    $file_array = array(
-							        'name' => $filename,
-							        'tmp_name' => $tmp
-							    );
+								    $file_array = array(
+								        'name' => $filename,
+								        'tmp_name' => $tmp
+								    );
 
-							    // Check for download errors
-							    if ( is_wp_error( $tmp ) ) 
-							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
-							    }
-							    else
-							    {
-								    $id = media_handle_sideload( $file_array, $post_id, $description );
-
-								    // Check for handle sideload errors.
-								    if ( is_wp_error( $id ) ) 
+								    // Check for download errors
+								    if ( is_wp_error( $tmp ) ) 
 								    {
-								        @unlink( $file_array['tmp_name'] );
-								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['property_id'], $post_id );
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
 								    }
 								    else
 								    {
-								    	$media_ids[] = $id;
+									    $id = media_handle_sideload( $file_array, $post_id, $description );
 
-								    	update_post_meta( $id, '_imported_url', $url);
-								    	update_post_meta( $id, '_modified', $modified);
+									    // Check for handle sideload errors.
+									    if ( is_wp_error( $id ) ) 
+									    {
+									        @unlink( $file_array['tmp_name'] );
+									        
+									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['property_id'], $post_id );
+									    }
+									    else
+									    {
+									    	$media_ids[] = $id;
 
-								    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
+									    	update_post_meta( $id, '_imported_url', $url);
+									    	update_post_meta( $id, '_modified', $modified);
 
-								    	++$new;
+									    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
 
-								    	++$image_i;
+									    	++$new;
 
-								    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
-								    }
+									    	++$image_i;
+
+									    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
+									    }
+									}
+								}
+								else
+								{
+									++$queued;
+									++$image_i;
 								}
 							}
 						}
@@ -881,6 +1012,10 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 				}
 
 				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['property_id'], $post_id );
+				if ( $queued > 0 ) 
+				{
+					$this->log( $queued . ' photos added to download queue', $property['property_id'], $post_id );
+				}
 
 				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 

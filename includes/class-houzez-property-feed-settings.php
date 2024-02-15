@@ -36,6 +36,7 @@ class Houzez_Property_Feed_Settings {
                 'email_reports' => ( ( isset($_POST['email_reports']) && $_POST['email_reports'] == 'yes' ) ? true : false ),
                 'email_reports_to' => ( ( isset($_POST['email_reports_to']) && sanitize_email($_POST['email_reports_to']) ) ? sanitize_email($_POST['email_reports_to']) : '' ),
                 'remove_action' => ( ( isset($_POST['remove_action']) && in_array($_POST['remove_action'], array( '', 'remove_all_media', 'delete' )) ) ? sanitize_text_field($_POST['remove_action']) : '' ),
+                'media_processing' => ( ( isset($_POST['media_processing']) && in_array($_POST['media_processing'], array( '', 'background' )) ) ? sanitize_text_field($_POST['media_processing']) : '' ),
             );
         }
 

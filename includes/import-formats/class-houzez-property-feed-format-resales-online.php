@@ -564,6 +564,7 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 				$existing = 0;
 				$deleted = 0;
 				$image_i = 0;
+				$queued = 0;
 				$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
 				$start_at_image_i = false;
@@ -659,43 +660,51 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 									}
 									else
 									{
-										$tmp = download_url( $url );
+										if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->id, $url, $url, $description, 'image', $image_i, '' ) === true )
+										{
+											$tmp = download_url( $url );
 
-									    $file_array = array(
-									        'name' => $filename . '.jpg',
-									        'tmp_name' => $tmp
-									    );
+										    $file_array = array(
+										        'name' => $filename . '.jpg',
+										        'tmp_name' => $tmp
+										    );
 
-									    // Check for download errors
-									    if ( is_wp_error( $tmp ) ) 
-									    {
-									        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->id, $post_id );
-									    }
-									    else
-									    {
-										    $id = media_handle_sideload( $file_array, $post_id, $description );
-
-										    // Check for handle sideload errors.
-										    if ( is_wp_error( $id ) ) 
+										    // Check for download errors
+										    if ( is_wp_error( $tmp ) ) 
 										    {
-										        @unlink( $file_array['tmp_name'] );
-										        
-										        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->id, $post_id );
+										        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->id, $post_id );
 										    }
 										    else
 										    {
-										    	$media_ids[] = $id;
+											    $id = media_handle_sideload( $file_array, $post_id, $description );
 
-										    	update_post_meta( $id, '_imported_url', $url);
+											    // Check for handle sideload errors.
+											    if ( is_wp_error( $id ) ) 
+											    {
+											        @unlink( $file_array['tmp_name'] );
+											        
+											        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->id, $post_id );
+											    }
+											    else
+											    {
+											    	$media_ids[] = $id;
 
-										    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
+											    	update_post_meta( $id, '_imported_url', $url);
 
-										    	++$new;
+											    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
 
-										    	++$image_i;
+											    	++$new;
 
-										    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
-										    }
+											    	++$image_i;
+
+											    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
+											    }
+											}
+										}
+										else
+										{
+											++$queued;
+											++$image_i;
 										}
 									}
 								}
@@ -728,7 +737,11 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 				}
 
 				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->id, $post_id );
-
+				if ( $queued > 0 ) 
+				{
+					$this->log( $queued . ' photos added to download queue', (string)$property->id, $post_id );
+				}
+				
 				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
 				update_post_meta( $post_id, 'fave_video_url', '' );

@@ -116,7 +116,45 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 {
                     $value = 'Yes';
                 }
-                $details .= '<strong>' . __( 'Export Enquiries', 'houzezpropertyfeed' ) . '</strong>: ' . $value;
+                $details .= '<strong>' . __( 'Export Enquiries', 'houzezpropertyfeed' ) . '</strong>: ' . $value . '<br>';
+            }
+
+            if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
+            {
+                if ( isset($options['media_processing']) && $options['media_processing'] === 'background' )
+                {
+                    $media_to_import = $wpdb->get_results(
+                        "
+                        SELECT
+                            GROUP_CONCAT(`id`) as `ids`,
+                            `import_id`,
+                            `post_id`,
+                            `crm_id`,
+                            `media_type`,
+                            `media_order`,
+                            SUBSTRING_INDEX(GROUP_CONCAT(`media_location` ORDER BY `media_modified` DESC SEPARATOR '~'), '~', 1 ) as `media_location`,
+                            SUBSTRING_INDEX(GROUP_CONCAT(`media_description` ORDER BY `media_modified` DESC SEPARATOR '~'), '~', 1 ) as `media_description`,
+                            SUBSTRING_INDEX(GROUP_CONCAT(`media_compare_url` ORDER BY `media_modified` DESC SEPARATOR '~'), '~', 1 ) as `media_compare_url`,
+                            MAX(`media_modified`) as `media_modified`
+                        FROM
+                            " . $wpdb->prefix . "houzez_property_feed_media_queue
+                        WHERE
+                            `import_id` = '" . $key . "'
+                        GROUP BY
+                            post_id,
+                            media_type,
+                            media_order
+                        ORDER BY
+                            post_id,
+                            media_type,
+                            media_order
+                        "
+                    );
+                    if ( count($media_to_import) > 0 )
+                    {
+                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: ' . count($media_to_import) . '<br>';
+                    }
+                }
             }
             
             $running = false;

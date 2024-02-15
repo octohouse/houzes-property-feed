@@ -112,6 +112,13 @@ class Houzez_Property_Feed_Process {
 					do_action( "save_post", $property_post_id, get_post($property_post_id), false );
 
 					do_action( "houzez_property_feed_property_removed", $property_post_id, $this->import_id );
+
+					$wpdb->query("
+						DELETE FROM
+							" . $wpdb->prefix . "houzez_property_feed_media_queue
+						WHERE
+							`post_id` = '" . get_the_ID() . "'
+					");
 				}
 			}
 			wp_reset_postdata();
