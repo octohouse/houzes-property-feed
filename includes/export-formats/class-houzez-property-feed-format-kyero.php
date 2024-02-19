@@ -338,7 +338,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     $description = $post->post_excerpt;
                 }
                 $desc_xml = $property_xml->addChild('desc');
-                $desc_xml->addCData('en', $description);
+                $desc_xml->addChild('en', htmlspecialchars($description, ENT_QUOTES | ENT_XML1, 'UTF-8'));
 
                 $term_list = wp_get_post_terms($post->ID, 'property_feature', array("fields" => "all"));
                 if ( !is_wp_error($term_list) && is_array($term_list) && !empty($term_list) )
@@ -346,7 +346,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     $features_xml = $property_xml->addChild('features');
                     foreach ( $term_list as $term )
                     {
-                        $features_xml->addCData('feature', $term->name);
+                        $features_xml->addChild('feature', htmlspecialchars($term->name, ENT_QUOTES | ENT_XML1, 'UTF-8'));
                     }
                 }
 

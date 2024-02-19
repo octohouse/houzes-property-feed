@@ -235,7 +235,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             if ( !$property_send_request_send )
             {
                 // send request not sent. Must need to remove it
-                $success = $this->create_remove_property_request( $post->ID );
+                $success = $this->create_remove_property_request( $post_id );
 
                 /*if ($success === FALSE)
                 {
@@ -261,6 +261,8 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
     {
         $export_settings = get_export_settings_from_id( $this->export_id );
 
+        $department = $this->get_department( $post_id );
+
         $request_data = array();
                         
         // Network
@@ -271,10 +273,10 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         $request_data['branch'] = array();
         $branch_code = $branch_code = $this->get_branch_code( $post_id );
         $request_data['branch']['branch_id'] = (int)$branch_code;
+        $request_data['branch']['channel'] = ( $department == 'sales' ? 1 : 2 ); // 1 for sales, 2 for lettings
+        $request_data['branch']['overseas'] = false;
 
         // Property
-        $department = $this->get_department( $post_id );
-        
         $request_data['property'] = array();
         $request_data['property']['address'] = array();
         $request_data['property']['price_information'] = array();
@@ -289,7 +291,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
         //if ( !$overseas )
         //{
-            $request_data['property']['status'] = (int)$this->get_export_mapped_value($post_id, 'availability');
+            $request_data['property']['status'] = (int)$this->get_export_mapped_value($post_id, 'property_status');
             $request_data['property']['student_property'] = FALSE;
 
             $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
@@ -307,11 +309,50 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                 }
             }
 
-            $request_data['property']['address']['house_name_number'] = get_post_meta( $post_id, 'fave_property_address', TRUE );
+            $request_data['property']['address']['house_name_number'] = '';
             $request_data['property']['address']['address_2'] = '';
+            if ( get_post_meta( $post_id, 'fave_property_address', TRUE ) != '' ) 
+            {
+                $number = '';
+                $street = '';
+
+                $property_address = get_post_meta( $post_id, 'fave_property_address', TRUE );
+                $property_address = str_replace(',', ' ', $property_address);
+
+                $explode_address = explode(" ", $property_address);
+                if ( preg_match('/\d/', $explode_address[0]) )
+                {
+                    $number = $explode_address[0];
+                    $street = str_replace($number, '', get_post_meta( $post_id, 'fave_property_address', TRUE ));
+                    $street = trim($street);
+                    $street = trim($street, ',');
+                    $street = trim($street);
+                }
+                else
+                {
+                    $street = get_post_meta( $post_id, 'fave_property_address', TRUE );
+                }
+
+                if ( !empty($number) ) { $request_data['property']['address']['house_name_number'] = $number; }
+                if ( !empty($street) ) { $request_data['property']['address']['address_2'] = $street; }
+            }
+
             $request_data['property']['address']['address_3'] = isset($address_fields[0]) ? $address_fields[0] : '';
             $request_data['property']['address']['address_4'] = isset($address_fields[1]) ? $address_fields[1] : '';
-            $request_data['property']['address']['town'] = isset($address_fields[2]) ? $address_fields[2] : '';
+
+            $request_data['property']['address']['town'] = '';
+            if ( isset($address_fields[1]) ) 
+            { 
+                $request_data['property']['address']['town'] = $address_fields[1]; 
+            }
+            elseif ( isset($address_fields[0]) ) 
+            { 
+                $request_data['property']['address']['town'] = $address_fields[0]; 
+            }
+            elseif ( isset($address_fields[2]) ) 
+            { 
+                $request_data['property']['address']['town'] = $address_fields[2]; 
+            }
 
             $explode_postcode = explode(" ", trim(strtoupper(get_post_meta($post_id, 'fave_property_zip', true))));
             $request_data['property']['address']['postcode_1'] = strtoupper(trim($explode_postcode[0]));
