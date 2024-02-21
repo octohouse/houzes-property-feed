@@ -982,6 +982,58 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mri/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'property_finder' => array(
+            'name' => __( 'Property Finder / myCRM', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'city', 'community', 'sub_community' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For Sale' => 'For Sale',
+                ),
+                'lettings_status' => array(
+                    'To Let' => 'To Let',
+                ),
+                'property_type' => array(
+                    'AP' => 'Apartment/Flat',
+                    'BW' => 'Bungalow',
+                    'DX' => 'Duplex',
+                    'FF' => 'Full Floor',
+                    'HF' => 'Half Floor',
+                    'LP' => 'Land/Plot',
+                    'PH' => 'Penthouse',
+                    'TH' => 'Townhouse',
+                    'VH' => 'Villa/House',
+                    'WB' => 'Whole Building',
+                    'BU' => 'Bulk Units',
+                    'CD' => 'Compound',
+                    'FA' => 'Factory',
+                    'LC' => 'Labor Camp',
+                    'LP' => 'Land/Plot',
+                    'OF' => 'Office Space',
+                    'BC' => 'Business Centre',
+                    'RE' => 'Retail',
+                    'RT' => 'Restaurant',
+                    'SA' => 'Staff Accommodation',
+                    'SH' => 'Shop',
+                    'SR' => 'Showroom',
+                    'CW' => 'Co-working Space',
+                    'ST' => 'Storage',
+                    'WH' => 'Warehouse',
+                )
+            ),
+            'contact_information_fields' => array(
+                'agent_name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/property-finder/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'remax' => array(
             'name' => __( 'RE/MAX', 'houzezpropertyfeed' ),
             'fields' => array(

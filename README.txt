@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
 Requires at least: 3.8
 Tested up to: 6.4.3
-Stable tag: 2.1.1
-Version: 2.1.1
+Stable tag: 2.1.2
+Version: 2.1.2
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -35,6 +35,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Loop
 * MRI
 * MLS/IDX (assuming XML URL can be provided)
+* myCRM from Property Finder
 * RE/MAX
 * Rentman
 * ReSales Online
@@ -73,6 +74,7 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 * Priority support
 * Logs stored for seven days
 * Import logs emailed to a specified email address
+* Import media in a separate background queue
 
 [Update to PRO here](https://houzezpropertyfeed.com/#pricing)
 
@@ -109,6 +111,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.1.2 - 2024-02-21 =
+* Added preliminary support for importing properties from myCRM by Property Finder
 
 = 2.1.1 - 2024-02-19 =
 * Don't use CDATA in Kyero exports for fields like descriptions and features. Instead run them through htmlspecialchars()

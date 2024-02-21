@@ -110,6 +110,7 @@ class Houzez_Property_Feed_Import {
         $options = get_option( 'houzez_property_feed' , array() );
         if ( !is_array($options) ) { $options = array(); }
         if ( !is_array($options['imports']) ) { $options['imports'] = array(); }
+        if ( !isset($options['imports'][$import_id]) ) { $options['imports'][$import_id] = array(); }
         if ( !is_array($options['imports'][$import_id]) ) { $options['imports'][$import_id] = array(); }
 
         $format = sanitize_text_field($_POST['format']);
