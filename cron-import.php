@@ -435,6 +435,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "pixxi":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-pixxi.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Pixxi( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "property_finder":
 		    		{
 		                // includes
@@ -473,6 +482,15 @@ if ( is_array($imports) && !empty($imports) )
                         require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-resales-online.php';
 
 						$import_object = new Houzez_Property_Feed_Format_Resales_Online( $instance_id, $import_id );
+
+		    			break;
+		    		}
+		    		case "rex":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-rex.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Rex( $instance_id, $import_id );
 
 		    			break;
 		    		}

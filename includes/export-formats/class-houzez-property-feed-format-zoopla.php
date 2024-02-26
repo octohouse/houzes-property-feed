@@ -447,28 +447,25 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         }
 
         // FLOORPLANS
-        if ( get_post_meta( $post_id, 'fave_floor_plans_enable', true ) == 'enable' )
+        $floorplans = get_post_meta( $post_id, 'floor_plans', true );
+        if ( is_array($floorplans) && !empty($floorplans) )
         {
-            $floorplans = get_post_meta( $post_id, 'floor_plans', true );
-            if ( is_array($floorplans) && !empty($floorplans) )
+            foreach ( $floorplans as $floorplan )
             {
-                foreach ( $floorplans as $floorplan )
+                $url = ( isset($floorplan['fave_plan_image']) ? $floorplan['fave_plan_image'] : '' );
+                $text = ( isset($floorplan['fave_plan_title']) ? $floorplan['fave_plan_title'] : 'Floorplan' );
+                if ( !empty($url) )
                 {
-                    $url = ( isset($floorplan['fave_plan_image']) ? $floorplan['fave_plan_image'] : '' );
-                    $text = ( isset($floorplan['fave_plan_title']) ? $floorplan['fave_plan_title'] : 'Floorplan' );
-                    if ( !empty($url) )
+                    $media = array(
+                        'url' => $url,
+                        'type' => 'floor_plan',
+                    );
+                    if ( $text != '' )
                     {
-                        $media = array(
-                            'url' => $url,
-                            'type' => 'floor_plan',
-                        );
-                        if ( $text != '' )
-                        {
-                            $media['caption'] = $text;
-                        }
-
-                        $request_data['content'][] = $media;
+                        $media['caption'] = $text;
                     }
+
+                    $request_data['content'][] = $media;
                 }
             }
         }
@@ -496,10 +493,10 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         }
 
         // VIRTUAL TOURS
-        $virtual_tours = array();
+        $virtual_tour_urls = array();
         if ( get_post_meta( $post_id, 'fave_video_url', true ) != '' )
         {
-            $virtual_tours[] = get_post_meta( $post_id, 'fave_video_url', true );
+            $virtual_tour_urls[] = get_post_meta( $post_id, 'fave_video_url', true );
         }
 
         if ( !empty($virtual_tour_urls) )

@@ -790,30 +790,27 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                 // FLOORPLANS
                 $i = 0;
-                if ( get_post_meta( $post->ID, 'fave_floor_plans_enable', true ) == 'enable' )
+                $floorplans = get_post_meta( $post_id, 'floor_plans', true );
+                if ( is_array($floorplans) && !empty($floorplans) )
                 {
-                    $floorplans = get_post_meta( $post_id, 'floor_plans', true );
-                    if ( is_array($floorplans) && !empty($floorplans) )
+                    foreach ($floorplans as $floorplan)
                     {
-                        foreach ($floorplans as $floorplan)
+                        if ( $i >= $num_floorplans )
                         {
-                            if ( $i >= $num_floorplans )
-                            {
-                                break;
-                            }
-
-                            $j = str_pad($i, 2, '0', STR_PAD_LEFT);
-
-                            // Sent as full URLs
-                            $url = ( isset($floorplan['fave_plan_image']) ? $floorplan['fave_plan_image'] : '' );
-                            $text = ( isset($floorplan['fave_plan_title']) ? $floorplan['fave_plan_title'] : 'Floorplan' );
-
-                            $property_row_values['MEDIA_FLOOR_PLAN_' . $j] = $url;
-
-                            $property_row_values['MEDIA_FLOOR_PLAN_TEXT_' . $j] = $text;
-
-                            ++$i;
+                            break;
                         }
+
+                        $j = str_pad($i, 2, '0', STR_PAD_LEFT);
+
+                        // Sent as full URLs
+                        $url = ( isset($floorplan['fave_plan_image']) ? $floorplan['fave_plan_image'] : '' );
+                        $text = ( isset($floorplan['fave_plan_title']) ? $floorplan['fave_plan_title'] : 'Floorplan' );
+
+                        $property_row_values['MEDIA_FLOOR_PLAN_' . $j] = $url;
+
+                        $property_row_values['MEDIA_FLOOR_PLAN_TEXT_' . $j] = $text;
+
+                        ++$i;
                     }
                 }
                 for ($k = $i; $k < $num_floorplans; ++$k)

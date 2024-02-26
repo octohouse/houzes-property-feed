@@ -982,6 +982,56 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mri/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'pixxi' => array(
+            'name' => __( 'Pixxi', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'url',
+                    'label' => __( 'URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://www.pixxicrm.ae/api/sync/pixxi/<COMPANY_ENPOINT>',
+                )
+            ),
+            'address_fields' => array( 'region' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For Sale' => 'For Sale',
+                ),
+                'lettings_status' => array(
+                    'To Let' => 'To Let',
+                ),
+                'property_type' => array(
+                    'APARTMENT' => 'APARTMENT',
+                    'VILLA' => 'VILLA',
+                    'TOWNHOUSE' => 'TOWNHOUSE',
+                    'PENTHOUSE' => 'PENTHOUSE',
+                    'HOTEL_APARTMENT' => 'HOTEL_APARTMENT',
+                    'DUPLEX' => 'DUPLEX',
+                    'RESIDENTIAL_FLOOR' => 'RESIDENTIAL_FLOOR',
+                    'RESIDENTIAL_PLOT' => 'RESIDENTIAL_PLOT',
+                    'RESIDENTIAL_BUILDING' => 'RESIDENTIAL_BUILDING',
+                    'COMPOUND' => 'COMPOUND',
+                    'OFFICE' => 'OFFICE',
+                    'SHOP' => 'SHOP',
+                    'COMMERCIAL_BUILDING' => 'COMMERCIAL_BUILDING',
+                    'COMMERCIAL_FLOOR' => 'COMMERCIAL_FLOOR',
+                    'COMMERCIAL_PLOT' => 'COMMERCIAL_PLOT',
+                    'LABOR_CAMP' => 'LABOR_CAMP',
+                    'RETAIL' => 'RETAIL',
+                    'SHOW_ROOM' => 'SHOW_ROOM',
+                    'COMMERCIAL_VILLA' => 'COMMERCIAL_VILLA',
+                    'WAREHOUSE' => 'WAREHOUSE',
+                    'FARM' => 'FARM',
+                    'FACTORY' => 'FACTORY',
+                    'HOTEL' => 'HOTEL',
+                )
+            ),
+            'contact_information_fields' => array(
+                'agent_name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/pixxi/',
+            'warnings' => array(),
+        ),
         'property_finder' => array(
             'name' => __( 'Property Finder / myCRM', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -1173,6 +1223,74 @@ function get_houzez_property_feed_import_formats()
             'contact_information_fields' => array(),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/resales-online/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
+        'rex' => array(
+            'name' => __( 'Rex', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'username',
+                    'label' => __( 'Username', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'password',
+                    'label' => __( 'Password', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'base_url',
+                    'label' => __( 'API Base URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => 'https://api.uk.rexsoftware.com',
+                )
+            ),
+            'address_fields' => array( 'locality', 'suburb_or_town', 'state_or_region' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'Exchanged' => 'Exchanged',
+                    'Completed' => 'Completed',
+                ),
+                'lettings_status' => array(
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                ),
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Barn Conversion' => 'Barn Conversion',
+                    'Block of Flats' => 'Block of Flats',
+                    'Bungalow' => 'Bungalow',
+                    'Chalet' => 'Chalet',
+                    'Coach House' => 'Coach House',
+                    'Country House' => 'Country House',
+                    'Cottage' => 'Cottage',
+                    'Detached bungalow' => 'Detached bungalow',
+                    'Detached house' => 'Detached house',
+                    'End of terrace house' => 'End of terrace house',
+                    'Finca' => 'Finca',
+                    'Flat' => 'Flat',
+                    'House Boat' => 'House Boat',
+                    'Link detached house' => 'Link detached house',
+                    'Lodge' => 'Lodge',
+                    'Longere' => 'Longere',
+                    'Maisonette' => 'Maisonette',
+                    'Mews house' => 'Mews house',
+                    'Park home' => 'Park home',
+                    'Riad' => 'Riad',
+                    'Semi-detached bungalow' => 'Semi-detached bungalow',
+                    'Semi-detached house' => 'Semi-detached house',
+                    'Studio' => 'Studio',
+                    'Terraced bungalow' => 'Terraced bungalow',
+                    'Terraced House' => 'Terraced House',
+                    'Town House' => 'Town House',
+                    'Villa' => 'Villa',
+                )
+            ),
+            'contact_information_fields' => array(
+                'listing_agent_name'
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/rex/'
         ),
         'street' => array(
             'name' => __( 'Street', 'houzezpropertyfeed' ),

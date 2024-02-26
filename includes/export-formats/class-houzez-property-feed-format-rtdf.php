@@ -271,7 +271,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         
         // Branch
         $request_data['branch'] = array();
-        $branch_code = $branch_code = $this->get_branch_code( $post_id );
+        $branch_code = $this->get_branch_code( $post_id );
         $request_data['branch']['branch_id'] = (int)$branch_code;
         $request_data['branch']['channel'] = ( $department == 'sales' ? 1 : 2 ); // 1 for sales, 2 for lettings
         $request_data['branch']['overseas'] = false;
@@ -497,28 +497,25 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
         // FLOORPLANS
         $i = 0;
-        if ( get_post_meta( $post_id, 'fave_floor_plans_enable', true ) == 'enable' )
+        $floorplans = get_post_meta( $post_id, 'floor_plans', true );
+        if ( is_array($floorplans) && !empty($floorplans) )
         {
-            $floorplans = get_post_meta( $post_id, 'floor_plans', true );
-            if ( is_array($floorplans) && !empty($floorplans) )
+            foreach ( $floorplans as $floorplan )
             {
-                foreach ( $floorplans as $floorplan )
+                $url = ( isset($floorplan['fave_plan_image']) ? $floorplan['fave_plan_image'] : '' );
+                $text = ( isset($floorplan['fave_plan_title']) ? $floorplan['fave_plan_title'] : 'Floorplan' );
+                if ( !empty($url) )
                 {
-                    $url = ( isset($floorplan['fave_plan_image']) ? $floorplan['fave_plan_image'] : '' );
-                    $text = ( isset($floorplan['fave_plan_title']) ? $floorplan['fave_plan_title'] : 'Floorplan' );
-                    if ( !empty($url) )
-                    {
-                        $media = array(
-                            'media_type' => 2,
-                            'media_url' => $url,
-                            'caption' => substr($text, 0, 50),
-                            'sort_order' => $i,
-                        );
+                    $media = array(
+                        'media_type' => 2,
+                        'media_url' => $url,
+                        'caption' => substr($text, 0, 50),
+                        'sort_order' => $i,
+                    );
 
-                        $request_data['property']['media'][] = $media;
+                    $request_data['property']['media'][] = $media;
 
-                        ++$i;
-                    }
+                    ++$i;
                 }
             }
         }
@@ -547,10 +544,10 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         }
 
         // VIRTUAL TOURS
-        $virtual_tours = array();
+        $virtual_tour_urls = array();
         if ( get_post_meta( $post_id, 'fave_video_url', true ) != '' )
         {
-            $virtual_tours[] = get_post_meta( $post_id, 'fave_video_url', true );
+            $virtual_tour_urls[] = get_post_meta( $post_id, 'fave_video_url', true );
         }
 
         if ( !empty($virtual_tour_urls) )
