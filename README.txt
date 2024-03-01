@@ -1,10 +1,10 @@
 === Houzez Property Feed ===
 Contributors: PropertyHive
-Tags: property import, property export, houzez, houzez import property, expertagent, expert agent, loop, 10ninety, vebra, alto, dezrez, jupix, street, real estate
+Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.4.3
-Stable tag: 2.1.3
-Version: 2.1.3
+Stable tag: 2.1.4
+Version: 2.1.4
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -113,6 +113,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.1.4 - 2024-02-26 =
+* Corrected postcode field name in Acquaint imports
+* Corrected the post ID variable passed through in Zoopla and RTDF export filters
+* Removed unnecessary logging from Facebook exports
+* Updated pro features
+* Uninstall process updated to reflect recent cron and DB updates
+* Reduced README to 5 tags
 
 = 2.1.3 - 2024-02-26 =
 * Added preliminary support for importing properties from Rex

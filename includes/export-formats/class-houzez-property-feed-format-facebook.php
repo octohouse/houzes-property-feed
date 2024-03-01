@@ -219,7 +219,6 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
                 {
                     // look at symbol set in settings
                     $symbol = fave_option('currency_symbol', '£');
-                    $this->log($symbol, '', $post->ID);
                     switch ( $symbol )
                     {
                         case "£": { $currency = 'GBP'; break; }

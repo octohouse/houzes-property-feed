@@ -605,7 +605,7 @@ class Houzez_Property_Feed_Admin {
             array(
                 'icon' => 'dashicons dashicons-admin-multisite',
                 'title' => 'Import unlimited properties',
-                'description' => 'Remove the 50 property limit and import unlimited properties.'
+                'description' => 'Remove the 25 property limit and import/export unlimited properties.'
             ),
             array(
                 'icon' => 'dashicons dashicons-clock',
@@ -615,12 +615,12 @@ class Houzez_Property_Feed_Admin {
             array(
                 'icon' => 'dashicons dashicons-admin-comments',
                 'title' => 'Priority support',
-                'description' => 'Our UK based friendly support team are on hand to answer any of your questions and assist with setting up imports.'
+                'description' => 'Our UK based friendly support team are on hand to answer any of your questions and assist with setting up feeds.'
             ),
             array(
                 'icon' => 'dashicons dashicons-database-import',
-                'title' => 'Multiple imports',
-                'description' => 'Have multiple simultaneous imports running at once. Useful if importing from multiple sources.'
+                'title' => 'Multiple imports and exports',
+                'description' => 'Have multiple simultaneous imports and exports running at once. Useful if importing from or exporting to multiple sources.'
             ),
             array(
                 'icon' => 'dashicons dashicons-email',
@@ -635,7 +635,17 @@ class Houzez_Property_Feed_Admin {
             array(
                 'icon' => 'dashicons dashicons-admin-media',
                 'title' => 'Save disk space over time',
-                'description' => 'Choose to delete property media when a property comes off of the market to save on disk space'
+                'description' => 'Choose to delete property media when a property comes off of the market to save on disk space.'
+            ),
+            array(
+                'icon' => 'dashicons dashicons-database',
+                'title' => 'Download and process media separately',
+                'description' => 'Allow imports to complete quicker by opting to process media in a separate background queue.'
+            ),
+            array(
+                'icon' => 'dashicons dashicons-yes',
+                'title' => 'Select which properties are exported',
+                'description' => 'Get control over which properties are sent to which portals.'
             ),
         );
     }

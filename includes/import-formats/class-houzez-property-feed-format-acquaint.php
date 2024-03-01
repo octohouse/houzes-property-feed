@@ -324,7 +324,7 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 	            {
 	                $address_parts[] = (string)$property->address->region;
 	            }
-	            if ( isset($property->address->postcode) && (string)$property->address->regipostcodeon != '' )
+	            if ( isset($property->address->postcode) && (string)$property->address->postcode != '' )
 	            {
 	                $address_parts[] = (string)$property->address->postcode;
 	            }

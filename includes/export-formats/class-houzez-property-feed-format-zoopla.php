@@ -516,7 +516,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             }
         }
 
-        $request_data = apply_filters( 'houzez_property_feed_export_property_data', $request_data, $post->ID, $this->export_id );
+        $request_data = apply_filters( 'houzez_property_feed_export_property_data', $request_data, $post_id, $this->export_id );
         $request_data = apply_filters( 'houzez_property_feed_export_zoopla_property_data', $request_data, $post_id, $this->export_id );
 
         array_walk_recursive( $request_data, array($this, 'replace_bad_characters' ) );
