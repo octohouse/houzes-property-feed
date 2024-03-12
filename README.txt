@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.4.3
-Stable tag: 2.1.4
-Version: 2.1.4
+Stable tag: 2.1.5
+Version: 2.1.5
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -113,6 +113,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.1.5 - 2024-03-12 =
+* Append disclaimer to descriptions imported from Rex
+* Get paginated data in RE/MAX requests for properties
+* Extend timeout limits on RE/MAX requests
 
 = 2.1.4 - 2024-02-26 =
 * Corrected postcode field name in Acquaint imports

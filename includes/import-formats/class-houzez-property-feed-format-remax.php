@@ -56,7 +56,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			$url,
 			array(
 				'method' => 'POST',
-				'timeout' => 60,
+				'timeout' => 120,
 				'headers' => $headers,
 				'body' => $json
 			)
@@ -158,7 +158,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					$url,
 					array(
 						'method' => 'POST',
-						'timeout' => 60,
+						'timeout' => 120,
 						'headers' => $headers,
 						'body' => $json
 					)
@@ -277,91 +277,112 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 		        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
 				$url = 'https://' . $host;
-				$url .= '/feeds_default/agent';
+				$url .= '/feeds_default/agents-page';
 		        $region = 'eu-west-1';
 
-		        $event = array( "token" => $import_settings['api_key'], "agent_id" => $agent_id );
-		        $json = json_encode($event);
+		        $more_properties = true;
+		        $page = 0;
 
-		        $aws = new AWSV4(
-		        	$import_settings['access_key'],
-		        	$import_settings['secret_key']
-		        );
-		        $aws->setRegionName( $region );
-				$aws->setServiceName( 'execute-api' );
-				$aws->setPath( '/feeds_default/agent' );
-				$aws->setPayload( $json );
-				$aws->setRequestMethod( 'POST' );
-				$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
-				$aws->addHeader( 'host', $host );
+		        while ( $more_properties )
+		        {
+		        	$this->log("Page " . ( $page + 1 ));
 
-		        $headers = $aws->getHeaders();
+			        $event = array( "token" => $import_settings['api_key'], "agent_id" => $agent_id, "page" => $page );
+			        $json = json_encode($event);
 
-		        $response = wp_remote_request(
-					$url,
-					array(
-						'method' => 'POST',
-						'timeout' => 60,
-						'headers' => $headers,
-						'body' => $json
-					)
-				);
+			        $aws = new AWSV4(
+			        	$import_settings['access_key'],
+			        	$import_settings['secret_key']
+			        );
+			        $aws->setRegionName( $region );
+					$aws->setServiceName( 'execute-api' );
+					$aws->setPath( '/feeds_default/agents-page' );
+					$aws->setPayload( $json );
+					$aws->setRequestMethod( 'POST' );
+					$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
+					$aws->addHeader( 'host', $host );
 
-		        if ( !is_wp_error($response) && is_array( $response ) ) 
-				{
-		        	$body = $response['body'];
-		        	$json = json_decode( $body, TRUE );
+			        $headers = $aws->getHeaders();
 
-				    if ( $json === FALSE )
-				    {
-				    	// Failed to parse JSON
-						$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
-						return false;
-				    }
+			        $response = wp_remote_request(
+						$url,
+						array(
+							'method' => 'POST',
+							'timeout' => 120,
+							'headers' => $headers,
+							'body' => $json
+						)
+					);
 
-				    if ( !isset($json['data']) )
-				    {
-				    	// Failed to parse JSON
-						$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
-						return false;
-				    }
+			        if ( !is_wp_error($response) && is_array( $response ) ) 
+					{
+			        	$body = $response['body'];
+			        	$json = json_decode( $body, TRUE );
 
-				    $data_json = json_decode( $json['data'], TRUE );
-
-				    if ( $data_json === FALSE )
-				    {
-				    	// Failed to parse JSON
-						$this->log_error( 'Failed to parse JSON data: ' . print_r($json['data'], true) );
-						return false;
-				    }
-
-				    if ( !isset($data_json['properties']) )
-				    {
-						$this->log_error( 'Properties data missing from JSON: ' . print_r($data_json, true) );
-						//return false;
-				    }
-				    else
-				    {
-					    if ( !isset($data_json['properties']['property']) )
+					    if ( $json === FALSE )
 					    {
-							$this->log_error( 'Property data missing from JSON: ' . print_r($data_json, true) );
+					    	// Failed to parse JSON
+							$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
+							return false;
+					    }
+
+					    if ( !isset($json['data']) )
+					    {
+					    	// Failed to parse JSON
+							$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
+							return false;
+					    }
+
+					    $data_json = json_decode( $json['data'], TRUE );
+
+					    if ( $data_json === FALSE )
+					    {
+					    	// Failed to parse JSON
+							$this->log_error( 'Failed to parse JSON data: ' . print_r($json['data'], true) );
+							return false;
+					    }
+
+					    if ( !isset($data_json['properties']) )
+					    {
+							$this->log_error( 'Properties data missing from JSON: ' . print_r($data_json, true) );
 							//return false;
 					    }
+					    else
+					    {
+						    if ( !isset($data_json['properties']['property']) )
+						    {
+								$this->log_error( 'Property data missing from JSON: ' . print_r($data_json, true) );
+								//return false;
+						    }
+						}
+
+						if ( !isset($data_json['properties']['hasNextPage']) )
+						{
+							$this->log_error( 'Pagination hasNextPage element missing: ' . print_r($data_json, true) );
+							return false;
+						}
+
+					    if ( isset($data_json['properties']['property']) && !empty($data_json['properties']['property']) )
+					    {
+						    foreach ( $data_json['properties']['property'] as $property )
+						    {
+						    	$property['agent_details'] = $data_json['agent_details'];
+						    	$this->properties[] = $property;
+						    }
+						}
+
+						if ( $data_json['properties']['hasNextPage'] == false )
+						{
+							$more_properties = false;
+						}
+					}
+					else
+					{
+						$this->log_error( 'Failed to obtain properties JSON. Dump of response as follows:' . print_r($response, TRUE) );
+						return false;
 					}
 
-				    if ( isset($data_json['properties']['property']) && !empty($data_json['properties']['property']) )
-				    {
-					    foreach ( $data_json['properties']['property'] as $property )
-					    {
-					    	$property['agent_details'] = $data_json['agent_details'];
-					    	$this->properties[] = $property;
-					    }
-					}
-				}
-				else
-				{
-					$this->log_error( 'Failed to obtain properties JSON. Dump of response as follows:' . print_r($response, TRUE) );
-					return false;
+					++$page;
 				}
 			}
 		}

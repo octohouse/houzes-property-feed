@@ -334,6 +334,11 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 					}
 	        	}
 	        }
+
+	        if ( isset($property['disclaimer_text']) && $property['disclaimer_text'] != '' )
+	        {
+	        	$post_content .= '<p>' . $property['disclaimer_text'] . '</p>';
+	        }
 	        
 	        if ($property_query->have_posts())
 	        {
@@ -848,7 +853,9 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 							$description = '';
 							$modified = $image['modtime'];
 						    
-							$filename = basename( $url );
+						    $explode_url = explode('?', $url);
+
+							$filename = basename( $explode_url[0] );
 
 							// Check, based on the URL, whether we have previously imported this media
 							$imported_previously = false;
@@ -894,7 +901,7 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 							}
 							else
 							{
-								if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, $property['id'], $url, $url, $description, 'image', $image_i, $modified ) === true )
+								if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, $property['id'], $explode_url[0], $url, $description, 'image', $image_i, $modified ) === true )
 								{
 									$tmp = download_url( $url );
 
