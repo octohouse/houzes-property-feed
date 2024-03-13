@@ -394,8 +394,6 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			return false;
 		}
 
-		
-
 		return true;
 	}
 

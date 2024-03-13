@@ -855,8 +855,24 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 						    
 						    $explode_url = explode('?', $url);
 
-							$filename = basename( $explode_url[0] );
+						    // does it have an extension
+						    $filename = basename( $explode_url[0] );
+							if ( !preg_match('/\.(jpg|jpeg|png|gif|bmp|svg)$/i', $explode_url[0]) ) 
+							{
+							    $filename .= '.jpg';
+							}
 
+							$max_length = 100; // Define a safe limit considering file system and other constraints
+						    
+						    if ( strlen($filename) > $max_length ) 
+						    {
+						    	$extension = pathinfo($filename, PATHINFO_EXTENSION);
+						    	$name_without_extension = pathinfo($filename, PATHINFO_FILENAME);
+
+						        $name_without_extension = substr($name_without_extension, 0, $max_length - strlen($extension) - 1);
+						        $filename = $name_without_extension . '.' . $extension;
+						    }
+							
 							// Check, based on the URL, whether we have previously imported this media
 							$imported_previously = false;
 							$imported_previously_id = '';

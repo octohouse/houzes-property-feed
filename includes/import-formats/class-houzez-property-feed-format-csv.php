@@ -279,10 +279,13 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 					}
 				}
 
+				$image_mapping_specified = false;
 				if ( !isset($import_settings['image_field_arrangement']) || ( isset($import_settings['image_field_arrangement']) && $import_settings['image_field_arrangement'] == '' ) )
 				{
 					if ( isset($import_settings['image_fields']) && !empty($import_settings['image_fields']) )
 					{
+						$image_mapping_specified = true;
+
 						$explode_media = explode("\n", $import_settings['image_fields']);
 
 						foreach ( $explode_media as $media_item )
@@ -446,6 +449,8 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				{
 					if ( isset($import_settings['image_field']) && !empty($import_settings['image_field']) )
 					{
+						$image_mapping_specified = true;
+
 						$value_to_check = check_array_for_matching_key( $property, $import_settings['image_field'] );
 
                         if ( $value_to_check !== false )
@@ -588,41 +593,51 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				if ( $media_ids != $previous_media_ids )
+				if ( $image_mapping_specified )
 				{
-					delete_post_meta( $post_id, 'fave_property_images' );
-					foreach ( $media_ids as $media_id )
+					if ( $media_ids != $previous_media_ids )
 					{
-						add_post_meta( $post_id, 'fave_property_images', $media_id );
-					}
-				}
-
-				// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
-				if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
-				{
-					foreach ( $previous_media_ids as $previous_media_id )
-					{
-						if ( !in_array($previous_media_id, $media_ids) )
+						delete_post_meta( $post_id, 'fave_property_images' );
+						foreach ( $media_ids as $media_id )
 						{
-							if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
+							add_post_meta( $post_id, 'fave_property_images', $media_id );
+						}
+					}
+
+					// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
+					if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
+					{
+						foreach ( $previous_media_ids as $previous_media_id )
+						{
+							if ( !in_array($previous_media_id, $media_ids) )
 							{
-								++$deleted;
+								if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
+								{
+									++$deleted;
+								}
 							}
 						}
 					}
-				}
 
-				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property_id, $post_id );
+					$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property_id, $post_id );
+				}
+				else
+				{
+					$this->log( 'Not importing images due to no image fields specified in \'Media\' section of import settings', $property_id, $post_id );
+				}
 
 				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
 				// Floorplans
 				$floorplans = array();
 
+				$floorplan_mapping_specified = false;
 				if ( !isset($import_settings['floorplan_field_arrangement']) || ( isset($import_settings['floorplan_field_arrangement']) && $import_settings['floorplan_field_arrangement'] == '' ) )
 				{
 					if ( isset($import_settings['floorplan_fields']) && !empty($import_settings['floorplan_fields']) )
 					{
+						$floorplan_mapping_specified = true;
+
 						$explode_media = explode("\n", $import_settings['floorplan_fields']);
 
 						foreach ( $explode_media as $media_item )
@@ -691,6 +706,8 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				{
 					if ( isset($import_settings['floorplan_field']) && !empty($import_settings['floorplan_field']) )
 					{
+						$floorplan_mapping_specified = true;
+
 						$value_to_check = check_array_for_matching_key( $property, $import_settings['floorplan_field'] );
 
                         if ( $value_to_check !== false )
@@ -725,17 +742,24 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                     }
 				}
 
-				if ( !empty($floorplans) )
+				if ( $floorplan_mapping_specified )
 				{
-	                update_post_meta( $post_id, 'floor_plans', $floorplans );
-	                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
-	            }
-	            else
-	            {
-	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
-	            }
+					if ( !empty($floorplans) )
+					{
+		                update_post_meta( $post_id, 'floor_plans', $floorplans );
+		                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
+		            }
+		            else
+		            {
+		            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
+		            }
 
-				$this->log( 'Imported ' . count($floorplans) . ' floorplans', $property_id, $post_id );
+					$this->log( 'Imported ' . count($floorplans) . ' floorplans', $property_id, $post_id );
+				}
+				else
+				{
+					$this->log( 'Not importing floorplans due to no floorplan fields specified in \'Media\' section of import settings', $property_id, $post_id );
+				}
 
 				// Documents
 				$media_ids = array();
@@ -744,10 +768,13 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				$deleted = 0;
 				$previous_media_ids = get_post_meta( $post_id, 'fave_attachments' );
 
+				$document_mapping_specified = false;
 				if ( !isset($import_settings['document_field_arrangement']) || ( isset($import_settings['document_field_arrangement']) && $import_settings['document_field_arrangement'] == '' ) )
 				{
 					if ( isset($import_settings['document_fields']) && !empty($import_settings['document_fields']) )
 					{
+						$document_mapping_specified = true;
+
 						$explode_media = explode("\n", $import_settings['document_fields']);
 
 						foreach ( $explode_media as $media_item )
@@ -892,6 +919,8 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				{
 					if ( isset($import_settings['document_field']) && !empty($import_settings['document_field']) )
 					{
+						$document_mapping_specified = true;
+
 						$value_to_check = check_array_for_matching_key( $property, $import_settings['document_field'] );
 
                         if ( $value_to_check !== false )
@@ -1003,32 +1032,39 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                     }
 				}
 
-				if ( $media_ids != $previous_media_ids )
+				if ( $document_mapping_specified )
 				{
-					delete_post_meta( $post_id, 'fave_attachments' );
-					foreach ( $media_ids as $media_id )
+					if ( $media_ids != $previous_media_ids )
 					{
-						add_post_meta( $post_id, 'fave_attachments', $media_id );
-					}
-				}
-
-				// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
-				if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
-				{
-					foreach ( $previous_media_ids as $previous_media_id )
-					{
-						if ( !in_array($previous_media_id, $media_ids) )
+						delete_post_meta( $post_id, 'fave_attachments' );
+						foreach ( $media_ids as $media_id )
 						{
-							if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
+							add_post_meta( $post_id, 'fave_attachments', $media_id );
+						}
+					}
+
+					// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
+					if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
+					{
+						foreach ( $previous_media_ids as $previous_media_id )
+						{
+							if ( !in_array($previous_media_id, $media_ids) )
 							{
-								++$deleted;
+								if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
+								{
+									++$deleted;
+								}
 							}
 						}
 					}
+
+					$this->log( 'Imported ' . count($media_ids) . ' documents (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property_id, $post_id );
+				}
+				else
+				{
+					$this->log( 'Not importing documents due to no document fields specified in \'Media\' section of import settings', $property_id, $post_id );
 				}
 
-				$this->log( 'Imported ' . count($media_ids) . ' documents (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property_id, $post_id );
-				
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
 				do_action( "houzez_property_feed_property_imported_csv", $post_id, $property, $this->import_id );
 
