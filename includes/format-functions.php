@@ -1335,6 +1335,64 @@ function get_houzez_property_feed_import_formats()
             'export_enquiries' => true,
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/street/'
         ),
+        'vaultea' => array(
+            'name' => __( 'VaultEA', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'token',
+                    'label' => __( 'Token', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'portal_id',
+                    'label' => __( 'Portal ID', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => 'Please note: VaultEA have strict rate limiting on API calls. If you experience issues with imports timing out it\'s possible you\'ll need to increase the timeout limit on your server'
+                ),
+            ),
+            'address_fields' => array( 'thoroughfare (UK only)', 'thoroughfare2 (UK only)', 'posttown (UK only)', 'suburb_name (Non-UK only)', 'suburb_district_name (Non-UK only)', 'state_name (Non-UK only)' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'listing' => 'listing',
+                    'conditional' => 'conditional',
+                    'listingOrConditional' => 'listingOrConditional',
+                    'unconditional' => 'unconditional'
+                ),
+                'lettings_status' => array(
+                    'listing' => 'listing',
+                    'management' => 'management',
+                    'letAgreed' => 'letAgreed',
+                ),
+                'property_type' => array(
+                    'Bungalow' => 'Bungalow',
+                    'Cottage' => 'Cottage',
+                    'Detached Bungalow' => 'Detached Bungalow',
+                    'Semi-Detached Bungalow' => 'Semi-Detached Bungalow',
+                    'Terraced Bungalow' => 'Terraced Bungalow',
+                    'Detached House' => 'Detached House',
+                    'Semi-Detached House' => 'Semi-Detached House',
+                    'End Terrace House' => 'End Terrace House',
+                    'Terraced House' => 'Terraced House',
+                    'Flat' => 'Flat',
+                    'Apartment' => 'Apartment',
+                    'Maisonette' => 'Maisonette',
+                    'Studio' => 'Studio',
+                )
+            ),
+            'contact_information_fields' => array(
+                'branch_name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/vaultea/'
+        ),
         'xml' => array(
             'name' => __( 'XML', 'houzezpropertyfeed' ),
             'fields' => array(

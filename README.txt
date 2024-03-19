@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.4.3
-Stable tag: 2.1.6
-Version: 2.1.6
+Stable tag: 2.1.7
+Version: 2.1.7
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -42,6 +42,7 @@ We can import properties from the following estate agency CRMs/formats:
 * ReSales Online
 * Rex
 * Street (including sending enquiries back in Street)
+* VaultEA
 * XML (any XML file hosted on a public URL)
 
 We can export and upload feeds from Houzez to third party portals in the following formats:
@@ -113,6 +114,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.1.7 - 2024-03-19 =
+* Added preliminary support for importing properties from VaultEA
+* Added function to get number decimal/thousand separators which is then used in CSV/XML imports to correct the price
+* Improve efficiency of queued media counts in automatic imports table with reevised query and new database index
 
 = 2.1.6 - 2024-03-13 =
 * Cater for really long image URLs in Rex format with no ext. Often the case when they send watermarked images

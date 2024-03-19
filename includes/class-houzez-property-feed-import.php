@@ -867,6 +867,12 @@ class Houzez_Property_Feed_Import {
                             }
                         }
                     }
+                    elseif ( $and_rules['houzez_field'] == 'fave_property_price' && $result != '' )
+                    {
+                        $price_separators = hpf_determine_number_separators($result);
+                        $result = str_replace($price_separators['thousand'], '', $result);
+                        $result = str_replace($price_separators['decimal'], fave_option('decimal_point_separator', '.'), $result);
+                    }
 
                     if ( isset($houzez_fields[$and_rules['houzez_field']]) && isset($houzez_fields[$and_rules['houzez_field']]['field_type']) && $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'multiselect' )
                     {
@@ -904,8 +910,8 @@ class Houzez_Property_Feed_Import {
             }
         }
 
-        // not doing for XML format as should be done inside XML import class
-        if ( $import_settings['format'] != 'xml' )
+        // not doing for CSV/XML format as should be done inside CSV/XML import class
+        if ( $import_settings['format'] != 'csv' && $import_settings['format'] != 'xml' )
         {
             if ( !empty($post_fields_to_update) )
             {
@@ -1001,13 +1007,13 @@ class Houzez_Property_Feed_Import {
                     {
                         foreach ( $matches[0] as $match )
                         {
-                            $field_name = str_replace(array("{", "}"), "", $match);
+                            $field_name2 = str_replace(array("{", "}"), "", $match);
                             $value_to_check = '';
 
-                            if ( substr($field_name, 0, 1) == '/' )
+                            if ( substr($field_name2, 0, 1) == '/' )
                             {
                                 // Using XPATH syntax
-                                $values_to_check = $property->xpath('/' . $property_node . $field_name);
+                                $values_to_check = $property->xpath('/' . $property_node . $field_name2);
                                 if ( $values_to_check !== false && is_array($values_to_check) && !empty($values_to_check) )
                                 {
                                     $value_to_check = (string)$values_to_check[0];
@@ -1089,12 +1095,12 @@ class Houzez_Property_Feed_Import {
                     {
                         foreach ( $matches[0] as $match )
                         {
-                            $field_name = str_replace(array("{", "}"), "", $match);
+                            $field_name2 = str_replace(array("{", "}"), "", $match);
                             $value_to_check = '';
 
-                            if ( isset($property[$field_name]) )
+                            if ( isset($property[$field_name2]) )
                             {
-                                $value_to_check = $property[$field_name];
+                                $value_to_check = $property[$field_name2];
                             }
 
                             $result = str_replace($match, $value_to_check, $result);

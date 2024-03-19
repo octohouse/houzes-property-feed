@@ -232,3 +232,31 @@ function get_houzez_fields_for_field_mapping()
 
     return $houzez_fields;
 }
+
+function hpf_determine_number_separators($number) 
+{
+    $decimalSeparator = '';
+    $thousandSeparator = '';
+    
+    // Count occurrences
+    $commaCount = substr_count($number, ',');
+    $periodCount = substr_count($number, '.');
+
+    // Check last occurrence to guess the decimal separator
+    if (strrpos($number, ',') > strrpos($number, '.')) {
+        $decimalSeparator = ',';
+        $thousandSeparator = '.';
+    } else {
+        $decimalSeparator = '.';
+        $thousandSeparator = ',';
+    }
+
+    // Adjust based on frequency if necessary (might be redundant for a single number)
+    if ($commaCount > $periodCount && $decimalSeparator == '.') {
+        $thousandSeparator = ',';
+    } elseif ($periodCount > $commaCount && $decimalSeparator == ',') {
+        $thousandSeparator = '.';
+    }
+
+    return ['decimal' => $decimalSeparator, 'thousand' => $thousandSeparator];
+}

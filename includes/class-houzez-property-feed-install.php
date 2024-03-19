@@ -185,7 +185,8 @@ class Houzez_Property_Feed_Install {
 					media_compare_url text NOT NULL,
 					media_modified varchar(24) NOT NULL,
 					date_queued datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-					PRIMARY KEY  (id)
+					PRIMARY KEY (id),
+  					INDEX import_post_media_order (import_id, post_id, media_type, media_order)
 				) $collate;";
 
 		$table_name = $wpdb->prefix . "houzez_property_feed_export_logs_instance";

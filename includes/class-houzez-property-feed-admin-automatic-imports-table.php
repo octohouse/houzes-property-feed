@@ -84,6 +84,32 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
 
         $frequencies = get_houzez_property_feed_import_frequencies();
 
+        $queued_media = array();
+        if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
+        {
+            if ( isset($options['media_processing']) && $options['media_processing'] === 'background' )
+            {
+                $media_queue_counts = $wpdb->get_results(
+                    "
+                    SELECT 
+                        `import_id`, 
+                        COUNT(DISTINCT `post_id`, `media_type`, `media_order`) AS `queued_media_count` 
+                    FROM
+                        " . $wpdb->prefix . "houzez_property_feed_media_queue 
+                    GROUP BY 
+                    `import_id`
+                    "
+                );
+                if ( count($media_queue_counts) > 0 )
+                {
+                    foreach ( $media_queue_counts as $media_queue_count )
+                    {
+                        $queued_media[$media_queue_count->import_id] = $media_queue_count->queued_media_count;
+                    }
+                }
+            }
+        }
+
         foreach ( $imports as $key => $import )
         {
             // ensure frequency is not a PRO one if PRO not enabled
@@ -123,36 +149,9 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             {
                 if ( isset($options['media_processing']) && $options['media_processing'] === 'background' )
                 {
-                    $media_to_import = $wpdb->get_results(
-                        "
-                        SELECT
-                            GROUP_CONCAT(`id`) as `ids`,
-                            `import_id`,
-                            `post_id`,
-                            `crm_id`,
-                            `media_type`,
-                            `media_order`,
-                            SUBSTRING_INDEX(GROUP_CONCAT(`media_location` ORDER BY `media_modified` DESC SEPARATOR '~'), '~', 1 ) as `media_location`,
-                            SUBSTRING_INDEX(GROUP_CONCAT(`media_description` ORDER BY `media_modified` DESC SEPARATOR '~'), '~', 1 ) as `media_description`,
-                            SUBSTRING_INDEX(GROUP_CONCAT(`media_compare_url` ORDER BY `media_modified` DESC SEPARATOR '~'), '~', 1 ) as `media_compare_url`,
-                            MAX(`media_modified`) as `media_modified`
-                        FROM
-                            " . $wpdb->prefix . "houzez_property_feed_media_queue
-                        WHERE
-                            `import_id` = '" . $key . "'
-                        GROUP BY
-                            post_id,
-                            media_type,
-                            media_order
-                        ORDER BY
-                            post_id,
-                            media_type,
-                            media_order
-                        "
-                    );
-                    if ( count($media_to_import) > 0 )
+                    if ( isset($queued_media[$key]) && !empty($queued_media[$key]) )
                     {
-                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: ' . count($media_to_import) . '<br>';
+                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: ' . $queued_media[$key] . '<br>';
                     }
                 }
             }
