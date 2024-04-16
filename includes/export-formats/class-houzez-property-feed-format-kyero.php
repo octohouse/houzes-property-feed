@@ -337,6 +337,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 {
                     $description = $post->post_excerpt;
                 }
+                $description = str_replace("&nbsp;", " ", $description);
                 $desc_xml = $property_xml->addChild('desc');
                 $desc_xml->addChild('en', htmlspecialchars($description, ENT_QUOTES | ENT_XML1, 'UTF-8'));
 

@@ -198,6 +198,7 @@ function get_houzez_fields_for_field_mapping()
     $taxonomies = array(
         'property_type' => array( 'type' => 'taxonomy', 'label' => __( 'Property Type', 'houzez' ) ),
         'property_status' => array( 'type' => 'taxonomy', 'label' => __( 'Status', 'houzez' ) ),
+        'property_label' => array( 'type' => 'taxonomy', 'label' => __( 'Label', 'houzez' ) ),
         'property_feature' => array( 'type' => 'taxonomy', 'label' => __( 'Property Features', 'houzez' ), 'delimited' => true ),
     );
 

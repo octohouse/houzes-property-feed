@@ -871,7 +871,7 @@ class Houzez_Property_Feed_Import {
                     {
                         $price_separators = hpf_determine_number_separators($result);
                         $result = str_replace($price_separators['thousand'], '', $result);
-                        $result = str_replace($price_separators['decimal'], fave_option('decimal_point_separator', '.'), $result);
+                        $result = str_replace($price_separators['decimal'], '.', $result);
                     }
 
                     if ( isset($houzez_fields[$and_rules['houzez_field']]) && isset($houzez_fields[$and_rules['houzez_field']]['field_type']) && $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'multiselect' )

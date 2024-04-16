@@ -72,6 +72,7 @@ class Houzez_Property_Feed_WPML {
                     {
                         $description = get_the_excerpt($language_post_id);
                     }
+                    $description = str_replace("&nbsp;", " ", $description);
                     $desc_xml->addCData( $isocode, $description );
                 }
             }
