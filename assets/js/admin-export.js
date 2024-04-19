@@ -145,9 +145,37 @@ jQuery(document).ready(function()
 		}
 	});
 
+	show_duplicate_department_status_warning();
+
+	jQuery('#departmentstatuses #sales_statuses').change(function()
+	{
+		show_duplicate_department_status_warning();
+	});
+	jQuery('#departmentstatuses #lettings_statuses').change(function()
+	{
+		show_duplicate_department_status_warning();
+	});
+
 	hpf_show_format_settings();
 	build_field_mapping_rule_accordions();
 });
+
+function show_duplicate_department_status_warning()
+{
+    var sales_selected = jQuery('#departmentstatuses #sales_statuses').val() || [];
+    var lettings_selected = jQuery('#departmentstatuses #lettings_statuses').val() || [];
+
+    // Check for common elements
+    var common = sales_selected.filter(value => lettings_selected.includes(value));
+    if (common.length > 0) 
+    {
+        jQuery('#duplicate_department_statuses').show();
+    }
+    else
+    {
+    	jQuery('#duplicate_department_statuses').hide();
+    }
+}
 
 function build_field_mapping_rule_accordions()
 {

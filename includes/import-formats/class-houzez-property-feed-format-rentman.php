@@ -843,6 +843,8 @@ class Houzez_Property_Feed_Format_Rentman extends Houzez_Property_Feed_Process {
 					}
 				}
 
+				update_post_meta( $post_id, 'images_stored_as_urls', false );
+
 				// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
 				if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
 				{

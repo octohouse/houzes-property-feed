@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.2
-Stable tag: 2.1.8
-Version: 2.1.8
+Stable tag: 2.2.0
+Version: 2.2.0
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -115,7 +115,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 
 == Changelog ==
 
-= 2.1.8 - 2024-03-20 =
+= 2.2.0 - 2024-04-19 =
+* Show warning if same status is ticked in both export department statuses
+* Set the country taxonomy on a property when imported from Acquaint if the 'Country' taxonomy is enabled and a matching country is found
+* Added filters to store images as URLs. If enabled it requires template updates in order for it to work
+* Correct undefined PHP variable
+
+= 2.1.8 - 2024-04-16 =
 * Added 'Label' as field available to be mapped in import settings 'Field Mapping' section
 * Corrected issue with character used for decimal places in prices when imported via field mapping
 * Declared compatibility with WordPress 6.5.2

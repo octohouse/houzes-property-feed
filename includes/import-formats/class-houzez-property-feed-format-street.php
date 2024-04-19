@@ -807,173 +807,209 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 				}
 
 				// Images
-				$media_ids = array();
-				$new = 0;
-				$existing = 0;
-				$deleted = 0;
-				$image_i = 0;
-				$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
-
-				$start_at_image_i = false;
-				$previous_import_media_ids = get_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id );
-
-				if ( !empty($previous_import_media_ids) )
+				if ( 
+					apply_filters('houzez_property_feed_images_stored_as_urls', false, $post_id, $property, $this->import_id) === true ||
+					apply_filters('houzez_property_feed_images_stored_as_urls_street', false, $post_id, $property, $this->import_id) === true
+				)
 				{
-					// an import stopped previously whilst doing images. Check if it was this post
-					$explode_previous_import_media_ids = explode("|", $previous_import_media_ids);
-					if ( $explode_previous_import_media_ids[0] == $post_id )
-					{
-						// yes it was this property. now loop through the media already imported to ensure it's not imported again
-						if ( isset($explode_previous_import_media_ids[1]) && !empty($explode_previous_import_media_ids[1]) )
-						{
-							$media_ids = explode(",", $explode_previous_import_media_ids[1]);
-							$start_at_image_i = count($media_ids);
+					$urls = array();
 
-							$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', $property['id'], $post_id );
+					if (isset($property['images']) && !empty($property['images']))
+					{
+						foreach ($property['images'] as $image)
+						{
+							$size = 'large'; // thumbnail, small, medium, large, hero, full
+							$url = isset($image['urls'][$size]) ? $image['urls'][$size] : $image['url'];
+
+							if ( 
+								substr( strtolower($url), 0, 2 ) == '//' || 
+								substr( strtolower($url), 0, 4 ) == 'http'
+							)
+							{
+								$urls[] = array(
+									'url' => $url
+								);
+							}
 						}
 					}
+
+					update_post_meta( $post_id, 'image_urls', $urls );
+					update_post_meta( $post_id, 'images_stored_as_urls', true );
+
+					$this->log( 'Imported ' . count($urls) . ' photo URLs', $property['id'], $post_id );
 				}
-
-				if (isset($property['images']) && !empty($property['images']))
+				else
 				{
-					foreach ($property['images'] as $image)
+					$media_ids = array();
+					$new = 0;
+					$existing = 0;
+					$deleted = 0;
+					$image_i = 0;
+					$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
+
+					$start_at_image_i = false;
+					$previous_import_media_ids = get_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id );
+
+					if ( !empty($previous_import_media_ids) )
 					{
-						$size = 'large'; // thumbnail, small, medium, large, hero, full
-						$url = isset($image['urls'][$size]) ? $image['urls'][$size] : $image['url'];
-
-						if ( 
-							substr( strtolower($url), 0, 2 ) == '//' || 
-							substr( strtolower($url), 0, 4 ) == 'http'
-						)
+						// an import stopped previously whilst doing images. Check if it was this post
+						$explode_previous_import_media_ids = explode("|", $previous_import_media_ids);
+						if ( $explode_previous_import_media_ids[0] == $post_id )
 						{
-							if ( $start_at_image_i !== false )
+							// yes it was this property. now loop through the media already imported to ensure it's not imported again
+							if ( isset($explode_previous_import_media_ids[1]) && !empty($explode_previous_import_media_ids[1]) )
 							{
-								// we need to start at a specific image
-								if ( $image_i < $start_at_image_i )
-								{
-									++$existing;
-									++$image_i;
-									continue;
-								}
+								$media_ids = explode(",", $explode_previous_import_media_ids[1]);
+								$start_at_image_i = count($media_ids);
+
+								$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', $property['id'], $post_id );
 							}
+						}
+					}
 
-							// This is a URL
-							$description = ( (isset($image['title'])) ? $image['title'] : '' );
-						    
-							$filename = basename( $url );
+					if (isset($property['images']) && !empty($property['images']))
+					{
+						foreach ($property['images'] as $image)
+						{
+							$size = 'large'; // thumbnail, small, medium, large, hero, full
+							$url = isset($image['urls'][$size]) ? $image['urls'][$size] : $image['url'];
 
-							// Check, based on the URL, whether we have previously imported this media
-							$imported_previously = false;
-							$imported_previously_id = '';
-							if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
+							if ( 
+								substr( strtolower($url), 0, 2 ) == '//' || 
+								substr( strtolower($url), 0, 4 ) == 'http'
+							)
 							{
-								foreach ( $previous_media_ids as $previous_media_id )
+								if ( $start_at_image_i !== false )
 								{
-									if ( 
-										get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
-									)
+									// we need to start at a specific image
+									if ( $image_i < $start_at_image_i )
 									{
-										$imported_previously = true;
-										$imported_previously_id = $previous_media_id;
-										break;
+										++$existing;
+										++$image_i;
+										continue;
 									}
 								}
-							}
 
-							if ($imported_previously)
-							{
-								$media_ids[] = $imported_previously_id;
+								// This is a URL
+								$description = ( (isset($image['title'])) ? $image['title'] : '' );
+							    
+								$filename = basename( $url );
 
-								if ( $description != '' )
+								// Check, based on the URL, whether we have previously imported this media
+								$imported_previously = false;
+								$imported_previously_id = '';
+								if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
 								{
-									$my_post = array(
-								    	'ID'          	 => $imported_previously_id,
-								    	'post_title'     => $description,
-								    );
-
-								 	// Update the post into the database
-								    wp_update_post( $my_post );
+									foreach ( $previous_media_ids as $previous_media_id )
+									{
+										if ( 
+											get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
+										)
+										{
+											$imported_previously = true;
+											$imported_previously_id = $previous_media_id;
+											break;
+										}
+									}
 								}
 
-								if ( $image_i == 0 ) set_post_thumbnail( $post_id, $imported_previously_id );
+								if ($imported_previously)
+								{
+									$media_ids[] = $imported_previously_id;
 
-								++$existing;
+									if ( $description != '' )
+									{
+										$my_post = array(
+									    	'ID'          	 => $imported_previously_id,
+									    	'post_title'     => $description,
+									    );
 
-								++$image_i;
+									 	// Update the post into the database
+									    wp_update_post( $my_post );
+									}
 
-								update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
-							}
-							else
-							{
-								$tmp = download_url( $url );
+									if ( $image_i == 0 ) set_post_thumbnail( $post_id, $imported_previously_id );
 
-							    $file_array = array(
-							        'name' => $filename,
-							        'tmp_name' => $tmp
-							    );
+									++$existing;
 
-							    // Check for download errors
-							    if ( is_wp_error( $tmp ) ) 
-							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['id'], $post_id );
-							    }
-							    else
-							    {
-								    $id = media_handle_sideload( $file_array, $post_id, $description );
+									++$image_i;
 
-								    // Check for handle sideload errors.
-								    if ( is_wp_error( $id ) ) 
+									update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
+								}
+								else
+								{
+									$tmp = download_url( $url );
+
+								    $file_array = array(
+								        'name' => $filename,
+								        'tmp_name' => $tmp
+								    );
+
+								    // Check for download errors
+								    if ( is_wp_error( $tmp ) ) 
 								    {
-								        @unlink( $file_array['tmp_name'] );
-								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['id'], $post_id );
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['id'], $post_id );
 								    }
 								    else
 								    {
-								    	$media_ids[] = $id;
+									    $id = media_handle_sideload( $file_array, $post_id, $description );
 
-								    	update_post_meta( $id, '_imported_url', $url);
+									    // Check for handle sideload errors.
+									    if ( is_wp_error( $id ) ) 
+									    {
+									        @unlink( $file_array['tmp_name'] );
+									        
+									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['id'], $post_id );
+									    }
+									    else
+									    {
+									    	$media_ids[] = $id;
 
-								    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
+									    	update_post_meta( $id, '_imported_url', $url);
 
-								    	++$new;
+									    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
 
-								    	++$image_i;
+									    	++$new;
 
-								    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
-								    }
+									    	++$image_i;
+
+									    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
+									    }
+									}
 								}
 							}
 						}
 					}
-				}
-				if ( $media_ids != $previous_media_ids )
-				{
-					delete_post_meta( $post_id, 'fave_property_images' );
-					foreach ( $media_ids as $media_id )
+					if ( $media_ids != $previous_media_ids )
 					{
-						add_post_meta( $post_id, 'fave_property_images', $media_id );
-					}
-				}
-
-				// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
-				if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
-				{
-					foreach ( $previous_media_ids as $previous_media_id )
-					{
-						if ( !in_array($previous_media_id, $media_ids) )
+						delete_post_meta( $post_id, 'fave_property_images' );
+						foreach ( $media_ids as $media_id )
 						{
-							if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
+							add_post_meta( $post_id, 'fave_property_images', $media_id );
+						}
+					}
+
+					update_post_meta( $post_id, 'images_stored_as_urls', false );
+
+					// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
+					if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
+					{
+						foreach ( $previous_media_ids as $previous_media_id )
+						{
+							if ( !in_array($previous_media_id, $media_ids) )
 							{
-								++$deleted;
+								if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
+								{
+									++$deleted;
+								}
 							}
 						}
 					}
+
+					$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
+
+					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
-
-				$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
-
-				update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 
 				// Floorplans
 				$floorplans = array();

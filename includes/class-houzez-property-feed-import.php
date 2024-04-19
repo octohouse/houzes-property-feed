@@ -23,6 +23,7 @@ class Houzez_Property_Feed_Import {
 
         add_action( "houzez_property_feed_property_imported", array( $this, 'perform_field_mapping' ), 1, 3 );
         add_action( 'houzez_property_feed_property_imported', array( $this, 'set_generic_houzez_property_data'), 1, 3 );
+        add_action( 'houzez_property_feed_property_imported', array( $this, 'clear_media_queue_when_images_stored_as_urls' ), 1, 3 );
 
         add_filter( 'houzez_property_feed_xml_mapped_field_value', array( $this, 'get_xml_mapped_field_value' ), 1, 4 );
         add_filter( 'houzez_property_feed_csv_mapped_field_value', array( $this, 'get_csv_mapped_field_value' ), 1, 4 );
@@ -43,7 +44,7 @@ class Houzez_Property_Feed_Import {
 
                 foreach ( $imports as $key => $import )
                 {
-                    if ( $imports[$key]['deleted'] && $imports[$key]['deleted'] === true )
+                    if ( isset($imports[$key]['deleted']) && $imports[$key]['deleted'] === true )
                     {
                         unset( $imports[$key] );
                     }
@@ -927,6 +928,25 @@ class Houzez_Property_Feed_Import {
         add_post_meta( $post_id, 'fave_single_top_area', 'global', TRUE );
         add_post_meta( $post_id, 'fave_prop_homeslider', 'no', TRUE );
         add_post_meta( $post_id, 'fave_featured', '0', TRUE );
+    }
+
+    public function clear_media_queue_when_images_stored_as_urls( $post_id, $property, $import_id )
+    {
+        global $wpdb;
+
+        $images_stored_as_urls = get_post_meta( $post_id, 'images_stored_as_urls', true );
+
+        if ( $images_stored_as_urls === true )
+        {
+            $wpdb->query("
+                DELETE FROM
+                    " . $wpdb->prefix . "houzez_property_feed_media_queue
+                WHERE
+                    `post_id` = '" . (int)$post_id. "'
+                AND
+                    `media_type` = 'image'
+            ");
+        }
     }
 
     public function get_xml_mapped_field_value( $value, $property, $field_name, $import_id )

@@ -1150,7 +1150,7 @@ class Houzez_Property_Feed_Format_Agentos extends Houzez_Property_Feed_Process {
 							$description = $image['Name'];
 							$etag = $image['ETag'];
 						    
-							$filename = $image['OID'] . '.jpg';;
+							$filename = $image['OID'] . '.jpg';
 
 							// Check, based on the URL, whether we have previously imported this media
 							$imported_previously = false;
@@ -1248,6 +1248,8 @@ class Houzez_Property_Feed_Format_Agentos extends Houzez_Property_Feed_Process {
 						add_post_meta( $post_id, 'fave_property_images', $media_id );
 					}
 				}
+
+				update_post_meta( $post_id, 'images_stored_as_urls', false );
 
 				// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
 				if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
