@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.2
-Stable tag: 2.2.0
-Version: 2.2.0
+Stable tag: 2.2.1
+Version: 2.2.1
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -114,6 +114,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.1 - 2024-04-22 =
+* Added new filters to change images, brohchure and EPC filenames imported from Alto
+* Correction whereby some core post data (i.e. author) didn't update in CSV and XML imports
 
 = 2.2.0 - 2024-04-19 =
 * Show warning if same status is ticked in both export department statuses

@@ -968,7 +968,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 										$url = (string)$file->url;
 										$explode_url = explode("?", $url);
 										$url = $explode_url[0];
-										$description = (string)$file->name;
+										$description = apply_filters( 'houzez_property_feed_alto_image_description', (string)$file->name, $post_id, $property, $this->import_id );
 
 										$filename = basename( $url );
 
@@ -1163,7 +1163,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 									$url = (string)$file->url;
 									$explode_url = explode("?", $url);
 									$url = $explode_url[0];
-									$description = (string)$file->name;
+									$description = apply_filters( 'houzez_property_feed_alto_brochure_description', (string)$file->name, $post_id, $property, $this->import_id );
 									
 									$filename = basename( $url );
 
@@ -1268,7 +1268,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 									$url = (string)$file->url;
 									$explode_url = explode("?", $url);
 									$url = $explode_url[0];
-									$description = (string)$file->name;
+									$description = apply_filters( 'houzez_property_feed_alto_epc_description', (string)$file->name, $post_id, $property, $this->import_id );
 						    
 									$filename = basename( $url );
 

@@ -911,13 +911,18 @@ class Houzez_Property_Feed_Import {
             }
         }
 
-        // not doing for CSV/XML format as should be done inside CSV/XML import class
-        if ( $import_settings['format'] != 'csv' && $import_settings['format'] != 'xml' )
+        // remove fields that are handled in the main XML/CSV import class
+        if ( $import_settings['format'] == 'csv' || $import_settings['format'] == 'xml' )
         {
-            if ( !empty($post_fields_to_update) )
-            {
-                wp_update_post($post_fields_to_update, TRUE);
-            }
+            if ( isset($post_fields_to_update['post_title']) ) { unset($post_fields_to_update['post_title']); }
+            if ( isset($post_fields_to_update['post_excerpt']) ) { unset($post_fields_to_update['post_excerpt']); }
+            if ( isset($post_fields_to_update['post_content']) ) { unset($post_fields_to_update['post_content']); }
+            if ( isset($post_fields_to_update['post_status']) ) { unset($post_fields_to_update['post_status']); }
+        }
+
+        if ( count($post_fields_to_update) > 1 ) // if it contains more than just ID
+        {
+            wp_update_post($post_fields_to_update, TRUE);
         }
     }
 
