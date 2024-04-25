@@ -119,33 +119,40 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                 	$parsed = false;
 
                 	// Get BLM contents into memory
-					$handle = fopen($blm_file, "r");
-			        $blm_contents = fread($handle, filesize($blm_file));
-			        fclose($handle);
+                	if ( file_exists($blm_file) && filesize($blm_file) > 0 ) 
+                	{
+						$handle = fopen($blm_file, "r");
+				        $blm_contents = fread($handle, filesize($blm_file));
+				        fclose($handle);
 
-			        $parsed_header = $this->parse_header($blm_contents);
+				        $parsed_header = $this->parse_header($blm_contents);
 
-			        if ( !$parsed_header ) return false;
+				        if ( !$parsed_header ) return false;
 
-			        $parsed_definitions = $this->parse_definitions($blm_contents);
+				        $parsed_definitions = $this->parse_definitions($blm_contents);
 
-			        if ( !$parsed_definitions ) return false;
+				        if ( !$parsed_definitions ) return false;
 
-			        $parsed_data = $this->parse_data($blm_contents);
+				        $parsed_data = $this->parse_data($blm_contents);
 
-			        if ( !$parsed_data ) return false;
+				        if ( !$parsed_data ) return false;
 
-                	// Parsed it succesfully. Ok to continue
-                	if ( empty($this->properties) )
-					{
-						$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
-					}
-					else
-					{
-	                    $this->import();
+	                	// Parsed it succesfully. Ok to continue
+	                	if ( empty($this->properties) )
+						{
+							$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
+						}
+						else
+						{
+		                    $this->import();
 
-	                    $this->remove_old_properties();
-	                }
+		                    $this->remove_old_properties();
+		                }
+		            }
+		            else
+		            {
+		            	$this->log_error( 'File doesn\'t exist or is empty' );
+		            }
 
 	                $this->archive( $blm_file );
                 }

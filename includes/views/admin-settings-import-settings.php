@@ -30,7 +30,7 @@
 
 						<div class="running-status-toggle">
 							
-							Import Running
+							Import Active
 
 							<label class="hpf-switch">
 							  	<input type="checkbox" name="running" value="yes"<?php if ( isset($import_settings['running']) && $import_settings['running'] === true ) { echo ' checked'; } ?>>

@@ -7,8 +7,87 @@
 		<h1><?php echo __( 'Automatic Imports', 'houzezpropertyfeed' ); ?></h1>
 
 		<?php
-			if ( $automatic_imports_table->has_items() )
+			$all_imports_count = 0;
+			$all_imports_active = 0;
+			$all_imports_inactive = 0;
+			$all_imports_running = 0;
+			$format_counts = array();
+	        foreach ( $imports as $key => $import )
+	        {
+	            if ( isset($imports[$key]['deleted']) && $imports[$key]['deleted'] === true )
+	            {
+	                unset( $imports[$key] );
+	            }
+	        }
+
+	        foreach ( $imports as $key => $import )
+	        {
+	        	++$all_imports_count;
+
+	        	if ( isset($import['format']) && !isset($format_counts[$import['format']]) ) { $format_counts[$import['format']] = 0; }
+	        	++$format_counts[$import['format']];
+
+	        	if ( isset($import['running']) && $import['running'] === true )
+	        	{
+	        		++$all_imports_active;
+
+		        	$row = $wpdb->get_row( "
+		                SELECT 
+		                    start_date, end_date
+		                FROM 
+		                    " .$wpdb->prefix . "houzez_property_feed_logs_instance
+		                WHERE 
+		                    import_id = '" . $key . "'
+		                ORDER BY start_date DESC LIMIT 1
+		            ", ARRAY_A);
+		            if ( null !== $row )
+		            {
+		                if ($row['start_date'] <= $row['end_date'])
+		                {
+
+		                }
+		                elseif ($row['end_date'] == '0000-00-00 00:00:00')
+		                {
+		                    ++$all_imports_running;
+		                }
+		            }
+	        	}
+	        	else
+	        	{
+	        		++$all_imports_inactive;
+	        	}
+	        }
+		?>
+
+		<?php
+			if ( $automatic_imports_table->has_items() || ( !$automatic_imports_table->has_items() && isset($_GET['hpf_filter']) ) )
 			{
+		?>
+		<ul class="subsubsub" style="margin-bottom:10px;">
+			<li class="all"><a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import')); ?>"<?php if ( !isset($_GET['hpf_filter']) ) { echo ' class="current" aria-current="page"'; } ?>>All <span class="count">(<?php echo number_format($all_imports_count, 0); ?>)</span></a> |</li>
+			<li class="active"><a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&hpf_filter=active')); ?>"<?php if ( isset($_GET['hpf_filter']) && $_GET['hpf_filter'] == 'active' ) { echo ' class="current" aria-current="page"'; } ?>>Active <span class="count">(<?php echo number_format($all_imports_active, 0); ?>)</span></a> |</li>
+			<li class="inactive"><a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&hpf_filter=inactive')); ?>"<?php if ( isset($_GET['hpf_filter']) && $_GET['hpf_filter'] == 'inactive' ) { echo ' class="current" aria-current="page"'; } ?>>Inactive <span class="count">(<?php echo number_format($all_imports_inactive, 0); ?>)</span></a> |</li>
+			<?php
+				if ( !empty($format_counts) && count($format_counts) > 1 )
+				{
+					ksort($format_counts);
+					foreach ( $format_counts as $format => $count )
+					{
+						$format_name = $format;
+						$format_details = get_houzez_property_feed_import_format( $format );
+						if ( $format_details !== FALSE )
+						{
+							$format_name = $format_details['name'];
+						}
+			?>
+						<li class="format"><a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&hpf_filter=format&hpf_filter_format=' . $format)); ?>"<?php if ( isset($_GET['hpf_filter']) && $_GET['hpf_filter'] == 'format' && isset($_GET['hpf_filter_format']) && $_GET['hpf_filter_format'] == $format ) { echo ' class="current" aria-current="page"'; } ?>><?php echo $format_name; ?> <span class="count">(<?php echo number_format($count, 0); ?>)</span></a> |</li>
+			<?php
+					}
+				}
+			?>
+			<li class="running"><a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&hpf_filter=running')); ?>"<?php if ( isset($_GET['hpf_filter']) && $_GET['hpf_filter'] == 'running' ) { echo ' class="current" aria-current="page"'; } ?>>Running Now <span class="count">(<?php echo number_format($all_imports_running, 0); ?>)</span></a></li>
+		</ul>
+		<?php
 				echo '<div class="automatic-imports-table">';
 					echo $automatic_imports_table->display();
 				echo '</div>';

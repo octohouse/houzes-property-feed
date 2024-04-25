@@ -27,7 +27,7 @@
 
 						<div class="running-status-toggle">
 							
-							Export Running
+							Export Active
 
 							<label class="hpf-switch">
 							  	<input type="checkbox" name="running" value="yes"<?php if ( isset($export_settings['running']) && $export_settings['running'] === true ) { echo ' checked'; } ?>>

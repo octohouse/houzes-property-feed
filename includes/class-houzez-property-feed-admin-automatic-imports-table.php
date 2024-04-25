@@ -55,6 +55,11 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
         }
     }
 
+    public function no_items() 
+    {
+        echo __( 'No imports found.', 'houzezpropertyfeed' );
+    }
+
     public function prepare_items() 
     {
         global $wpdb;
@@ -79,6 +84,94 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             if ( isset($imports[$key]['deleted']) && $imports[$key]['deleted'] === true )
             {
                 unset( $imports[$key] );
+            }
+        }
+
+        if ( isset($_GET['hpf_filter']) )
+        {
+            switch ( sanitize_text_field($_GET['hpf_filter']) )
+            {
+                case "active":
+                {
+                    foreach ( $imports as $key => $import )
+                    {
+                        if ( isset($import['running']) && $import['running'] === true )
+                        {
+                            
+                        }
+                        else
+                        {
+                            unset( $imports[$key] );
+                        }
+                    }
+                    break;
+                }
+                case "inactive":
+                {
+                    foreach ( $imports as $key => $import )
+                    {
+                        if ( isset($import['running']) && $import['running'] === true )
+                        {
+                            unset( $imports[$key] );
+                        }
+                    }
+                    break;
+                }
+                case "format":
+                {
+                    if ( isset($_GET['hpf_filter_format']) )
+                    {
+                        foreach ( $imports as $key => $import )
+                        {
+                            if ( isset($import['format']) && $import['format'] === sanitize_text_field($_GET['hpf_filter_format']) )
+                            {
+                                
+                            }
+                            else
+                            {
+                                unset( $imports[$key] );
+                            }
+                        }
+                    }
+                    break;
+                }
+                case "running":
+                {
+                    foreach ( $imports as $key => $import )
+                    {
+                        $running_now = false;
+
+                        if ( isset($import['running']) && $import['running'] === true )
+                        {
+                            $row = $wpdb->get_row( "
+                                SELECT 
+                                    start_date, end_date
+                                FROM 
+                                    " .$wpdb->prefix . "houzez_property_feed_logs_instance
+                                WHERE 
+                                    import_id = '" . $key . "'
+                                ORDER BY start_date DESC LIMIT 1
+                            ", ARRAY_A);
+                            if ( null !== $row )
+                            {
+                                if ($row['start_date'] <= $row['end_date'])
+                                {
+
+                                }
+                                elseif ($row['end_date'] == '0000-00-00 00:00:00')
+                                {
+                                    $running_now = true;
+                                }
+                            }
+                        }
+                        
+                        if ( !$running_now )
+                        {
+                            unset( $imports[$key] );
+                        }
+                    }
+                    break;
+                }
             }
         }
 
@@ -157,36 +250,36 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             }
             
             $running = false;
+            $last_ran = '';
             if ( isset($import['running']) && $import['running'] === true )
             {
                 $running = true;
-            }
 
-            // Last ran
-            $last_ran = '';
-            $row = $wpdb->get_row( "
-                SELECT 
-                    start_date, end_date
-                FROM 
-                    " .$wpdb->prefix . "houzez_property_feed_logs_instance
-                WHERE 
-                    import_id = '" . $key . "'
-                ORDER BY start_date DESC LIMIT 1
-            ", ARRAY_A);
-            if ( null !== $row )
-            {
-                if ($row['start_date'] <= $row['end_date'])
+                // Last ran
+                $row = $wpdb->get_row( "
+                    SELECT 
+                        start_date, end_date
+                    FROM 
+                        " .$wpdb->prefix . "houzez_property_feed_logs_instance
+                    WHERE 
+                        import_id = '" . $key . "'
+                    ORDER BY start_date DESC LIMIT 1
+                ", ARRAY_A);
+                if ( null !== $row )
                 {
-                    $last_ran .= get_date_from_gmt( $row['start_date'], "jS F Y H:i" );
+                    if ($row['start_date'] <= $row['end_date'])
+                    {
+                        $last_ran .= get_date_from_gmt( $row['start_date'], "jS F Y H:i" );
+                    }
+                    elseif ($row['end_date'] == '0000-00-00 00:00:00')
+                    {
+                        $last_ran .= 'Running now...<br>Started at ' . get_date_from_gmt( $row['start_date'], "jS F Y H:i" );
+                    }
                 }
-                elseif ($row['end_date'] == '0000-00-00 00:00:00')
+                else
                 {
-                    $last_ran .= 'Running now...<br>Started at ' . get_date_from_gmt( $row['start_date'], "jS F Y H:i" );
+                    $last_ran .= '-';
                 }
-            }
-            else
-            {
-                $last_ran .= '-';
             }
 
             // Next due
