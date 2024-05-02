@@ -93,7 +93,9 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 					}
 					else
 					{
-						$more_properties = false;
+						$this->log_error( 'No pagination element found in response. This should always exist so likely something went wrong. As a result we\'ll play it safe and not continue further.' );
+						
+						return false;
 					}
 
 					if ( isset($json['data']) )

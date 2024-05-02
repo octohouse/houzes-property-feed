@@ -55,6 +55,15 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
         }
     }
 
+    public function get_sortable_columns() 
+    {
+        return array(
+            'col_import_format' => array('format', false) , // 'last_ran' is the key used in the data array
+            'col_import_last_ran' => array('last_ran', false),  // 'last_ran' is the key used in the data array
+            'col_import_next_due' => array('next_due', false)  // 'last_ran' is the key used in the data array
+        );
+    }
+
     public function no_items() 
     {
         echo __( 'No imports found.', 'houzezpropertyfeed' );
@@ -203,6 +212,10 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             }
         }
 
+        // Handle sorting
+        $orderby = (!empty($_REQUEST['orderby'])) ? sanitize_text_field($_REQUEST['orderby']) : '';
+        $order = (!empty($_REQUEST['order']) && in_array(strtolower($_REQUEST['order']), array('asc', 'desc')) ) ? sanitize_text_field($_REQUEST['order']) : '';
+
         foreach ( $imports as $key => $import )
         {
             // ensure frequency is not a PRO one if PRO not enabled
@@ -251,6 +264,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             
             $running = false;
             $last_ran = '';
+            $last_ran_for_sorting = '';
             if ( isset($import['running']) && $import['running'] === true )
             {
                 $running = true;
@@ -275,6 +289,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                     {
                         $last_ran .= 'Running now...<br>Started at ' . get_date_from_gmt( $row['start_date'], "jS F Y H:i" );
                     }
+                    $last_ran_for_sorting = $row['start_date'];
                 }
                 else
                 {
@@ -284,6 +299,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
 
             // Next due
             $next_due_display = '';
+            $next_due_for_sorting = '';
             if ( isset($import['running']) && $import['running'] === true && $import['format'] != 'rtdf' )
             {
                 $next_due = wp_next_scheduled( 'houzezpropertyfeedcronhook' );
@@ -359,6 +375,8 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
 
                     if ( $got_next_due !== false )
                     {
+                        $next_due_for_sorting = $got_next_due;
+
                         $got_next_due = new DateTimeImmutable( '@' . $got_next_due );
                         $got_next_due_new = $got_next_due->setTimezone(wp_timezone());
 
@@ -390,23 +408,37 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
 
             $this->items[] = array(
                 'col_import_format' => '
-                    <strong><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . ( isset($format['name']) ? $format['name'] : '-' ) . '</a></strong>
+                    <strong><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key)) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . ( isset($format['name']) ? $format['name'] : '-' ) . '</a></strong>
                     <div class="row-actions">
                         <span class="edit">' . ( 
                             !$running ? 
-                            '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=startimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Start Import', 'houzezpropertyfeed' ) . '">' . __( 'Start Import', 'houzezpropertyfeed' ) . '</a>' : 
-                            '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=pauseimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Pause Import', 'houzezpropertyfeed' ) . '">' . __( 'Pause Import', 'houzezpropertyfeed' ) . '</a>' 
+                            '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=startimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order)) . '" aria-label="' . __( 'Start Import', 'houzezpropertyfeed' ) . '">' . __( 'Start Import', 'houzezpropertyfeed' ) . '</a>' : 
+                            '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=pauseimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order)) . '" aria-label="' . __( 'Pause Import', 'houzezpropertyfeed' ) . '">' . __( 'Pause Import', 'houzezpropertyfeed' ) . '</a>' 
                         ) . ' | </span>
-                        <span class="edit"><a href="' . admin_url('/admin.php?page=houzez-property-feed-import&tab=logs&import_id=' . (int)$key) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a> | </span>
-                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a> | </span>
-                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=cloneimport&import_id=' . (int)$key) . '" aria-label="' . __( 'Clone Import', 'houzezpropertyfeed' ) . '">' . __( 'Clone', 'houzezpropertyfeed' ) . '</a> | </span>
-                        <span class="trash"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=deleteimport&import_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Import', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
+                        <span class="edit"><a href="' . esc_url(admin_url('/admin.php?page=houzez-property-feed-import&tab=logs&import_id=' . (int)$key)) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a> | </span>
+                        <span class="edit"><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key)) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a> | </span>
+                        <span class="edit"><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=cloneimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order)) . '" aria-label="' . __( 'Clone Import', 'houzezpropertyfeed' ) . '">' . __( 'Clone', 'houzezpropertyfeed' ) . '</a> | </span>
+                        <span class="trash"><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=deleteimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order)) . '" class="submitdelete" aria-label="' . __( 'Delete Import', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
                     </div>',
                 'col_import_details' => $details,
                 'col_import_frequency' => ( isset($import['frequency']) ? ucwords(str_replace("_", " ", $import['frequency'])) : '-' ),
                 'col_import_last_ran' => $last_ran,
                 'col_import_next_due' => $next_due_display,
+                'format' => ( isset($format['name']) ? $format['name'] : '' ),
+                'last_ran' => $last_ran_for_sorting,
+                'next_due' => $next_due_for_sorting
             );
+        }
+
+        if ( !empty($orderby) && !empty($order) )
+        {
+            usort($this->items, function($a, $b) use ($orderby, $order) {
+                if ($order === 'asc') {
+                    return $a[$orderby] <=> $b[$orderby];
+                } else {
+                    return $b[$orderby] <=> $a[$orderby];
+                }
+            });
         }
 
         $this->set_pagination_args(

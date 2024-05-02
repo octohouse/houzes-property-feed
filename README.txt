@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.2
-Stable tag: 2.2.2
-Version: 2.2.2
+Stable tag: 2.2.3
+Version: 2.2.3
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -114,6 +114,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.3 - 2024-05-01 =
+* Don't continue to process data from Street if no 'pagination' data found in response as this should always be present and suggests an error has occured
+* Added the ability to sort the imports table by format, last ran and next due date
 
 = 2.2.2 - 2024-04-25 =
 * Added filter to automatic imports table to filter by active, inactive, format and running now. Useful when there are lots of imports setup
