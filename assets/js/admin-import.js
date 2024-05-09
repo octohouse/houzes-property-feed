@@ -695,6 +695,7 @@ function build_field_mapping_rule_accordions()
 				else
 				{
 					var value_in_houzez = jQuery(this).find('input[name*=\'field_mapping_rules\'][name*=\'[result]\']').val();
+					value_in_houzez = value_in_houzez.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 				}
 
 				if ( value_in_houzez == '' ) { value_in_houzez = '<em>(no value specified)</em>'; }

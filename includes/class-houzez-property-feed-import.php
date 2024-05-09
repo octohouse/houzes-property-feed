@@ -196,7 +196,7 @@ class Houzez_Property_Feed_Import {
             {
                 if ($j !== '{rule_count}') // ignore template
                 {
-                    $result = stripslashes(sanitize_text_field($field['result']));
+                    $result = stripslashes(wp_kses($field['result'], array('br' => array())));
                     if ( $field['result_type'] == 'dropdown' )
                     {
                         $result = sanitize_text_field($field['result_option']);

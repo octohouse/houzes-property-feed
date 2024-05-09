@@ -1393,6 +1393,22 @@ function get_houzez_property_feed_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/vaultea/'
         ),
+        'wp_rest_api_houzez' => array(
+            'name' => __( 'Another Houzez site', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'url',
+                    'label' => __( 'Other Houzez Website URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( /*'property_country', 'property_city', 'property_area'*/ ),
+            'taxonomy_values' => array(),
+            'contact_information_fields' => array(
+                //'fave_agents',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/wp-rest-api-houzez/'
+        ),
         'xml' => array(
             'name' => __( 'XML', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -1433,7 +1449,13 @@ function get_houzez_property_feed_import_formats()
 
     $formats = apply_filters( 'houzez_property_feed_import_formats', $formats );
 
+    uasort($formats, 'houzez_property_feed_compare_by_name');
+
     return $formats;
+}
+
+function houzez_property_feed_compare_by_name($a, $b) {
+    return strcmp($a['name'], $b['name']);
 }
 
 function get_houzez_property_feed_import_format( $key )

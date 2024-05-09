@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.5.2
-Stable tag: 2.2.3
-Version: 2.2.3
+Tested up to: 6.5.3
+Stable tag: 2.2.4
+Version: 2.2.4
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -114,6 +114,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.4 - 2024-05-09 =
+* Added support for importing from another Houzez site (uses the WP REST API)
+* Ensured formats are sorted by name whenever they're output in a list/dropdown
+* Allow <br> tags in field mapping rules results
+* Declared compatibility with WordPress 6.5.3
 
 = 2.2.3 - 2024-05-01 =
 * Don't continue to process data from Street if no 'pagination' data found in response as this should always be present and suggests an error has occured
