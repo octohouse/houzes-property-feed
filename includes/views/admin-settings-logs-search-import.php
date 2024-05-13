@@ -12,12 +12,22 @@
 			</p>
 		</form>
 
-		<h1><?php echo __( 'Import Logs', 'houzezpropertyfeed' ); ?></h1>
+		<h1><?php echo __( 'Import Logs Search', 'houzezpropertyfeed' ); ?></h1>
 
 		<?php 
-			echo '<div class="logs-table">';
-				echo $logs_table->display(); 
-			echo '</div>';
+			if ( !empty($log_tables) )
+			{
+				foreach ( $log_tables as $log_table )
+				{
+					echo '<div class="logs-table">';
+						$log_table->display(); 
+					echo '</div>';
+				}
+			}
+			else
+			{
+				echo '<p>No logs found containing the term \'' . esc_html($_POST['log']) . '\'</p>';
+			}
 		?>
 
 	</div>

@@ -181,63 +181,129 @@ class Houzez_Property_Feed_Admin {
             {
                 include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav-import.php' );
 
-                if ( isset($_GET['action']) && sanitize_text_field($_GET['action']) == 'view' )
+                if ( 
+                    isset($_GET['action']) && 
+                    (
+                        sanitize_text_field($_GET['action']) == 'view' ||
+                        (
+                            sanitize_text_field($_GET['action']) == 'search' && isset($_POST['log_search']) && sanitize_text_field($_POST['log_search']) != ''
+                        )
+                    )
+                )
                 {
-                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-logs-view-import-table.php' );
-
-                    $logs_view_table = new Houzez_Property_Feed_Admin_Logs_View_Import_Table();
-                    $logs_view_table->prepare_items();
-
-                    $previous_instance = false;
-                    $next_instance = false;
-
-                    $logs = $wpdb->get_results( 
-                        "
-                        SELECT * 
-                        FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
-                        INNER JOIN 
-                            " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
-                        WHERE 
-                            " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
-                            instance_id < '" . (int)$_GET['log_id'] . "'
-                        GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
-                        ORDER BY start_date DESC
-                        LIMIT 1
-                        "
-                    );
-
-                    if ( $logs )
+                    switch ( sanitize_text_field($_GET['action']) )
                     {
-                        foreach ( $logs as $log ) 
+                        case "view":
                         {
-                            $previous_instance = $log->instance_id;
+                            include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-logs-view-import-table.php' );
+
+                            $logs_view_table = new Houzez_Property_Feed_Admin_Logs_View_Import_Table();
+                            $logs_view_table->prepare_items();
+
+                            $previous_instance = false;
+                            $next_instance = false;
+
+                            $logs = $wpdb->get_results( 
+                                "
+                                SELECT * 
+                                FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
+                                INNER JOIN 
+                                    " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
+                                WHERE 
+                                    " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
+                                    instance_id < '" . (int)$_GET['log_id'] . "'
+                                GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
+                                ORDER BY start_date DESC
+                                LIMIT 1
+                                "
+                            );
+
+                            if ( $logs )
+                            {
+                                foreach ( $logs as $log ) 
+                                {
+                                    $previous_instance = $log->instance_id;
+                                }
+                            }
+
+                            $logs = $wpdb->get_results( 
+                                "
+                                SELECT * 
+                                FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
+                                INNER JOIN 
+                                    " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
+                                WHERE 
+                                     " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
+                                    instance_id > '" . (int)$_GET['log_id'] . "'
+                                GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
+                                ORDER BY start_date ASC
+                                LIMIT 1
+                                "
+                            );
+
+                            if ( $logs )
+                            {
+                                foreach ( $logs as $log ) 
+                                {
+                                    $next_instance = $log->instance_id;
+                                }
+                            }
+
+                            include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-logs-view-import.php' );
+                            break;
+                        }
+                        case "search":
+                        {
+                            include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-logs-search-import-table.php' );
+
+                            $log_tables = array();
+
+                            $extra_sql = '';
+                            if ( is_numeric($_POST['log_search']) )
+                            {
+                                $extra_sql = " post_id = '" . esc_sql($_POST['log_search']) . "'
+                                        OR ";
+                            }
+
+                            $query = "
+                                SELECT " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.id
+                                FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
+                                INNER JOIN 
+                                    " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
+                                LEFT JOIN 
+                                    " . $wpdb->posts . " ON " . $wpdb->posts . ".ID = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.post_id
+                                WHERE 
+                                     " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
+                                    (
+                                        " . $extra_sql . "
+                                        crm_id = '" . esc_sql($_POST['log_search']) . "'
+                                        OR 
+                                        " . $wpdb->posts . ".post_title LIKE '%" . esc_sql($_POST['log_search']) . "%'
+                                    )
+                                GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
+                                ORDER BY start_date ASC
+                            ";
+
+                            $log_results = $wpdb->get_results( 
+                                $query
+                            );
+
+                            if ( $log_results )
+                            {
+                                foreach ( $log_results as $log_result ) 
+                                {
+                                    $logs_search_table = new Houzez_Property_Feed_Admin_Logs_Search_Import_Table(array(), $log_result->id);
+                                    $logs_search_table->prepare_items();
+
+                                    $log_tables[] = $logs_search_table;
+                                }
+                            }
+
+                            include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-logs-search-import.php' );
+                            break;
                         }
                     }
-
-                    $logs = $wpdb->get_results( 
-                        "
-                        SELECT * 
-                        FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
-                        INNER JOIN 
-                            " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
-                        WHERE 
-                             " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
-                            instance_id > '" . (int)$_GET['log_id'] . "'
-                        GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
-                        ORDER BY start_date ASC
-                        LIMIT 1
-                        "
-                    );
-
-                    if ( $logs )
-                    {
-                        foreach ( $logs as $log ) 
-                        {
-                            $next_instance = $log->instance_id;
-                        }
-                    }
-
-                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-logs-view-import.php' );
+                    
                 }
                 else
                 {

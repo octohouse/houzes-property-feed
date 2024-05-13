@@ -544,7 +544,10 @@ if ( is_array($imports) && !empty($imports) )
 	                {
 	                    $import_object->import();
 
-	                    $import_object->remove_old_properties();
+	                    if ( apply_filters( 'houzez_property_feed_remove_old_properties', true, $import_id ) === true )
+	                    {
+		                    $import_object->remove_old_properties();
+		                }
 	                }
 
 	                unset($import_object);
