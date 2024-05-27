@@ -1,13 +1,12 @@
 <?php
 /**
- * Class for managing the import process of a RE/MAX JSON file
+ * Class for managing the import process of a PropCtrl JSON file
  *
  * @package WordPress
  */
-
 if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
-class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
+class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process {
 
 	public function __construct( $instance_id = '', $import_id = '' )
 	{
@@ -20,192 +19,57 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ) );
 	    }
+
+	    add_action( "houzez_property_feed_property_removed", array( $this, 'send_put_request_to_withdraw' ), 10, 2 );
+
 	}
 
-	private function get_agents()
+	public function send_put_request_to_withdraw( $property_post_id, $import_id )
 	{
-		$this->log("Obtaining agents");
+		$import_settings = get_import_settings_from_id( $import_id );
 
-		$agent_ids_to_import = array();
+		$imported_ref_key = ( ( $import_id != '' ) ? '_imported_ref_' . $import_id : '_imported_ref' );
+		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$crm_id = get_post_meta($property_post_id, $imported_ref_key, TRUE);
 
-		$host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
-		$url = 'https://' . $host;
-		$url .= '/feeds_default/lists';
-        $region = 'eu-west-1';
+		// Send request back to PropCtrl containing post ID and URL etc
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/' . $crm_id;
 
-        $event = array( "token" => $import_settings['api_key'], "agents" => true );
-        $json = json_encode($event);
+		$headers = array(
+			'Content-Type' => 'application/json',
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
 
-        $aws = new AWSV4(
-        	$import_settings['access_key'],
-        	$import_settings['secret_key']
-        );
-        $aws->setRegionName( $region );
-		$aws->setServiceName( 'execute-api' );
-		$aws->setPath( '/feeds_default/lists' );
-		$aws->setPayload( $json );
-		$aws->setRequestMethod( 'POST' );
-		$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
-		$aws->addHeader( 'host', $host );
+		$body = array(
+		    "listingNumber" => (string)get_post_meta($property_post_id, $imported_ref_key, TRUE),
+		    "status" => "Withdrawn"
+		);
 
-        $headers = $aws->getHeaders();
+		$this->log( 'Making PUT request to PropCtrl to ' . $url . ' with body: ' . json_encode($body), $crm_id, $property_post_id );
 
-        $response = wp_remote_request(
+		$response = wp_remote_request(
 			$url,
 			array(
-				'method' => 'POST',
+				'method' => 'PUT',
 				'timeout' => 120,
 				'headers' => $headers,
-				'body' => $json
+				'body'    => json_encode($body),
 			)
 		);
 
-        if ( !is_wp_error($response) && is_array( $response ) ) 
+		if ( is_wp_error( $response ) )
 		{
-        	$body = $response['body'];
-        	$json = json_decode( $body, TRUE );
-
-		    if ( $json === FALSE )
-		    {
-		    	// Failed to parse JSON
-				$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
-				return false;
-		    }
-
-		    if ( !isset($json['data']) )
-		    {
-		    	// Failed to parse JSON
-				$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
-				return false;
-		    }
-
-		    $data_json = json_decode( $json['data'], TRUE );
-
-		    if ( $data_json === FALSE )
-		    {
-		    	// Failed to parse JSON
-				$this->log_error( 'Failed to parse JSON data: ' . print_r($json['data'], true) );
-				return false;
-		    }
-
-		    if ( !isset($data_json['agent']) )
-		    {
-		    	// Failed to parse JSON
-				$this->log_error( 'Agent data missing from JSON: ' . print_r($data_json, true) );
-				return false;
-		    }
-
-		    if ( !is_array($data_json['agent']) || (is_array($data_json['agent']) && empty($data_json['agent'])) )
-		    {
-		    	// Failed to parse JSON
-				$this->log_error( 'Agent data empty or not an array: ' . print_r($data_json['agent'], true) );
-				return false;
-		    }
-
-		    foreach ( $data_json['agent'] as $agent )
-		    {
-		    	$agent_ids_to_import[] = $agent['agent_id'];
-		    }
+			$this->log_error( 'Response when updating status in PropCtrl: ' . $response->get_error_message(), $crm_id, $property_post_id );
+		}
+		elseif ( wp_remote_retrieve_response_code( $response ) != 200 )
+		{
+			$this->log_error( 'Response code received not 200 when updating status in PropCtrl: ' . print_r($response, TRUE), $crm_id, $property_post_id );
 		}
 		else
 		{
-			$this->log_error( 'Failed to obtain agents JSON. Dump of response as follows:' . print_r($response, TRUE) );
-			return false;
+			$this->log_error( 'Response from PropCtrl: ' . print_r($response, TRUE), $crm_id, $property_post_id );
 		}
-
-		return $agent_ids_to_import;
-	}
-
-	private function get_agents_from_office_id( $office_ids = array() )
-	{
-		$this->log("Obtaining agents for office IDs");
-
-		$agent_ids_to_import = array();
-
-		if ( !empty($office_ids) )
-        {
-        	$import_settings = get_import_settings_from_id( $this->import_id );
-
-	        foreach ( $office_ids as $office_id )
-	        {
-		        $this->log("Obtaining agents for office ID " . $office_id);
-
-		        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
-				$url = 'https://' . $host;
-				$url .= '/feeds_default/office';
-		        $region = 'eu-west-1';
-
-		        $event = array( "token" => $import_settings['api_key'], "office_id" => $office_id );
-		        $json = json_encode($event);
-
-		        $aws = new AWSV4(
-		        	$import_settings['access_key'],
-		        	$import_settings['secret_key']
-		        );
-		        $aws->setRegionName( $region );
-				$aws->setServiceName( 'execute-api' );
-				$aws->setPath( '/feeds_default/office' );
-				$aws->setPayload( $json );
-				$aws->setRequestMethod( 'POST' );
-				$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
-				$aws->addHeader( 'host', $host );
-
-		        $headers = $aws->getHeaders();
-
-		        $response = wp_remote_request(
-					$url,
-					array(
-						'method' => 'POST',
-						'timeout' => 120,
-						'headers' => $headers,
-						'body' => $json
-					)
-				);
-
-		        if ( !is_wp_error($response) && is_array( $response ) ) 
-				{
-		        	$body = $response['body'];
-		        	$json = json_decode( $body, TRUE );
-
-				    if ( $json === FALSE )
-				    {
-				    	// Failed to parse JSON
-						$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
-						return array();
-				    }
-
-				    if ( !isset($json['data']) )
-				    {
-				    	// Failed to parse JSON
-						$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
-						return array();
-				    }
-
-				    $data_json = json_decode( $json['data'], TRUE );
-
-				    if (!empty($data_json['agents']['agent']))
-				    {
-				    	$this->log( 'Found ' . count($data_json['agents']['agent']) . ' agents belonging to office ID ' . $office_id );
-				    	foreach ( $data_json['agents']['agent'] as $agent )
-				    	{
-				    		$agent_ids_to_import[] = $agent['agent_id'];
-				    	}
-				    }
-				}
-				else
-				{
-					$this->log_error( 'Failed to obtain offices JSON. Dump of response as follows:' . print_r($response, TRUE) );
-					return array();
-				}
-			}
-		}
-
-		$agent_ids_to_import = array_unique($agent_ids_to_import);
-		$agent_ids_to_import = array_filter($agent_ids_to_import);
-
-		return $agent_ids_to_import;
 	}
 
 	public function parse()
@@ -216,186 +80,63 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
-		$agent_ids_to_import = array();
-		$office_ids_to_import = array();
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/changes?fromDate=2020-01-01 00:00:00';
 
-        if ( 
-        	(
-	        	!isset($import_settings['agent_id']) || 
-	        	( isset($import_settings['agent_id']) && empty($import_settings['agent_id']) ) 
-	        )
-	        &&
-	    	(
-	        	!isset($import_settings['office_id']) || 
-	        	( isset($import_settings['office_id']) && empty($import_settings['office_id']) ) 
-	        )
-        )
-        {
-        	// no agents or offices specified, get all agents
-        	$agent_ids_to_import = $this->get_agents();
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
 
-        	if ( $agent_ids_to_import === false )
-        	{
-        		return false;
-        	}
-        }
-        else
-        {
-        	if ( isset($import_settings['agent_id']) && !empty($import_settings['agent_id']) )
-        	{
-	        	$agent_ids_to_import = explode(",", $import_settings['agent_id']);
-	        	$agent_ids_to_import = array_map('trim', $agent_ids_to_import);
-	        	$agent_ids_to_import = array_filter($agent_ids_to_import);
-	        	$agent_ids_to_import = array_unique($agent_ids_to_import);
-	        }
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
 
-	        if ( isset($import_settings['office_id']) && !empty($import_settings['office_id']) )
-        	{
-        		$office_ids_to_import = explode(",", $import_settings['office_id']);
-	        	$office_ids_to_import = array_map('trim', $office_ids_to_import);
-	        	$office_ids_to_import = array_filter($office_ids_to_import);
-	        	$office_ids_to_import = array_unique($office_ids_to_import);
-        	}
-        }
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Response: ' . $response->get_error_message() );
 
-        if ( empty($agent_ids_to_import) && empty($office_ids_to_import) )
-        {
-        	$this->log_error( 'No agents or offices to process' );
-        	return false;
-        }
+			return false;
+		}
 
-        if ( empty($agent_ids_to_import) && !empty($office_ids_to_import) )
-        {
-        	$agent_ids_to_import = $this->get_agents_from_office_id($office_ids_to_import);
-        }
+		$json = json_decode( $response['body'], TRUE );
 
-        if ( !empty($agent_ids_to_import) )
-        {
-	        foreach ( $agent_ids_to_import as $agent_id )
-	        {
-		        $this->log("Obtaining properties for agent ID " . $agent_id);
+		if ($json !== FALSE)
+		{
+			if ( isset($json['items']) )
+			{
+				$property_ids_in_batch = array();
 
-		        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
-				$url = 'https://' . $host;
-				$url .= '/feeds_default/agents-page';
-		        $region = 'eu-west-1';
-
-		        $more_properties = true;
-		        $page = 0;
-
-		        while ( $more_properties )
-		        {
-		        	$this->log("Page " . ( $page + 1 ));
-
-			        $event = array( "token" => $import_settings['api_key'], "agent_id" => $agent_id, "page" => $page );
-			        $json = json_encode($event);
-
-			        $aws = new AWSV4(
-			        	$import_settings['access_key'],
-			        	$import_settings['secret_key']
-			        );
-			        $aws->setRegionName( $region );
-					$aws->setServiceName( 'execute-api' );
-					$aws->setPath( '/feeds_default/agents-page' );
-					$aws->setPayload( $json );
-					$aws->setRequestMethod( 'POST' );
-					$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
-					$aws->addHeader( 'host', $host );
-
-			        $headers = $aws->getHeaders();
-
-			        $response = wp_remote_request(
-						$url,
-						array(
-							'method' => 'POST',
-							'timeout' => 120,
-							'headers' => $headers,
-							'body' => $json
-						)
-					);
-
-			        if ( !is_wp_error($response) && is_array( $response ) ) 
+				foreach ($json['items'] as $property)
+				{
+					if ( count($property_ids_in_batch) == 10 )
 					{
-			        	$body = $response['body'];
-			        	$json = json_decode( $body, TRUE );
+						$this->get_properties_in_batch( $property_ids_in_batch );
 
-					    if ( $json === FALSE )
-					    {
-					    	// Failed to parse JSON
-							$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
-							return false;
-					    }
-
-					    if ( !isset($json['data']) )
-					    {
-					    	// Failed to parse JSON
-							$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
-							return false;
-					    }
-
-					    $data_json = json_decode( $json['data'], TRUE );
-
-					    if ( $data_json === FALSE )
-					    {
-					    	// Failed to parse JSON
-							$this->log_error( 'Failed to parse JSON data: ' . print_r($json['data'], true) );
-							return false;
-					    }
-
-					    if ( !isset($data_json['properties']) )
-					    {
-							$this->log_error( 'Properties data missing from JSON: ' . print_r($data_json, true) );
-							//return false;
-					    }
-					    else
-					    {
-						    if ( !isset($data_json['properties']['property']) )
-						    {
-								$this->log_error( 'Property data missing from JSON: ' . print_r($data_json, true) );
-								//return false;
-						    }
-						}
-
-						if ( !isset($data_json['properties']['hasNextPage']) )
-						{
-							$this->log_error( 'Pagination hasNextPage element missing: ' . print_r($data_json, true) );
-							return false;
-						}
-
-					    if ( isset($data_json['properties']['property']) && !empty($data_json['properties']['property']) )
-					    {
-						    foreach ( $data_json['properties']['property'] as $property )
-						    {
-						    	$property['agent_details'] = $data_json['agent_details'];
-
-						    	$property['branch_details'] = array();
-						    	if ( 
-						    		isset($data_json['branches']) && !empty($data_json['branches']) &&
-						    		isset($data_json['branches']['branch_details']) && !empty($data_json['branches']['branch_details']) &&
-						    		isset($data_json['branches']['branch_details'][0]) && !empty($data_json['branches']['branch_details'][0])
-						    	)
-						    	{
-						    		$property['branch_details'] = $data_json['branches']['branch_details'][0];
-						    	}
-
-						    	$this->properties[] = $property;
-						    }
-						}
-
-						if ( $data_json['properties']['hasNextPage'] == false )
-						{
-							$more_properties = false;
-						}
-					}
-					else
-					{
-						$this->log_error( 'Failed to obtain properties JSON. Dump of response as follows:' . print_r($response, TRUE) );
-						return false;
+						$property_ids_in_batch = array();
 					}
 
-					++$page;
+					$property_ids_in_batch[] = $property['id'];
 				}
+
+				$this->get_properties_in_batch( $property_ids_in_batch );
 			}
+			else
+			{
+				$this->log_error( 'Parse JSON but no properties found: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse JSON: ' . $response['body'] );
+
+			return false;
 		}
 
 		if ( empty($this->properties) )
@@ -406,6 +147,183 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		}
 
 		return true;
+	}
+
+	private function get_properties_in_batch( $property_ids = array() )
+	{
+		if ( empty($property_ids) )
+		{
+			return false;
+		}
+
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings?';
+
+		// Use array_map to prepend "listingIds=" to each ID
+		$listing_ids = array_map(function($id) {
+		    return "listingIds=" . $id;
+		}, $property_ids);
+
+		// Use implode to concatenate them with "&"
+		$url .= implode("&", $listing_ids);
+
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			if ( is_array($json) && !empty($json) )
+			{
+				foreach ( $json as $property )
+				{
+					if ( 
+						isset($property['listingStatus']) &&
+						(
+							strtolower($property['listingStatus']) == 'cancelled' ||
+							strtolower($property['listingStatus']) == 'withdrawn' ||
+							strtolower($property['listingStatus']) == 'expired' ||
+							strtolower($property['listingStatus']) == 'rented' ||
+							strtolower($property['listingStatus']) == 'sold'
+						)
+					)
+					{
+						continue;
+					}
+
+					if ( isset($import_settings['agency_id']) && !empty($import_settings['agency_id']) )
+					{
+						$agency_ids_to_import = explode(",", $import_settings['agency_id']);
+			        	$agency_ids_to_import = array_map('trim', $agency_ids_to_import);
+			        	$agency_ids_to_import = array_filter($agency_ids_to_import);
+			        	$agency_ids_to_import = array_unique($agency_ids_to_import);
+
+			        	if (
+			        		!isset($property['agencyId']) ||
+			        		( 
+			        			isset($property['agencyId']) && 
+			        			!in_array($property['agencyId'], $agency_ids_to_import) 
+			        		)
+			        	)
+			        	{
+			        		continue;
+			        	}
+					}
+					
+					if ( isset($import_settings['branch_id']) && !empty($import_settings['branch_id']) )
+					{
+						$branch_ids_to_import = explode(",", $import_settings['branch_id']);
+			        	$branch_ids_to_import = array_map('trim', $branch_ids_to_import);
+			        	$branch_ids_to_import = array_filter($branch_ids_to_import);
+			        	$branch_ids_to_import = array_unique($branch_ids_to_import);
+
+			        	if (
+			        		!isset($property['branchId']) ||
+			        		( 
+			        			isset($property['branchId']) && 
+			        			!in_array($property['branchId'], $branch_ids_to_import) 
+			        		)
+			        	)
+			        	{
+			        		continue;
+			        	}
+					}
+
+					list($suburb, $city, $province, $postcode, $country) = $this->get_suburb_info($property['suburbId']);
+
+					$property['suburb'] = $suburb;
+					$property['city'] = $city;
+					$property['province'] = $province;
+					$property['postcode'] = $postcode;
+					$property['country'] = $country;
+
+					$this->properties[] = $property;
+					
+				}
+			}
+			else
+			{
+				$this->log_error( 'Parsed JSON but it\'s empty: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse JSON: ' . $response['body'] );
+
+			return false;
+		}
+	}
+
+	private function get_suburb_info( $suburb_id )
+	{
+		// add some kind of caching
+		$suburb = '';
+		$city = '';
+		$province = '';
+		$postcode = '';
+		$country = '';
+
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/suburbs?suburbIds=' . $suburb_id;
+
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Suburb Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			if ( is_array($json) && !empty($json) )
+			{
+				if ( isset($json[0]['suburbName']) ) { $suburb = $json[0]['suburbName']; }
+				if ( isset($json[0]['city']) ) { $city = $json[0]['city']; }
+				if ( isset($json[0]['province']) ) { $province = $json[0]['province']; }
+				if ( isset($json[0]['postalCode']) ) { $postcode = $json[0]['postalCode']; }
+				if ( isset($json[0]['country']) ) { $country = $json[0]['country']; }
+			}
+		}
+
+		return array($suburb, $city, $province, $postcode, $country);
 	}
 
 	public function import()
@@ -420,10 +338,10 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
-        do_action( "houzez_property_feed_pre_import_properties_remax", $this->properties, $this->import_id );
+        do_action( "houzez_property_feed_pre_import_properties_propctrl", $this->properties, $this->import_id );
 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
-        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_remax", $this->properties, $this->import_id );
+        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_propctrl", $this->properties, $this->import_id );
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
         $additional_message = '';
@@ -443,10 +361,10 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			if ( !empty($start_at_property) )
 			{
 				// we need to start on a certain property
-				if ( $property['property_id'] == $start_at_property )
+				if ( $property['listingId'] == $start_at_property )
 				{
 					// we found the property. We'll continue for this property onwards
-					$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . $property['property_id'] );
+					$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . $property['listingId'] );
 					$start_at_property = false;
 				}
 				else
@@ -456,9 +374,9 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 				}
 			}
 
-			update_option( 'houzez_property_feed_property_' . $this->import_id, $property['property_id'], false );
+			update_option( 'houzez_property_feed_property_' . $this->import_id, $property['listingId'], false );
 			
-			$this->log( 'Importing property ' . $property_row . ' with reference ' . $property['property_id'], $property['property_id'] );
+			$this->log( 'Importing property ' . $property_row . ' with reference ' . $property['listingId'], $property['listingId'] );
 
 			$inserted_updated = false;
 
@@ -469,19 +387,19 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 	            'meta_query' => array(
 	            	array(
 		            	'key' => $imported_ref_key,
-		            	'value' => $property['property_id']
+		            	'value' => $property['listingId']
 		            )
 	            )
 	        );
 	        $property_query = new WP_Query($args);
 
-	        $display_address = $property['heading']['_cdata'];
+	        $display_address = $property['marketingHeading'];
 
-			$post_content = $property['description']['_cdata'];
+			$post_content = $property['marketingDescription'];
 	        
 	        if ($property_query->have_posts())
 	        {
-	        	$this->log( 'This property has been imported before. Updating it', $property['property_id'] );
+	        	$this->log( 'This property has been imported before. Updating it', $property['listingId'] );
 
 	        	// We've imported this property before
 	            while ($property_query->have_posts())
@@ -493,7 +411,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 	                $my_post = array(
 				    	'ID'          	 => $post_id,
 				    	'post_title'     => wp_strip_all_tags( $display_address ),
-				    	'post_excerpt'   => '',
+				    	'post_excerpt'   => $post_content,
 				    	'post_content' 	 => $post_content,
 				    	'post_status'    => 'publish',
 				  	);
@@ -503,7 +421,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 				    if ( is_wp_error( $post_id ) ) 
 					{
-						$this->log_error( 'Failed to update post. The error was as follows: ' . $post_id->get_error_message(), $property['property_id'] );
+						$this->log_error( 'Failed to update post. The error was as follows: ' . $post_id->get_error_message(), $property['listingId'] );
 					}
 					else
 					{
@@ -513,11 +431,11 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 	        }
 	        else
 	        {
-	        	$this->log( 'This property hasn\'t been imported before. Inserting it', $property['property_id'] );
+	        	$this->log( 'This property hasn\'t been imported before. Inserting it', $property['listingId'] );
 
 	        	// We've not imported this property before
 				$postdata = array(
-					'post_excerpt'   => '',
+					'post_excerpt'   => $post_content,
 					'post_content' 	 => $post_content,
 					'post_title'     => wp_strip_all_tags( $display_address ),
 					'post_status'    => 'publish',
@@ -529,7 +447,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 				if ( is_wp_error( $post_id ) ) 
 				{
-					$this->log_error( 'Failed to insert post. The error was as follows: ' . $post_id->get_error_message(), $property['property_id'] );
+					$this->log_error( 'Failed to insert post. The error was as follows: ' . $post_id->get_error_message(), $property['listingId'] );
 				}
 				else
 				{
@@ -556,16 +474,19 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				$this->log( 'Successfully ' . $inserted_updated . ' post', $property['property_id'], $post_id );
+				$this->log( 'Successfully ' . $inserted_updated . ' post', $property['listingId'], $post_id );
 
-				update_post_meta( $post_id, $imported_ref_key, $property['property_id'] );
+				update_post_meta( $post_id, $imported_ref_key, $property['listingId'] );
 
 				update_post_meta( $post_id, '_property_import_data', json_encode($property, JSON_PRETTY_PRINT) );
 
-				$department = ( $property['listing_type'] == 'For Sale' ? 'residential-sales' : 'residential-lettings' );
+				$department = ( strtolower($property['mandateType']) == 'sale' ? 'residential-sales' : 'residential-lettings' );
 
 				$poa = false;
-				if ( isset($property['price']['poa']) && $property['price']['poa'] === true )
+				if ( 
+					isset($property['pricingOption']) && 
+					$property['pricingOption'] == 'POA'
+				)
 				{
 					$poa = true;
 				}
@@ -577,67 +498,126 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
                 }
                 else
                 {
-                	$price = '';
-            		if ( isset($property['price']['amount']) && !empty($property['price']['amount']) )
-            		{
-                		$price = round(preg_replace("/[^0-9.]/", '', $property['price']['amount']));
-                	}
-
                 	if ( $department == 'residential-sales' )
                 	{
+                		$price = '';
+                		if ( isset($property['listPrice']) && !empty($property['listPrice']) )
+                		{
+	                		$price = round(preg_replace("/[^0-9.]/", '', $property['listPrice']));
+	                	}
 	                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
 	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
 	                }
 	                elseif ( $department == 'residential-lettings' )
 	                {
+	                	$price = '';
+	                	if ( isset($property['listPrice']) )
+						{
+							$price = preg_replace("/[^0-9.]/", '', $property['listPrice']);
+						}
+
+						$rent_frequency = 'pcm';
+						switch ( $property['pricingOption'] )
+						{
+							case "PerDay": { $rent_frequency = 'pd'; break; }
+							case "PerWeek": { $rent_frequency = 'pw'; break; }
+							case "PerYear": { $rent_frequency = 'pa'; break; }
+							case "PerMeterSquared": { $rent_frequency = 'per m²'; break; }
+						}
 	                	update_post_meta( $post_id, 'fave_property_price_prefix', '' );
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
-	                    update_post_meta( $post_id, 'fave_property_price_postfix', $property['price']['periodicity'] );
+	                    update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
 	                }
                 }
 
-                update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property['features']['bedrooms']) ) ? $property['features']['bedrooms'] : '' ) );
-	            update_post_meta( $post_id, 'fave_property_bathrooms', ( ( isset($property['features']['bathrooms']) ) ? $property['features']['bathrooms'] : '' ) );
-	            update_post_meta( $post_id, 'fave_property_rooms', ( ( isset($property['features']['lounges']) ) ? $property['features']['lounges'] : '' ) );
-	            update_post_meta( $post_id, 'fave_property_garage', '' );
-	            update_post_meta( $post_id, 'fave_property_id', $property['reference'] );
-
-	            $address_number = '';
-				$address_street = '';
-				/*$address1_explode = explode(' ', $address_street);
-				if ( !empty($address1_explode) && is_numeric($address1_explode[0]) )
+                $bedrooms = 0;
+                if ( isset($property['features']) && !empty($property['features']) )
 				{
-					$address_number = array_shift($address1_explode);
-					$address_street = implode(' ', $address1_explode);
-				}*/
+					foreach ( $property['features'] as $feature )
+					{
+						if ( isset($feature['type']) && strpos(strtolower($feature['type']), 'bedroom') !== FALSE )
+						{
+							++$bedrooms;
+						}
+					}
+				}
+
+                update_post_meta( $post_id, 'fave_property_bedrooms', $bedrooms );
+	            update_post_meta( $post_id, 'fave_property_bathrooms', '' );
+	            update_post_meta( $post_id, 'fave_property_rooms', '' );
+
+	            $parking = array();
+	            if ( isset($property['features']) && !empty($property['features']) )
+				{
+					foreach ( $property['features'] as $feature )
+					{
+						if ( isset($feature['type']) && $feature['type'] == 'Parking' )
+						{
+							$parking[] = $feature['description'];
+						}
+					}
+				}
+	            update_post_meta( $post_id, 'fave_property_garage', implode(", ", $parking) );
+	            update_post_meta( $post_id, 'fave_property_id', isset($property['listingNumber']) ? $property['listingNumber'] : $property['listingId'] );
 
 	            $address_parts = array();
-	            if ( isset($property['location']['suburb']['_cdata']) && $property['location']['suburb']['_cdata'] != '' )
+	            if ( $property['suburb'] != '' )
 	            {
-	                $address_parts[] = $property['location']['suburb']['_cdata'];
+	                $address_parts[] = $property['suburb'];
 	            }
-	            if ( isset($property['location']['city']['_cdata']) && $property['location']['city']['_cdata'] != '' )
+	            if ( $property['city'] != '' )
 	            {
-	                $address_parts[] = $property['location']['city']['_cdata'];
+	                $address_parts[] = $property['city'];
 	            }
-	            if ( isset($property['location']['province']['_cdata']) && $property['location']['province']['_cdata'] != '' )
+	            if ( $property['province'] != '' )
 	            {
-	                $address_parts[] = $property['location']['province']['_cdata'];
+	                $address_parts[] = $property['province'];
+	            }
+	            if ( $property['postcode'] != '' )
+	            {
+	                $address_parts[] = $property['postcode'];
 	            }
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
 	            $lat = '';
 	            $lng = '';
+	            if ( isset($property['location']['latitude']) && !empty($property['location']['latitude']) )
+	            {
+	                update_post_meta( $post_id, 'houzez_geolocation_lat', $property['location']['latitude'] );
+	                $lat = $property['location']['latitude'];
+	            }
+	            if ( isset($property['location']['longitude']) && !empty($property['location']['longitude']) )
+	            {
+	                update_post_meta( $post_id, 'houzez_geolocation_long', $property['location']['longitude'] );
+	                $lng = $property['location']['longitude'];
+	            }
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
-	            update_post_meta( $post_id, 'fave_property_country', $property['location']['country'] );
+	            update_post_meta( $post_id, 'fave_property_country', 'GB' );
 	            
+	            $address_parts = array();
+	            /*if ( $property['suburb'] != '' )
+	            {
+	                $address_parts[] = $property['suburb'];
+	            }
+	            if ( $property['city'] != '' )
+	            {
+	                $address_parts[] = $property['city'];
+	            }
+	            if ( $property['province'] != '' )
+	            {
+	                $address_parts[] = $property['province'];
+	            }
+	            if ( $property['postcode'] != '' )
+	            {
+	                $address_parts[] = $property['postcode'];
+	            }*/
 	            update_post_meta( $post_id, 'fave_property_address', implode(", ", $address_parts) );
-	            update_post_meta( $post_id, 'fave_property_zip', '' );
+	            update_post_meta( $post_id, 'fave_property_zip', $postcode );
 
 	            $featured = '0';
-	            add_post_meta( $post_id, 'fave_featured', $featured, true );
+	            update_post_meta( $post_id, 'fave_featured', $featured );
 	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
 	            if ( 
@@ -656,9 +636,19 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "agent_id":
+		            				case "agencyId":
 		            				{
-		            					$value_in_feed_to_check = $property['agent_details']['agent_id'];
+		            					$value_in_feed_to_check = $property['agencyId'];
+		            					break;
+		            				}
+		            				case "agentId":
+		            				{
+		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					break;
+		            				}
+		            				case "branchId":
+		            				{
+		            					$value_in_feed_to_check = $property['branchId'];
 		            					break;
 		            				}
 		            			}
@@ -686,9 +676,19 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "agent_id":
+		            				case "agencyId":
 		            				{
-		            					$value_in_feed_to_check = $property['agent_details']['agent_id'];
+		            					$value_in_feed_to_check = $property['agencyId'];
+		            					break;
+		            				}
+		            				case "agentId":
+		            				{
+		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					break;
+		            				}
+		            				case "branchId":
+		            				{
+		            					$value_in_feed_to_check = $property['branchId'];
 		            					break;
 		            				}
 		            			}
@@ -708,9 +708,19 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "agent_id":
+		            				case "agencyId":
 		            				{
-		            					$value_in_feed_to_check = $property['agent_details']['agent_id'];
+		            					$value_in_feed_to_check = $property['agencyId'];
+		            					break;
+		            				}
+		            				case "agentId":
+		            				{
+		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					break;
+		            				}
+		            				case "branchId":
+		            				{
+		            					$value_in_feed_to_check = $property['branchId'];
 		            					break;
 		            				}
 		            			}
@@ -754,11 +764,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					{
 						wp_delete_object_term_relationships( $post_id, "property_feature" );
 					}
-				}
-
-				update_post_meta( $post_id, 'fave_energy_class', ( ( isset($property['epc']['rating']) ) ? $property['epc']['rating'] : '' ) );
-				update_post_meta( $post_id, 'fave_epc_current_rating', ( ( isset($property['epc']['energy_efficiency_current']) ) ? $property['epc']['energy_efficiency_current'] : '' ) );
-				update_post_meta( $post_id, 'fave_epc_potential_rating', ( ( isset($property['epc']['energy_efficiency_potential']) ) ? $property['epc']['energy_efficiency_potential'] : '' ) );*/
+				}*/
 
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
@@ -771,17 +777,19 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 				$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
 
-				if ( isset($property['listing_state']) && !empty($property['listing_state']) )
+				$status_field = str_replace('residential-', '', str_replace('sales', 'sale', $department));
+
+				if ( isset($property[$status_field . '_status']) && !empty($property[$status_field . '_status']) )
 				{
-					if ( isset($taxonomy_mappings[$property['listing_state']]) && !empty($taxonomy_mappings[$property['listing_state']]) )
+					if ( isset($taxonomy_mappings[$property[$status_field . '_status']]) && !empty($taxonomy_mappings[$property[$status_field . '_status']]) )
 					{
-						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['listing_state']], "property_status" );
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property[$status_field . '_status']], "property_status" );
 					}
 					else
 					{
-						$this->log( 'Received status of ' . $property['listing_state'] . ' that isn\'t mapped in the import settings', $property['property_id'], $post_id );
+						$this->log( 'Received status of ' . $property[$status_field . '_status'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
 
-						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property['listing_state'], $this->import_id );
+						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property[$status_field . '_status'], $this->import_id );
 					}
 				}
 
@@ -790,15 +798,43 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 				if ( isset($property['property_type']) && !empty($property['property_type']) )
 				{
-					if ( isset($taxonomy_mappings[$property['property_type']]) && !empty($taxonomy_mappings[$property['property_type']]) )
-					{
-						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['property_type']], "property_type" );
-					}
-					else
-					{
-						$this->log( 'Received property type of ' . $property['property_type'] . ' that isn\'t mapped in the import settings', $property['property_id'], $post_id );
+					$type_mapped = false;
 
-						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['property_type'], $this->import_id );
+					if ( 
+						isset($property['property_type']) && 
+						$property['property_type'] != '' &&
+						isset($property['property_style']) && 
+						$property['property_style'] != ''
+					)
+					{
+						if ( 
+							isset($taxonomy_mappings[$property['property_type'] . ' - ' . $property['property_style']]) && 
+							!empty($taxonomy_mappings[$property['property_type'] . ' - ' . $property['property_style']]) 
+						)
+						{
+							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['property_type'] . ' - ' . $property['property_style']], "property_type" );
+							$type_mapped = true;
+						}
+						else
+						{
+							$this->log( 'Received property type of ' . $property['property_type'] . ' - ' . $property['property_style'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['property_type'] . ' - ' . $property['property_style'], $this->import_id );
+						}
+					}
+
+					if ( !$type_mapped )
+					{
+						if ( isset($taxonomy_mappings[$property['property_type']]) && !empty($taxonomy_mappings[$property['property_type']]) )
+						{
+							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['property_type']], "property_type" );
+						}
+						else
+						{
+							$this->log( 'Received property type of ' . $property['property_type'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['property_type'], $this->import_id );
+						}
 					}
 				}
 
@@ -827,9 +863,9 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					if ( !empty($address_field_to_use) )
 					{
 						$location_term_ids = array();
-						if ( isset($property['location'][$address_field_to_use]['_cdata']) && !empty($property['location'][$address_field_to_use]['_cdata']) )
+						if ( isset($property[$address_field_to_use]) && !empty($property[$address_field_to_use]) )
 		            	{
-		            		$term = term_exists( trim($property['location'][$address_field_to_use]['_cdata']), $location_taxonomy);
+		            		$term = term_exists( trim($property[$address_field_to_use]), $location_taxonomy);
 							if ( $term !== 0 && $term !== null && isset($term['term_id']) )
 							{
 								$location_term_ids[] = (int)$term['term_id'];
@@ -838,7 +874,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 							{
 								if ( $create_location_taxonomy_terms === true )
 								{
-									$term = wp_insert_term( trim($property['location'][$address_field_to_use]['_cdata']), $location_taxonomy );
+									$term = wp_insert_term( trim($property[$address_field_to_use]), $location_taxonomy );
 									if ( is_array($term) && isset($term['term_id']) )
 									{
 										$location_term_ids[] = (int)$term['term_id'];
@@ -860,27 +896,21 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 				// Images
 				if ( 
 					apply_filters('houzez_property_feed_images_stored_as_urls', false, $post_id, $property, $this->import_id) === true ||
-					apply_filters('houzez_property_feed_images_stored_as_urls_remax', false, $post_id, $property, $this->import_id) === true
+					apply_filters('houzez_property_feed_images_stored_as_urls_propctrl', false, $post_id, $property, $this->import_id) === true
 				)
 				{
 					$urls = array();
 
-					if ( isset($property['photos']['photo']) && !empty($property['photos']['photo']) )
+					if (isset($property['images']) && !empty($property['images']))
 					{
-						usort($property['photos']['photo'], function($a, $b) {
-						    return $a['order'] - $b['order'];
-						});
-
-						foreach ( $property['photos']['photo'] as $image )
+						foreach ($property['images'] as $image)
 						{
-							$url = $image['url'];
+							$size = 'large'; // thumbnail, small, medium, large, hero, full
+							$url = isset($image['urls'][$size]) ? $image['urls'][$size] : $image['url'];
 
 							if ( 
-								(isset($image['active']) && ($image['active'] === true || $image['active'] === "true")) &&
-								(
-									substr( strtolower($url), 0, 2 ) == '//' || 
-									substr( strtolower($url), 0, 4 ) == 'http'
-								)
+								substr( strtolower($url), 0, 2 ) == '//' || 
+								substr( strtolower($url), 0, 4 ) == 'http'
 							)
 							{
 								$urls[] = array(
@@ -893,7 +923,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					update_post_meta( $post_id, 'image_urls', $urls );
 					update_post_meta( $post_id, 'images_stored_as_urls', true );
 
-					$this->log( 'Imported ' . count($urls) . ' photo URLs', $property['property_id'], $post_id );
+					$this->log( 'Imported ' . count($urls) . ' photo URLs', $property['listingId'], $post_id );
 				}
 				else
 				{
@@ -902,7 +932,6 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					$existing = 0;
 					$deleted = 0;
 					$image_i = 0;
-					$queued = 0;
 					$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
 					$start_at_image_i = false;
@@ -920,27 +949,21 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 								$media_ids = explode(",", $explode_previous_import_media_ids[1]);
 								$start_at_image_i = count($media_ids);
 
-								$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', $property['property_id'], $post_id );
+								$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', $property['listingId'], $post_id );
 							}
 						}
 					}
 
-					if ( isset($property['photos']['photo']) && !empty($property['photos']['photo']) )
+					if (isset($property['images']) && !empty($property['images']))
 					{
-						usort($property['photos']['photo'], function($a, $b) {
-						    return $a['order'] - $b['order'];
-						});
-
-						foreach ( $property['photos']['photo'] as $image )
+						foreach ($property['images'] as $image)
 						{
-							$url = $image['url'];
+							$size = 'large'; // thumbnail, small, medium, large, hero, full
+							$url = isset($image['urls'][$size]) ? $image['urls'][$size] : $image['url'];
 
 							if ( 
-								(isset($image['active']) && ($image['active'] === true || $image['active'] === "true")) &&
-								(
-									substr( strtolower($url), 0, 2 ) == '//' || 
-									substr( strtolower($url), 0, 4 ) == 'http'
-								)
+								substr( strtolower($url), 0, 2 ) == '//' || 
+								substr( strtolower($url), 0, 4 ) == 'http'
 							)
 							{
 								if ( $start_at_image_i !== false )
@@ -955,8 +978,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 								}
 
 								// This is a URL
-								$modified = ( (isset($image['date_last_updated'])) ? $image['date_last_updated'] : '' );
-								$description = '';
+								$description = ( (isset($image['title'])) ? $image['title'] : '' );
 							    
 								$filename = basename( $url );
 
@@ -969,8 +991,6 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 									{
 										if ( 
 											get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
-											&&
-											get_post_meta( $previous_media_id, '_modified', TRUE ) == $modified
 										)
 										{
 											$imported_previously = true;
@@ -1005,52 +1025,43 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 								}
 								else
 								{
-									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, $property['property_id'], $url, $url, $description, 'image', $image_i, $modified ) === true )
-									{
-										$tmp = download_url( $url );
+									$tmp = download_url( $url );
 
-									    $file_array = array(
-									        'name' => $filename,
-									        'tmp_name' => $tmp
-									    );
+								    $file_array = array(
+								        'name' => $filename,
+								        'tmp_name' => $tmp
+								    );
 
-									    // Check for download errors
-									    if ( is_wp_error( $tmp ) ) 
+								    // Check for download errors
+								    if ( is_wp_error( $tmp ) ) 
+								    {
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['listingId'], $post_id );
+								    }
+								    else
+								    {
+									    $id = media_handle_sideload( $file_array, $post_id, $description );
+
+									    // Check for handle sideload errors.
+									    if ( is_wp_error( $id ) ) 
 									    {
-									        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
+									        @unlink( $file_array['tmp_name'] );
+									        
+									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['listingId'], $post_id );
 									    }
 									    else
 									    {
-										    $id = media_handle_sideload( $file_array, $post_id, $description );
+									    	$media_ids[] = $id;
 
-										    // Check for handle sideload errors.
-										    if ( is_wp_error( $id ) ) 
-										    {
-										        @unlink( $file_array['tmp_name'] );
-										        
-										        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['property_id'], $post_id );
-										    }
-										    else
-										    {
-										    	$media_ids[] = $id;
+									    	update_post_meta( $id, '_imported_url', $url);
 
-										    	update_post_meta( $id, '_imported_url', $url);
-										    	update_post_meta( $id, '_modified', $modified);
+									    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
 
-										    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
+									    	++$new;
 
-										    	++$new;
+									    	++$image_i;
 
-										    	++$image_i;
-
-										    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
-										    }
-										}
-									}
-									else
-									{
-										++$queued;
-										++$image_i;
+									    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
+									    }
 									}
 								}
 							}
@@ -1064,8 +1075,6 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 							add_post_meta( $post_id, 'fave_property_images', $media_id );
 						}
 					}
-
-					update_post_meta( $post_id, 'images_stored_as_urls', false );
 
 					// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
 					if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
@@ -1082,17 +1091,13 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 						}
 					}
 
-					$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['property_id'], $post_id );
-					if ( $queued > 0 ) 
-					{
-						$this->log( $queued . ' photos added to download queue', $property['property_id'], $post_id );
-					}
+					$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['listingId'], $post_id );
 
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
 
 				// Floorplans
-				/*$floorplans = array();
+				$floorplans = array();
 
 				if (isset($property['floorplans']) && !empty($property['floorplans']))
 				{
@@ -1127,7 +1132,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
 	            }
 
-				$this->log( 'Imported ' . count($floorplans) . ' floorplans', $property['property_id'], $post_id );
+				$this->log( 'Imported ' . count($floorplans) . ' floorplans', $property['listingId'], $post_id );
 
 				// Brochures and EPCs
 				$media_ids = array();
@@ -1197,7 +1202,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 						    // Check for download errors
 						    if ( is_wp_error( $tmp ) ) 
 						    {
-						        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
+						        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['listingId'], $post_id );
 						    }
 						    else
 						    {
@@ -1211,7 +1216,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 							    {
 							        @unlink( $file_array['tmp_name'] );
 							        
-							        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['property_id'], $post_id );
+							        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['listingId'], $post_id );
 							    }
 							    else
 							    {
@@ -1289,7 +1294,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 							    // Check for download errors
 							    if ( is_wp_error( $tmp ) ) 
 							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
+							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['listingId'], $post_id );
 							    }
 							    else
 							    {
@@ -1303,7 +1308,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 								    {
 								        @unlink( $file_array['tmp_name'] );
 								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['property_id'], $post_id );
+								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['listingId'], $post_id );
 								    }
 								    else
 								    {
@@ -1346,16 +1351,16 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				$this->log( 'Imported ' . count($media_ids) . ' brochures (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['property_id'], $post_id );
+				$this->log( 'Imported ' . count($media_ids) . ' brochures (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['listingId'], $post_id );
 				
 				$virtual_tours = array();
 				if ( isset($property['details']['virtual_tour']) && !empty($property['details']['virtual_tour']) )
 				{
 					$virtual_tours[] = $property['details']['virtual_tour'];
 				}
-				if ( isset($property['attributes']['property_urls']) && !empty($property['attributes']['property_urls']) && is_array($property['attributes']['property_urls']) )
+				if ( isset($property['property_urls']) && !empty($property['property_urls']) && is_array($property['property_urls']) )
 				{
-					foreach ( $property['attributes']['property_urls'] as $property_url )
+					foreach ( $property['property_urls'] as $property_url )
 					{
 						if ( 
 							isset($property_url['media_type']) && 
@@ -1404,18 +1409,47 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 							}
 						}
 					}
-				}*/
+				}
 
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_remax", $post_id, $property, $this->import_id );
+				do_action( "houzez_property_feed_property_imported_propctrl", $post_id, $property, $this->import_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
 				do_action( "save_post", $post_id, $post, false );
 
+				// Send request back to PropCtrl containing post ID and URL etc
+				$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/' . $property['listingId'];
+
+				$headers = array(
+					'Content-Type' => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+				);
+
+				$body = array(
+				    "listingNumber" => (string)$post_id,
+				    "status" => "Active",
+				    "listingUrl" => get_permalink($post_id)
+				);
+
+				$response = wp_remote_request(
+					$url,
+					array(
+						'method' => 'PUT',
+						'timeout' => 120,
+						'headers' => $headers,
+						'body'    => json_encode($body),
+					)
+				);
+
+				if ( is_wp_error( $response ) )
+				{
+					$this->log_error( 'Response when updating status in PropCtrl: ' . $response->get_error_message(), $property['listingId'], $post_id );
+				}
+
 				if ( $inserted_updated == 'updated' )
 				{
-					$this->compare_meta_and_taxonomy_data( $post_id, $property['property_id'], $metadata_before, $taxonomy_terms_before );
+					$this->compare_meta_and_taxonomy_data( $post_id, $property['listingId'], $metadata_before, $taxonomy_terms_before );
 				}
 			}
 
@@ -1423,7 +1457,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 		} // end foreach property
 
-		do_action( "houzez_property_feed_post_import_properties_remax", $this->import_id );
+		do_action( "houzez_property_feed_post_import_properties_propctrl", $this->import_id );
 
 		$this->import_end();
 	}
@@ -1437,7 +1471,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			$import_refs = array();
 			foreach ($this->properties as $property)
 			{
-				$import_refs[] = $property['property_id'];
+				$import_refs[] = $property['listingId'];
 			}
 
 			$this->do_remove_old_properties( $import_refs );

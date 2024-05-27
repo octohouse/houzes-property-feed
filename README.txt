@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.3
-Stable tag: 2.2.5
-Version: 2.2.5
+Stable tag: 2.2.6
+Version: 2.2.6
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -38,6 +38,7 @@ We can import properties from the following estate agency CRMs/formats:
 * MLS/IDX (assuming XML URL can be provided)
 * myCRM from Property Finder
 * Pixxi
+* PropCtrl
 * RE/MAX
 * Rentman
 * ReSales Online
@@ -115,6 +116,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.6 - 2024-05-27 =
+* Added support for new import format PropCTRL
+* Added filter 'houzez_property_feed_property_xml' to customise property XML whilst it's being parsed
+* Ensured branch details are included in RE/MAX property data
 
 = 2.2.5 - 2024-05-13 =
 * Added ability to search import logs. Search by post ID, CRM ID or property title/address

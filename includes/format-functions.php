@@ -1032,6 +1032,67 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/pixxi/',
             'warnings' => array(),
         ),
+        'propctrl' => array(
+            'name' => __( 'PropCtrl', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'base_url',
+                    'label' => __( 'API Base URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => 'https://api.exdev.propctrl-test.com',
+                ),
+                array(
+                    'id' => 'api_username',
+                    'label' => __( 'API Username', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'api_password',
+                    'label' => __( 'API Password', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'agency_id',
+                    'label' => __( 'Agency ID(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'Enter a comma-delimited list of agency IDs if only wanting to import specific agency listings. Enter only Agency ID(s) or Branch ID(s). Not both.', 'houzezpropertyfeed' ),
+                ),
+                array(
+                    'id' => 'branch_id',
+                    'label' => __( 'Branch ID(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'Enter a comma-delimited list of branch IDs if only wanting to import specific branch listings. Enter only Agency ID(s) or Branch ID(s). Not both.', 'houzezpropertyfeed' ),
+                ),
+            ),
+            'address_fields' => array( 'suburb', 'city', 'province' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For Sale' => 'For Sale',
+                    'Under Offer' => 'Under Offer',
+                    'Sold STC' => 'Sold STC',
+                    'For Sale and To Let' => 'For Sale and To Let',
+                ),
+                'lettings_status' => array(
+                    'To Let' => 'To Let',
+                    'Let Agreed' => 'Let Agreed',
+                    'For Sale and To Let' => 'For Sale and To Let',
+                ),
+                'property_type' => array(
+                    'Detached House' => 'Detached House',
+                    'Semi-Detached House' => 'Semi-Detached House',
+                    'Terraced House' => 'Terraced House',
+                    'Bungalow' => 'Bungalow',
+                    'Flat / Apartment' => 'Flat / Apartment',
+                    'Other' => 'Other',
+                )
+            ),
+            'contact_information_fields' => array(
+                'agencyId',
+                'agentId',
+                'branchId',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/propctrl/'
+        ),
         'property_finder' => array(
             'name' => __( 'Property Finder / myCRM', 'houzezpropertyfeed' ),
             'fields' => array(

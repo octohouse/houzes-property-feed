@@ -77,19 +77,21 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		$xml = new SimpleXMLElement($contents);
 
-		$xml = $xml->xpath($import_settings['property_node']);
+		$property_xml = $xml->xpath($import_settings['property_node']);
 
-		if ( $xml === false )
+		if ( $property_xml === false )
 		{
 			$this->log_error( 'Failed to find any properties in the XML with the property identifier' );
 
 			return false;
 		}
 
-		if ( is_array($xml) && !empty($xml) )
+		if ( is_array($property_xml) && !empty($property_xml) )
 		{
-			foreach ($xml as $property)
+			foreach ($property_xml as $property)
 			{
+				$property = apply_filters( 'houzez_property_feed_property_xml', $property, $xml, $this->import_id );
+
                 $this->properties[] = $property;
             } // end foreach property
         }
