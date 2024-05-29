@@ -33,6 +33,11 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 		    //'application' => 'rex' // getting error when using this even though it's in the docs
 		);
 
+		if ( isset($import_settings['account_id']) && !empty($import_settings['account_id']) )
+		{
+			$data['account_id'] = $import_settings['account_id'];
+		}
+
 		$data = apply_filters( 'houzez_property_feed_rex_authentication_request_body', $data );
 
 		$data = json_encode($data);

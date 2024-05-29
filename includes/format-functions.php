@@ -1299,6 +1299,12 @@ function get_houzez_property_feed_import_formats()
                     'type' => 'text',
                 ),
                 array(
+                    'id' => 'account_id',
+                    'label' => __( 'Account ID', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => 'If you have multiple accounts, enter your account ID, otherwise leave it blank'
+                ),
+                array(
                     'id' => 'base_url',
                     'label' => __( 'API Base URL', 'houzezpropertyfeed' ),
                     'type' => 'text',
