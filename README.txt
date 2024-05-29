@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.3
-Stable tag: 2.2.6
-Version: 2.2.6
+Stable tag: 2.2.7
+Version: 2.2.7
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -116,6 +116,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.7 - 2024-05-29 =
+* Allow mapping of currency field in import field mapping section when multi-currency setting is enabled
+* Maintain any filters set when starting, pausing or running an import
+* Run post status options in field mapping through __()
 
 = 2.2.6 - 2024-05-27 =
 * Added support for new import format PropCTRL

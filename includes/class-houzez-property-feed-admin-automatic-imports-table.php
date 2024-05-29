@@ -212,9 +212,11 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             }
         }
 
-        // Handle sorting
         $orderby = (!empty($_REQUEST['orderby'])) ? sanitize_text_field($_REQUEST['orderby']) : '';
         $order = (!empty($_REQUEST['order']) && in_array(strtolower($_REQUEST['order']), array('asc', 'desc')) ) ? sanitize_text_field($_REQUEST['order']) : '';
+
+        $hpf_filter = (!empty($_REQUEST['hpf_filter'])) ? sanitize_text_field($_REQUEST['hpf_filter']) : '';
+        $hpf_filter_format = (!empty($_REQUEST['hpf_filter_format'])) ? sanitize_text_field($_REQUEST['hpf_filter_format']) : '';
 
         foreach ( $imports as $key => $import )
         {
@@ -412,8 +414,8 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                     <div class="row-actions">
                         <span class="edit">' . ( 
                             !$running ? 
-                            '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=startimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order)) . '" aria-label="' . __( 'Start Import', 'houzezpropertyfeed' ) . '">' . __( 'Start Import', 'houzezpropertyfeed' ) . '</a>' : 
-                            '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=pauseimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order)) . '" aria-label="' . __( 'Pause Import', 'houzezpropertyfeed' ) . '">' . __( 'Pause Import', 'houzezpropertyfeed' ) . '</a>' 
+                            '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=startimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format)) . '" aria-label="' . __( 'Start Import', 'houzezpropertyfeed' ) . '">' . __( 'Start Import', 'houzezpropertyfeed' ) . '</a>' : 
+                            '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=pauseimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format)) . '" aria-label="' . __( 'Pause Import', 'houzezpropertyfeed' ) . '">' . __( 'Pause Import', 'houzezpropertyfeed' ) . '</a>' 
                         ) . ' | </span>
                         <span class="edit"><a href="' . esc_url(admin_url('/admin.php?page=houzez-property-feed-import&tab=logs&import_id=' . (int)$key)) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a> | </span>
                         <span class="edit"><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key)) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a> | </span>

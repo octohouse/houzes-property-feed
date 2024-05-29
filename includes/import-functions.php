@@ -61,7 +61,7 @@ function get_houzez_fields_for_field_mapping()
         'post_title' => array( 'type' => 'post_field', 'label' => __( 'Post Title', 'houzez' ) ),
         'post_excerpt' => array( 'type' => 'post_field', 'label' => __( 'Post Excerpt', 'houzez' ) ),
         'post_content' => array( 'type' => 'post_field', 'label' => __( 'Post Content', 'houzez' ) ),
-        'post_status' => array( 'type' => 'post_field', 'label' => __( 'Post Status', 'houzez' ), 'options' => array( 'publish' => 'Publish', 'private' => 'Private', 'draft' => 'Draft') ),
+        'post_status' => array( 'type' => 'post_field', 'label' => __( 'Post Status', 'houzez' ), 'options' => array( 'publish' => __( 'Publish', 'houzezpropertyfeed' ), 'private' => __( 'Private', 'houzezpropertyfeed' ), 'draft' => __( 'Draft', 'houzezpropertyfeed' ) ) ),
         // Houzez Fields
         'fave_property_sec_price' => array( 'type' => 'meta', 'label' => __( 'Second Price (Optional)', 'houzez' ) ),
         'fave_property_price_prefix' => array( 'type' => 'meta', 'label' => __( 'Price Prefix', 'houzez' ) ),
@@ -77,13 +77,13 @@ function get_houzez_fields_for_field_mapping()
         'fave_property_id' => array( 'type' => 'meta', 'label' => __( 'Property ID / Reference Number', 'houzez' ) ),
         'fave_property_address' => array( 'type' => 'meta', 'label' => __( 'Street Address', 'houzez' ) ),
         'fave_property_zip' => array( 'type' => 'meta', 'label' => __( 'Zip/Postal Code', 'houzez' ) ),
-        'fave_property_map' => array( 'type' => 'meta', 'label' => __( 'Show Map', 'houzez' ), 'options' => array( 0 => 0, 1 => 1) ),
-        'fave_property_map_street_view' => array( 'type' => 'meta', 'label' => __( 'Show Street View', 'houzez' ), 'options' => array( 'hide' => 'Hide', 'show' => 'Show') ),
+        'fave_property_map' => array( 'type' => 'meta', 'label' => __( 'Show Map', 'houzez' ), 'options' => array( 0 => 0, 1 => 1 ) ),
+        'fave_property_map_street_view' => array( 'type' => 'meta', 'label' => __( 'Show Street View', 'houzez' ), 'options' => array( 'hide' => 'Hide', 'show' => 'Show' ) ),
         'fave_property_map_address' => array( 'type' => 'meta', 'label' => __( 'Map Address', 'houzez' ) ),
         'houzez_geolocation_lat' => array( 'type' => 'meta', 'label' => __( 'Latitude', 'houzez' ) ),
         'houzez_geolocation_long' => array( 'type' => 'meta', 'label' => __( 'Longitude', 'houzez' ) ),
         'fave_property_location' => array( 'type' => 'meta', 'label' => __( 'Location', 'houzez' ) . ' (format: lat,lng,zoom)' ),
-        'fave_featured' => array( 'type' => 'meta', 'label' => __( 'Featured', 'houzez' ), 'options' => array( 0 => 0, 1 => 1) ),
+        'fave_featured' => array( 'type' => 'meta', 'label' => __( 'Featured', 'houzez' ), 'options' => array( 0 => 0, 1 => 1 ) ),
         'fave_property_disclaimer' => array( 'type' => 'meta', 'label' => __( 'Disclaimer', 'houzez' ) ),
         'fave_video_url' => array( 'type' => 'meta', 'label' => __( 'Video URL', 'houzez' ) ),
         'fave_virtual_tour' => array( 'type' => 'meta', 'label' => __( '360° Virtual Tour', 'houzez' ) ),
@@ -97,6 +97,24 @@ function get_houzez_fields_for_field_mapping()
         'fave_property_land_postfix' => array( 'type' => 'meta', 'label' => __( 'Land Area Size Postfix', 'houzez' ) ),
         'fave_property_price' => array( 'type' => 'meta', 'label' => __( 'Sale or Rent Price', 'houzez' ) ),
     );
+
+    if ( fave_option('multi_currency') == 1 )
+    {
+        $options = array();
+        if ( class_exists('Houzez_Currencies') )
+        {
+            $form_fields = Houzez_Currencies::get_form_fields();
+
+            if ($form_fields )
+            {
+                foreach ( $form_fields as $data ) 
+                { 
+                    $options[$data->currency_code] = $data->currency_name . ' (' . $data->currency_code . ')';
+                }
+            }
+        }
+        $houzez_fields['fave_currency'] = array( 'type' => 'meta', 'label' => __( 'Currency', 'houzez' ), 'options' => $options );
+    }
     
     // Contact agent related fields
     $fave_agent_display_options = array(

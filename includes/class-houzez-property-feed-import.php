@@ -377,6 +377,14 @@ class Houzez_Property_Feed_Import {
             {
                 $redirect_url .= '&orderby=' . sanitize_text_field($_REQUEST['orderby']) . '&order=' . sanitize_text_field($_REQUEST['order']);
             }
+            if ( isset($_REQUEST['hpf_filter']) && !empty($_REQUEST['hpf_filter']) )
+            {
+                $redirect_url .= '&hpf_filter=' . sanitize_text_field($_REQUEST['hpf_filter']);
+                if ( isset($_REQUEST['hpf_filter_format']) && !empty($_REQUEST['hpf_filter_format']) )
+                {
+                    $redirect_url .= '&hpf_filter_format=' . sanitize_text_field($_REQUEST['hpf_filter_format']);
+                }
+            }
 
             if ( empty($import_id) )
             {
@@ -737,6 +745,16 @@ class Houzez_Property_Feed_Import {
                             $new_result[] = $result_item;
                         }
                         $result = implode(",", $new_result);
+                    }
+                    elseif ( $result != '' && $and_rules['houzez_field'] == 'fave_currency' )
+                    {
+                        // set currency_info meta
+                        if ( class_exists('Houzez_Currencies') ) 
+                        {
+                            $currencies = Houzez_Currencies::get_property_currency_2($prop_id, $result);
+
+                            update_post_meta( $post_id, 'fave_currency_info', $currencies );
+                        }
                     }
                     elseif ( $and_rules['houzez_field'] == 'fave_agents' && $result == 'auto' )
                     {

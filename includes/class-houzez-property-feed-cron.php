@@ -29,6 +29,20 @@ class Houzez_Property_Feed_Cron {
     {
         if ( isset($_GET['custom_property_import_cron']) && sanitize_text_field($_GET['custom_property_import_cron']) == 'houzezpropertyfeedcronhook' )
         {
+            $redirect_url = 'admin.php?page=houzez-property-feed-import';
+            if ( isset($_REQUEST['orderby']) && !empty($_REQUEST['orderby']) && isset($_REQUEST['order']) && in_array(strtolower($_REQUEST['order']), array('asc', 'desc')) )
+            {
+                $redirect_url .= '&orderby=' . sanitize_text_field($_REQUEST['orderby']) . '&order=' . sanitize_text_field($_REQUEST['order']);
+            }
+            if ( isset($_REQUEST['hpf_filter']) && !empty($_REQUEST['hpf_filter']) )
+            {
+                $redirect_url .= '&hpf_filter=' . sanitize_text_field($_REQUEST['hpf_filter']);
+                if ( isset($_REQUEST['hpf_filter_format']) && !empty($_REQUEST['hpf_filter_format']) )
+                {
+                    $redirect_url .= '&hpf_filter_format=' . sanitize_text_field($_REQUEST['hpf_filter_format']);
+                }
+            }
+
             if ( !isset($_GET['force']) )
             {
                 global $wpdb;
@@ -67,7 +81,7 @@ class Houzez_Property_Feed_Cron {
                     {
                         if ( ( ( time() - strtotime($row['log_date']) ) / 60 ) < 5 )
                         {
-                            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpferrormessage=' . __( "There has been activity within the past 5 minutes on an unfinished import. To prevent multiple imports running at the same time and possible duplicate properties being created we won't currently allow manual execution. Please try again in a few minutes or check the logs to see the status of the current import.", 'houzezpropertyfeed' ) ) );
+                            wp_redirect( admin_url( $redirect_url . '&hpferrormessage=' . __( "There has been activity within the past 5 minutes on an unfinished import. To prevent multiple imports running at the same time and possible duplicate properties being created we won't currently allow manual execution. Please try again in a few minutes or check the logs to see the status of the current import.", 'houzezpropertyfeed' ) ) );
                             die();
                         }
                     }
@@ -76,7 +90,7 @@ class Houzez_Property_Feed_Cron {
 
             do_action(sanitize_text_field($_GET['custom_property_import_cron']));
 
-            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . __( 'Import executed successfully. You can check the logs to see what happened during the import.', 'houzezpropertyfeed' ) ) );
+            wp_redirect( admin_url( $redirect_url . '&hpfsuccessmessage=' . __( 'Import executed successfully. You can check the logs to see what happened during the import.', 'houzezpropertyfeed' ) ) );
             die();
         }
     }
