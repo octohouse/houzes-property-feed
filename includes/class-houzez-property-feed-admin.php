@@ -21,6 +21,9 @@ class Houzez_Property_Feed_Admin {
 
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_styles' ), 5 );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ), 5 );
+
+        add_action( 'restrict_manage_posts', array( $this, 'restrict_manage_posts' ) );
+        add_filter( 'request', array( $this, 'request_query' ) );
 	}
 
     /**
@@ -730,7 +733,6 @@ class Houzez_Property_Feed_Admin {
         }
     }
 
-
     /**
      * Enqueue scripts
      */
@@ -905,6 +907,100 @@ class Houzez_Property_Feed_Admin {
         }
     }
 
+    /**
+     * Filters for post types
+     */
+    public function restrict_manage_posts() 
+    {
+        global $typenow, $wp_query;
+
+        if ( $typenow == 'property' )
+        {
+            $options = get_option( 'houzez_property_feed' , array() );
+            $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+
+            if ( !empty($imports) )
+            {
+                uasort($imports, function($a, $b)
+                {
+                    return $a['format'] <=> $b['format'];
+                });
+
+                $output = '<select name="_import_id" id="dropdown_hpf_import_id">';
+
+                $output .= '<option value="">' . esc_html( __( 'All Imports', 'houzezpropertyfeed' ) ) . '</option>';
+
+                foreach ( $imports as $key => $import )
+                {
+                    if ( 
+                        isset($imports[$key]['deleted']) && $imports[$key]['deleted'] === true &&
+                        apply_filters( 'houzez_property_feed_include_deleted_in_filter', true ) === false
+                    )
+                    {
+                        continue;
+                    }
+
+                    $format = get_houzez_property_feed_import_format( $import['format'] );
+
+                    $output .= '<option value="' . esc_attr($key) . '"';
+                    if ( isset($_GET['_import_id']) && !empty($_GET['_import_id']) && is_numeric($_GET['_import_id']) && (int)$_GET['_import_id'] == $key ) 
+                    {
+                        $output .= ' selected';
+                    }
+                    $output .= '>' . esc_html( isset($format['name']) ? $format['name'] : '-' );
+                    $output .= ' (' . esc_html($key) . ')';
+                    if ( isset($imports[$key]['deleted']) && $imports[$key]['deleted'] === true )
+                    {
+                        $output .= ' - ' . esc_html( 'Deleted', 'houzezpropertyfeed' );
+                    }
+                    else
+                    {
+                        if ( isset($import['running']) && $import['running'] === true )
+                        {
+                            $output .= ' - ' . esc_html( 'Active', 'houzezpropertyfeed' );
+                        }
+                        else
+                        {
+                            $output .= ' - ' . esc_html( 'Inactive', 'houzezpropertyfeed' );
+                        }
+                    }
+
+                    $output .= '</option>';
+                }
+                $output .= '</select>';
+
+                echo $output;
+
+            }
+        }
+    }
+
+    /**
+     * Filters handler
+     * @param  array $vars
+     * @return array
+     */
+    public function request_query( $vars )
+    {
+        global $typenow, $wp_query;
+
+        if ( !isset($vars['meta_query']) ) { $vars['meta_query'] = array(); }
+
+        if ( 'property' === $typenow ) 
+        {
+            if ( isset($_GET['_import_id']) && !empty($_GET['_import_id']) && is_numeric($_GET['_import_id']) ) 
+            {
+                $import_id = (int)$_GET['_import_id'];
+
+                $vars['meta_query'][] = array(
+                    'key' => '_imported_ref_' . $import_id,
+                    'compare' => 'EXISTS'
+                );
+            }
+        }
+
+        return $vars;
+    }
 }
 
 new Houzez_Property_Feed_Admin();
