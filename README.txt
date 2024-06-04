@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.3
-Stable tag: 2.2.9
-Version: 2.2.9
+Stable tag: 2.2.10
+Version: 2.2.10
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -116,6 +116,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.10 - 2024-06-03 =
+* Trim whitespace from any media URLs imported from XML or CSV
+* Correct bug introduced in 2.2.9
 
 = 2.2.9 - 2024-06-03 =
 * Added filter to properties list allowing filtering by which import a property was initially imported by

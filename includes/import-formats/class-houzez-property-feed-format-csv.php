@@ -290,7 +290,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 			                                $value_to_check = '';
 			                            }
 
-				                        $url = str_replace($match, $value_to_check, $url);
+				                        $url = trim(str_replace($match, $value_to_check, $url));
 				                    }
 				                }
 
@@ -328,7 +328,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 	                            	// we found image URLs
 	                            	foreach ( $explode_image_urls as $url )
 	                            	{
-	                            		$url = apply_filters( 'houzez_property_feed_csv_image_url', $url, $this->import_id );
+	                            		$url = apply_filters( 'houzez_property_feed_csv_image_url', trim($url), $this->import_id );
 
 	                            		$description = '';
 
@@ -421,7 +421,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 			                                $value_to_check = '';
 			                            }
 
-				                        $url = str_replace($match, $value_to_check, $url);
+				                        $url = trim(str_replace($match, $value_to_check, $url));
 				                    }
 				                }
 
@@ -442,7 +442,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				                                $value_to_check = '';
 				                            }
 
-					                        $description = str_replace($match, $value_to_check, $description);
+					                        $description = trim(str_replace($match, $value_to_check, $description));
 					                    }
 					                }
 								}
@@ -577,7 +577,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 	                            	// we found image URLs
 	                            	foreach ( $explode_image_urls as $url )
 	                            	{
-	                            		$url = apply_filters( 'houzez_property_feed_csv_image_url', $url, $this->import_id );
+	                            		$url = apply_filters( 'houzez_property_feed_csv_image_url', trim($url), $this->import_id );
 
 	                            		$description = '';
 
@@ -776,7 +776,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 		                                $value_to_check = '';
 		                            }
 
-			                        $url = str_replace($match, $value_to_check, $url);
+			                        $url = trim(str_replace($match, $value_to_check, $url));
 			                    }
 			                }
 
@@ -797,7 +797,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 			                                $value_to_check = '';
 			                            }
 
-				                        $description = str_replace($match, $value_to_check, $description);
+				                        $description = trim(str_replace($match, $value_to_check, $description));
 				                    }
 				                }
 							}
@@ -837,7 +837,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                             	// we found floorplan URLs
                             	foreach ( $explode_floorplan_urls as $url )
                             	{
-                            		$url = apply_filters( 'houzez_property_feed_csv_floorplan_url', $url, $this->import_id );
+                            		$url = apply_filters( 'houzez_property_feed_csv_floorplan_url', trim($url), $this->import_id );
 
                             		if ( 
 										substr( strtolower($url), 0, 2 ) == '//' || 
@@ -913,7 +913,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 		                                $value_to_check = '';
 		                            }
 
-			                        $url = str_replace($match, $value_to_check, $url);
+			                        $url = trim(str_replace($match, $value_to_check, $url));
 			                    }
 			                }
 
@@ -934,7 +934,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 			                                $value_to_check = '';
 			                            }
 
-				                        $description = str_replace($match, $value_to_check, $description);
+				                        $description = trim(str_replace($match, $value_to_check, $description));
 				                    }
 				                }
 							}
@@ -1050,7 +1050,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
                             	// we found image URLs
                             	foreach ( $explode_document_urls as $url )
                             	{
-                            		$url = apply_filters( 'houzez_property_feed_csv_document_url', $url, $this->import_id );
+                            		$url = apply_filters( 'houzez_property_feed_csv_document_url', trim($url), $this->import_id );
                             		$description = '';
 
                             		if ( 

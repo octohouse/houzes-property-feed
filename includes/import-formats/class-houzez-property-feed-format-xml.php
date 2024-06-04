@@ -321,7 +321,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 						            	$value_to_check = (string)$urls_found[0];
 						            }
 
-			                        $url = str_replace($match, $value_to_check, $url);
+			                        $url = trim(str_replace($match, $value_to_check, $url));
 			                    }
 			                }
 
@@ -414,7 +414,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 						            	$value_to_check = (string)$urls[0];
 						            }
 
-			                        $url = str_replace($match, $value_to_check, $url);
+			                        $url = trim(str_replace($match, $value_to_check, $url));
 			                    }
 			                }
 
@@ -440,7 +440,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 							            	$value_to_check = (string)$descriptions[0];
 							            }
 
-				                        $description = str_replace($match, $value_to_check, $description);
+				                        $description = trim(str_replace($match, $value_to_check, $description));
 				                    }
 				                }
 							}
@@ -657,7 +657,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 					            	$value_to_check = (string)$urls[0];
 					            }
 
-		                        $url = str_replace($match, $value_to_check, $url);
+		                        $url = trim(str_replace($match, $value_to_check, $url));
 		                    }
 		                }
 
@@ -683,7 +683,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 						            	$value_to_check = (string)$descriptions[0];
 						            }
 
-			                        $description = str_replace($match, $value_to_check, $description);
+			                        $description = trim(str_replace($match, $value_to_check, $description));
 			                    }
 			                }
 						}
@@ -762,7 +762,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 					            	$value_to_check = (string)$urls[0];
 					            }
 
-		                        $url = str_replace($match, $value_to_check, $url);
+		                        $url = trim(str_replace($match, $value_to_check, $url));
 		                    }
 		                }
 
@@ -788,7 +788,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 						            	$value_to_check = (string)$descriptions[0];
 						            }
 
-			                        $description = str_replace($match, $value_to_check, $description);
+			                        $description = trim(str_replace($match, $value_to_check, $description));
 			                    }
 			                }
 						}
