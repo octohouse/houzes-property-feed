@@ -435,6 +435,19 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "openimmo_local":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-openimmo.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Openimmo( $instance_id, $import_id );
+
+						$import_object->parse_and_import();
+
+						$parsed_in_class = true;
+
+		    			break;
+		    		}
 		    		case "pixxi":
 		    		{
 		                // includes

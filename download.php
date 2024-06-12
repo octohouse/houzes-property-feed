@@ -24,10 +24,15 @@ if ( $import_settings === false )
 switch ( $import_settings['format'] )
 {
 	case "blm_local":
+	case "openimmo_local":
 	case "rentman":
 	{
 		$file = $import_settings['local_directory'] . '/' . base64_decode($_GET['file']);
-		header('Content-Disposition: attachment; filename="' . base64_decode($_GET['file']) . '"');
+		$filename = base64_decode($_GET['file']);
+		$parts = explode('-', $filename);
+		array_pop($parts);
+		$filename = implode('-', $parts);
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
 		readfile($file);
     	exit;
 	}

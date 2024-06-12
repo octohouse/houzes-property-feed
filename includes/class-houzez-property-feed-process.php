@@ -65,6 +65,80 @@ class Houzez_Property_Feed_Process {
 		wp_defer_comment_counting( false );
 	}
 
+	public function remove_property( $import_ref = '', $property_post_id = '' )
+	{
+		global $wpdb;
+
+		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
+		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
+
+		if ( !empty($import_ref) && empty($property_post_id) )
+		{
+			// get post ID from import ref
+			$args = array(
+				'post_type' => 'property',
+				'post_status' => 'publish',
+				'nopaging' => true,
+				'fields' => 'ids',
+				'meta_query' => array(
+					array(
+						'key'     => $imported_ref_key,
+						'value'   => $import_ref,
+					),
+				),
+			);
+			$property_query = new WP_Query( $args );
+
+			if ( $property_query->have_posts() )
+			{
+				while ( $property_query->have_posts() )
+				{
+					$property_query->the_post();
+
+					$property_post_id = get_the_ID();
+				}
+			}
+			else
+			{
+				$this->log_error( 'No post ID found for import ref ' . $imported_ref_key  . ' to remove: ' . $import_ref );
+				return;
+			}
+			wp_reset_postdata();
+		}
+
+		if ( empty($property_post_id) ) 
+		{
+	        $this->log_error('Property post ID is empty for ' . $imported_ref_key  . ' ' . $import_ref);
+	        return;
+	    }
+
+		$post_update_result = wp_update_post(
+            array(
+                'ID' => $property_post_id, 
+                'post_status' => 'draft'
+            ),
+            true
+        );
+
+        if ( is_wp_error($post_update_result) ) 
+        {
+	        $this->log_error('Failed to update post status to draft for post ID: ' . $property_post_id);
+	        return;
+	    }
+
+        $this->log( 'Property removed', get_post_meta($property_post_id, $imported_ref_key, TRUE), $property_post_id );
+
+		do_action( "save_post_property", $property_post_id, get_post($property_post_id), false );
+		do_action( "save_post", $property_post_id, get_post($property_post_id), false );
+
+		do_action( "houzez_property_feed_property_removed", $property_post_id, $this->import_id );
+
+		$wpdb->query($wpdb->prepare(
+	        "DELETE FROM {$wpdb->prefix}houzez_property_feed_media_queue WHERE `post_id` = %d",
+	        $property_post_id
+	    ));
+	}
+
 	public function do_remove_old_properties( $import_refs = array() )
 	{
 		global $wpdb, $post;
@@ -99,26 +173,7 @@ class Houzez_Property_Feed_Process {
 
 					$property_post_id = get_the_ID();
 
-					wp_update_post(
-			            array(
-			                'ID' => get_the_ID(), 
-			                'post_status' => 'draft'
-			            )
-			        );
-
-			        $this->log( 'Property removed', get_post_meta($property_post_id, $imported_ref_key, TRUE), $property_post_id );
-
-					do_action( "save_post_property", $property_post_id, get_post($property_post_id), false );
-					do_action( "save_post", $property_post_id, get_post($property_post_id), false );
-
-					do_action( "houzez_property_feed_property_removed", $property_post_id, $this->import_id );
-
-					$wpdb->query("
-						DELETE FROM
-							" . $wpdb->prefix . "houzez_property_feed_media_queue
-						WHERE
-							`post_id` = '" . get_the_ID() . "'
-					");
+					$this->remove_property( '', $property_post_id );
 				}
 			}
 			wp_reset_postdata();

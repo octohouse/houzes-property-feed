@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.5.3
-Stable tag: 2.2.10
-Version: 2.2.10
+Tested up to: 6.5.4
+Stable tag: 2.2.11
+Version: 2.2.11
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -37,6 +37,7 @@ We can import properties from the following estate agency CRMs/formats:
 * MRI
 * MLS/IDX (assuming XML URL can be provided)
 * myCRM from Property Finder
+* OpenImmo
 * Pixxi
 * PropCtrl
 * RE/MAX
@@ -116,6 +117,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.11 - 2024-06-03 =
+* Added support for importing properties in the OpenImmo format
+* Set correct published date for properties imported from Vebra Alto, using the created date send in the data
+* Use better filename when downloading archived file. Relevant for formats that send the data via FTP
+* Declared compatibility with WordPress 6.5.4
 
 = 2.2.10 - 2024-06-03 =
 * Trim whitespace from any media URLs imported from XML or CSV

@@ -982,6 +982,64 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mri/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'openimmo_local' => array(
+            'name' => __( 'OpenImmo - Local Directory', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'local_directory',
+                    'label' => __( 'Local Directory', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => $uploads_dir,
+                    'tooltip' => __( 'The full server path to where the OpenImmo files will be received into', 'houzezpropertyfeed' ),
+                ),
+            ),
+            'address_fields' => array( 'ort', 'bundesland' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'OFFEN' => 'Available',
+                    'RESERVIERT ' => 'Reserved',
+                    'VERKAUFT' => 'Sold',
+                ),
+                'lettings_status' => array(
+                    'OFFEN' => 'Available',
+                    'RESERVIERT ' => 'Reserved',
+                ),
+                'property_type' => array(
+                    "REIHENHAUS" => "Terraced house",
+                    "REIHENEND" => "End-terrace house",
+                    "REIHENMITTEL" => "Mid-terrace house",
+                    "REIHENECK" => "Corner-terrace house",
+                    "DOPPELHAUSHAELFTE" => "Semi-detached house",
+                    "EINFAMILIENHAUS" => "Single-family house",
+                    "STADTHAUS" => "Townhouse",
+                    "BUNGALOW" => "Bungalow",
+                    "VILLA" => "Villa",
+                    "RESTHOF" => "Manor house",
+                    "BAUERNHAUS" => "Farmhouse",
+                    "LANDHAUS" => "Country house",
+                    "SCHLOSS" => "Castle",
+                    "ZWEIFAMILIENHAUS" => "Two-family house",
+                    "MEHRFAMILIENHAUS" => "Multi-family house",
+                    "FERIENHAUS" => "Holiday house",
+                    "BERGHUETTE" => "Mountain hut",
+                    "CHALET" => "Chalet",
+                    "STRANDHAUS" => "Beach house",
+                    "LAUBE-DATSCHE-GARTENHAUS" => "Garden house",
+                    "APARTMENTHAUS" => "Apartment building",
+                    "BURG" => "Fortress",
+                    "HERRENHAUS" => "Mansion",
+                    "FINCA" => "Estate",
+                    "RUSTICO" => "Rustic house",
+                    "FERTIGHAUS" => "Prefabricated house",
+                    "KEINE_ANGABE" => "No information"
+                )
+            ),
+            'contact_information_fields' => array(
+                'Person ID',
+                'Person Name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/openimmo/',
+        ),
         'pixxi' => array(
             'name' => __( 'Pixxi', 'houzezpropertyfeed' ),
             'fields' => array(

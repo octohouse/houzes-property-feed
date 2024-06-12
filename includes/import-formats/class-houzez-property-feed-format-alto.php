@@ -417,6 +417,12 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 
 			$inserted_updated = false;
 
+			$create_date = '';
+			if ( isset($property->uploaded) && (string)$property->uploaded != '' )
+			{
+				$create_date = date( 'Y-m-d H:i:s', strtotime( $property->uploaded ) );
+			}
+
 			$args = array(
 	            'post_type' => 'property',
 	            'posts_per_page' => 1,
@@ -476,6 +482,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 				    	'post_excerpt'   => (string)$property->description,
 				    	'post_content' 	 => $post_content,
 				    	'post_status'    => 'publish',
+				    	'post_date'      => $create_date,
 				  	);
 
 				 	// Update the post into the database
@@ -503,6 +510,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 					'post_status'    => 'publish',
 					'post_type'      => 'property',
 					'comment_status' => 'closed',
+					'post_date'      => $create_date,
 				);
 
 				$post_id = wp_insert_post( $postdata, true );

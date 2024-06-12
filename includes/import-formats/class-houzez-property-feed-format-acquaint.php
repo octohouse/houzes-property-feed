@@ -164,7 +164,7 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
             $post_content = (string)$property->descriptionfull;
 	        if ( isset($property->rooms) && (string)$property->rooms != '' )
 	        {
-	        	if ( trim(strip_tags($full_description)) != '' )
+	        	if ( trim(strip_tags($post_content)) != '' )
 	        	{
 	        		$post_content .= '<br><br>';
 	        	}
@@ -173,7 +173,7 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 
             if ( isset($property->rentaldetails->fees) && (string)$property->rentaldetails->fees != '' )
 			{
-				if ( trim(strip_tags($full_description)) != '' )
+				if ( trim(strip_tags($post_content)) != '' )
 	        	{
 	        		$post_content .= '<br><br>';
 	        	}
