@@ -1146,8 +1146,11 @@ function get_houzez_property_feed_import_formats()
             ),
             'contact_information_fields' => array(
                 'agencyId',
-                'agentId',
+                'agencyName',
                 'branchId',
+                'branchName',
+                'agentId',
+                'agentName',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/propctrl/'
         ),
@@ -1459,6 +1462,39 @@ function get_houzez_property_feed_import_formats()
             ),
             'export_enquiries' => true,
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/street/'
+        ),
+        'thinkspain' => array(
+            'name' => __( 'thinkSPAIN', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'town', 'province' ),
+            'taxonomy_values' => array(
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Beach Apartment' => 'Beach Apartment',
+                    'Building Plot' => 'Building Plot',
+                    'Commercial' => 'Commercial',
+                    'Duplex' => 'Duplex',
+                    'Flat' => 'Flat',
+                    'Penthouse' => 'Penthouse',
+                    'Semi-detached Villa' => 'Semi-detached Villa',
+                    'Terraced Villa' => 'Terraced Villa',
+                    'Townhouse' => 'Townhouse',
+                    'Villa' => 'Villa',
+                )
+            ),
+            'contact_information_fields' => array(
+                'Agent ID',
+                'Agent Name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/thinkspain/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'vaultea' => array(
             'name' => __( 'VaultEA', 'houzezpropertyfeed' ),

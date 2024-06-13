@@ -8,6 +8,10 @@ if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
 class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process {
 
+	private $agency_cache = array();
+	private $branch_cache = array();
+	private $agent_cache = array();
+
 	public function __construct( $instance_id = '', $import_id = '' )
 	{
 		$this->instance_id = $instance_id;
@@ -256,6 +260,43 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 					$property['postcode'] = $postcode;
 					$property['country'] = $country;
 
+					$property['agencyDetails'] = array();
+					$property['branchDetails'] = array();
+					$property['agentDetails'] = array();
+
+					if ( isset($property['agencyId']) && !empty($property['agencyId']) )
+					{
+						$agency = $this->get_agency_details($property['agencyId']);
+
+						if ( $agency !== FALSE )
+						{
+							$property['agencyDetails'] = $agency;
+						}
+					}
+
+					if ( isset($property['branchId']) && !empty($property['branchId']) )
+					{
+						$branch = $this->get_branch_details($property['branchId']);
+
+						if ( $branch !== FALSE )
+						{
+							$property['branchDetails'] = $branch;
+						}
+					}
+
+					if ( isset($property['agentIds']) && !empty($property['agentIds']) && is_array($property['agentIds']) )
+					{
+						foreach ( $property['agentIds'] as $agent_id )
+						{
+							$agent = $this->get_agent_details($agent_id);
+
+							if ( $agent !== FALSE )
+							{
+								$property['agentDetails'][] = $agent;
+							}
+						}
+					}
+
 					$this->properties[] = $property;
 					
 				}
@@ -274,6 +315,180 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 			return false;
 		}
+	}
+
+	private function get_agency_details( $agency_id )
+	{
+		if ( isset($this->agency_cache[$agency_id]) )
+		{
+			return $this->agency_cache[$agency_id];
+		}
+
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agencies?agencyIds=' . $agency_id;
+
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Agency Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			if ( is_array($json) && !empty($json) )
+			{
+				$this->agency_cache[$agency_id] = $json[0];
+				return $json[0];
+			}
+			else
+			{
+				$this->log_error( 'Parsed agency but it\'s empty: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse agency JSON: ' . $response['body'] );
+
+			return false;
+		}
+
+		return false;
+	}
+
+	private function get_branch_details( $branch_id )
+	{
+		if ( isset($this->branch_cache[$branch_id]) )
+		{
+			return $this->branch_cache[$branch_id];
+		}
+
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/branches?branchIds=' . $branch_id;
+
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Branch Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			if ( is_array($json) && !empty($json) )
+			{
+				$this->branch_cache[$branch_id] = $json[0];
+				return $json[0];
+			}
+			else
+			{
+				$this->log_error( 'Parsed branch JSON but it\'s empty: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse branch JSON: ' . $response['body'] );
+
+			return false;
+		}
+
+		return false;
+	}
+
+	private function get_agent_details( $agent_id )
+	{
+		if ( isset($this->agent_cache[$agent_id]) )
+		{
+			return $this->agent_cache[$agent_id];
+		}
+
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agents?agentIds=' . $agent_id;
+
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Agent Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			if ( is_array($json) && !empty($json) )
+			{
+				$this->agent_cache[$agent_id] = $json[0];
+				return $json[0];
+			}
+			else
+			{
+				$this->log_error( 'Parsed agent JSON but it\'s empty: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse agent JSON: ' . $response['body'] );
+
+			return false;
+		}
+
+		return false;
 	}
 
 	private function get_suburb_info( $suburb_id )
@@ -321,6 +536,19 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 				if ( isset($json[0]['postalCode']) ) { $postcode = $json[0]['postalCode']; }
 				if ( isset($json[0]['country']) ) { $country = $json[0]['country']; }
 			}
+			else
+			{
+				$this->log_error( 'Parsed suburb JSON but it\'s empty: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse suburb JSON: ' . $response['body'] );
+
+			return false;
 		}
 
 		return array($suburb, $city, $province, $postcode, $country);
@@ -641,14 +869,29 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		            					$value_in_feed_to_check = $property['agencyId'];
 		            					break;
 		            				}
-		            				case "agentId":
+		            				case "agencyName":
 		            				{
-		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					$value_in_feed_to_check = ( isset($property['agencyDetails']['name']) ? $property['agencyDetails']['name'] : '' );
 		            					break;
 		            				}
 		            				case "branchId":
 		            				{
 		            					$value_in_feed_to_check = $property['branchId'];
+		            					break;
+		            				}
+		            				case "branchName":
+		            				{
+		            					$value_in_feed_to_check = ( isset($property['branchDetails']['name']) ? $property['branchDetails']['name'] : '' );
+		            					break;
+		            				}
+		            				case "agentId":
+		            				{
+		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					break;
+		            				}
+		            				case "agentName":
+		            				{
+		            					$value_in_feed_to_check = (isset($property['agentDetails'][0]['firstName']) && isset($property['agentDetails'][0]['lastName'])) ? $property['agentDetails'][0]['firstName'] . ' ' . $property['agentDetails'][0]['lastName'] : '';
 		            					break;
 		            				}
 		            			}
@@ -681,14 +924,29 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		            					$value_in_feed_to_check = $property['agencyId'];
 		            					break;
 		            				}
-		            				case "agentId":
+		            				case "agencyName":
 		            				{
-		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					$value_in_feed_to_check = ( isset($property['agencyDetails']['name']) ? $property['agencyDetails']['name'] : '' );
 		            					break;
 		            				}
 		            				case "branchId":
 		            				{
 		            					$value_in_feed_to_check = $property['branchId'];
+		            					break;
+		            				}
+		            				case "branchName":
+		            				{
+		            					$value_in_feed_to_check = ( isset($property['branchDetails']['name']) ? $property['branchDetails']['name'] : '' );
+		            					break;
+		            				}
+		            				case "agentId":
+		            				{
+		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					break;
+		            				}
+		            				case "agentName":
+		            				{
+		            					$value_in_feed_to_check = (isset($property['agentDetails'][0]['firstName']) && isset($property['agentDetails'][0]['lastName'])) ? $property['agentDetails'][0]['firstName'] . ' ' . $property['agentDetails'][0]['lastName'] : '';
 		            					break;
 		            				}
 		            			}
@@ -713,14 +971,29 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		            					$value_in_feed_to_check = $property['agencyId'];
 		            					break;
 		            				}
-		            				case "agentId":
+		            				case "agencyName":
 		            				{
-		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					$value_in_feed_to_check = ( isset($property['agencyDetails']['name']) ? $property['agencyDetails']['name'] : '' );
 		            					break;
 		            				}
 		            				case "branchId":
 		            				{
 		            					$value_in_feed_to_check = $property['branchId'];
+		            					break;
+		            				}
+		            				case "branchName":
+		            				{
+		            					$value_in_feed_to_check = ( isset($property['branchDetails']['name']) ? $property['branchDetails']['name'] : '' );
+		            					break;
+		            				}
+		            				case "agentId":
+		            				{
+		            					$value_in_feed_to_check = isset($property['agents'][0]) ? $property['agents'][0] : '';
+		            					break;
+		            				}
+		            				case "agentName":
+		            				{
+		            					$value_in_feed_to_check = (isset($property['agentDetails'][0]['firstName']) && isset($property['agentDetails'][0]['lastName'])) ? $property['agentDetails'][0]['firstName'] . ' ' . $property['agentDetails'][0]['lastName'] : '';
 		            					break;
 		            				}
 		            			}

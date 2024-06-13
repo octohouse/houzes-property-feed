@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.4
-Stable tag: 2.2.11
-Version: 2.2.11
+Stable tag: 2.2.12
+Version: 2.2.12
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -45,6 +45,7 @@ We can import properties from the following estate agency CRMs/formats:
 * ReSales Online
 * Rex
 * Street (including sending enquiries back in Street)
+* thinkSPAIN
 * VaultEA
 * XML (any XML file hosted on a public URL)
 
@@ -117,6 +118,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.12 - 2024-06-13 =
+* Added support for importing properties in the thinkSPAIN XML format
+* Import agency, branch and agent details in the PropCTRL format
 
 = 2.2.11 - 2024-06-03 =
 * Added support for importing properties in the OpenImmo format
