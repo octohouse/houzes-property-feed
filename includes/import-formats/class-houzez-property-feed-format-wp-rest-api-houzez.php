@@ -521,7 +521,7 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 			$this->log("Obtaining properties on page " . $current_page);
 
 			$url = ( isset($import_settings['url']) && !empty($import_settings['url']) ) ? rtrim($import_settings['url'], '/') : '';
-			$url .= '/wp-json/wp/v2/properties?per_page=2&page=' . $current_page;
+			$url .= '/wp-json/wp/v2/properties?per_page=100&page=' . $current_page;
 
 			$url = apply_filters( 'houzez_property_feed_wp_rest_api_houzez_properties_url', $url, $this->import_id );
 
@@ -665,8 +665,6 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 					return false;
 				}
 			}
-
-			$more_properties = false;
 		}
 
 		if ( empty($this->properties) )

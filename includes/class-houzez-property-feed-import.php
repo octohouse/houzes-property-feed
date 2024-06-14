@@ -517,6 +517,8 @@ class Houzez_Property_Feed_Import {
 
         $multiselect_meta = array();
 
+        $houzez_fields = get_houzez_fields_for_field_mapping();
+
         foreach ( $import_settings['field_mapping_rules'] as $and_rules )
         {
             // field
@@ -628,8 +630,6 @@ class Houzez_Property_Feed_Import {
                         $result = str_replace($match, $value_to_check, $result);
                     }
                 }
-
-                $houzez_fields = get_houzez_fields_for_field_mapping();
 
                 // we found a matching field with the required value
                 if ( isset($houzez_fields[$and_rules['houzez_field']]) && $houzez_fields[$and_rules['houzez_field']]['type'] == 'post_field' )

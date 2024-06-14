@@ -433,11 +433,16 @@ class Houzez_Property_Feed_Process {
 		}
 	}
 
-	public function do_geocoding_lookup( $post_id, $agent_ref, $address, $address_osm, $country = '' )
+	public function do_geocoding_lookup( $post_id, $agent_ref, $address = array(), $address_osm = array(), $country = '' )
 	{
 		if ( empty($country) )
 		{
 			$country = 'GB';
+			if ( houzez_option('geo_country_limit') == '1' && houzez_option('geocomplete_country') != '' )
+            {
+            	$country = houzez_option('geocomplete_country');
+            }
+			$country = apply_filters('houzez_property_feed_geocoding_country', $country);
 		}
 
 		//if ( get_option('propertyhive_geocoding_provider') == 'osm' )
@@ -473,17 +478,17 @@ class Houzez_Property_Feed_Process {
 					}
 					else
 					{
-						$this->log_error( 'No co-ordinates returned for the address provided: ' . implode( ", ", $address_osm ), $agent_ref );
+						$this->log_error( 'No co-ordinates returned for the address provided: ' . implode( ", ", $address_osm ), $agent_ref, $post_id );
 					}
 				}
 				else
 				{
-					$this->log_error( 'Failed to parse JSON response from OSM Geocoding service.', $agent_ref );
+					$this->log_error( 'Failed to parse JSON response from OSM Geocoding service.', $agent_ref, $post_id );
 				}
 			}
 			else
 			{
-				$this->log_error( 'Error returned from geocoding service: ' . $response->get_error_message(), $agent_ref );
+				$this->log_error( 'Error returned from geocoding service: ' . $response->get_error_message(), $agent_ref, $post_id );
 			}
 
 			sleep(1); // Sleep due to nominatim throttling limits
@@ -564,6 +569,110 @@ class Houzez_Property_Feed_Process {
 
 		return false;
 	}
+
+	public function geocode_after_import( $post_id, $agent_ref )
+	{
+		if ( apply_filters('houzez_property_feed_geocode_automatically', true) === false )
+		{
+			$this->log( 'Not geocoding automatically as its been disabled through the use of a filter', $agent_ref, $post_id );
+			return;
+		}
+
+		// Check 'show map' is one of the field mappings
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+        if ( $import_settings === false )
+        {
+            return false;
+        }
+
+        if ( !isset($import_settings['field_mapping_rules']) )
+        {
+            return false;
+        }
+
+        if ( empty($import_settings['field_mapping_rules']) )
+        {
+            return false;
+        }
+
+        $do_geocoding = false;
+
+        $show_map_mapped = false;
+        foreach ( $import_settings['field_mapping_rules'] as $and_rules )
+        {
+        	if ( 
+        		isset($and_rules['houzez_field']) && $and_rules['houzez_field'] == 'fave_property_map' &&
+        		isset($and_rules['result']) && $and_rules['result'] == '1'
+        	)
+            {
+            	$show_map_mapped = true;
+            }
+        }
+
+        if ( $show_map_mapped === false )
+        {
+        	$this->log( 'Not geocoding automatically as no field mapping setup for the \'Show Map\' Houzez field', $agent_ref, $post_id );
+        	return;
+        }
+
+        // check that no lat/lng is set already (i.e. a rule doesn't already exist)
+        // then do geocoding request if address elements exist
+        $existing_location = get_post_meta($post_id, 'fave_property_location', TRUE);
+
+        $explode_existing_location = explode(",", $existing_location);
+
+        if ( count($explode_existing_location) != 3 )
+        {
+            $do_geocoding = true;
+        }
+        else
+        {
+            if ( empty($explode_existing_location[0]) || empty($explode_existing_location[1]) )
+            {
+                $do_geocoding = true;
+            }
+        }
+
+        if ( $do_geocoding === true )
+        {
+        	// check lat and lng set, and use that instead of doing geocoding
+        	$lat = get_post_meta($post_id, 'houzez_geolocation_lat', true);
+        	$lng = get_post_meta($post_id, 'houzez_geolocation_lat', true);
+        	if ( !empty($lat) && !empty($lng) )
+        	{
+        		update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
+        		return;
+        	}
+
+            $address = array();
+
+            $street_address = get_post_meta($post_id, 'fave_property_map_address', true);
+            if ( !empty($street_address) )
+            {
+                $address[] = $street_address;
+            }
+            $zip = get_post_meta($post_id, 'fave_property_zip', true);
+            if ( !empty($zip) )
+            {
+                $address[] = $zip;
+            }
+
+            if ( empty($address) )
+            {
+            	$this->log( 'Not geocoding automatically as no map address set', $agent_ref, $post_id );
+            	return;
+            }
+
+            $this->log( 'Performing geocoding for address: ' . implode(", ", $address), $agent_ref, $post_id );
+
+            $lat_lng = $this->do_geocoding_lookup( $post_id, $agent_ref, $address, array(), '' );
+            if ( $lat_lng !== false )
+            {
+            	update_post_meta( $post_id, 'fave_property_location', $lat_lng[0] . "," . $lat_lng[1] . ",14" );
+            }
+        }
+    }
 }
 
 class SimpleXMLExtendedHpf extends SimpleXMLElement {

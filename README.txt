@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.4
-Stable tag: 2.2.12
-Version: 2.2.12
+Stable tag: 2.2.13
+Version: 2.2.13
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -118,6 +118,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.13 - 2024-06-14 =
+* Geocode address automatically after XML/CSV imports if a) no lat lng mapped or exists already and b) 'show map' field is mapped
+* Remove pagination restrictions when doing a Houzez to Houzez import
+* Add post ID to log entries relating to failed geocoding requests
+* Use geocoding country set in Houzez options as default country when making geocoding requests when relevant
+* Add filter 'houzez_property_feed_geocoding_country' allowing changing of default country used for geocoding
+* Optimisation to field mapping process
 
 = 2.2.12 - 2024-06-13 =
 * Added support for importing properties in the thinkSPAIN XML format

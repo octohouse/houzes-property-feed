@@ -1185,6 +1185,8 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				do_action( "save_post_property", $post_id, $post, false );
 				do_action( "save_post", $post_id, $post, false );
 
+				$this->geocode_after_import( $post_id, $property_id );
+
 				if ( $inserted_updated == 'updated' )
 				{
 					$this->compare_meta_and_taxonomy_data( $post_id, $property_id, $metadata_before, $taxonomy_terms_before );
