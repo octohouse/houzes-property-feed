@@ -239,6 +239,10 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                     if ( isset($field['type']) && $field['type'] != 'hidden' && $field['type'] != 'html' )
                     {
                         $value = ( ( isset($import[$field['id']]) && !empty($import[$field['id']]) ) ? $import[$field['id']] : '' );
+                        if ( $field['id'] == 'xml_url' || $field['id'] == 'csv_url' || $field['id'] == 'url' )
+                        {
+                            $value = '<a href="' . $value . '" target="_blank">' . $value . '</a>';
+                        }
                         $details .= '<strong>' . $field['label'] . '</strong>: ' . ( $value != '' ? $value : '-' ) .  '<br>';
                     }
                 }

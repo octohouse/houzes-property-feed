@@ -22,7 +22,8 @@
 		<br>
 		
 		<div id="no_field_mappings" style="display:none; border:3px dashed #CCC; text-align:center; font-size:1.1em; padding:40px 30px">
-			No field mapping rules exist. Create your first one below.
+			<p style="font-size:inherit;">No field mapping rules exist. Create your first one below.</p>
+			<p style="font-size:inherit;"><a href="https://houzezpropertyfeed.com/documentation/managing-imports/field-mapping/" target="_blank">Need help?</a></p>
 		</div>
 			
 		<div id="field_mapping_rules">
@@ -210,6 +211,7 @@
 
 		<br>
 		<a href="" class="button button-primary field-mapping-add-or-rule-button">Add Rule</a>
+		<a href="https://houzezpropertyfeed.com/documentation/managing-imports/field-mapping/" class="button" style="background:none; border:1px solid transparent;" target="_blank">Need help?</a>
 
 	</div>
 

@@ -563,11 +563,11 @@ if ( is_array($imports) && !empty($imports) )
 		    		}
 		    		default:
 		    		{
-		    			$import_object = apply_filters( 'houzez_property_feed_import_object', $instance_id, $import_id );
+		    			$import_object = apply_filters( 'houzez_property_feed_import_object', null, $instance_id, $import_id );
 		    		}
 		    	}
 
-		    	if ( !$parsed_in_class && isset($import_object) )
+		    	if ( !$parsed_in_class && isset($import_object) && !empty($import_object) )
 		    	{
 			    	$parsed = $import_object->parse();
 

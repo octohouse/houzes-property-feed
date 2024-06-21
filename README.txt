@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.4
-Stable tag: 2.2.13
-Version: 2.2.13
+Stable tag: 2.2.14
+Version: 2.2.14
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -118,6 +118,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.14 - 2024-06-21 =
+* Link URLs in imports table for easier access
+* Do geocoding requests with OSM first and Google as fallback plus filters to change order of geocoding service and API keys
+* Add a link to documentation for field mapping
+* Correct parameters passed through to 'houzez_property_feed_import_object' when creating third party import
 
 = 2.2.13 - 2024-06-14 =
 * Geocode address automatically after XML/CSV imports if a) no lat lng mapped or exists already and b) 'show map' field is mapped
