@@ -547,9 +547,9 @@ class Houzez_Property_Feed_Import {
                             $found = true;
                         }
                         elseif (
-                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
+                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && trim($value_to_check) == $rule['equal'] )
                             ||
-                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
+                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && trim($value_to_check) != $rule['equal'] )
                         )
                         {
                             $found = true;
@@ -580,9 +580,9 @@ class Houzez_Property_Feed_Import {
                             $found = true;
                         }
                         elseif (
-                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
+                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && trim($value_to_check) == $rule['equal'] )
                             ||
-                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
+                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && trim($value_to_check) != $rule['equal'] )
                         )
                         {
                             $found = true;
@@ -627,9 +627,12 @@ class Houzez_Property_Feed_Import {
                             }
                         }
 
+                        $value_to_check = trim($value_to_check);
                         $result = str_replace($match, $value_to_check, $result);
                     }
                 }
+
+                $result = trim($result);
 
                 // we found a matching field with the required value
                 if ( isset($houzez_fields[$and_rules['houzez_field']]) && $houzez_fields[$and_rules['houzez_field']]['type'] == 'post_field' )
@@ -950,6 +953,11 @@ class Houzez_Property_Feed_Import {
             if ( isset($post_fields_to_update['post_status']) ) { unset($post_fields_to_update['post_status']); }
         }
 
+        if ( isset($post_fields_to_update['post_name']) )
+        {
+            $post_fields_to_update['post_name'] = sanitize_title($post_fields_to_update['post_name']);
+        }
+
         if ( count($post_fields_to_update) > 1 ) // if it contains more than just ID
         {
             wp_update_post($post_fields_to_update, TRUE);
@@ -1075,11 +1083,12 @@ class Houzez_Property_Feed_Import {
                                 }
                             }
 
+                            $value_to_check = trim($value_to_check);
                             $result = str_replace($match, $value_to_check, $result);
                         }
                     }
 
-                    return $result;
+                    return trim($result);
                 }
             }
         }
@@ -1158,11 +1167,12 @@ class Houzez_Property_Feed_Import {
                                 $value_to_check = $property[$field_name2];
                             }
 
+                            $value_to_check = trim($value_to_check);
                             $result = str_replace($match, $value_to_check, $result);
                         }
                     }
 
-                    return $result;
+                    return trim($result);
                 }
             }
         }

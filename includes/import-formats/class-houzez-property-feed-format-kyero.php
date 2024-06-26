@@ -318,7 +318,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 	                $address_parts[] = (string)$property->addressStreet;
 	            }
 	            update_post_meta( $post_id, 'fave_property_address', '' );
-	            update_post_meta( $post_id, 'fave_property_zip', '' );
+	            update_post_meta( $post_id, 'fave_property_zip', ( ( isset($property->postcode) ) ? (string)$property->postcode : '' ) );
 
 	            update_post_meta( $post_id, 'fave_featured', ( ( isset($property->prime) && (string)$property->prime == '1' ) ? '1' : '0' ) );
 	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );

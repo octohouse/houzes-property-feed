@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.5.4
-Stable tag: 2.2.14
-Version: 2.2.14
+Tested up to: 6.5.5
+Stable tag: 2.2.15
+Version: 2.2.15
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -118,6 +118,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.2.15 - 2024-06-26 =
+* Import postcode when provided in Kyero format
+* Added ability to customise post URL/permalink structure in field mapping
+* Remove white space from any data imported via field mapping
+* Declared compatibility with WordPress 6.5.5
 
 = 2.2.14 - 2024-06-21 =
 * Link URLs in imports table for easier access
