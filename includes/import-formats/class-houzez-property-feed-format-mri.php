@@ -17,7 +17,7 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 	    {
 	    	$current_user = wp_get_current_user();
 
-	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ) );
+	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
 	}
 
@@ -33,7 +33,7 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 
 		foreach ( $departments as $department )
 		{
-			$this->log("Parsing " . $department . " properties");
+			$this->log("Parsing " . $department . " properties", '', 0, '', false);
 
 			$data = array(
 		        'upw' => $import_settings['password'],
@@ -44,6 +44,8 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 	  		$postvars = http_build_query($data);
 
 			$contents = '';
+
+			$this->ping();
 
 			$response = wp_remote_post(
 				$import_settings['xml_url'],
@@ -73,6 +75,8 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 				{
 					foreach ( $xml->houses->property as $property ) 
 					{
+						$this->ping();
+
 						// Get full details XML so we can obtain features and full description
 						$response = wp_remote_get(
 							str_replace("aspasia_search.xml", "xml_export.xml?prn=N&preg=N&pid=" . (string)$property->id, $import_settings['xml_url']),
@@ -242,7 +246,9 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 
 			update_option( 'houzez_property_feed_property_' . $this->import_id, (string)$property->id, false );
 			
-			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->id, (string)$property->id );
+			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->id, (string)$property->id, 0, '', false );
+
+			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
 
 			$inserted_updated = false;
 
@@ -894,6 +900,8 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 										}
 										else
 										{
+											$this->ping();
+
 											$tmp = download_url( $url );
 
 										    $file_array = array(
@@ -1104,6 +1112,8 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 						}
 						else
 						{
+							$this->ping();
+
 							$tmp = download_url( $url );
 
 						    $file_array = array(
@@ -1220,6 +1230,8 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 									}
 									else
 									{
+										$this->ping();
+
 										$tmp = download_url( $url );
 
 									    $file_array = array(
@@ -1335,6 +1347,8 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 							}
 							else
 							{
+								$this->ping();
+								
 								$tmp = download_url( $url );
 
 							    $file_array = array(

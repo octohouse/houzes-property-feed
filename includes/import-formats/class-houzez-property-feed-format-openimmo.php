@@ -22,7 +22,7 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	    {
 	    	$current_user = wp_get_current_user();
 
-	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ) );
+	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
 	}
 
@@ -229,7 +229,9 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 		{
 			$openimmo_id = (string)$property->verwaltung_techn->openimmo_obid;
 
-			$this->log( 'Importing property ' . $property_row . ' with reference ' . $openimmo_id, $openimmo_id );
+			$this->log( 'Importing property ' . $property_row . ' with reference ' . $openimmo_id, $openimmo_id, 0, '', false );
+
+			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
 
 			$inserted_updated = false;
 
@@ -368,7 +370,7 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 				{
 					$vermarktungsart_attributes = $property->objektkategorie->vermarktungsart->attributes();
 
-					if ( isset($vermarktungsart_attributes['MIETE_PACHT']) && (string)$vermarktungsart_attributes['MIETE_PACHT'] == '1' )
+					if ( isset($vermarktungsart_attributes['MIETE_PACHT']) && ( (string)$vermarktungsart_attributes['MIETE_PACHT'] == '1' || (string)$vermarktungsart_attributes['MIETE_PACHT'] == 'true' ) )
 					{
 						$department = 'residential-lettings';
 					}
@@ -826,6 +828,8 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 									}
 									else
 									{
+										$this->ping();
+										
 										$tmp = download_url( $url );
 
 									    $file_array = array(

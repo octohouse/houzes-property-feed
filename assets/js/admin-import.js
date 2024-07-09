@@ -4,9 +4,147 @@ var hpf_original_property_id_field = ''; // used for CSV format
 var hpf_original_image_field = ''; // used for CSV format, comma-delimited images
 var hpf_original_floorplan_field = ''; // used for CSV format, comma-delimited floorplans
 var hpf_original_document_field = ''; // used for CSV format, comma-delimited documents
+var hpf_draw_table_timeout;
+var hpf_status_timeout;
+
+function hpf_click_run_now(link)
+{
+    if (!link.dataset.clicked) {
+        link.dataset.clicked = true;
+        link.style.pointerEvents = 'none';
+        link.style.opacity = '0.5';
+        link.textContent = 'Processing...';
+
+        hpf_draw_table_timeout = setTimeout( function() { hpf_draw_automatic_imports_table(); }, 1000 );
+    } else {
+        return false;
+    }
+}
+
+function hpf_draw_automatic_imports_table()
+{
+	clearTimeout(hpf_draw_table_timeout);
+
+	jQuery.ajax({
+    	url : ajaxurl,
+    	data : {
+    		action: "houzez_property_feed_draw_automatic_imports_table", 
+    		order: hpf_admin_object.table_order,
+    		orderby: hpf_admin_object.table_orderby,
+    		hpf_filter: hpf_admin_object.table_hpf_filter,
+    		hpf_filter_format: hpf_admin_object.table_hpf_filter_format,
+    		ajax_nonce: hpf_admin_object.ajax_nonce
+    	},
+    	success: function(response) 
+    	{
+    		jQuery('.automatic-imports-table').html(response);
+    		hpf_show_running_status();
+    	},
+    	error: function(xhr, status, error)
+    	{
+    		console.error('Automatic imports table AJAX request failed:', status, error);
+    	},
+    	complete: function()
+    	{
+    		hpf_draw_table_timeout = setTimeout( hpf_draw_automatic_imports_table, hpf_admin_object.table_refresh_automatic_imports );
+    	}
+	});
+}
+
+function hpf_show_running_status()
+{
+	clearTimeout(hpf_status_timeout);
+
+	var import_ids = new Array();
+	jQuery('.running-now').each(function()
+	{
+		var import_id = jQuery(this).data('import-id');
+		if ( import_id != '' )
+		{
+			import_ids.push(import_id);
+		}
+	});
+
+	if ( import_ids.length > 0 )
+	{
+		jQuery.ajax({
+	    	url : ajaxurl,
+	    	data : {
+	    		action: "houzez_property_feed_get_running_status", 
+	    		import_ids: import_ids,
+	    		ajax_nonce: hpf_admin_object.ajax_nonce
+	    	},
+	    	dataType : "json",
+	    	success: function(response) 
+	    	{
+	    		if (typeof response === 'object' && response !== null) 
+	    		{
+		            Object.keys(response).forEach(function(key) 
+		            {
+		                var status = response[key].status;
+
+		                if ( status == 'finished' )
+			    		{
+			    			jQuery('.running-now[data-import-id="' + key + '"]').remove();
+			    			jQuery('.running-now-status[data-import-id="' + key + '"]').remove();
+
+			    			hpf_draw_automatic_imports_table();
+			    		}
+			    		else
+			    		{
+				    		jQuery('.running-now-status[data-import-id="' + key + '"]').html(status);
+
+				    		if ( status.indexOf('Importing') !== false || status.indexOf('Parsing') !== false )
+				    		{
+				    			jQuery('.button-manually-execute').css({
+				    				'pointerEvents': 'none',
+				    				'opacity': 0.5
+				    			}).text('Processing...');
+				    		}
+			    		}
+
+			    		var queued_media = response[key].queued_media;
+
+			    		if ( parseInt(queued_media) != 0 )
+			    		{
+			    			jQuery('.queued-media-items[data-import-id="' + key + '"]').html(queued_media);
+			    		}
+		            });
+		        }
+		        else
+		        {
+		            console.error('Response is not an object');
+		            console.log(response);
+		        }
+	    	},
+	    	error: function(xhr, status, error) {
+	    		console.error('AJAX request failed:', status, error);
+	    	},
+	    	complete: function() {
+	    		hpf_status_timeout = setTimeout( hpf_show_running_status, hpf_admin_object.table_refresh_status_interval );
+	    	}
+		});
+	}
+	else
+	{
+		jQuery('.button-manually-execute').css({
+			'pointerEvents': 'auto',
+			'opacity': 1
+		}).text('Manually Execute Import');
+
+		hpf_status_timeout = setTimeout( hpf_show_running_status, hpf_admin_object.table_refresh_status_interval );
+	}
+}
 
 jQuery(document).ready(function()
 {
+	if ( jQuery('.automatic-imports-table').length > 0 )
+	{
+		hpf_draw_automatic_imports_table();
+		hpf_draw_table_timeout = setTimeout( hpf_draw_automatic_imports_table, hpf_admin_object.table_refresh_automatic_imports );
+		hpf_status_timeout = setTimeout( hpf_show_running_status, hpf_admin_object.table_refresh_status_interval );
+	}
+
 	jQuery('.hpf-admin-settings-import-settings .settings-panel #format').select2({ allowClear: true, placeholder:"Select..." });
 	jQuery('select[name*=\'field_mapping_rules\'][name*=\'[houzez_field]\']').select2({ allowClear: true, placeholder:"Select..." });
 

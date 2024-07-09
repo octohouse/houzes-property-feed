@@ -421,6 +421,8 @@ class Houzez_Property_Feed_Import {
 
                     update_option( 'houzez_property_feed', $options );
 
+                    update_option( 'houzez_property_feed_property_' . $import_id, '', false );
+
                     wp_redirect( admin_url( $redirect_url . '&hpfsuccessmessage=' . __( 'Import started', 'houzezpropertyfeed' ) ) );
                     die();
 
@@ -429,9 +431,15 @@ class Houzez_Property_Feed_Import {
                 }
                 case "pauseimport":
                 {
+                    global $wpdb;
+
                     $options['imports'][$import_id]['running'] = false;
 
                     update_option( 'houzez_property_feed', $options );
+
+                    update_option( 'houzez_property_feed_property_' . $import_id, '', false );
+
+                    $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_media_queue WHERE import_id = %d", $import_id));
 
                     wp_redirect( admin_url( $redirect_url . '&hpfsuccessmessage=' . __( 'Import paused', 'houzezpropertyfeed' ) ) );
                     die();

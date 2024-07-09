@@ -27,7 +27,10 @@ class Houzez_Property_Feed_Cron {
      */
     public function check_for_manually_run_import() 
     {
-        if ( isset($_GET['custom_property_import_cron']) && sanitize_text_field($_GET['custom_property_import_cron']) == 'houzezpropertyfeedcronhook' )
+        if ( 
+            isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'houzez_property_feed_import') &&
+            isset($_GET['custom_property_import_cron']) && sanitize_text_field($_GET['custom_property_import_cron']) == 'houzezpropertyfeedcronhook' 
+        )
         {
             $redirect_url = 'admin.php?page=houzez-property-feed-import';
             if ( isset($_REQUEST['orderby']) && !empty($_REQUEST['orderby']) && isset($_REQUEST['order']) && in_array(strtolower($_REQUEST['order']), array('asc', 'desc')) )
@@ -65,21 +68,20 @@ class Houzez_Property_Feed_Cron {
                     // Make sure there's been no activity in the logs for at least 5 minutes for this feed as that indicates there's possible a feed running
                     $row = $wpdb->get_row( "
                         SELECT 
-                            log_date
+                            status_date
                         FROM 
                             " . $wpdb->prefix . "houzez_property_feed_logs_instance
-                        INNER JOIN " .$wpdb->prefix . "houzez_property_feed_logs_instance_log ON " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
                         WHERE
                             import_id = '" . $import_id . "'
                         AND
                             end_date = '0000-00-00 00:00:00'
-                        ORDER BY log_date DESC
+                        ORDER BY status_date DESC
                         LIMIT 1
                     ", ARRAY_A);
 
                     if ( null !== $row )
                     {
-                        if ( ( ( time() - strtotime($row['log_date']) ) / 60 ) < 5 )
+                        if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
                         {
                             wp_redirect( admin_url( $redirect_url . '&hpferrormessage=' . __( "There has been activity within the past 5 minutes on an unfinished import. To prevent multiple imports running at the same time and possible duplicate properties being created we won't currently allow manual execution. Please try again in a few minutes or check the logs to see the status of the current import.", 'houzezpropertyfeed' ) ) );
                             die();

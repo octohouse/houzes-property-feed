@@ -17,7 +17,7 @@ class Houzez_Property_Feed_Format_Jupix extends Houzez_Property_Feed_Process {
 	    {
 	    	$current_user = wp_get_current_user();
 
-	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ) );
+	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
 	}
 
@@ -25,7 +25,7 @@ class Houzez_Property_Feed_Format_Jupix extends Houzez_Property_Feed_Process {
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
 
-		$this->log("Parsing properties");
+		$this->log("Parsing properties", '', 0, '', false);
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
@@ -126,7 +126,9 @@ class Houzez_Property_Feed_Format_Jupix extends Houzez_Property_Feed_Process {
 
 			update_option( 'houzez_property_feed_property_' . $this->import_id, (string)$property->propertyID, false );
 			
-			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->propertyID, (string)$property->propertyID );
+			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->propertyID, (string)$property->propertyID, 0, '', false );
+
+			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
 
 			$inserted_updated = false;
 
@@ -718,6 +720,8 @@ class Houzez_Property_Feed_Format_Jupix extends Houzez_Property_Feed_Process {
 										}
 										else
 										{
+											$this->ping();
+
 											$tmp = download_url( $url );
 
 										    $file_array = array(
@@ -907,6 +911,8 @@ class Houzez_Property_Feed_Format_Jupix extends Houzez_Property_Feed_Process {
 									}
 									else
 									{
+										$this->ping();
+
 										$tmp = download_url( $url );
 
 									    $file_array = array(
@@ -1018,6 +1024,8 @@ class Houzez_Property_Feed_Format_Jupix extends Houzez_Property_Feed_Process {
 									}
 									else
 									{
+										$this->ping();
+
 										$tmp = download_url( $url );
 
 									    $file_array = array(
@@ -1129,6 +1137,8 @@ class Houzez_Property_Feed_Format_Jupix extends Houzez_Property_Feed_Process {
 									}
 									else
 									{
+										$this->ping();
+										
 										$tmp = download_url( $url );
 
 									    $file_array = array(

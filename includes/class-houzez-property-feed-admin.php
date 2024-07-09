@@ -439,11 +439,6 @@ class Houzez_Property_Feed_Admin {
                 {
                     include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav-import.php' );
 
-                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-automatic-imports-table.php' );
-
-                    $automatic_imports_table = new Houzez_Property_Feed_Admin_Automatic_Imports_Table();
-                    $automatic_imports_table->prepare_items();
-
                     $run_now_button = false;
                     $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
                     foreach ( $imports as $import_id => $import_settings )
@@ -872,6 +867,12 @@ class Houzez_Property_Feed_Admin {
                 'property_types' => $property_types,
                 'houzez_fields_for_field_mapping' => get_houzez_fields_for_field_mapping(),
                 'ajax_nonce' => wp_create_nonce("hpf_ajax_nonce"),
+                'table_order' => ( isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '' ),
+                'table_orderby' => ( isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '' ),
+                'table_hpf_filter' => ( isset($_GET['hpf_filter']) ? sanitize_text_field($_GET['hpf_filter']) : '' ),
+                'table_hpf_filter_format' => ( isset($_GET['hpf_filter_format']) ? sanitize_text_field($_GET['hpf_filter_format']) : '' ),
+                'table_refresh_automatic_imports' => apply_filters( 'houzez_property_feed_table_refresh_automatic_imports', 30000 ),
+                'table_refresh_status_interval' => apply_filters( 'houzez_property_feed_table_refresh_status_interval', 5000 )
             ) );
 
             wp_enqueue_script( 'houzez_property_feed_admin_import_script' );

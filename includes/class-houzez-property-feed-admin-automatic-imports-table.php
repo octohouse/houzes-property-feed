@@ -55,6 +55,57 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
         }
     }
 
+    public function print_column_headers($with_id = true) {
+        list($columns, $hidden, $sortable) = $this->get_column_info();
+
+        $current_orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
+        $current_order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '';
+
+        foreach ($columns as $column_key => $column_display_name) 
+        {
+            $class = ['manage-column', "column-$column_key"];
+
+            $aria_sort = 'none';
+
+            $redirect_url = 'admin.php?page=houzez-property-feed-import';
+
+            if ( isset($_REQUEST['hpf_filter']) && !empty($_REQUEST['hpf_filter']) )
+            {
+                $redirect_url .= '&hpf_filter=' . sanitize_text_field($_REQUEST['hpf_filter']);
+                if ( isset($_REQUEST['hpf_filter_format']) && !empty($_REQUEST['hpf_filter_format']) )
+                {
+                    $redirect_url .= '&hpf_filter_format=' . sanitize_text_field($_REQUEST['hpf_filter_format']);
+                }
+            }
+
+            if ( isset($sortable[$column_key]) ) 
+            {
+                list($orderby, $asc_first) = $sortable[$column_key];
+                $order = ($current_orderby === $orderby) ? ($current_order === 'asc' ? 'desc' : 'asc') : ($asc_first ? 'asc' : 'desc');
+                $class[] = 'sortable';
+                if ( $current_orderby === $orderby ) 
+                {
+                    $class[] = 'sorted';
+                    $class[] = $current_order;
+                    $aria_sort = ($current_order === 'asc') ? 'ascending' : 'descending';
+                }
+                $redirect_url .= "&orderby=$orderby&order=$order";
+            }
+
+            $class = join(' ', $class);
+            echo '<th scope="col" id="' . esc_attr($column_key) . '" class="' . esc_attr($class) . '" aria-sort="' . esc_attr($aria_sort) . '" abbr="' . esc_attr($column_display_name) . '">';
+            if ( isset($sortable[$column_key]) ) 
+            {
+                echo '<a href="' . esc_url($redirect_url) . '"><span>' . $column_display_name . '</span><span class="sorting-indicators"><span class="sorting-indicator asc" aria-hidden="true"></span><span class="sorting-indicator desc" aria-hidden="true"></span></span></a>';
+            }
+            else
+            {
+                echo '<span>' . $column_display_name . '</span>';
+            }
+            echo '</th>';
+        }
+    }
+
     public function get_sortable_columns() 
     {
         return array(
@@ -263,7 +314,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 {
                     if ( isset($queued_media[$key]) && !empty($queued_media[$key]) )
                     {
-                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: ' . $queued_media[$key] . '<br>';
+                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: <span class="queued-media-items" data-import-id="' . $key . '">' . $queued_media[$key] . '<span><br>';
                     }
                 }
             }
@@ -278,7 +329,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 // Last ran
                 $row = $wpdb->get_row( "
                     SELECT 
-                        start_date, end_date
+                        start_date, end_date, status, status_date, media
                     FROM 
                         " .$wpdb->prefix . "houzez_property_feed_logs_instance
                     WHERE 
@@ -293,7 +344,35 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                     }
                     elseif ($row['end_date'] == '0000-00-00 00:00:00')
                     {
-                        $last_ran .= 'Running now...<br>Started at ' . get_date_from_gmt( $row['start_date'], "jS F Y H:i" );
+                        $status = '';
+                        if ( !$row['media'] != '1' && isset($row['status']) && !empty($row['status']) && isset($row['status_date']) && $row['status_date'] != '0000-00-00 00:00:00' )
+                        {
+                            if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
+                            {
+                                $decoded_status = json_decode($row['status'], true);
+                                if ( isset($decoded_status['status']) && $decoded_status['status'] == 'importing' )
+                                {
+                                    $property = isset($decoded_status['property']) ? (int)$decoded_status['property'] : 0;
+                                    $total = isset($decoded_status['total']) ? (int)$decoded_status['total'] : 1; // Default to 1 to avoid division by zero
+                                    $progress = ($property / $total) * 100;
+                                    
+                                    $status = '
+                                    <br>Importing property ' . $property . '/' . $total . '
+                                    <div class="progress-bar-container" style="width: 100%; background-color: #f3f3f3; border-radius: 5px; overflow: hidden; margin-top: 5px;">
+                                        <div class="progress-bar" style="width: ' . $progress . '%; height: 8px; background-color: #4caf50; text-align: center; line-height: 20px;"></div>
+                                    </div>';
+                                }
+                                elseif ( isset($decoded_status['status']) && $decoded_status['status'] == 'parsing' )
+                                {
+                                    $status = '<br>Parsing properties';
+                                }
+                            }
+                            else
+                            {
+                                $status = '<br>Failed to complete<br>Will resume automatically shortly';
+                            }
+                        }
+                        $last_ran .= 'Started at ' . get_date_from_gmt( $row['start_date'], "jS F Y H:i" ) . '<br><span class="running-now" data-import-id="' . $key . '">Running now...</span><span class="running-now-status" data-import-id="' . $key . '">' . $status . '</span>';
                     }
                     $last_ran_for_sorting = $row['start_date'];
                 }
@@ -440,9 +519,9 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
         {
             usort($this->items, function($a, $b) use ($orderby, $order) {
                 if ($order === 'asc') {
-                    return $a[$orderby] <=> $b[$orderby];
+                    return strcasecmp($a[$orderby], $b[$orderby]);
                 } else {
-                    return $b[$orderby] <=> $a[$orderby];
+                    return strcasecmp($b[$orderby], $a[$orderby]);
                 }
             });
         }

@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.5.5
-Stable tag: 2.2.15
-Version: 2.2.15
+Stable tag: 2.3.0
+Version: 2.3.0
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -118,6 +118,18 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.3.0 - 2024-07-09 =
+* Keep track of status of currently running import and display progress bar showing current progress in main imports table
+* Load automatic imports table via AJAX and auto-refresh
+* Disable 'Manually Execute Import' button when clicked
+* Forget last property imported when an import is started or paused. Could cause issues if an import was paused and then started weeks later
+* Delete from media queue when an import is paused
+* Import rent for OpenImmo rental properties
+* Allow running a particular import by passing in import_id
+* Corrected issue with post variable being overwritten when doing export field mappings
+* Corrected variable name in WPML integration when adding URLs to Kyero feeds
+* Corrected ordering of formats by name to be case-insensitive
 
 = 2.2.15 - 2024-06-26 =
 * Import postcode when provided in Kyero format

@@ -65,6 +65,31 @@ class Houzez_Property_Feed_Process {
 		wp_defer_comment_counting( false );
 	}
 
+	public function ping( $status = array() )
+	{
+		global $wpdb;
+
+		if ( $this->instance_id != '' )
+		{
+			$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+			$current_date = $current_date->format("Y-m-d H:i:s");
+
+			$data = array( 
+                'status_date' => $current_date
+            );
+            if ( !empty($status) )
+            {
+            	$data['status'] = json_encode($status);
+            }
+
+			$wpdb->update( 
+	            $wpdb->prefix . "houzez_property_feed_logs_instance", 
+	            $data,
+	            array( 'id' => $this->instance_id )
+	        );
+		}
+	}
+
 	public function remove_property( $import_ref = '', $property_post_id = '' )
 	{
 		global $wpdb;
@@ -266,10 +291,12 @@ class Houzez_Property_Feed_Process {
 	            $wpdb->prefix . "houzez_property_feed" . ( $this->is_import ? '' : '_export' ) . "_logs_instance_log", 
 	            $data
 	        );
+
+	        $this->ping();
 		}
 	}
 
-	public function log( $message, $agent_ref = '', $post_id = 0, $received_data = '' )
+	public function log( $message, $agent_ref = '', $post_id = 0, $received_data = '', $ping = true )
 	{
 		$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
 		$current_date = $current_date->format("Y-m-d H:i:s");
@@ -300,6 +327,8 @@ class Houzez_Property_Feed_Process {
 	            $wpdb->prefix . "houzez_property_feed" . ( $this->is_import ? '' : '_export' ) . "_logs_instance_log", 
 	            $data
 	        );
+
+	        if ( $ping === true ) { $this->ping(); }
 		}
 	}
 

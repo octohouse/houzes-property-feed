@@ -152,6 +152,15 @@ if ( is_array($imports) && !empty($imports) )
             	continue;
             }
 
+            if ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) )
+            {
+            	if ( $import_id != (int)$_GET['import_id'] )
+            	{
+            		$ok_to_run_import = false;
+            		continue;
+            	}
+            }
+
             // ensure frequency is not a PRO one if PRO not enabled
             if ( apply_filters( 'houzez_property_feed_pro_active', false ) !== true )
             {
@@ -166,20 +175,19 @@ if ( is_array($imports) && !empty($imports) )
         		// Make sure there's been no activity in the logs for at least 5 minutes for this feed as that indicates there's possible a feed running
 	        	$row = $wpdb->get_row( "
 	                SELECT 
-	                    log_date
+	                    status_date
 	                FROM 
 	                    " . $wpdb->prefix . "houzez_property_feed_logs_instance
-	                INNER JOIN " .$wpdb->prefix . "houzez_property_feed_logs_instance_log ON " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
 	                WHERE
 	                    import_id = '" . $import_id . "'
 	                AND
 	                	end_date = '0000-00-00 00:00:00'
-	                ORDER BY log_date DESC
+	                ORDER BY status_date DESC
 	                LIMIT 1
 	            ", ARRAY_A);
 	            if ( null !== $row )
 	            {
-	                if ( ( ( time() - strtotime($row['log_date']) ) / 60 ) < 5 )
+	                if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
 	                {
 	                	$ok_to_run_import = false;
 
@@ -267,7 +275,9 @@ if ( is_array($imports) && !empty($imports) )
 	                $wpdb->prefix . "houzez_property_feed_logs_instance", 
 	                array(
 	                	'import_id' => $import_id,
-	                    'start_date' => $current_date
+	                    'start_date' => $current_date,
+	                    'status' => json_encode(array('status' => 'starting')),
+	                    'status_date' => $current_date,
 	                )
 	            );
 	            $instance_id = $wpdb->insert_id;
@@ -569,6 +579,8 @@ if ( is_array($imports) && !empty($imports) )
 
 		    	if ( !$parsed_in_class && isset($import_object) && !empty($import_object) )
 		    	{
+		    		$import_object->ping(array('status' => 'parsing'));
+		    		
 			    	$parsed = $import_object->parse();
 
 	                if ( $parsed !== FALSE )
@@ -591,7 +603,9 @@ if ( is_array($imports) && !empty($imports) )
 		    	$wpdb->update( 
 		            $wpdb->prefix . "houzez_property_feed_logs_instance", 
 		            array( 
-		                'end_date' => $current_date
+		                'end_date' => $current_date,
+		                'status' => json_encode(array('status' => 'finished')),
+	                	'status_date' => $current_date
 		            ),
 		            array( 'id' => $instance_id )
 		        );

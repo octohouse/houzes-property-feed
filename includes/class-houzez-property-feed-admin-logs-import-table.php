@@ -64,6 +64,34 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
             {
                 if ( $item->end_date == '0000-00-00 00:00:00' )
                 {
+                    if ($item->media == '1')
+                    {
+                        return 'Running now: Importing media';
+                    }
+
+                    if ( $item->status_date != '0000-00-00 00:00:00' )
+                    {
+                        if ( ( ( time() - strtotime($item->status_date) ) / 60 ) < 5 )
+                        {
+                            if ( !empty($item->status) )
+                            {
+                                $status = json_decode($item->status, true);
+                                if ( isset($status['status']) )
+                                {
+                                    if ( $status['status'] == 'importing' )
+                                    {
+                                        return 'Running now: Importing property ' . $status['property'] . '/' . $status['total'];
+                                    }
+                                    return 'Running now: ' . ucfirst($status['status']);
+                                }
+                                
+                            }
+                        }
+                        else
+                        {
+                            return 'Failed to complete';
+                        }
+                    }
                     return '-';
                 }
 
@@ -116,7 +144,10 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
             id, 
             start_date, 
             end_date, 
-            import_id
+            status, 
+            status_date, 
+            import_id,
+            media
         FROM 
             " . $wpdb->prefix . "houzez_property_feed_logs_instance ";
         if ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) )

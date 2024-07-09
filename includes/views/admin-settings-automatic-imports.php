@@ -60,7 +60,7 @@
 		?>
 
 		<?php
-			if ( $automatic_imports_table->has_items() || ( !$automatic_imports_table->has_items() && isset($_GET['hpf_filter']) ) )
+			if ( !empty($imports) )
 			{
 		?>
 		<ul class="subsubsub" style="margin-bottom:10px;">
@@ -88,9 +88,7 @@
 			<li class="running"><a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&hpf_filter=running')); ?>"<?php if ( isset($_GET['hpf_filter']) && $_GET['hpf_filter'] == 'running' ) { echo ' class="current" aria-current="page"'; } ?>>Running Now <span class="count">(<?php echo number_format($all_imports_running, 0); ?>)</span></a></li>
 		</ul>
 		<?php
-				echo '<div class="automatic-imports-table">';
-					echo $automatic_imports_table->display();
-				echo '</div>';
+				echo '<div class="automatic-imports-table">' . __('Loading', 'houzezpropertyfeed') . '...</div>';
 
 				if ( $run_now_button )
 				{
@@ -100,7 +98,9 @@
 			        $hpf_filter = (!empty($_REQUEST['hpf_filter'])) ? sanitize_text_field($_REQUEST['hpf_filter']) : '';
 			        $hpf_filter_format = (!empty($_REQUEST['hpf_filter_format'])) ? sanitize_text_field($_REQUEST['hpf_filter_format']) : '';
 					
-					echo '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&custom_property_import_cron=houzezpropertyfeedcronhook&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format) . '" class="button">Manually Execute Import</a>';
+					$nonce = wp_create_nonce('houzez_property_feed_import');
+
+					echo '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&custom_property_import_cron=houzezpropertyfeedcronhook&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format . '&_wpnonce=' . $nonce) . '" class="button button-manually-execute" onclick="hpf_click_run_now(this);" rel="nofollow noopener noreferrer">Manually Execute Import</a>';
 				}
 			}
 			else

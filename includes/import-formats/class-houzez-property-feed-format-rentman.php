@@ -17,7 +17,7 @@ class Houzez_Property_Feed_Format_Rentman extends Houzez_Property_Feed_Process {
 	    {
 	    	$current_user = wp_get_current_user();
 
-	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ) );
+	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
 	}
 
@@ -162,7 +162,9 @@ class Houzez_Property_Feed_Format_Rentman extends Houzez_Property_Feed_Process {
 
 			update_option( 'houzez_property_feed_property_' . $this->import_id, (string)$property->Refnumber, false );
 			
-			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->Refnumber, (string)$property->Refnumber );
+			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->Refnumber, (string)$property->Refnumber, 0, '', false );
+
+			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
 
 			$inserted_updated = false;
 

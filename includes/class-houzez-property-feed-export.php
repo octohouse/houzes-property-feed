@@ -390,6 +390,10 @@ class Houzez_Property_Feed_Export {
             return $property;
         }
 
+        global $post;
+
+        $original_post = $post;
+
         $houzez_fields = get_houzez_fields_for_field_mapping();
 
         foreach ( $export_settings['field_mapping_rules'] as $and_rules )
@@ -465,6 +469,9 @@ class Houzez_Property_Feed_Export {
                 }
             }
         }
+
+        $post = $original_post;
+        setup_postdata((int)$post_id);
 
         return $property;
     }

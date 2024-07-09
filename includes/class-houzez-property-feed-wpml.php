@@ -53,7 +53,7 @@ class Houzez_Property_Feed_WPML {
             
             foreach ( $languages as $isocode => $language )
             {
-                $url_xml->addChild( $isocode, apply_filters( 'wpml_permalink', get_permalink($post->ID), $isocode ) );
+                $url_xml->addChild( $isocode, apply_filters( 'wpml_permalink', get_permalink($post_id), $isocode ) );
             }
 
             // Descriptions
