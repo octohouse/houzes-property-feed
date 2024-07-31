@@ -441,6 +441,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         
         $full_description = get_the_content( $post_id );
         $request_data['property']['details']['summary'] = ( get_the_excerpt( $post_id ) != '' ) ? substr(strip_tags(get_the_excerpt( $post_id )), 0, 999) : ( ( $full_description != '' ) ? substr(strip_tags($full_description), 0, 999) : '' );
+        $full_description = str_replace("\n", "", $full_description);
         if (trim(strip_tags($full_description)) == '')
         {
             $full_description = get_the_excerpt( $post_id );

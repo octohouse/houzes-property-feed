@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.5.5
-Stable tag: 2.3.0
-Version: 2.3.0
+Tested up to: 6.6.1
+Stable tag: 2.3.1
+Version: 2.3.1
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -118,6 +118,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.3.1 - 2024-07-31 =
+* Added index to import_id column in database table to improve efficiency of AJAX status lookup queries
+* Updated field mapping options to allow setting of layout based on data received
+* Removed \n from full description when sending to RM and OTM
+* Cleared status check timeout when imports table is being drawn
+* Corrected weird loading of imports table following AJAX load
+* Declared compatibility with WordPress 6.6.1
 
 = 2.3.0 - 2024-07-09 =
 * Keep track of status of currently running import and display progress bar showing current progress in main imports table

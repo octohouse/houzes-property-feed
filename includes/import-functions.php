@@ -97,6 +97,25 @@ function get_houzez_fields_for_field_mapping()
         'fave_property_land' => array( 'type' => 'meta', 'label' => __( 'Land Area', 'houzez' ) ),
         'fave_property_land_postfix' => array( 'type' => 'meta', 'label' => __( 'Land Area Size Postfix', 'houzez' ) ),
         'fave_property_price' => array( 'type' => 'meta', 'label' => __( 'Sale or Rent Price', 'houzez' ) ),
+        'fave_single_top_area' => array( 'type' => 'meta', 'label' => __( 'Property Top Type', 'houzez' ), 'options' => array(
+            'global' => esc_html__( 'Global', 'houzez' ),
+            'v1' => esc_html__( 'Version 1', 'houzez' ),
+            'v2' => esc_html__( 'Version 2', 'houzez' ),
+            'v3' => esc_html__( 'Version 3', 'houzez' ),
+            'v4' => esc_html__( 'Version 4', 'houzez' ),
+            'v5' => esc_html__( 'Version 5', 'houzez' ),
+            'v6' => esc_html__( 'Version 6', 'houzez' ),
+            'v7' => esc_html__( 'Version 7', 'houzez' )
+        ) ),
+        'fave_single_content_area' => array( 'type' => 'meta', 'label' => __( 'Property Content Layout', 'houzez' ), 'options' => array(
+            'global' => esc_html__( 'Global', 'houzez' ),
+            'simple' => esc_html__( 'Default', 'houzez' ),
+            'tabs'   => esc_html__( 'Tabs', 'houzez' ),
+            'tabs-vertical' => esc_html__( 'Tabs Vertical', 'houzez' ),
+            'v2' => esc_html__( 'Luxury Homes', 'houzez' ),
+            'minimal' => esc_html__( 'Minimal', 'houzez' ),
+            'boxed' => esc_html__( 'Boxed', 'houzez' )
+        ) ),
     );
 
     if ( fave_option('multi_currency') == 1 )

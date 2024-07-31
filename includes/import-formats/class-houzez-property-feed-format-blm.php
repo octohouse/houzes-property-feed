@@ -1025,6 +1025,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
 	                                if ($upload)
 	                                {
+	                                	$this->ping();
+
 	                                	$description = ( $description != '' ) ? $description : preg_replace('/\.[^.]+$/', '', trim($media_file_name, '_'));
 
 										// We've physically received the file
@@ -1242,6 +1244,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                                 if ($upload)
                                 {
+                                	$this->ping();
+                                	
 									// We've physically received the file
 									$upload = wp_upload_bits(trim($media_file_name, '_'), null, file_get_contents($local_directory . '/' . $media_file_name));  
 									$this->log( print_r($upload, TRUE) );
@@ -1541,6 +1545,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                                 if ($upload)
                                 {
+                                	$this->ping();
+
                                 	$description = ( $description != '' ) ? $description : preg_replace('/\.[^.]+$/', '', trim($media_file_name, '_'));
 
 									// We've physically received the file
@@ -1768,6 +1774,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                                 if ($upload)
                                 {
+                                	$this->ping();
+
                                 	$description = ( $description != '' ) ? $description : preg_replace('/\.[^.]+$/', '', trim($media_file_name, '_'));
 
 									// We've physically received the file
@@ -2001,6 +2009,8 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                                 if ($upload)
                                 {
+                                	$this->ping();
+
                                 	$description = ( $description != '' ) ? $description : preg_replace('/\.[^.]+$/', '', trim($media_file_name, '_'));
 
 									// We've physically received the file

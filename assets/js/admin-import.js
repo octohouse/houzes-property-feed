@@ -24,6 +24,7 @@ function hpf_click_run_now(link)
 function hpf_draw_automatic_imports_table()
 {
 	clearTimeout(hpf_draw_table_timeout);
+	clearTimeout(hpf_status_timeout);
 
 	jQuery.ajax({
     	url : ajaxurl,

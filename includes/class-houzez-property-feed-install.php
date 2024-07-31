@@ -156,7 +156,8 @@ class Houzez_Property_Feed_Install {
 					status varchar(255) NOT NULL,
 					status_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 					media tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
-				  	PRIMARY KEY (id)
+				  	PRIMARY KEY  (id),
+				  	INDEX import_id (import_id)
 	    		) $collate;";
 		
 		$table_name = $wpdb->prefix . "houzez_property_feed_logs_instance_log";
@@ -170,7 +171,7 @@ class Houzez_Property_Feed_Install {
 					entry longtext NOT NULL,
 					received_data longtext,
 					log_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-				  	PRIMARY KEY (id)
+				  	PRIMARY KEY  (id)
 				) $collate;";
 
 		$table_name = $wpdb->prefix . "houzez_property_feed_media_queue";
@@ -187,7 +188,7 @@ class Houzez_Property_Feed_Install {
 					media_compare_url text NOT NULL,
 					media_modified varchar(24) NOT NULL,
 					date_queued datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-					PRIMARY KEY (id),
+					PRIMARY KEY  (id),
   					INDEX import_post_media_order (import_id, post_id, media_type, media_order)
 				) $collate;";
 
@@ -198,7 +199,7 @@ class Houzez_Property_Feed_Install {
 					export_id bigint(20) UNSIGNED NOT NULL,
 					start_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 					end_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-				  	PRIMARY KEY (id)
+				  	PRIMARY KEY  (id)
 	    		) $collate;";
 		
 		$table_name = $wpdb->prefix . "houzez_property_feed_export_logs_instance_log";
@@ -210,7 +211,7 @@ class Houzez_Property_Feed_Install {
 					severity tinyint(1) UNSIGNED NOT NULL,
 					entry longtext NOT NULL,
 					log_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-				  	PRIMARY KEY (id)
+				  	PRIMARY KEY  (id)
 				) $collate;";
 
 		dbDelta( $sql );

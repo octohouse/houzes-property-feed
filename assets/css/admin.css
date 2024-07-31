@@ -33,10 +33,10 @@
 
 .hpf-admin-settings-automatic-imports 				{  }
 
-.hpf-admin-settings-automatic-imports .automatic-imports-table { margin:20px 0 }
+.hpf-admin-settings-automatic-imports .automatic-imports-table { margin:20px 0; clear:both }
 .hpf-admin-settings-automatic-imports .automatic-imports-table td.column-col_import_details { overflow-wrap: break-word; word-wrap:break-word; max-width:300px; }
 
-.hpf-admin-settings-automatic-imports .automatic-exports-table { margin:20px 0 }
+.hpf-admin-settings-automatic-imports .automatic-exports-table { margin:20px 0; clear:both }
 .hpf-admin-settings-automatic-imports .automatic-exports-table td.column-col_import_details { overflow-wrap: break-word; word-wrap:break-word; max-width:300px; }
 
 .hpf-admin-settings-automatic-imports .no-imports-exports   { max-width:630px; margin:30px auto 0; border:3px dashed #CCC; text-align:center; padding:40px 30px; }
