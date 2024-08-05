@@ -294,7 +294,14 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                         {
                             $value = '<a href="' . $value . '" target="_blank">' . $value . '</a>';
                         }
-                        $details .= '<strong>' . $field['label'] . '</strong>: ' . ( $value != '' ? $value : '-' ) .  '<br>';
+                        if ( $field['type'] == 'multiselect' && is_array($value) && !empty($value) )
+                        {
+                            $details .= '<strong>' . $field['label'] . '</strong>: ' . implode(", ", $value) . '<br>';
+                        }
+                        else
+                        {
+                            $details .= '<strong>' . $field['label'] . '</strong>: ' . ( $value != '' ? $value : '-' ) .  '<br>';
+                        }
                     }
                 }
             }
@@ -345,7 +352,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                     elseif ($row['end_date'] == '0000-00-00 00:00:00')
                     {
                         $status = '';
-                        if ( !$row['media'] != '1' && isset($row['status']) && !empty($row['status']) && isset($row['status_date']) && $row['status_date'] != '0000-00-00 00:00:00' )
+                        if ( $row['media'] != '1' && isset($row['status']) && !empty($row['status']) && isset($row['status_date']) && $row['status_date'] != '0000-00-00 00:00:00' )
                         {
                             if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
                             {

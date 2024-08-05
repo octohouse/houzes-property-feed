@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.1
-Stable tag: 2.3.1
-Version: 2.3.1
+Stable tag: 2.3.2
+Version: 2.3.2
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -41,6 +41,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Pixxi
 * PropCtrl
 * RE/MAX
+* Reapit Foundations
 * Rentman
 * ReSales Online
 * Rex
@@ -118,6 +119,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.3.2 - 2024-08-05 =
+* Added support for importing from Reapit Foundations
+* Added new 'API Key' field to Pixxi CRM settings which their latest API requires
+* Cater for additional fields when importing property type in OpenIMMO format
+* Corrected issue with wrong status showing if an import fell over whilst parsing properties
+* Added direct link to logs in success message when import completes
 
 = 2.3.1 - 2024-07-31 =
 * Added index to import_id column in database table to improve efficiency of AJAX status lookup queries

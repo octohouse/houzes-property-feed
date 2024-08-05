@@ -29,40 +29,78 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
-		$response = wp_remote_post( $import_settings['url'], array( 
-			'body' => '{}', 
-			'headers' => array(
-		        'Content-Type' => 'application/json',
-		    ),
-			'timeout' => 120 
-		) );
+		$page = 1;
+		$more_properties = true;
 
-		if ( !is_wp_error($response) && is_array( $response ) )
+		while ( $more_properties === true )
 		{
-			$contents = $response['body'];
-
-			$json = json_decode( $contents, TRUE );
-
-			if ( $json !== FALSE && is_array($json) && isset($json['data']['list']) && !empty($json['data']['list']) )
+			$body = '{}';
+			if ( isset($import_settings['api_key']) && !empty($import_settings['api_key']) )
 			{
-				$this->log_error("Found " . count($json['data']['list']) . " properties ready for parsing");
+				// if there's an API key they must be using new API which has pagination
+				$body = '{"page":'.$page.',"size":100}';
+			}
+			else
+			{
+				$more_properties = false;
+			}
+			$data = array( 
+				'body' => $body, 
+				'headers' => array(
+			        'Content-Type' => 'application/json',
+			    ),
+				'timeout' => 120 
+			);
 
-				foreach ($json['data']['list'] as $property)
+			if ( isset($import_settings['api_key']) && !empty($import_settings['api_key']) )
+			{
+				$data['headers']['X-PIXXI-TOKEN'] = $import_settings['api_key'];
+				$this->log("Obtaining properties on page " . $page);
+			}
+
+			$response = wp_remote_post( $import_settings['url'], $data );
+
+			if ( !is_wp_error($response) && is_array( $response ) )
+			{
+				$contents = $response['body'];
+
+				$json = json_decode( $contents, TRUE );
+
+				if ( $json !== FALSE )
 				{
-					$this->properties[] = $property;
+					if ( is_array($json) && isset($json['data']['list']) )
+					{
+						if ( !empty($json['data']['list']) )
+						{
+							foreach ($json['data']['list'] as $property)
+							{
+								$this->properties[] = $property;
+							}
+
+							++$page;
+						}
+						else
+						{
+							$more_properties = false;
+						}
+					}
+					else
+					{
+						$more_properties = false;
+					}
+				}
+				else
+				{
+					// Failed to parse JSON
+					$this->log_error( 'Failed to parse JSON file: ' . print_r($json, TRUE) );
+					return false;
 				}
 			}
 			else
 			{
-				// Failed to parse JSON
-				$this->log_error( 'Failed to parse JSON file: ' . print_r($json, TRUE) );
+				$this->log_error( 'Failed to obtain JSON from ' . $import_settings['url'] . ': ' . print_r($response, TRUE) );
 				return false;
 			}
-		}
-		else
-		{
-			$this->log_error( 'Failed to obtain JSON from ' . $import_settings['url'] . ': ' . print_r($response, TRUE) );
-			return false;
 		}
 
 		if ( empty($this->properties) )

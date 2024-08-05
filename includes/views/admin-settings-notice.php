@@ -1,11 +1,29 @@
 <?php
 	if ( isset($_GET['hpfsuccessmessage']) && !empty($_GET['hpfsuccessmessage']) )
 	{
-		echo '<div class="notice notice-success inline"><p>' . esc_html(sanitize_text_field($_GET['hpfsuccessmessage'])) . '</p></div>';
+		$allowed_html = array(
+	        'a' => array(
+	            'href' => array()
+	        ),
+	    );
+
+	    // Allow specific <a> tags through wp_kses
+	    $message = wp_kses( $_GET['hpfsuccessmessage'], $allowed_html );
+
+		echo '<div class="notice notice-success inline"><p>' . $message . '</p></div>';
 	}
 	if ( isset($_GET['hpferrormessage']) && !empty($_GET['hpferrormessage']) )
 	{
-		echo '<div class="notice notice-error inline"><p>' . esc_html(sanitize_text_field($_GET['hpferrormessage'])) . '</p></div>';
+		$allowed_html = array(
+	        'a' => array(
+	            'href' => array()
+	        ),
+	    );
+
+	    // Allow specific <a> tags through wp_kses
+	    $message = wp_kses( $_GET['hpferrormessage'], $allowed_html );
+	    
+		echo '<div class="notice notice-error inline"><p>' . $message . '</p></div>';
 	}
 
 	// show notice if exports exist but no department statuses set

@@ -662,6 +662,42 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 						}
 					}
 				}
+				elseif ( isset($property->objektkategorie->objektart->wohnung) )
+				{
+					$wohnung_attributes = $property->objektkategorie->objektart->wohnung->attributes();
+
+					if ( isset($wohnung_attributes['wohnungtyp']) && !empty((string)$wohnung_attributes['wohnungtyp']) )
+					{
+						if ( isset($taxonomy_mappings[(string)$wohnung_attributes['wohnungtyp']]) && !empty($taxonomy_mappings[(string)$wohnung_attributes['wohnungtyp']]) )
+						{
+							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[(string)$wohnung_attributes['wohnungtyp']], "property_type" );
+						}
+						else
+						{
+							$this->log( 'Received property type of ' . (string)$wohnung_attributes['wohnungtyp'] . ' that isn\'t mapped in the import settings', $openimmo_id, $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', (string)$wohnung_attributes['wohnungtyp'], $this->import_id );
+						}
+					}
+				}
+				elseif ( isset($property->objektkategorie->objektart->zinshaus_renditeobjekt) )
+				{
+					$zinshaus_attributes = $property->objektkategorie->objektart->zinshaus_renditeobjekt->attributes();
+
+					if ( isset($zinshaus_attributes['zins_typ']) && !empty((string)$zinshaus_attributes['zins_typ']) )
+					{
+						if ( isset($taxonomy_mappings[(string)$zinshaus_attributes['zins_typ']]) && !empty($taxonomy_mappings[(string)$zinshaus_attributes['zins_typ']]) )
+						{
+							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[(string)$zinshaus_attributes['zins_typ']], "property_type" );
+						}
+						else
+						{
+							$this->log( 'Received property type of ' . (string)$zinshaus_attributes['zins_typ'] . ' that isn\'t mapped in the import settings', $openimmo_id, $post_id );
+
+							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', (string)$zinshaus_attributes['zins_typ'], $this->import_id );
+						}
+					}
+				}
 
 				// Location taxonomies
 				$create_location_taxonomy_terms = isset( $import_settings['create_location_taxonomy_terms'] ) ? $import_settings['create_location_taxonomy_terms'] : false;

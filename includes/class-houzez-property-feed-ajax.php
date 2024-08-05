@@ -281,7 +281,16 @@ class Houzez_Property_Feed_Ajax {
                     }
                     elseif ( isset($decoded_status['status']) && $decoded_status['status'] == 'parsing' )
                     {
-                        $status = '<br>Parsing properties';
+                        if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
+                        {
+                            $status = '<br>Parsing properties';
+                        }
+                        else
+                        {
+                            $status = '<br>Failed to complete';
+
+                            $failed = $import_id;
+                        }
                     }
                     elseif ( isset($decoded_status['status']) && $decoded_status['status'] == 'finished' )
                     {

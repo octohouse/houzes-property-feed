@@ -72,7 +72,7 @@
 								type="checkbox" 
 								name="' . esc_attr($key . '_' . $field['id']) . '" 
 								value="yes"
-								' . ( ( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
+								' . ( ( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == 'yes' ) ? 'checked' : ( ( !isset($import_settings[$field['id']]) && isset($field['default']) && $field['default'] == 'yes' ) ? 'checked' : '' ) ) . '
 							>';
 							echo ( isset($field['tooltip']) ? '<div style="color:#999; font-size:13px; margin-top:5px;">' . wp_kses($field['tooltip'], array('br' => array())) . '</div>' : '' );
 							break;
@@ -105,9 +105,11 @@
 							break;
 						}
 						case "select":
+						case "multiselect":
 						{
 							echo '<select 
-								name="' . esc_attr($key . '_' . $field['id']) . '" 
+								name="' . esc_attr($key . '_' . $field['id']) . ( $field['type'] == 'multiselect' ? '[]' : '' ) . '" 
+								' . ( $field['type'] == 'multiselect' ? 'multiple' : '' ) . '
 							>';
 							$options = array();
 							if ( isset($field['options']) && is_array($field['options']) && !empty($field['options']) )
@@ -189,9 +191,23 @@
 								{
 									echo '<option value="' . $option_key . '"';
 									if (
-										( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == $option_key )
+										(
+											$field['type'] == 'select' &&
+											(
+												( isset($import_settings[$field['id']]) && $import_settings[$field['id']] == $option_key )
+												||
+												( !isset($import_settings[$field['id']]) && ( isset($field['default']) && $field['default'] == $option_key ) )
+											)
+										)
 										||
-										( !isset($import_settings[$field['id']]) && ( isset($field['default']) && $field['default'] == $option_key ) )
+										(
+											$field['type'] == 'multiselect' &&
+											(
+												( isset($import_settings[$field['id']]) && is_array($import_settings[$field['id']]) && in_array($option_key, $import_settings[$field['id']]) )
+												||
+												( !isset($import_settings[$field['id']]) && ( isset($field['default']) && in_array($option_key, $field['default']) ) )
+											)
+										)
 									)
 									{
 										echo ' selected';
@@ -225,11 +241,39 @@
 </table>
 
 <?php
+	if ( isset($format['infos']) && is_array($format['infos']) && !empty($format['infos']) )
+	{
+		foreach ( $format['infos'] as $info )
+		{
+		    $allowed_html = array(
+		        'a' => array(
+		            'href' => array(),
+		            'target' => array(), // Allow target attribute if needed
+		        ),
+		    );
+
+		    // Allow specific <a> tags through wp_kses
+		    $info = wp_kses( $info, $allowed_html );
+
+			echo '<div class="notice notice-info inline"><p>' . $info . '</p></div>';
+		}
+	}
+
 	if ( isset($format['warnings']) && is_array($format['warnings']) && !empty($format['warnings']) )
 	{
 		foreach ( $format['warnings'] as $warning )
 		{
-			echo '<div class="notice notice-error inline"><p>' . esc_html($warning) . '</p></div>';
+		    $allowed_html = array(
+		        'a' => array(
+		            'href' => array(),
+		            'target' => array(), // Allow target attribute if needed
+		        ),
+		    );
+
+		    // Allow specific <a> tags through wp_kses
+		    $warning = wp_kses( $warning, $allowed_html );
+
+			echo '<div class="notice notice-error inline"><p>' . $warning . '</p></div>';
 		}
 	}
 ?>

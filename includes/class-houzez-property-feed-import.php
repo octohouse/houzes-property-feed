@@ -248,7 +248,18 @@ class Houzez_Property_Feed_Import {
                         $field_value = '';
                         if ( isset($_POST[$format . '_' . $field['id']]) && !empty($_POST[$format . '_' . $field['id']]) )
                         {
-                            $field_value = sanitize_text_field($_POST[$format . '_' . $field['id']]);
+                            if ( $field['type'] == 'multiselect' && is_array($_POST[$format . '_' . $field['id']]) )
+                            {
+                                $field_value = array();
+                                foreach ( $_POST[$format . '_' . $field['id']] as $post_key => $post_value )
+                                {
+                                    $field_value[$post_key] = sanitize_text_field($post_value);
+                                }
+                            }
+                            else
+                            {
+                                $field_value = sanitize_text_field($_POST[$format . '_' . $field['id']]);
+                            }
                         }
                         if ( $field['id'] == 'property_node_options' || $field['id'] == 'property_field_options' )
                         {

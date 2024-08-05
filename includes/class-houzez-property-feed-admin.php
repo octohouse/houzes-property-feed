@@ -83,6 +83,16 @@ class Houzez_Property_Feed_Admin {
         
         if( $error != '' )
         {
+            $allowed_html = array(
+                'a' => array(
+                    'href' => array(),
+                    'target' => array(), // Allow target attribute if needed
+                ),
+            );
+
+            // Allow specific <a> tags through wp_kses
+            $error = wp_kses( $error, $allowed_html );
+            
             echo '<div class="error"><p><strong>' . $error . '</strong></p></div>';
         }
     }
