@@ -280,7 +280,7 @@ class Houzez_Property_Feed_Export {
 
     public function toggle_export_running_status()
     {
-        if ( isset($_GET['action']) && in_array($_GET['action'], array("startexport", "pauseexport")) && isset($_GET['export_id']) )
+        if ( isset($_GET['action']) && in_array($_GET['action'], array("startexport", "pauseexport", "pushall")) && isset($_GET['export_id']) )
         {
             $export_id = !empty($_GET['export_id']) ? (int)$_GET['export_id'] : '';
 
@@ -323,7 +323,6 @@ class Houzez_Property_Feed_Export {
                     die();
 
                     break;
-
                 }
                 case "pauseexport":
                 {
@@ -335,7 +334,29 @@ class Houzez_Property_Feed_Export {
                     die();
 
                     break;
+                }
+                case "pushall":
+                {
+                    if ( $options['exports'][$export_id]['running'] !== true )
+                    {
+                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . __( 'Export not active', 'houzezpropertyfeed' ) ) );
+                        die();
+                    }
 
+                    $format = get_houzez_property_feed_export_format( $options['exports'][$export_id]['format'] );
+
+                    if ( $format['method'] != 'realtime' )
+                    {
+                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . __( 'Export not a real-time export', 'houzezpropertyfeed' ) ) );
+                        die();
+                    }
+
+                    do_action( 'houzez_property_feed_push_all' );
+
+                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'All properties pushed', 'houzezpropertyfeed' ) ) );
+                    die();
+
+                    break;
                 }
             }
         }

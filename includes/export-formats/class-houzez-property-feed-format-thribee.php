@@ -318,7 +318,7 @@ class Houzez_Property_Feed_Format_Thribee extends Houzez_Property_Feed_Process {
         fwrite($handle, $xml);
         fclose($handle);
 
-        $this->log('XML updated: <a href="' . $wp_upload_dir['baseurl'] . '/houzez_property_feed_export/' . $this->export_id . '.xml" target="_blank">View generated XML</a>', '', $post->ID);
+        $this->log('XML updated: <a href="' . $wp_upload_dir['baseurl'] . '/houzez_property_feed_export/' . $this->export_id . '.xml" target="_blank">View generated XML</a>');
 
         return true;
 	}

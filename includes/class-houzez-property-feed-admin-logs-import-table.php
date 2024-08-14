@@ -52,10 +52,10 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
         {
             case 'col_log_date':
             {
-                $return = '<strong><a href="' . admin_url('admin.php?page=houzez-property-feed-import&tab=logs&action=view&log_id=' . $item->id . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? '&import_id=' . (int)$_GET['import_id'] : '' ) ) . '">' . get_date_from_gmt( $item->start_date, "H:i:s jS F Y" ) . '</a></strong>';
+                $return = '<strong><a href="' . admin_url('admin.php?page=houzez-property-feed-import&tab=logs&action=view&log_id=' . $item->id . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? '&import_id=' . (int)$_GET['import_id'] : '' ) . '&paged=' . ( isset($_GET['paged']) ? (int)$_GET['paged'] : '' ) . '&orderby=' . ( isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '' ) . '&order=' . ( isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '' ) ) . '">' . get_date_from_gmt( $item->start_date, "H:i:s jS F Y" ) . '</a></strong>';
 
                 $return .= '<div class="row-actions">
-                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&tab=logs&action=view&log_id=' . $item->id . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? '&import_id=' . (int)$_GET['import_id'] : '' ) ) . '" aria-label="' . __( 'View Log', 'houzezpropertyfeed' ) . '">' . __( 'View Log', 'houzezpropertyfeed' ) . '</a></span>
+                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-import&tab=logs&action=view&log_id=' . $item->id . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? '&import_id=' . (int)$_GET['import_id'] : '' ) . '&paged=' . ( isset($_GET['paged']) ? (int)$_GET['paged'] : '' ) . '&orderby=' . ( isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '' ) . '&order=' . ( isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '' ) ) . '" aria-label="' . __( 'View Log', 'houzezpropertyfeed' ) . '">' . __( 'View Log', 'houzezpropertyfeed' ) . '</a></span>
                     </div>';
 
                 return $return;
@@ -126,6 +126,15 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
         }
     }
 
+    // Adding sortable columns
+    public function get_sortable_columns() 
+    {
+        $sortable_columns = array(
+            'col_log_date' => array('start_date', 'asc')
+        );
+        return $sortable_columns;
+    }
+
     public function prepare_items() 
     {
         global $wpdb;
@@ -134,11 +143,25 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
         $hidden = array();
         $sortable = $this->get_sortable_columns();
 
-        $per_page = 10000;
+        $per_page = apply_filters('houzez_property_feed_logs_per_page', 20);
         $current_page = $this->get_pagenum();
         $offset = ( $current_page - 1 ) * $per_page;
 
         $this->_column_headers = array($columns, $hidden, $sortable);
+
+        $query = "SELECT
+            COUNT(*)
+        FROM 
+            " . $wpdb->prefix . "houzez_property_feed_logs_instance ";
+        if ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) )
+        {
+            $query .= " WHERE import_id = '" . (int)$_GET['import_id'] . "' ";
+        }
+
+        $totalitems = $wpdb->get_var($query);
+
+        $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'start_date'; // default order
+        $order = (!empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'asc'; // default order direction
 
         $query = "SELECT
             id, 
@@ -154,15 +177,16 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
         {
             $query .= " WHERE import_id = '" . (int)$_GET['import_id'] . "' ";
         }
-        $query .= " ORDER BY start_date ASC";
+        $query .= " ORDER BY $orderby $order";
+        $query .= $wpdb->prepare(" LIMIT %d OFFSET %d", $per_page, ($current_page - 1) * $per_page);
 
         $this->items = $wpdb->get_results($query);
-        $totalitems = count($this->items);
 
         $this->set_pagination_args(
             array(
                 'total_items' => $totalitems,
                 'per_page'    => $per_page,
+                'total_pages' => ceil($total_items / $per_page),
             )
         );
         
@@ -170,6 +194,9 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
 
     public function display() {
         $singular = $this->_args['singular'];
+
+        // Add pagination above the table
+        $this->display_tablenav( 'top' );
 
         $this->screen->render_screen_reader_content( 'heading_list' );
         ?>
@@ -192,6 +219,9 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
 
 </table>
         <?php
+
+        // Add pagination below the table
+        $this->display_tablenav( 'bottom' );
     }
 
     protected function get_table_classes() {

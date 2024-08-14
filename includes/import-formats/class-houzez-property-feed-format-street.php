@@ -455,7 +455,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
                 		{
 	                		$price = round(preg_replace("/[^0-9.]/", '', $property['salesListing']['price']));
 	                	}
-	                    update_post_meta( $post_id, 'fave_property_price_prefix', ( isset($property['salesListing']['price_qualifier']) ? $property['salesListing']['price_qualifier'] : '' ) );
+	                    update_post_meta( $post_id, 'fave_property_price_prefix', ( isset($property['salesListing']['price_qualifier']) && strtolower($property['salesListing']['price_qualifier']) != 'none' ? $property['salesListing']['price_qualifier'] : '' ) );
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
 	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
 	                }
@@ -474,6 +474,12 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
 	                    update_post_meta( $post_id, 'fave_property_price_postfix', 'pcm' );
 	                }
+                }
+
+                if ( isset($property['attributes']['floor_area']) && !empty($property['attributes']['floor_area']) )
+                {
+                	update_post_meta( $post_id, 'fave_property_size', $property['attributes']['floor_area'] );
+                	update_post_meta( $post_id, 'fave_property_size_prefix', 'Sq Ft' );
                 }
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property['attributes']['bedrooms']) ) ? $property['attributes']['bedrooms'] : '' ) );

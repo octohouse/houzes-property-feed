@@ -74,7 +74,10 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 						{
 							foreach ($json['data']['list'] as $property)
 							{
-								$this->properties[] = $property;
+								if ( isset($property['status']) && strtolower($property['status']) == 'active' )
+								{
+									$this->properties[] = $property;
+								}
 							}
 
 							++$page;

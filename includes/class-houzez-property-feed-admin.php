@@ -22,7 +22,7 @@ class Houzez_Property_Feed_Admin {
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_styles' ), 5 );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ), 5 );
 
-        add_action( 'restrict_manage_posts', array( $this, 'restrict_manage_posts' ) );
+        add_action( 'restrict_manage_posts', array( $this, 'restrict_manage_posts' ), 11 );
         add_filter( 'request', array( $this, 'request_query' ) );
 	}
 

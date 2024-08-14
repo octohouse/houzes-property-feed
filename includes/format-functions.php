@@ -1161,7 +1161,7 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/propctrl/'
         ),
         'property_finder' => array(
-            'name' => __( 'Property Finder / myCRM', 'houzezpropertyfeed' ),
+            'name' => __( 'Property Finder / PF Expert / myCRM', 'houzezpropertyfeed' ),
             'fields' => array(
                 array(
                     'id' => 'xml_url',

@@ -37,6 +37,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
             'col_export_frequency' =>__( 'Frequency', 'houzezpropertyfeed' ),
             'col_export_last_ran' =>__( 'Last Ran', 'houzezpropertyfeed' ),
             'col_export_next_due' =>__( 'Next Due To Run', 'houzezpropertyfeed' ),
+            'col_export_active_properties' =>__( 'Active Properties', 'houzezpropertyfeed' ),
         );
     }
 
@@ -50,6 +51,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
             case 'col_export_details':
             case 'col_export_last_ran':
             case 'col_export_next_due':
+            case 'col_export_active_properties':
                 return $item[ $column_name ];
                 break;
             default:
@@ -281,26 +283,89 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
                 }
             }
 
+            // active properties
+            $args = array(
+                'post_type' => 'property',
+                'post_status' => 'publish',
+            );
+
+            $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+            $additional_message = '';
+            if ( $limit !== false )
+            {
+                $args['posts_per_page'] = $limit;
+            }
+            else
+            {
+                $args['nopaging'] = true;
+            }
+
+            $meta_query = array();
+            $tax_query = array();
+
+            $args['meta_query'] = $meta_query;
+            $args['tax_query'] = $tax_query;
+
+            $args = apply_filters( 'houzez_property_feed_export_property_args', $args, (int)$key );
+            $args = apply_filters( 'houzez_property_feed_export_blm_property_args', $args, (int)$key );
+
+            $properties_query = new WP_Query( $args );
+            $active_properties = $properties_query->found_posts;
+
+            $actions = array();
+            if ( !$running )
+            {
+                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=startexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Start Export', 'houzezpropertyfeed' ) . '">' . __( 'Start Export', 'houzezpropertyfeed' ) . '</a>';
+            }
+            else
+            {
+                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=pauseexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Pause Export', 'houzezpropertyfeed' ) . '">' . __( 'Pause Export', 'houzezpropertyfeed' ) . '</a>';
+            }
+            $actions[] = '<a href="' . admin_url('/admin.php?page=houzez-property-feed-export&tab=logs&export_id=' . (int)$key) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a>';
+            $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=editexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Edit Export', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a>';
+            
+            if ( $export['format'] == 'blm' && $running )
+            {
+                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) . '" aria-label="' . __( 'Preview BLM', 'houzezpropertyfeed' ) . '">' . __( 'View BLM', 'houzezpropertyfeed' ) . '</a>';
+            }
+
+            if ( $export['format'] == 'idealista' && $running )
+            {
+                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) . '" aria-label="' . __( 'Preview JSON', 'houzezpropertyfeed' ) . '">' . __( 'View JSON', 'houzezpropertyfeed' ) . '</a>';
+            }
+
+            if ( $format['method'] == 'realtime' && $running )
+            {
+                $actions[] = '<a href="' . admin_url('/admin.php?page=houzez-property-feed-export&action=pushall&export_id=' . (int)$key) . '" aria-label="' . __( 'Push All Properties', 'houzezpropertyfeed' ) . '">' . __( 'Push All', 'houzezpropertyfeed' ) . '</a>';
+            }
+
+            $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=deleteexport&export_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Export', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '';
+
+            $actions_html = '';
+            foreach ( $actions as $action_i => $action )
+            {
+                if ( $action_i+1 == count($actions) )
+                {
+                    $actions_html .= '<span class="trash">' . $action . '</span>';
+                }
+                else
+                {
+                    $actions_html .= '<span class="edit">' . $action . ' | </span>';
+                }
+            }
+
             $this->items[] = array(
                 'col_export_name' => '
                     <strong><a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=editexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Edit Export', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . esc_html( ( (isset($export['name']) && !empty($export['name'])) ? $export['name'] : $export['format'] ) ) . '</a></strong>
-                    <div class="row-actions">
-                        <span class="edit">' . ( 
-                            !$running ? 
-                            '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=startexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Start Export', 'houzezpropertyfeed' ) . '">' . __( 'Start Export', 'houzezpropertyfeed' ) . '</a>' : 
-                            '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=pauseexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Pause Export', 'houzezpropertyfeed' ) . '">' . __( 'Pause Export', 'houzezpropertyfeed' ) . '</a>' 
-                        ) . ' | </span>
-                        <span class="edit"><a href="' . admin_url('/admin.php?page=houzez-property-feed-export&tab=logs&export_id=' . (int)$key) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a> | </span>
-                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=editexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Edit Export', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a> | </span> ' .
-                        ( ($export['format'] == 'blm' && $running) ? '<span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) . '" aria-label="' . __( 'Preview BLM', 'houzezpropertyfeed' ) . '">' . __( 'View BLM', 'houzezpropertyfeed' ) . '</a> | </span> ' : '' ) .
-                        ( ($export['format'] == 'idealista' && $running) ? '<span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) . '" aria-label="' . __( 'Preview JSON', 'houzezpropertyfeed' ) . '">' . __( 'View JSON', 'houzezpropertyfeed' ) . '</a> | </span> ' : '' ) .
-                        '<span class="trash"><a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=deleteexport&export_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Export', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
-                    </div>',
+                    <div class="row-actions">' .
+                        $actions_html    
+                    . '</div>',
                 'col_export_format' => ( ($format !== false && isset($format['name'])) ? esc_html($format['name']) : '-' ),
                 'col_export_details' => $details,
                 'col_export_frequency' => $frequency,
                 'col_export_last_ran' => $last_ran,
                 'col_export_next_due' => $next_due_display,
+                'col_export_active_properties' => '<a href="' . admin_url('edit.php?s&post_status=publish&post_type=property&_export_id=' . (int)$key) . '">' . $active_properties . '</a>',
             );
         }
 

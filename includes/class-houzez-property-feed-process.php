@@ -236,6 +236,7 @@ class Houzez_Property_Feed_Process {
 
 	public function add_missing_mapping( $mappings, $custom_field, $value, $import_id )
 	{
+		wp_cache_delete('houzez_property_feed', 'options'); // clear cache
 		$options = get_option( 'houzez_property_feed', array() );
 
 		if ( $value != '' && !isset($mappings[$custom_field][$value]) )

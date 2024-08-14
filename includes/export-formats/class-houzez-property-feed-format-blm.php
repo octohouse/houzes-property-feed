@@ -516,11 +516,20 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                     {
                         foreach ( $terms as $term )
                         {
-                            $temp_country_code = get_houzez_property_feed_country_by_name($term->name);
-                            if ( $temp_country_code !== FALSE )
+                            if ( strlen($term->name) == 2 )
                             {
-                                $country_code = $temp_country_code;
+                                // this is already a country code
+                                $country_code = $term->name;
                                 break;
+                            }
+                            else
+                            {
+                                $temp_country_code = get_houzez_property_feed_country_by_name($term->name);
+                                if ( $temp_country_code !== FALSE )
+                                {
+                                    $country_code = $temp_country_code;
+                                    break;
+                                }
                             }
                         }
                     }

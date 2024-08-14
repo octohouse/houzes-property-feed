@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.1
-Stable tag: 2.3.2
-Version: 2.3.2
+Stable tag: 2.4.0
+Version: 2.4.0
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -36,7 +36,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Loop
 * MRI
 * MLS/IDX (assuming XML URL can be provided)
-* myCRM from Property Finder
+* myCRM / PF Expert from Property Finder
 * OpenImmo
 * Pixxi
 * PropCtrl
@@ -119,6 +119,18 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.0 - 2024-08-14 =
+* Added the ability sort and paginate logs
+* Display number of properties included in an export in the logs
+* Import floor_area from Street
+* Don't import price qualifier from Street if it's the string 'None'
+* Correct more than 10 features breaking RTDF exports
+* Get overseas RTDF exports working
+* Only import active properties in Pixxi format
+* Update Property Finder name to include 'PF Expert'
+* Add number of active properties to exports table as new column with direct link to view these properties
+* Add new ability to push all properties to realtime exports
 
 = 2.3.2 - 2024-08-05 =
 * Added support for importing from Reapit Foundations
