@@ -1056,7 +1056,7 @@ function get_houzez_property_feed_import_formats()
                     'placeholder' => '',
                 )
             ),
-            'address_fields' => array( 'region' ),
+            'address_fields' => array( 'community', 'cityName', 'region' ),
             'taxonomy_values' => array(
                 'sales_status' => array(
                     'For Sale' => 'For Sale',

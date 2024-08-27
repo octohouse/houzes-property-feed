@@ -58,7 +58,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 					$url,
 					array(
 						'method' => 'GET',
-						'timeout' => 60,
+						'timeout' => 360,
 						'headers' => $headers
 					)
 				);

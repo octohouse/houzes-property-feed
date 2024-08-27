@@ -156,7 +156,7 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 						'Content-Type' => 'application/json',
 						'Authorization' => 'Bearer ' . $token
 					),
-					'timeout' => 120,
+					'timeout' => 360,
 				)
 			);
 

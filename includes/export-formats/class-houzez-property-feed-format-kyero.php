@@ -67,6 +67,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
         $args = array(
             'post_type' => 'property',
             'post_status' => 'publish',
+            'fields' => 'ids',
         );
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
@@ -102,10 +103,12 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
             {
                 $properties_query->the_post();
 
-                $this->log("Doing property", '', $post->ID);
+                $post_id = $post;
+
+                $this->log("Doing property", '', $post_id);
 
                 $department = 'sales';
-                $status_terms = get_the_terms( $post->ID, 'property_status' );
+                $status_terms = get_the_terms( $post_id, 'property_status' );
                 if ( !is_wp_error($status_terms) && !empty($status_terms) )
                 {
                 	foreach ( $status_terms as $term )
@@ -123,13 +126,13 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
                 $property_xml = $xml->addChild('property');
 
-                $property_xml->addChild('id', $post->ID);
+                $property_xml->addChild('id', $post_id);
 
-                $property_xml->addChild('date', get_the_modified_date( 'Y-m-d H:i:s', $post->ID ));
+                $property_xml->addChild('date', get_the_modified_date( 'Y-m-d H:i:s', $post_id ));
 
-                $property_xml->addChild('ref', get_post_meta( $post->ID, 'fave_property_id', true ));
+                $property_xml->addChild('ref', get_post_meta( $post_id, 'fave_property_id', true ));
 
-                $property_xml->addChild('price', get_post_meta( $post->ID, 'fave_property_price', true ));
+                $property_xml->addChild('price', get_post_meta( $post_id, 'fave_property_price', true ));
 
                 $currency = 'EUR';
                 // check if multi-currency enabled
@@ -141,7 +144,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                         $currency = strtoupper($default_multi_currency);
                     }
 
-                    $property_currency = get_post_meta( $post->ID, 'fave_currency', true );
+                    $property_currency = get_post_meta( $post_id, 'fave_currency', true );
                     if ( !empty( $property_currency ) && strlen($property_currency) == 3 )
                     {
                         $currency = strtoupper($property_currency);
@@ -164,7 +167,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 if ( $department == 'lettings' )
                 {
                     $price_freq = 'month';
-                    $price_postfix = strtolower(get_post_meta( $post->ID, 'fave_property_price_postfix', true ));
+                    $price_postfix = strtolower(get_post_meta( $post_id, 'fave_property_price_postfix', true ));
                     if ( strpos($price_postfix, 'pw') !== FALSE || strpos($price_postfix, 'week') !== FALSE )
                     {
                         $price_freq = 'week';
@@ -172,7 +175,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 }
                 $property_xml->addChild('price_freq', $price_freq);
 
-                $property_type = $this->get_export_mapped_value($post->ID, 'property_type');
+                $property_type = $this->get_export_mapped_value($post_id, 'property_type');
                 $property_xml->addChild('type', $property_type);
 
                 $address_fields = array();
@@ -180,7 +183,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
                 foreach ( $address_taxonomies as $address_taxonomy )
                 {
-                    $terms = get_the_terms( $post->ID, $address_taxonomy );
+                    $terms = get_the_terms( $post_id, $address_taxonomy );
                     $term_ids_to_use = array();
                     if ( !is_wp_error($terms) && !empty($terms) )
                     {
@@ -199,7 +202,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $property_xml->addChild('province', $province);
 
                 $country = 'Spain';
-                $terms = get_the_terms( $post->ID, 'property_country' );
+                $terms = get_the_terms( $post_id, 'property_country' );
                 $term_ids_to_use = array();
                 if ( !is_wp_error($terms) && !empty($terms) )
                 {
@@ -211,7 +214,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 }
                 $property_xml->addChild('country', $country);
 
-                $fave_property_location = get_post_meta($post->ID, 'fave_property_location', true);
+                $fave_property_location = get_post_meta($post_id, 'fave_property_location', true);
                 $explode_fave_property_location = explode(",", $fave_property_location);
                 $lat = '';
                 $lng = '';
@@ -227,79 +230,79 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     $location_xml->addChild('longitude', $lng);
                 }
 
-                $property_xml->addChild('beds', get_post_meta($post->ID, 'fave_property_bedrooms', true));
+                $property_xml->addChild('beds', get_post_meta($post_id, 'fave_property_bedrooms', true));
 
-                if ( get_post_meta($post->ID, 'fave_property_bathrooms', true) != '' )
+                if ( get_post_meta($post_id, 'fave_property_bathrooms', true) != '' )
                 {
-                    $property_xml->addChild('baths', get_post_meta($post->ID, 'fave_property_bathrooms', true));
+                    $property_xml->addChild('baths', get_post_meta($post_id, 'fave_property_bathrooms', true));
                 }
 
                 $surface_area_xml = $property_xml->addChild('surface_area');
-                if ( !empty(get_post_meta($post->ID, 'fave_property_size', true)) )
+                if ( !empty(get_post_meta($post_id, 'fave_property_size', true)) )
                 {
-                    $size = get_post_meta($post->ID, 'fave_property_size', true);
-                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_size_prefix', true)), 'ft') !== FALSE )
+                    $size = get_post_meta($post_id, 'fave_property_size', true);
+                    if ( strpos(strtolower(get_post_meta($post_id, 'fave_property_size_prefix', true)), 'ft') !== FALSE )
                     {
-                        $size = get_post_meta($post->ID, 'fave_property_size', true) / 10.764; // convert from sqft to sqm
+                        $size = get_post_meta($post_id, 'fave_property_size', true) / 10.764; // convert from sqft to sqm
                     }
-                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_size_prefix', true)), 'acre') !== FALSE )
+                    if ( strpos(strtolower(get_post_meta($post_id, 'fave_property_size_prefix', true)), 'acre') !== FALSE )
                     {
-                        $size = get_post_meta($post->ID, 'fave_property_size', true) * 4047; // convert from acre to sqm
+                        $size = get_post_meta($post_id, 'fave_property_size', true) * 4047; // convert from acre to sqm
                     }
-                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_size_prefix', true)), 'hectare') !== FALSE )
+                    if ( strpos(strtolower(get_post_meta($post_id, 'fave_property_size_prefix', true)), 'hectare') !== FALSE )
                     {
-                        $size = get_post_meta($post->ID, 'fave_property_size', true) * 10000; // convert from hectare to sqm
+                        $size = get_post_meta($post_id, 'fave_property_size', true) * 10000; // convert from hectare to sqm
                     }
                     $surface_area_xml->addChild('built', $size);
                 }
-                if ( !empty(get_post_meta($post->ID, 'fave_property_land', true)) )
+                if ( !empty(get_post_meta($post_id, 'fave_property_land', true)) )
                 {
-                    $size = get_post_meta($post->ID, 'fave_property_land', true);
-                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_land_postfix', true)), 'ft') !== FALSE )
+                    $size = get_post_meta($post_id, 'fave_property_land', true);
+                    if ( strpos(strtolower(get_post_meta($post_id, 'fave_property_land_postfix', true)), 'ft') !== FALSE )
                     {
-                        $size = get_post_meta($post->ID, 'fave_property_land', true) / 10.764; // convert from sqft to sqm
+                        $size = get_post_meta($post_id, 'fave_property_land', true) / 10.764; // convert from sqft to sqm
                     }
-                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_land_postfix', true)), 'acre') !== FALSE )
+                    if ( strpos(strtolower(get_post_meta($post_id, 'fave_property_land_postfix', true)), 'acre') !== FALSE )
                     {
-                        $size = get_post_meta($post->ID, 'fave_property_land', true) * 4047; // convert from acre to sqm
+                        $size = get_post_meta($post_id, 'fave_property_land', true) * 4047; // convert from acre to sqm
                     }
-                    if ( strpos(strtolower(get_post_meta($post->ID, 'fave_property_land_postfix', true)), 'hectare') !== FALSE )
+                    if ( strpos(strtolower(get_post_meta($post_id, 'fave_property_land_postfix', true)), 'hectare') !== FALSE )
                     {
-                        $size = get_post_meta($post->ID, 'fave_property_land', true) * 10000; // convert from hectare to sqm
+                        $size = get_post_meta($post_id, 'fave_property_land', true) * 10000; // convert from hectare to sqm
                     }
                     $surface_area_xml->addChild('plot', $size);
                 }
 
                 $url_xml = $property_xml->addChild('url');
-                $url_xml->addChild('en', get_permalink($post->ID));
+                $url_xml->addChild('en', get_permalink($post_id));
 
                 $videos = array();
                 $virtual_tours = array();
                 if ( 
-                    get_post_meta( $post->ID, 'fave_video_url', true ) != '' &&
+                    get_post_meta( $post_id, 'fave_video_url', true ) != '' &&
                     (
-                        substr( strtolower(get_post_meta( $post->ID, 'fave_video_url', true )), 0, 2 ) == '//' || 
-                        substr( strtolower(get_post_meta( $post->ID, 'fave_video_url', true )), 0, 4 ) == 'http'
+                        substr( strtolower(get_post_meta( $post_id, 'fave_video_url', true )), 0, 2 ) == '//' || 
+                        substr( strtolower(get_post_meta( $post_id, 'fave_video_url', true )), 0, 4 ) == 'http'
                     )
                 )
                 {
                     if ( 
-                        strpos( get_post_meta( $post->ID, 'fave_video_url', true ), 'youtu' ) !== false
+                        strpos( get_post_meta( $post_id, 'fave_video_url', true ), 'youtu' ) !== false
                         ||
-                        strpos( get_post_meta( $post->ID, 'fave_video_url', true ), 'vimeo' ) !== false
+                        strpos( get_post_meta( $post_id, 'fave_video_url', true ), 'vimeo' ) !== false
                     )
                     {
-                        $videos[] = get_post_meta( $post->ID, 'fave_video_url', true );
+                        $videos[] = get_post_meta( $post_id, 'fave_video_url', true );
                     }
                     else
                     {
-                        $virtual_tours[] = get_post_meta( $post->ID, 'fave_video_url', true );
+                        $virtual_tours[] = get_post_meta( $post_id, 'fave_video_url', true );
                     }
                 }
 
-                if ( get_post_meta( $post->ID, 'fave_virtual_tour', true ) != '' )
+                if ( get_post_meta( $post_id, 'fave_virtual_tour', true ) != '' )
                 {
-                    preg_match('/src="([^"]+)"/', get_post_meta( $post->ID, 'fave_virtual_tour', true ), $match);
+                    preg_match('/src="([^"]+)"/', get_post_meta( $post_id, 'fave_virtual_tour', true ), $match);
                     if ( isset($match[1]) )
                     {
                         $url = $match[1];
@@ -332,16 +335,16 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     }
                 }
 
-                $description = get_the_content();
+                $description = get_the_content(null, false, $post_id);
                 if ( trim(strip_tags($description)) == '' )
                 {
-                    $description = $post->post_excerpt;
+                    $description = get_the_excerpt($post_id);
                 }
                 $description = str_replace("&nbsp;", " ", $description);
                 $desc_xml = $property_xml->addChild('desc');
                 $desc_xml->addChild('en', htmlspecialchars($description, ENT_QUOTES | ENT_XML1, 'UTF-8'));
 
-                $term_list = wp_get_post_terms($post->ID, 'property_feature', array("fields" => "all"));
+                $term_list = wp_get_post_terms($post_id, 'property_feature', array("fields" => "all"));
                 if ( !is_wp_error($term_list) && is_array($term_list) && !empty($term_list) )
                 {
                     $features_xml = $property_xml->addChild('features');
@@ -351,7 +354,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     }
                 }
 
-                $attachment_ids = get_post_meta( $post->ID, 'fave_property_images' );
+                $attachment_ids = get_post_meta( $post_id, 'fave_property_images' );
 
                 if ( !empty($attachment_ids) )
                 {
@@ -375,10 +378,10 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     }
                 }
 
-                $property_xml = apply_filters( 'houzez_property_feed_export_property_data', $property_xml, $post->ID, $this->export_id );
-                $property_xml = apply_filters( 'houzez_property_feed_export_kyero_property_data', $property_xml, $post->ID, $this->export_id );
+                $property_xml = apply_filters( 'houzez_property_feed_export_property_data', $property_xml, $post_id, $this->export_id );
+                $property_xml = apply_filters( 'houzez_property_feed_export_kyero_property_data', $property_xml, $post_id, $this->export_id );
 
-                $this->log("Property written to Kyero XML file", '', $post->ID);
+                $this->log("Property written to Kyero XML file", '', $post_id);
             }
         }
 

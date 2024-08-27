@@ -39,7 +39,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 
 		$contents = '';
 
-		$args = array( 'timeout' => 120, 'sslverify' => false );
+		$args = array( 'timeout' => 360, 'sslverify' => false );
         $args = apply_filters( 'houzez_property_feed_csv_request_args', $args, $import_settings['csv_url'] );
 		$response = wp_remote_get( $import_settings['csv_url'], $args );
 		if ( !is_wp_error($response) && is_array( $response ) ) 

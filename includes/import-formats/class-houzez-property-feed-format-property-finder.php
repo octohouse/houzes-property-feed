@@ -39,7 +39,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 
 		foreach ($urls as $url)
 		{
-			$response = wp_remote_get( trim($url), array( 'timeout' => 120 ) );
+			$response = wp_remote_get( trim($url), array( 'timeout' => 360 ) );
 			if ( !is_wp_error($response) && is_array( $response ) ) 
 			{
 				$contents = $response['body'];

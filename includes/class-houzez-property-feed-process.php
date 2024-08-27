@@ -293,7 +293,7 @@ class Houzez_Property_Feed_Process {
 	            $data
 	        );
 
-	        $this->ping();
+	        if ( $this->is_import ) { $this->ping(); }
 		}
 	}
 
@@ -329,7 +329,7 @@ class Houzez_Property_Feed_Process {
 	            $data
 	        );
 
-	        if ( $ping === true ) { $this->ping(); }
+	        if ( $this->is_import && $ping === true ) { $this->ping(); }
 		}
 	}
 

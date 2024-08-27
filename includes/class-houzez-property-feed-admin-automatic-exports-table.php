@@ -287,6 +287,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
             $args = array(
                 'post_type' => 'property',
                 'post_status' => 'publish',
+                'fields' => 'ids',
             );
 
             $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
@@ -307,7 +308,6 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
             $args['tax_query'] = $tax_query;
 
             $args = apply_filters( 'houzez_property_feed_export_property_args', $args, (int)$key );
-            $args = apply_filters( 'houzez_property_feed_export_blm_property_args', $args, (int)$key );
 
             $properties_query = new WP_Query( $args );
             $active_properties = $properties_query->found_posts;

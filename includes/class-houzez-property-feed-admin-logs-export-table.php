@@ -225,7 +225,7 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
             array(
                 'total_items' => $totalitems,
                 'per_page'    => $per_page,
-                'total_pages' => ceil($total_items / $per_page),
+                'total_pages' => ceil($totalitems / $per_page),
             )
         );
         

@@ -39,7 +39,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 
 		foreach ( $loop_endpoints as $loop_endpoint )
 		{
-			$response = wp_remote_get( 'https://api.loop.software/' . $loop_endpoint, array( 'timeout' => 120, 'headers' => array(
+			$response = wp_remote_get( 'https://api.loop.software/' . $loop_endpoint, array( 'timeout' => 360, 'headers' => array(
 				'Content-Type' => 'application/json',
 				'x-api-key' => $import_settings['api_key'],
 			) ) );

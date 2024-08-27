@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.1
-Stable tag: 2.4.0
-Version: 2.4.0
+Stable tag: 2.4.1
+Version: 2.4.1
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -119,6 +119,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.1 - 2024-08-27 =
+* Improve query efficiency in exports table when querying how many properties are active in an export
+* Add media queueing to Kyero imports
+* Pixxi improvements: Import amenities as features, import size and parking, add city and community to list of location fields available for mapping
+* Extend timeouts on all requests to better support bigger feeds that take a while to download
+* Correct undefined variable in logs tables following recent addition of pagination
 
 = 2.4.0 - 2024-08-14 =
 * Added the ability sort and paginate logs

@@ -49,7 +49,7 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 				'headers' => array(
 			        'Content-Type' => 'application/json',
 			    ),
-				'timeout' => 120 
+				'timeout' => 360 
 			);
 
 			if ( isset($import_settings['api_key']) && !empty($import_settings['api_key']) )
@@ -303,13 +303,13 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
 
 	                    $rent_frequency = 'pcm';
-						switch ($property['rentParam']['priceType'])
+						switch (strtolower($property['rentParam']['priceType']))
 						{
-							case "YEAR":
+							case "year":
 							{
 								$rent_frequency = 'pa'; break;
 							}
-							case "WEEK":
+							case "week":
 							{
 								$rent_frequency = 'pw'; break;
 							}
@@ -318,11 +318,54 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 	                }
                 }
 
-                update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property['bedRooms']) ) ? $property['bedRooms'] : '' ) );
+                $bedrooms = ( ( isset($property['bedRooms']) && $property['bedRooms'] != '' && !is_null($property['bedRooms']) ) ? $property['bedRooms'] : '' );
+                if ( $property['listingType'] == 'NEW' )
+                {
+                	$bedrooms = ( ( isset($property['newParam']['bedroomMin']) && $property['newParam']['bedroomMin'] != '' && !is_null($property['newParam']['bedroomMin']) ) ? $property['newParam']['bedroomMin'] : '' );
+                	if ( $bedrooms == 0 ) { $bedrooms = 'Studio'; }
+                	if ( isset($property['newParam']['bedroomMax']) && $property['newParam']['bedroomMax'] != '' && !is_null($property['newParam']['bedroomMax']) )
+                	{
+                		if ( $bedrooms != '' )
+                		{
+                			$bedrooms .= ' - ';
+                		}
+                		$bedrooms .= $property['newParam']['bedroomMax'];
+                	}
+                }
+                update_post_meta( $post_id, 'fave_property_bedrooms', $bedrooms );
 	            update_post_meta( $post_id, 'fave_property_bathrooms', ( isset($property[strtolower($property['listingType']) . 'Param']['bathrooms']) ? $property[strtolower($property['listingType']) . 'Param']['bathrooms'] : '' ) );
 	            update_post_meta( $post_id, 'fave_property_rooms', '' );
-	            update_post_meta( $post_id, 'fave_property_garage', '' );
+
+	            $parking = ( ( isset($property['sellParam']['parking']) ) ? $property['sellParam']['parking'] : '' );
+	            if ( empty($parking) )
+	            {
+	            	$parking = ( ( isset($property['rentParam']['parking']) ) ? $property['rentParam']['parking'] : '' );
+	            }
+	            if ( empty($parking) )
+	            {
+	            	$parking = ( ( isset($property['newParam']['parking']) ) ? $property['newParam']['parking'] : '' );
+	            }
+	            update_post_meta( $post_id, 'fave_property_garage', $parking );
 	            update_post_meta( $post_id, 'fave_property_id', $property['id'] );
+
+	            $size = ( ( isset($property['size']) && !empty($property['size']) ) ? $property['size'] : '' );
+	            if ( $property['listingType'] == 'NEW' )
+                {
+                	$size = ( ( isset($property['newParam']['minSize']) && $property['newParam']['minSize'] != '' && !is_null($property['newParam']['minSize']) ) ? $property['newParam']['minSize'] : '' );
+                	if ( isset($property['newParam']['maxSize']) && $property['newParam']['maxSize'] != '' && !is_null($property['newParam']['maxSize']) )
+                	{
+                		if ( $size != '' )
+                		{
+                			$size .= ' - ';
+                		}
+                		$size .= $property['newParam']['maxSize'];
+                	}
+                }
+	            update_post_meta( $post_id, 'fave_property_size', $size );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', ( !empty($size) ? 'sq ft' : '' ) );
+
+	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property['plotSize']) && !empty($property['plotSize']) ) ? $property['plotSize'] : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property['plotSize']) && !empty($property['plotSize']) ) ? 'sq ft' : '' ) );
 
 	            $address_parts = array();
 	            if ( isset($property['region']) && $property['region'] != '' )
@@ -445,19 +488,19 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 	        	}
 	        	
 	            // Turn bullets into property features
-	            /*$feature_term_ids = array();
-	            if ( isset($property['featuresForPortals']) && is_array($property['featuresForPortals']) )
+	            $feature_term_ids = array();
+	            if ( isset($property['amenities']) && is_array($property['amenities']) )
 				{
-					foreach ( $property['featuresForPortals'] as $feature )
+					foreach ( $property['amenities'] as $feature )
 					{
-						$term = term_exists( trim($feature['name']), 'property_feature');
+						$term = term_exists( trim($feature), 'property_feature');
 						if ( $term !== 0 && $term !== null && isset($term['term_id']) )
 						{
 							$feature_term_ids[] = (int)$term['term_id'];
 						}
 						else
 						{
-							$term = wp_insert_term( trim($feature['name']), 'property_feature' );
+							$term = wp_insert_term( trim($feature), 'property_feature' );
 							if ( is_array($term) && isset($term['term_id']) )
 							{
 								$feature_term_ids[] = (int)$term['term_id'];
@@ -472,7 +515,7 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 					{
 						wp_delete_object_term_relationships( $post_id, "property_feature" );
 					}
-				}*/
+				}
 
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
