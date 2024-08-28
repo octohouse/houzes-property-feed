@@ -18,6 +18,10 @@ function get_houzez_property_feed_import_frequencies()
         'every_fifteen_minutes' => array(
             'name' => __( 'Every Fifteen Minutes', 'houzezpropertyfeed' ),
             'pro' => true
+        ),
+        'exact_hours' => array(
+            'name' => __( 'Exact Hours', 'houzezpropertyfeed' ),
+            'pro' => true
         )
     );
 

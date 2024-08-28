@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.1
-Stable tag: 2.4.1
-Version: 2.4.1
+Stable tag: 2.4.2
+Version: 2.4.2
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -42,6 +42,7 @@ We can import properties from the following estate agency CRMs/formats:
 * PropCtrl
 * RE/MAX
 * Reapit Foundations
+* REAXML
 * Rentman
 * ReSales Online
 * Rex
@@ -119,6 +120,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.2 - 2024-08-28 =
+* Added support for importing properties in the REAXML format
+* Added new import frequency of 'Exact Hours' meaning you can specify an import runs at specific hours throughout the day
 
 = 2.4.1 - 2024-08-27 =
 * Improve query efficiency in exports table when querying how many properties are active in an export

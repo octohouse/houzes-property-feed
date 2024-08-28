@@ -255,6 +255,49 @@ if ( is_array($imports) && !empty($imports) )
 	                    }
 	                    break;
 	                }
+	                case "exact_hours":
+	                {
+	                	$ok_to_run_import = false;
+
+	                	$exact_hours = array();
+	                	if ( isset($import_settings['exact_hours']) && is_array($import_settings['exact_hours']) && !empty($import_settings['exact_hours']) )
+	                	{
+	                		$exact_hours = $import_settings['exact_hours'];
+	                		sort($exact_hours, SORT_NUMERIC); 
+
+	                		if ( !empty($exact_hours) )
+	                		{
+	                			$current_date = current_datetime();
+	                			$current_hour = $current_date->format('H');
+
+                                $last_start_date_to_check = new DateTimeImmutable( $last_start_date, new DateTimeZone('UTC') );
+                                $last_start_date_to_check = $last_start_date_to_check->getTimestamp();
+
+	                			// get timestamp of today at next hour entered
+	                			foreach ( $exact_hours as $hour_to_execute )
+	                			{
+	                				$hour_to_execute = explode(":", $hour_to_execute);
+                                    $hour_to_execute = $hour_to_execute[0];
+
+	                				if ( $current_hour >= $hour_to_execute )
+                                    {
+		                				$hour_to_execute = str_pad($hour_to_execute, 2, '0', STR_PAD_LEFT);
+
+		                				$date_to_check = new DateTimeImmutable( $current_date->format('Y-m-d') . ' ' . $hour_to_execute . ':00:00', wp_timezone() );
+                                        $date_to_check = $date_to_check->getTimestamp();
+
+		                				if ( $current_date->getTimestamp() >= $date_to_check && $last_start_date_to_check < $date_to_check )
+		                				{
+		                					$ok_to_run_import = true;
+		                					break;
+		                				}
+		                			}
+	                			}
+	                		}
+	                	}
+	                	
+	                    break;
+	                }
 	                default: // daily
 	                {
 	                    if (($diff_secs / 60 / 60) < 24)
@@ -491,6 +534,19 @@ if ( is_array($imports) && !empty($imports) )
                         require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-reapit-foundations.php';
 
 						$import_object = new Houzez_Property_Feed_Format_Reapit_Foundations( $instance_id, $import_id );
+
+		    			break;
+		    		}
+		    		case "reaxml_local":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-reaxml.php';
+
+						$import_object = new Houzez_Property_Feed_Format_REAXML( $instance_id, $import_id );
+
+						$import_object->parse_and_import();
+
+						$parsed_in_class = true;
 
 		    			break;
 		    		}

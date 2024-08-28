@@ -25,6 +25,7 @@ switch ( $import_settings['format'] )
 {
 	case "blm_local":
 	case "openimmo_local":
+	case "reaxml_local":
 	case "rentman":
 	{
 		$file = $import_settings['local_directory'] . '/' . base64_decode($_GET['file']);

@@ -133,10 +133,35 @@ class Houzez_Property_Feed_Import {
 
         $agent_display_option = ( isset($_POST['agent_display_option']) ) ? sanitize_text_field($_POST['agent_display_option']) : 'author_info';
 
+        $sanitized_exact_hours = array();
+
+        if ( isset($_POST['exact_hours']) && !empty(sanitize_text_field($_POST['exact_hours'])) )
+        {
+            $exact_hours = explode(",", sanitize_text_field($_POST['exact_hours']));
+            $exact_hours = array_map('trim', $exact_hours); // remove white spaces from around hours
+            $exact_hours = array_filter($exact_hours); // remove empty array elements
+            sort($exact_hours, SORT_NUMERIC);
+
+            if ( !empty($exact_hours) )
+            {
+                foreach ( $exact_hours as $hour_to_execute )
+                {
+                    $hour_to_execute = explode(":", $hour_to_execute);
+                    $hour_to_execute = $hour_to_execute[0];
+
+                    if ( is_numeric($hour_to_execute) && (int)$hour_to_execute >= 0 && (int)$hour_to_execute < 24 )
+                    {
+                        $sanitized_exact_hours[] = $hour_to_execute;
+                    }
+                }
+            }
+        }
+
         $import_options = array(
             'running' => $running,
             'format' => $format,
             'frequency' => sanitize_text_field($_POST['frequency']), // might want to validate this is not a pro frequency
+            'exact_hours' => $sanitized_exact_hours,
             'create_location_taxonomy_terms' => ( isset($_POST['create_location_taxonomy_terms']) && sanitize_text_field($_POST['create_location_taxonomy_terms']) == 'yes' ) ? true : false,
             'property_city_address_field' => ( isset($_POST['property_city_address_field']) ) ? sanitize_text_field($_POST['property_city_address_field']) : true,
             'property_area_address_field' => ( isset($_POST['property_area_address_field']) ) ? sanitize_text_field($_POST['property_area_address_field']) : true,

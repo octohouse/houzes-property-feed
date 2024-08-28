@@ -453,6 +453,53 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                                 }
                                 break;
                             }
+                            case "exact_hours":
+                            {
+                                $exact_hours = array();
+                                if ( isset($import['exact_hours']) && is_array($import['exact_hours']) && !empty($import['exact_hours']) )
+                                {
+                                    $exact_hours = $import['exact_hours'];
+                                    sort($exact_hours, SORT_NUMERIC); 
+
+                                    $current_date = new DateTimeImmutable( '@' . $next_due );
+                                    $current_date_new = $current_date->setTimezone(wp_timezone());
+                                    $current_hour = $current_date_new->format('H');
+
+                                    if ( !empty($exact_hours) )
+                                    {
+                                        foreach ( $exact_hours as $hour_to_execute )
+                                        {
+                                            $hour_to_execute = explode(":", $hour_to_execute);
+                                            $hour_to_execute = $hour_to_execute[0];
+                                            
+                                            $hour_to_execute = str_pad($hour_to_execute, 2, '0', STR_PAD_LEFT);
+                                            $timezone_offset = $current_date->getOffset();
+
+                                            // Check today
+                                            if ( $current_hour >= $hour_to_execute )
+                                            {
+                                                // in timezone
+                                                $date_to_check = new DateTimeImmutable( $current_date->format('Y-m-d') . ' ' . $hour_to_execute . ':00:00', wp_timezone() );
+                                                $date_to_check = $date_to_check->getTimestamp();
+
+                                                $last_start_date_to_check = new DateTimeImmutable( '@' . $last_start_date );
+                                                $last_start_date_to_check = $last_start_date_to_check->format('Y-m-d H') . ':00:00';
+                                                $last_start_date = strtotime($last_start_date_to_check);
+
+                                                if ( 
+                                                    ( $next_due >= $date_to_check ) && 
+                                                    ( $last_start_date < $date_to_check )
+                                                )
+                                                {
+                                                    $got_next_due = $next_due;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            }
                             default: // daily
                             {
                                 if ( ( ($next_due - $last_start_date) / 60 / 60 ) >= 24 )
@@ -498,6 +545,19 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 $next_due_display .= '-';
             }
 
+            $frequency = ( isset($import['frequency']) ? ucwords(str_replace("_", " ", $import['frequency'])) : '-' );
+            if ( isset($import['frequency']) && $import['frequency'] == 'exact_hours' )
+            {
+                if ( isset($import['exact_hours']) && is_array($import['exact_hours']) && !empty($import['exact_hours']) )
+                {
+                    $frequency .= ': ' . implode(", ", $import['exact_hours']);
+                }
+                else
+                {
+                    $frequency .= ': ' . __( 'None specified', 'houzezpropertyfeed' );
+                }
+            }
+
             $this->items[] = array(
                 'col_import_format' => '
                     <strong><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . (int)$key)) . '" aria-label="' . __( 'Edit Import', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . ( isset($format['name']) ? $format['name'] : '-' ) . '</a></strong>
@@ -513,7 +573,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                         <span class="trash"><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=deleteimport&import_id=' . (int)$key . '&orderby=' . $orderby . '&order=' . $order)) . '" class="submitdelete" aria-label="' . __( 'Delete Import', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '</a>
                     </div>',
                 'col_import_details' => $details,
-                'col_import_frequency' => ( isset($import['frequency']) ? ucwords(str_replace("_", " ", $import['frequency'])) : '-' ),
+                'col_import_frequency' => $frequency,
                 'col_import_last_ran' => $last_ran,
                 'col_import_next_due' => $next_due_display,
                 'format' => ( isset($format['name']) ? $format['name'] : '' ),
