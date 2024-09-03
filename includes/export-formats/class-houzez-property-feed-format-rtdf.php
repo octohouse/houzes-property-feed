@@ -317,12 +317,27 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         $property_type = $this->get_export_mapped_value($post_id, 'property_type');
         $request_data['property']['property_type'] = ( ( $property_type != '' ) ? (int)$property_type : 0 );
 
+        $houzez_tax_settings = get_option('houzez_tax_settings', array() );
+
         if ( !$overseas )
         {
             $request_data['property']['status'] = (int)$this->get_export_mapped_value($post_id, 'property_status');
             $request_data['property']['student_property'] = FALSE;
 
-            $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
+            $address_taxonomies = array();
+            if ( !isset($houzez_tax_settings['property_state']) || ( isset($houzez_tax_settings['property_state']) && $houzez_tax_settings['property_state'] != 'disabled' ) )
+            {
+                $address_taxonomies[] = 'property_state';
+            }
+            if ( !isset($houzez_tax_settings['property_city']) || ( isset($houzez_tax_settings['property_city']) && $houzez_tax_settings['property_city'] != 'disabled' ) )
+            {
+                $address_taxonomies[] = 'property_city';
+            }
+            if ( !isset($houzez_tax_settings['property_area']) || ( isset($houzez_tax_settings['property_area']) && $houzez_tax_settings['property_area'] != 'disabled' ) )
+            {
+                $address_taxonomies[] = 'property_area';
+            }
+            $address_taxonomies = apply_filters( 'houzez_property_feed_export_rtdf_address_taxonomies', $address_taxonomies );
             foreach ( $address_taxonomies as $address_taxonomy )
             {
                 $terms = get_the_terms( $post_id, $address_taxonomy );
@@ -452,7 +467,20 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             }
             $request_data['property']['address']['country_code'] = $country_code;
 
-            $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
+            $address_taxonomies = array();
+            if ( !isset($houzez_tax_settings['property_state']) || ( isset($houzez_tax_settings['property_state']) && $houzez_tax_settings['property_state'] != 'disabled' ) )
+            {
+                $address_taxonomies[] = 'property_state';
+            }
+            if ( !isset($houzez_tax_settings['property_city']) || ( isset($houzez_tax_settings['property_city']) && $houzez_tax_settings['property_city'] != 'disabled' ) )
+            {
+                $address_taxonomies[] = 'property_city';
+            }
+            if ( !isset($houzez_tax_settings['property_area']) || ( isset($houzez_tax_settings['property_area']) && $houzez_tax_settings['property_area'] != 'disabled' ) )
+            {
+                $address_taxonomies[] = 'property_area';
+            }
+            $address_taxonomies = apply_filters( 'houzez_property_feed_export_rtdf_address_taxonomies', $address_taxonomies );
             foreach ( $address_taxonomies as $address_taxonomy )
             {
                 $terms = get_the_terms( $post_id, $address_taxonomy );
@@ -467,8 +495,8 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                 }
             }
             $request_data['property']['address']['region'] = ( isset($address_fields[0]) ? $address_fields[0] : '' );
-            $request_data['property']['address']['sub_region'] = ( isset($address_fields[1]) ? $address_fields[1] : '' );
-            $request_data['property']['address']['town_city'] = ( isset($address_fields[2]) ? $address_fields[2] : '' );
+            $request_data['property']['address']['sub_region'] = ( isset($address_fields[1]) ? $address_fields[1] : ( isset($address_fields[0]) ? $address_fields[0] : '' ) );
+            $request_data['property']['address']['town_city'] = ( isset($address_fields[2]) ? $address_fields[2] : ( isset($address_fields[1]) ? $address_fields[1] : ( isset($address_fields[0]) ? $address_fields[0] : '' ) ) );
 
             $price_qualifier = 0;
             $request_data['property']['price_information']['os_price_qualifier'] = (int)$price_qualifier;
@@ -684,6 +712,8 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
     public function create_remove_property_request( $post_id )
     {
+        global $wpdb;
+        
         $export_settings = get_export_settings_from_id( $this->export_id );
 
         $branch_codes = $export_settings['branch_codes'];
@@ -773,7 +803,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         $request_data = apply_filters( 'houzez_property_feed_export_rtdf_remove_property_request_data', $request_data, $post_id, $this->export_id );
 
         $do_request = true;
-        if ( isset($export_settings['only_send_if_different']) && $export_settings['only_send_if_different'] == 'yes' )
+        /*if ( isset($export_settings['only_send_if_different']) && $export_settings['only_send_if_different'] == 'yes' )
         {
             $previous_hash = get_post_meta( $post_id, '_realtime_sha1_' . $this->export_id, TRUE );
 
@@ -784,7 +814,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                 // Matches the data sent last time. Don't send again
                 $do_request = false;
             }
-        }
+        }*/
 
         if ( $do_request )
         {

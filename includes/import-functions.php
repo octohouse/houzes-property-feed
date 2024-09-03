@@ -282,19 +282,41 @@ function hpf_determine_number_separators($number)
     $periodCount = substr_count($number, '.');
 
     // Check last occurrence to guess the decimal separator
-    if (strrpos($number, ',') > strrpos($number, '.')) {
-        $decimalSeparator = ',';
-        $thousandSeparator = '.';
+    if ($commaCount > 0 && $periodCount > 0) {
+        // Both symbols are present, determine based on position
+        if (strrpos($number, ',') > strrpos($number, '.')) {
+            $decimalSeparator = ',';
+            $thousandSeparator = '.';
+        } else {
+            $decimalSeparator = '.';
+            $thousandSeparator = ',';
+        }
+    } elseif ($commaCount > 0) {
+        // Only commas are present
+        if ($commaCount == 1 && strlen($number) - strrpos($number, ',') > 3) {
+            // Single comma, likely thousand separator
+            $thousandSeparator = ',';
+            $decimalSeparator = '.';
+        } else {
+            // Multiple commas or comma in a typical decimal position
+            $decimalSeparator = ',';
+            $thousandSeparator = '.';
+        }
+    } elseif ($periodCount > 0) {
+        // Only periods are present
+        if ($periodCount == 1 && strlen($number) - strrpos($number, '.') > 3) {
+            // Single period, likely thousand separator
+            $thousandSeparator = '.';
+            $decimalSeparator = ',';
+        } else {
+            // Multiple periods or period in a typical decimal position
+            $decimalSeparator = '.';
+            $thousandSeparator = ',';
+        }
     } else {
+        // No separators found, default to common usage
         $decimalSeparator = '.';
         $thousandSeparator = ',';
-    }
-
-    // Adjust based on frequency if necessary (might be redundant for a single number)
-    if ($commaCount > $periodCount && $decimalSeparator == '.') {
-        $thousandSeparator = ',';
-    } elseif ($periodCount > $commaCount && $decimalSeparator == ',') {
-        $thousandSeparator = '.';
     }
 
     return ['decimal' => $decimalSeparator, 'thousand' => $thousandSeparator];
