@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.6.1
-Stable tag: 2.4.3
-Version: 2.4.3
+Tested up to: 6.6.2
+Stable tag: 2.4.4
+Version: 2.4.4
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -120,6 +120,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.4 - 2024-09-11 =
+* Export internal area and land area in overseas RTDF requests
+* Correct unit used for size in Street imports from Sq Ft to Sq M
+* Add filter 'houzez_property_feed_one_import_at_a_time' to specify only one import can run at a time
+* Declared compatibility with WordPress 6.6.2
 
 = 2.4.3 - 2024-09-03 =
 * Only include enabled location taxonomies when constructing RTDF address plus fallback
@@ -247,7 +253,7 @@ Updating should work like a charm; as always though, ensure you backup your site
 * Only process BLM if it's not empty and log if it is. Previously it would bomb out if it came across a BLM that was empty
 
 = 2.2.1 - 2024-04-22 =
-* Added new filters to change images, brohchure and EPC filenames imported from Alto
+* Added new filters to change images, brochure and EPC filenames imported from Alto
 * Correction whereby some core post data (i.e. author) didn't update in CSV and XML imports
 
 = 2.2.0 - 2024-04-19 =

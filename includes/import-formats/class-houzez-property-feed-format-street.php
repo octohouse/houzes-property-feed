@@ -479,7 +479,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
                 if ( isset($property['attributes']['floor_area']) && !empty($property['attributes']['floor_area']) )
                 {
                 	update_post_meta( $post_id, 'fave_property_size', $property['attributes']['floor_area'] );
-                	update_post_meta( $post_id, 'fave_property_size_prefix', 'Sq Ft' );
+                	update_post_meta( $post_id, 'fave_property_size_prefix', 'Sq M' );
                 }
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property['attributes']['bedrooms']) ) ? $property['attributes']['bedrooms'] : '' ) );

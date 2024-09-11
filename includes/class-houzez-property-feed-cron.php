@@ -72,8 +72,7 @@ class Houzez_Property_Feed_Cron {
                         FROM 
                             " . $wpdb->prefix . "houzez_property_feed_logs_instance
                         WHERE
-                            import_id = '" . $import_id . "'
-                        AND
+                            " . ( ( apply_filters( 'houzez_property_feed_one_import_at_a_time', false ) === false ) ? " import_id = '" . $import_id . "' AND " : "" ) . "
                             end_date = '0000-00-00 00:00:00'
                         ORDER BY status_date DESC
                         LIMIT 1

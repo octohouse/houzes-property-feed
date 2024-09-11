@@ -176,6 +176,8 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
 		);
 
+		$this->ping();
+
 		$response = wp_remote_request(
 			$url,
 			array(
