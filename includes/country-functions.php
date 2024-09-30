@@ -6,18 +6,38 @@ function get_houzez_property_feed_country_by_name($name)
 
 	foreach ( $countries as $key => $value ) 
 	{
-        if ( $value['name'] === $name ) 
+        if ( strtolower($value['name']) === strtolower($name) ) 
         {
             return $key;
+        }
+        if ( isset($value['aliases']) && is_array($value['aliases']) && !empty($value['aliases']) )
+        {
+        	foreach ( $value['aliases'] as $alias )
+        	{
+        		if ( strtolower($alias) === strtolower($name) ) 
+		        {
+		            return $key;
+		        }
+        	}
         }
     }
 
     // No match found, see if there's a similar one (i.e. Russia instead of Russian Federation)
     foreach ( $countries as $key => $value ) 
 	{
-        if ( strpos($value['name'], $name) !== false ) 
+        if ( strpos(strtolower($value['name']), strtolower($name)) !== false ) 
         {
             return $key;
+        }
+        if ( isset($value['aliases']) && is_array($value['aliases']) && !empty($value['aliases']) )
+        {
+        	foreach ( $value['aliases'] as $alias )
+        	{
+        		if ( strpos(strtolower($alias), strtolower($name)) !== false ) 
+		        {
+		            return $key;
+		        }
+        	}
         }
     }
 
@@ -950,6 +970,7 @@ function get_houzez_property_feed_countries()
 		'AE' => array(
 			'name' => 'United Arab Emirates',
 			'currency' => 'AED',
+			'aliases' => array('UAE'),
 		),
 		'GB' => array(
 			'name' => 'United Kingdom of Great Britain and Northern Ireland',

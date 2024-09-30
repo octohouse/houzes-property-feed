@@ -515,7 +515,7 @@ class Houzez_Property_Feed_Process {
 	{
 		$this->log( 'Performing Google geocoding for address: ' . implode(", ", $address), $agent_ref, $post_id );
 
-		$api_key = houzez_option('googlemap_api_key');
+		$api_key = fave_option('googlemap_api_key');
 		$api_key = apply_filters( 'houzez_property_feed_google_geocoding_api_key', $api_key );
 		if ( $api_key != '' )
 		{
@@ -588,9 +588,9 @@ class Houzez_Property_Feed_Process {
 		if ( empty($country) )
 		{
 			$country = 'GB';
-			if ( houzez_option('geo_country_limit') == '1' && houzez_option('geocomplete_country') != '' )
+			if ( fave_option('geo_country_limit') == '1' && fave_option('geocomplete_country') != '' )
             {
-            	$country = houzez_option('geocomplete_country');
+            	$country = fave_option('geocomplete_country');
             }
 			$country = apply_filters('houzez_property_feed_geocoding_country', $country);
 		}

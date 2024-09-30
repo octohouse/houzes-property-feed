@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.2
-Stable tag: 2.4.4
-Version: 2.4.4
+Stable tag: 2.4.5
+Version: 2.4.5
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -120,6 +120,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.5 - 2024-09-30 =
+* Ensure correct country code is used for Zoopla exports
+* Improved matching of country name entered in Houzez to 2-letter ISO code when getting country code for exports
+* Use fave_option() instead of houzez_option() when performing geocoding requests. houzez_option() returns wrong results when used in automated background tasks
 
 = 2.4.4 - 2024-09-11 =
 * Export internal area and land area in overseas RTDF requests

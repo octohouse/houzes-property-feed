@@ -261,6 +261,12 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
         $department = $this->get_department( $post_id );
 
+        $overseas = false;
+        if ( isset($export_settings['overseas']) && $export_settings['overseas'] == 'yes' )
+        {
+            $overseas = true;
+        }
+
         $request_data = array();
 
         $request_data['bathrooms'] = (int)get_post_meta( $post_id, 'fave_property_bathrooms', TRUE );
@@ -288,9 +294,40 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         $request_data['life_cycle_status'] = $this->get_export_mapped_value($post_id, 'property_status');
         $request_data['listing_reference'] = $branch_code . '_' . $post_id;
         if ( !empty(get_post_meta( $post_id, 'fave_property_rooms', TRUE )) ) { $request_data['living_rooms'] = (int)get_post_meta( $post_id, 'fave_property_rooms', TRUE ); }
-        $request_data['location'] = array(
-            'country_code' => 'GB',
-        );
+
+        $request_data['location'] = array();
+
+        $country_code = 'GB';
+        if ( $overseas )
+        {
+            $terms = get_the_terms( $post_id, 'property_country' );
+            $term_ids_to_use = array();
+            if ( !is_wp_error($terms) && !empty($terms) )
+            {
+                foreach ( $terms as $term )
+                {
+                    if ( strlen($term->name) == 2 )
+                    {
+                        // this is already a country code
+                        $country_code = $term->name;
+                        break;
+                    }
+                    else
+                    {
+                        // need to get country code from country name
+                        $temp_country_code = get_houzez_property_feed_country_by_name($term->name);
+                        if ( $temp_country_code !== FALSE )
+                        {
+                            $country_code = $temp_country_code;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        $request_data['location']['country_code'] = $country_code;
+
         if ( get_post_meta( $post_id, 'fave_property_address', TRUE ) != '' ) 
         {
             $number = '';
