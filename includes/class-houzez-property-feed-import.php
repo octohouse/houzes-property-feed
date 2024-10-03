@@ -283,7 +283,14 @@ class Houzez_Property_Feed_Import {
                             }
                             else
                             {
-                                $field_value = sanitize_text_field($_POST[$format . '_' . $field['id']]);
+                                if ( strpos($field['id'], 'url') !== FALSE )
+                                {
+                                    $field_value = sanitize_url($_POST[$format . '_' . $field['id']]);
+                                }
+                                else
+                                {
+                                    $field_value = sanitize_text_field($_POST[$format . '_' . $field['id']]);
+                                }
                             }
                         }
                         if ( $field['id'] == 'property_node_options' || $field['id'] == 'property_field_options' )

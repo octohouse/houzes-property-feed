@@ -738,7 +738,17 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
                     		{
     	                		$price = round(preg_replace("/[^0-9.]/", '', $property['selling']['price']));
     	                	}
-    	                    update_post_meta( $post_id, 'fave_property_price_prefix', ( isset($property['selling']['qualifier']) ? $property['selling']['qualifier'] : '' ) );
+
+                            $qualifier = ( isset($property['selling']['qualifier']) ? $property['selling']['qualifier'] : '' );
+
+                            if ( !empty($qualifier) && strtoupper($qualifier) !== $qualifier )
+                            {
+                                // We have a camel case price qualifier
+                                $qualifier = preg_replace('/(?<!^)([A-Z])/', ' $1', $qualifier);
+                                $qualifier = ucwords($qualifier);
+                            }
+
+    	                    update_post_meta( $post_id, 'fave_property_price_prefix', $qualifier );
     	                    update_post_meta( $post_id, 'fave_property_price', $price );
     	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
     	                }

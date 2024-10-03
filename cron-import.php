@@ -635,6 +635,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "xml2u":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-xml2u.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Xml2u( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		default:
 		    		{
 		    			$import_object = apply_filters( 'houzez_property_feed_import_object', null, $instance_id, $import_id );

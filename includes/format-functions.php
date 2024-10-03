@@ -1820,6 +1820,33 @@ function get_houzez_property_feed_import_formats()
             'contact_information_fields' => array(),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/xml/'
         ),
+        'xml2u' => array(
+            'name' => __( 'XML2U', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'location', 'subRegion', 'region' ),
+            'taxonomy_values' => array(
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Duplex' => 'Duplex',
+                    'House' => 'House',
+                    'Land' => 'Land',
+                    'Penthouse' => 'Penthouse',
+                    'Villa' => 'Villa',
+                )
+            ),
+            'contact_information_fields' => array(
+                'companyName',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/xml2u/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
     );
 
     $formats = apply_filters( 'houzez_property_feed_import_formats', $formats );
@@ -1829,8 +1856,9 @@ function get_houzez_property_feed_import_formats()
     return $formats;
 }
 
-function houzez_property_feed_compare_by_name($a, $b) {
-    return strcmp($a['name'], $b['name']);
+function houzez_property_feed_compare_by_name($a, $b) 
+{
+    return strcasecmp($a['name'], $b['name']);
 }
 
 function get_houzez_property_feed_import_format( $key )
@@ -1994,6 +2022,19 @@ function get_houzez_property_feed_export_formats()
             }
         }
     }
+
+    $branch_mapping_fields[] = array(
+        'type' => 'text',
+        'id' => 'branch_code_fallback_sales',
+        'label' => __( 'Fallback', 'houzezpropertyfeed' ) . ' - ' . __( 'Sales', 'houzezpropertyfeed' ),
+        'tooltip' => __( 'We\'ll fallback to this branch code if no other suitable branch code can be found', 'houzezpropertyfeed' ),
+    );
+    $branch_mapping_fields[] = array(
+        'type' => 'text',
+        'id' => 'branch_code_fallback_lettings',
+        'label' => __( 'Fallback', 'houzezpropertyfeed' ) . ' - ' . __( 'Lettings', 'houzezpropertyfeed' ),
+        'tooltip' => __( 'We\'ll fallback to this branch code if no other suitable branch code can be found', 'houzezpropertyfeed' ),
+    );
 
     $formats = array(
         'blm' => apply_filters( 'houzez_property_feed_export_format_options_blm', array(

@@ -785,6 +785,14 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             }
         }
 
+        if ( empty($branch_code) )
+        {
+            // use default/fallback
+            $branch_code = isset($export_settings['branch_code_fallback_' . $department]) ?
+                $export_settings['branch_code_fallback_' . $department] :
+                '';
+        }
+
         return $branch_code;
     }
 

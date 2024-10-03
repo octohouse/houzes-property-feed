@@ -423,6 +423,14 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                 if ( empty($branch_code) )
                 {
+                    // use default/fallback
+                    $branch_code = isset($export_settings['branch_code_fallback_' . $department]) ?
+                        $export_settings['branch_code_fallback_' . $department] :
+                        '';
+                }
+
+                if ( empty($branch_code) )
+                {
                 	$this->log_error("No branch code found. Not including property. Ensure you have departments set under 'Export Properties > Settings > Departments' and branch codes entered accordingly in the export settings", '', $post->ID);
                 	continue;
                 }

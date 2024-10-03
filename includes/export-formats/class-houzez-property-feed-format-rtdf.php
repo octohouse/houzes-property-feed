@@ -284,7 +284,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
         if ($overseas === true && $department != 'sales' )
         {
-            $this->log_error('Only sales properties can be submitted in overseas exports', '', $post->ID);
+            $this->log_error('Only sales properties can be submitted in overseas exports', '', $post_id);
             return false;
         }
 
@@ -559,6 +559,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             }
         }
 
+        $features = array();
         for ($i = 0; $i < 10; ++$i)
         {
             if ( isset($property_features[$i]) && trim($property_features[$i]) != '' )
@@ -1031,6 +1032,14 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                     '';
                 break;
             }
+        }
+
+        if ( empty($branch_code) )
+        {
+            // use default/fallback
+            $branch_code = isset($export_settings['branch_code_fallback_' . $department]) ?
+                $export_settings['branch_code_fallback_' . $department] :
+                '';
         }
 
         return $branch_code;
