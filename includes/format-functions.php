@@ -1647,6 +1647,34 @@ function get_houzez_property_feed_import_formats()
                     'label' => __( 'API Base URL', 'houzezpropertyfeed' ),
                     'type' => 'text',
                     'default' => 'https://street.co.uk',
+                ),
+                array(
+                    'id' => 'sales_statuses',
+                    'label' => __( 'Sales Status(es) To Import', 'houzezpropertyfeed' ),
+                    'type' => 'multiselect',
+                    'options' => array( 
+                        'for_sale' => 'for_sale', 
+                        'for_sale_and_to_let' => 'for_sale_and_to_let', 
+                        'under_offer' => 'under_offer', 
+                        'sold_stc' => 'sold_stc', 
+                        'exchanged' => 'exchanged', 
+                        'completed'  => 'completed' 
+                    ),
+                    'default' => apply_filters( 'houzez_property_feed_street_sales_statuses', array( 'for_sale', 'for_sale_and_to_let', 'under_offer', 'sold_stc' ) ),
+                    'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
+                ),
+                array(
+                    'id' => 'lettings_statuses',
+                    'label' => __( 'Lettings Status(es) To Import', 'houzezpropertyfeed' ),
+                    'type' => 'multiselect',
+                    'options' => array( 
+                        'to_let' => 'to_let', 
+                        'for_sale_and_to_let' => 'for_sale_and_to_let', 
+                        'let_agreed' => 'let_agreed', 
+                        'let' => 'let' 
+                    ),
+                    'default' => apply_filters( 'houzez_property_feed_street_lettings_statuses', array( 'to_let', 'for_sale_and_to_let', 'let_agreed' ) ),
+                    'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
                 )
             ),
             'address_fields' => array( 'town', 'line_2', 'line_3' ),

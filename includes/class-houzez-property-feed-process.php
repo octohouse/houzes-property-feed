@@ -168,6 +168,13 @@ class Houzez_Property_Feed_Process {
 	{
 		global $wpdb, $post;
 
+		$options = get_option( 'houzez_property_feed' , array() );
+
+        if ( isset($options['remove_action']) && $options['remove_action'] == 'nothing' )
+        {
+        	return false;
+        }
+
 		if ( !empty($import_refs) )
 		{
 			$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );

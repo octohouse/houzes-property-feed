@@ -29,9 +29,12 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$sales_statuses = ( isset($import_settings['sales_statuses']) && !empty($import_settings['sales_statuses']) && is_array($import_settings['sales_statuses']) ) ? $import_settings['sales_statuses'] : apply_filters( 'houzez_property_feed_street_sales_statuses', array( 'for_sale', 'under_offer', 'sold_stc', 'for_sale_and_to_let' ) );
+		$lettings_statuses = ( isset($import_settings['lettings_statuses']) && !empty($import_settings['lettings_statuses']) && is_array($import_settings['lettings_statuses']) ) ? $import_settings['lettings_statuses'] : apply_filters( 'houzez_property_feed_street_lettings_statuses', array( 'to_let', 'let_agreed', 'for_sale_and_to_let' ) );
+
 		$departments = array(
-			'sales' => apply_filters( 'houzez_property_feed_street_sales_statuses', array( 'for_sale', 'under_offer', 'sold_stc', 'for_sale_and_to_let' ) ),
-			'lettings' => apply_filters( 'houzez_property_feed_street_lettings_statuses', array( 'to_let', 'let_agreed', 'for_sale_and_to_let' ) )
+			'sales' => $sales_statuses,
+			'lettings' => $lettings_statuses
 		);
 		foreach ( $departments as $department => $statuses )
 		{

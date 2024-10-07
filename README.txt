@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.2
-Stable tag: 2.4.6
-Version: 2.4.6
+Stable tag: 2.4.7
+Version: 2.4.7
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -121,6 +121,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.7 - 2024-10-07 =
+* Added new option 'Do nothing' when selecting what happens to properties removed from imports
+* Added ability to choose which sales and lettings statuses are imported from Street
+* Default taxonomy mappings when creating a new import where applicable
+* Improvements and fixes to parsing of properties in Dezrez imports
+* Run stripslashes() on additional mapping names to avoid issues with quotes being used in mapping name
 
 = 2.4.6 - 2024-10-03 =
 * Support added for importing properties from XML2U

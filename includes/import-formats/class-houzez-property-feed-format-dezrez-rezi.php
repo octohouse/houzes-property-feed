@@ -107,72 +107,79 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 
 				$json = json_decode( $contents, TRUE );
 
-				if ($json !== FALSE && isset($json['Collection']) && !empty($json['Collection']))
+				if ( $json !== FALSE )
 				{
-					
-		            $properties_imported = 0;
-
-		            $properties_array = $json['Collection'];
-
-					$imported_ref_key = ( ( $import_id != '' ) ? '_imported_ref_' . $import_id : '_imported_ref' );
-					$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
-
-					$this->log("Found " . count($properties_array) . " " . $department . " properties in JSON ready for parsing");
-
-					foreach ($properties_array as $property)
+					if ( isset($json['Collection']) && !empty($json['Collection']) )
 					{
-						if ( $property_i <= $limit )
-	                	{
-							$property_id = $property['RoleId'];
+			            $properties_imported = 0;
 
-							$agent_ref = $property_id;
+			            $properties_array = $json['Collection'];
 
-							$property_url = 'https://api.dezrez.com/api/simplepropertyrole/' . $property_id;
-							$fields = array(
-								'APIKey' => urlencode($import_settings['api_key']),
-							);
+						$imported_ref_key = ( ( $import_id != '' ) ? '_imported_ref_' . $import_id : '_imported_ref' );
+						$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-							//url-ify the data for the POST
-							$fields_string = '';
-							foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
-							$fields_string = rtrim($fields_string, '&');
+						$this->log("Found " . count($properties_array) . " " . $department . " properties in JSON ready for parsing");
 
-							$property_url = $property_url . '?' . $fields_string;
-							
-							$this->ping();
-							
-							$response = wp_remote_get( 
-								$property_url, 
-								array(
-									'timeout' => 120,
-									'headers' => array(
-										'Rezi-Api-Version' => '1.0',
-										'Content-Type' => 'application/json'
-									),
-							    )
-							);
-							
-							if ( !is_wp_error( $response ) && is_array( $response ) ) 
-							{
-								$contents = $response['body'];
+						foreach ($properties_array as $property)
+						{
+							if ( $limit === FALSE || ($limit !== FALSE && $property_i <= $limit) )
+		                	{
+								$property_id = $property['RoleId'];
 
-								$property_json = json_decode($contents, TRUE);
-								if ($property_json !== FALSE)
+								$agent_ref = $property_id;
+
+								$property_url = 'https://api.dezrez.com/api/simplepropertyrole/' . $property_id;
+								$fields = array(
+									'APIKey' => urlencode($import_settings['api_key']),
+								);
+
+								//url-ify the data for the POST
+								$fields_string = '';
+								foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+								$fields_string = rtrim($fields_string, '&');
+
+								$property_url = $property_url . '?' . $fields_string;
+								
+								$this->ping();
+								
+								$response = wp_remote_get( 
+									$property_url, 
+									array(
+										'timeout' => 120,
+										'headers' => array(
+											'Rezi-Api-Version' => '1.0',
+											'Content-Type' => 'application/json'
+										),
+								    )
+								);
+
+								if ( !is_wp_error( $response ) && is_array( $response ) ) 
 								{
-									$property_json['RoleId'] = $property_id;
-									$property_json['SummaryTextDescription'] = ( ( isset($property['SummaryTextDescription']) && !empty($property['SummaryTextDescription']) ) ? $property['SummaryTextDescription'] : '' );
-									$this->properties[] = $property_json;
+									$contents = $response['body'];
+
+									$property_json = json_decode($contents, TRUE);
+									if ($property_json !== FALSE)
+									{
+										$property_json['RoleId'] = $property_id;
+										$property_json['SummaryTextDescription'] = ( ( isset($property['SummaryTextDescription']) && !empty($property['SummaryTextDescription']) ) ? $property['SummaryTextDescription'] : '' );
+										$this->properties[] = $property_json;
+									}
+								}
+								else
+								{
+									$this->log_error( 'Failed to obtain property JSON. Dump of response as follows: ' . print_r($response, TRUE) );
+									return false;
 								}
 							}
-							else
-							{
-								$this->log_error( 'Failed to obtain property JSON. Dump of response as follows: ' . print_r($response, TRUE) );
-								return false;
-							}
-						}
 
-						++$property_i;
+							++$property_i;
+						}
 					}
+					else
+			        {
+			        	// Failed to parse JSON
+			        	$this->log_error( 'No ' . $department . ' properties found: ' . print_r($json, TRUE) );
+			        }
 		        }
 		        else
 		        {

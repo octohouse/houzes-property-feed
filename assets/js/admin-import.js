@@ -1445,9 +1445,23 @@ function hpf_show_format_settings()
 									selected_status = true;
 								}
 							}
-							if ( !selected_status )
+							if ( !selected_status && hpf_admin_object.action == 'addimport' )
 							{
-								// TO DO: set by default if match found
+								// Set by default if match found
+								if ( 
+									(
+										taxonomy_values_sales_status[i] == i &&
+										i.toLowerCase().replace(/ /g, '') == hpf_admin_object.statuses[j].toLowerCase().replace(/ /g, '') 
+									)
+									||
+									(
+										taxonomy_values_sales_status[i] != i &&
+										taxonomy_values_sales_status[i].toLowerCase().replace(/ /g, '') == hpf_admin_object.statuses[j].toLowerCase().replace(/ /g, '')
+									)
+								)
+								{
+									selected_status = true;
+								}
 							}
 							row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
 						}
@@ -1548,9 +1562,23 @@ function hpf_show_format_settings()
 									selected_status = true;
 								}
 							}
-							if ( !selected_status )
+							if ( !selected_status && hpf_admin_object.action == 'addimport' )
 							{
-								// TO DO: set by default if match found
+								// Set by default if match found
+								if ( 
+									(
+										taxonomy_values_lettings_status[i] == i &&
+										i.toLowerCase().replace(/ /g, '') == hpf_admin_object.statuses[j].toLowerCase().replace(/ /g, '') 
+									)
+									||
+									(
+										taxonomy_values_lettings_status[i] != i &&
+										taxonomy_values_lettings_status[i].toLowerCase().replace(/ /g, '') == hpf_admin_object.statuses[j].toLowerCase().replace(/ /g, '')
+									)
+								)
+								{
+									selected_status = true;
+								}
 							}
 							row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.statuses[j] + '</option>';
 						}
@@ -1651,9 +1679,23 @@ function hpf_show_format_settings()
 									selected_status = true;
 								}
 							}
-							if ( !selected_status )
+							if ( !selected_status && hpf_admin_object.action == 'addimport' )
 							{
-								// TO DO: set by default if match found
+								// Set by default if match found
+								if ( 
+									(
+										taxonomy_values_property_type[i] == i &&
+										i.toLowerCase().replace(/ /g, '') == hpf_admin_object.property_types[j].toLowerCase().replace(/ /g, '') 
+									)
+									||
+									(
+										taxonomy_values_property_type[i] != i &&
+										taxonomy_values_property_type[i].toLowerCase().replace(/ /g, '') == hpf_admin_object.property_types[j].toLowerCase().replace(/ /g, '')
+									)
+								)
+								{
+									selected_status = true;
+								}
 							}
 							row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + hpf_admin_object.property_types[j] + '</option>';
 						}

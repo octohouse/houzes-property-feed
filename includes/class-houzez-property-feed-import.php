@@ -328,6 +328,8 @@ class Houzez_Property_Feed_Import {
                 {
                     foreach ( $_POST['custom_mapping'][$taxonomy] as $key => $custom_mapping )
                     {
+                        $custom_mapping = stripslashes($custom_mapping);
+                        
                         if ( trim($custom_mapping) != '' )
                         {
                             if ( isset($_POST['custom_mapping_value'][$taxonomy][$key]) && trim($_POST['custom_mapping_value'][$taxonomy][$key]) != '' )

@@ -871,6 +871,7 @@ class Houzez_Property_Feed_Admin {
             }
 
             wp_localize_script( 'houzez_property_feed_admin_import_script', 'hpf_admin_object', array( 
+                'action' => ( ( isset($_GET['action']) && in_array(sanitize_text_field($_GET['action']), array('addimport', 'editimport')) ) ? sanitize_text_field($_GET['action']) : '' ),
                 'formats' => $formats,
                 'import_settings' => $import_settings,
                 'statuses' => $statuses,
