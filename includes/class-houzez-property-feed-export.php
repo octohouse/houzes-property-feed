@@ -319,7 +319,7 @@ class Houzez_Property_Feed_Export {
 
                     update_option( 'houzez_property_feed', $options );
 
-                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export started', 'houzezpropertyfeed' ) ) );
+                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . urlencode( __( 'Export started', 'houzezpropertyfeed' ) ) ) );
                     die();
 
                     break;
@@ -330,16 +330,28 @@ class Houzez_Property_Feed_Export {
 
                     update_option( 'houzez_property_feed', $options );
 
-                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export paused', 'houzezpropertyfeed' ) ) );
+                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . urlencode( __( 'Export paused', 'houzezpropertyfeed' ) ) ) );
                     die();
 
                     break;
                 }
                 case "pushall":
                 {
+                    if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'push-all' ) )
+                    {
+                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'Nonce verification failed. Please try again', 'houzezpropertyfeed' ) ) ) );
+                        die();
+                    }
+
                     if ( $options['exports'][$export_id]['running'] !== true )
                     {
-                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . __( 'Export not active', 'houzezpropertyfeed' ) ) );
+                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'Export not active', 'houzezpropertyfeed' ) ) ) );
+                        die();
+                    }
+
+                    if ( $options['exports'][$export_id]['deleted'] === true )
+                    {
+                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'Exportdeletede', 'houzezpropertyfeed' ) ) ) );
                         die();
                     }
 
@@ -347,13 +359,13 @@ class Houzez_Property_Feed_Export {
 
                     if ( $format['method'] != 'realtime' )
                     {
-                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . __( 'Export not a real-time export', 'houzezpropertyfeed' ) ) );
+                        wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'Export not a real-time export', 'houzezpropertyfeed' ) ) ) );
                         die();
                     }
 
                     do_action( 'houzez_property_feed_push_all' );
 
-                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'All properties pushed', 'houzezpropertyfeed' ) ) );
+                    wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . urlencode( __( 'All properties pushed', 'houzezpropertyfeed' ) ) ) );
                     die();
 
                     break;
@@ -370,7 +382,7 @@ class Houzez_Property_Feed_Export {
 
             if ( empty($export_id) )
             {
-                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . __( 'No export passed', 'houzezpropertyfeed' ) ) );
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'No export passed', 'houzezpropertyfeed' ) ) ) );
                 die();
             }
 
@@ -378,7 +390,7 @@ class Houzez_Property_Feed_Export {
             
             if ( !isset($options['exports'][$export_id]) )
             {
-                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . __( 'Export not found', 'houzezpropertyfeed' ) ) );
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'Export not found', 'houzezpropertyfeed' ) ) ) );
                 die();
             }
 
@@ -387,7 +399,7 @@ class Houzez_Property_Feed_Export {
 
             update_option( 'houzez_property_feed', $options );
 
-            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export deleted successfully', 'houzezpropertyfeed' ) ) );
+            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . urlencode( __( 'Export deleted successfully', 'houzezpropertyfeed' ) ) ) );
             die();
         }
     }

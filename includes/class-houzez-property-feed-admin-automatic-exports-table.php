@@ -336,7 +336,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
 
             if ( $format['method'] == 'realtime' && $running )
             {
-                $actions[] = '<a href="' . admin_url('/admin.php?page=houzez-property-feed-export&action=pushall&export_id=' . (int)$key) . '" aria-label="' . __( 'Push All Properties', 'houzezpropertyfeed' ) . '">' . __( 'Push All', 'houzezpropertyfeed' ) . '</a>';
+                $actions[] = '<a href="' . wp_nonce_url( admin_url('/admin.php?page=houzez-property-feed-export&action=pushall&export_id=' . (int)$key), 'push-all' ) . '" aria-label="' . __( 'Push All Properties', 'houzezpropertyfeed' ) . '">' . __( 'Push All', 'houzezpropertyfeed' ) . '</a>';
             }
 
             $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=deleteexport&export_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Export', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '';

@@ -26,12 +26,32 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         add_action( 'houzez_after_property_update', array( $this, 'send_realtime_feed_request' ), 99 );
 
         add_action( 'houzezpropertyfeedreconcilecronhook', array( $this, 'reconcile' ) );
+
+        add_action( 'houzez_property_feed_push_all', array( $this, 'push_all_properties' ) );
 	}
 
     public function remove_save_post_hook($new_property)
     {
         remove_action( 'save_post', array( $this, 'send_realtime_feed_request' ), 99 );
         return $new_property;
+    }
+
+    private function delete_old_logs()
+    {
+        global $wpdb;
+
+        $keep_logs_days = (string)apply_filters( 'houzez_property_feed_keep_logs_days', '1' );
+
+        // Revert back to 1 days if anything other than numbers has been passed
+        // This prevent SQL injection and errors
+        if ( !preg_match("/^\d+$/", $keep_logs_days) )
+        {
+            $keep_logs_days = '1';
+        }
+
+        // Delete logs older than 1 days
+        $wpdb->query( "DELETE FROM " . $wpdb->prefix . "houzez_property_feed_export_logs_instance WHERE start_date < DATE_SUB(NOW(), INTERVAL " . $keep_logs_days . " DAY)" );
+        $wpdb->query( "DELETE FROM " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log WHERE log_date < DATE_SUB(NOW(), INTERVAL " . $keep_logs_days . " DAY)" );
     }
 
     public function send_realtime_feed_request( $post_id ) 
@@ -54,19 +74,8 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         if ( get_post_status( $post_id ) == 'auto-draft' )
             return;
 
-        $keep_logs_days = (string)apply_filters( 'houzez_property_feed_keep_logs_days', '1' );
-
-        // Revert back to 1 days if anything other than numbers has been passed
-        // This prevent SQL injection and errors
-        if ( !preg_match("/^\d+$/", $keep_logs_days) )
-        {
-            $keep_logs_days = '1';
-        }
-
-        // Delete logs older than 1 days
-        $wpdb->query( "DELETE FROM " . $wpdb->prefix . "houzez_property_feed_export_logs_instance WHERE start_date < DATE_SUB(NOW(), INTERVAL " . $keep_logs_days . " DAY)" );
-        $wpdb->query( "DELETE FROM " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log WHERE log_date < DATE_SUB(NOW(), INTERVAL " . $keep_logs_days . " DAY)" );
-
+        $this->delete_old_logs();
+        
         global $post;  
 
         if ( empty( $post ) )
@@ -1072,6 +1081,137 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                 do_action( 'houzez_property_feed_export_cron_end', $this->instance_id, $export_id );
             }
         } // end foreach export
+    }
+
+    public function push_all_properties()
+    {
+        global $wpdb, $post;
+
+        $export_id = !empty($_GET['export_id']) ? (int)$_GET['export_id'] : '';
+        $this->export_id = $export_id;
+
+        // Check this export_id is a RTDF feed
+        $export_settings = get_export_settings_from_id( $this->export_id );
+
+        if ( !isset($export_settings['format']) || $export_settings['format'] !== 'zoopla' )
+        {
+            return;
+        }
+
+        $this->delete_old_logs();
+
+        // log instance start
+        $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+        $current_date = $current_date->format("Y-m-d H:i:s");
+
+        $wpdb->insert( 
+            $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
+            array(
+                'export_id' => $export_id,
+                'start_date' => $current_date
+            )
+        );
+        $this->instance_id = $wpdb->insert_id;
+
+        $this->log("Pushing all properties");
+
+        // Get properties
+        $args = array(
+            'post_type' => 'property',
+            'nopaging' => true,
+            'post_status' => 'publish',
+        );
+
+        $meta_query = array();
+        $tax_query = array();
+
+        $args['meta_query'] = $meta_query;
+        $args['tax_query'] = $tax_query;
+
+        $args = apply_filters( 'houzez_property_feed_export_property_args', $args, $this->export_id );
+        $args = apply_filters( 'houzez_property_feed_export_zoopla_property_args', $args, $this->export_id );
+
+        $property_query = new WP_Query( $args );
+
+        $this->log("Found " . $property_query->found_posts . " active properties");
+
+        if ($property_query->have_posts())
+        {
+            while ($property_query->have_posts())
+            {
+                $property_query->the_post();
+
+                $branch_code = $this->get_branch_code( $post->ID );
+                $department = $this->get_department( $post->ID );
+
+                $property_send_request_send = true;
+
+                if ( empty($branch_code) )
+                {
+                    $this->log_error("No branch code found. Not including property. Ensure you have departments set under 'Export Properties > Settings > Departments' and branch codes entered accordingly in the export settings", '', $post->ID);
+                }
+                else
+                {
+                    $ok_to_send = true;
+                    $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+                    if ( $limit !== false )
+                    {
+                        // check no more than 25 properties exist
+                        if ( isset($this->get_branch_properties_responses[$this->export_id . '_' . (int)$branch_code . '_' . $department]) )
+                        {
+                            $response = $this->get_branch_properties_responses[$this->export_id . '_' . (int)$branch_code . '_' . $department];
+                        }
+                        else
+                        {
+                            // Should check branch properties before making remove request
+                            $request_data = array();
+                            $request_data['branch_reference'] = $branch_code;
+
+                            $response = $this->do_curl_request( $request_data, $export_settings['get_branch_properties_url'], 'http://realtime-listings.webservices.zpg.co.uk/docs/v1.2/schemas/listing/list.json', $post->ID, false );
+
+                            if ($response === FALSE) { return false; }
+
+                            $this->get_branch_properties_responses[$this->export_id . '_' . (int)$branch_code . '_' . $department] = $response;
+                        }
+
+                        if (isset($response['listings']) && is_array($response['listings']) && !empty($response['listings']))
+                        {
+                            if ( count($response['listings']) >= $limit )
+                            {
+                                $this->log_error($limit . ' or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
+                                $ok_to_send = false;
+                            }
+                        }
+                    }
+
+                    if ( $ok_to_send )
+                    {
+                        $success = $this->create_send_property_request( $post->ID, true );
+
+                        /*if ($success === FALSE)
+                        {
+                            add_filter( 'redirect_post_location', array( $this, 'add_notice_query_var' ), 99, 2 );
+                        }*/
+                    }
+                }
+            }
+        }
+
+        wp_reset_postdata();
+
+        $this->log("Finished pushing all active properties");
+
+        // log instance end
+        $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+        $current_date = $current_date->format("Y-m-d H:i:s");
+
+        $wpdb->update( 
+            $wpdb->prefix . "houzez_property_feed_export_logs_instance", 
+            array( 
+                'end_date' => $current_date
+            ),
+            array( 'id' => $this->instance_id )
+        );
     }
 }
 

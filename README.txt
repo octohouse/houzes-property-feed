@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.2
-Stable tag: 2.4.7
-Version: 2.4.7
+Stable tag: 2.4.8
+Version: 2.4.8
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -121,6 +121,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.8 - 2024-10-11 =
+* Add 'Push All' functionality to Zoopla exports
+* Add checks before proceeding with 'Push All' functionality to ensure it's always being ran on an active export of the right type
+* Add nonce verification to 'Push All' feature
 
 = 2.4.7 - 2024-10-07 =
 * Added new option 'Do nothing' when selecting what happens to properties removed from imports

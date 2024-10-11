@@ -1085,10 +1085,18 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
     {
         global $wpdb, $post;
 
-        $this->delete_old_logs();
-
         $export_id = !empty($_GET['export_id']) ? (int)$_GET['export_id'] : '';
         $this->export_id = $export_id;
+
+        // Check this export_id is a RTDF feed
+        $export_settings = get_export_settings_from_id( $this->export_id );
+
+        if ( !isset($export_settings['format']) || $export_settings['format'] !== 'rtdf' )
+        {
+            return;
+        }
+
+        $this->delete_old_logs();
 
         // log instance start
         $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
