@@ -849,6 +849,55 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/jupix/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'kato_xml' => array(
+            'name' => __( 'Kato XML', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'address2', 'town', 'county' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Coming Soon' => 'Coming Soon',
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'Sold' => 'Sold',
+                ),
+                'lettings_status' => array(
+                    'Coming Soon' => 'Coming Soon',
+                    'Available' => 'Available',
+                    'Under Offer' => 'Under Offer',
+                    'Let' => 'Let',
+                ),
+                'property_type' => array(
+                    'Office' => 'Office',
+                    'Serviced Office' => 'Serviced Office',
+                    'Industrial' => 'Industrial',
+                    'Retail' => 'Retail',
+                    'Residential' => 'Residential',
+                    'Leisure' => 'Leisure',
+                    'D1 (Non Residential Institutions)' => 'D1 (Non Residential Institutions)',
+                    'D2 (Assembly and Leisure)' => 'D2 (Assembly and Leisure)',
+                    'Land' => 'Land',
+                    'Development' => 'Development',
+                    'Investment' => 'Investment',
+                    'Trade Counter' => 'Trade Counter',
+                    'Storage' => 'Storage',
+                    'Other' => 'Other',
+                )
+            ),
+            'contact_information_fields' => array(
+                'contactName',
+                'office',
+                'branch',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/kato/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'kyero' => array(
             'name' => __( 'Kyero', 'houzezpropertyfeed' ),
             'fields' => array(

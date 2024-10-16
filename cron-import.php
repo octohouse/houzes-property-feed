@@ -460,6 +460,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "kato_xml":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-kato-xml.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Kato_Xml( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "kyero":
 		    		{
 		                // includes
