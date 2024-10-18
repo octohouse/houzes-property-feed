@@ -422,12 +422,25 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 	        	
 	            //turn bullets into property features
 	            $feature_term_ids = array();
-	            if ( isset($property->features) && !empty($property->features) )
+	            $features = array();
+	            if ( isset($property->features->en->feature) )
+				{
+					foreach ( $property->features->en->feature as $feature )
+					{
+						$features[] = (string)$feature;
+					}
+				}
+	            elseif ( isset($property->features->feature) )
 				{
 					foreach ( $property->features->feature as $feature )
 					{
-						$feature = (string)$feature;
-
+						$features[] = (string)$feature;
+					}
+				}
+				if ( !empty($features) )
+				{
+					foreach ( $features as $feature )
+					{
 						$term = term_exists( trim($feature), 'property_feature');
 						if ( $term !== 0 && $term !== null && isset($term['term_id']) )
 						{
@@ -442,14 +455,14 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 							}
 						}
 					}
-					if ( !empty($feature_term_ids) )
-					{
-						wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
-					}
-					else
-					{
-						wp_delete_object_term_relationships( $post_id, "property_feature" );
-					}
+				}
+				if ( !empty($feature_term_ids) )
+				{
+					wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
+				}
+				else
+				{
+					wp_delete_object_term_relationships( $post_id, "property_feature" );
 				}
 
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();

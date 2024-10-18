@@ -308,6 +308,11 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
 	            $lat = '';
 	            $lng = '';
+	            if ( isset($property->location->latitude) && !empty((string)$property->location->latitude) && isset($property->location->longitude) && !empty((string)$property->location->longitude) )
+	            {
+	            	$lat = (string)$property->location->latitude;
+	            	$lng = (string)$property->location->longitude;
+	            }
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
 	            $country = 'ES';
 	            // maybe look at $property->country
@@ -324,120 +329,49 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 	            update_post_meta( $post_id, 'fave_featured', '0' );
 	            update_post_meta( $post_id, 'fave_agent_display_option', 'none' );
 
-	            /*if ( 
-	            	isset($import_settings['agent_display_option']) && 
-	            	isset($import_settings['agent_display_option_rules']) && 
-	            	is_array($import_settings['agent_display_option_rules']) && 
-	            	!empty($import_settings['agent_display_option_rules']) 
-	            )
-	            {
-		            switch ( $import_settings['agent_display_option'] )
-		            {
-		            	case "author_info":
-		            	{
-		            		foreach ( $import_settings['agent_display_option_rules'] as $rule )
-		            		{
-		            			$value_in_feed_to_check = '';
-		            			switch ( $rule['field'] )
-		            			{
-		            				default:
-		            				{
-		            					$value_in_feed_to_check = isset($property->{$rule['field']}) ? (string)$property->{$rule['field']} : '';
-		            				}
-		            			}
-
-		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
-		            			{
-		            				// set post author
-		            				$my_post = array(
-								    	'ID'          	 => $post_id,
-								    	'post_author'    => $rule['reult'],
-								  	);
-
-								 	// Update the post into the database
-								    wp_update_post( $my_post, true );
-
-		            				break; // Rule matched. Lets not do anymore
-		            			}
-		            		}
-		            		break;
-		            	}
-		            	case "agent_info":
-		            	{
-		            		foreach ( $import_settings['agent_display_option_rules'] as $rule )
-		            		{
-		            			$value_in_feed_to_check = '';
-		            			switch ( $rule['field'] )
-		            			{
-		            				default:
-		            				{
-		            					$value_in_feed_to_check = isset($property->{$rule['field']}) ? (string)$property->{$rule['field']} : '';
-		            				}
-		            			}
-
-		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
-		            			{
-		            				update_post_meta( $post_id, 'fave_agents', $rule['result'] );
-		            				break; // Rule matched. Lets not do anymore
-		            			}
-		            		}
-		            		break;
-		            	}
-		            	case "agency_info":
-		            	{
-		            		foreach ( $import_settings['agent_display_option_rules'] as $rule )
-		            		{
-		            			$value_in_feed_to_check = '';
-		            			switch ( $rule['field'] )
-		            			{
-		            				default:
-		            				{
-		            					$value_in_feed_to_check = isset($property->{$rule['field']}) ? (string)$property->{$rule['field']} : '';
-		            				}
-		            			}
-
-		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
-		            			{
-		            				update_post_meta( $post_id, 'fave_property_agency', $rule['result'] );
-		            				break; // Rule matched. Lets not do anymore
-		            			}
-		            		}
-		            		break;
-		            	}
-		            }
-	        	}*/
-	        	
 	            //turn bullets into property features
-	            /*$feature_term_ids = array();
-	            for ( $i = 1; $i <= 20; ++$i )
-				{
-					if ( isset($property->{'propertyFeature' . $i}) && trim((string)$property->{'propertyFeature' . $i}) != '' )
-					{
-						$feature = (string)$property->{'propertyFeature' . $i};
+	            $feature_term_ids = array();
+	            if ( isset($property->characteristics->category) )
+	            {
+	            	foreach ( $property->characteristics->category as $category )
+	            	{
+	            		if ( 
+	            			isset($category->name->uk) && 
+	            			isset($category->value) 
+	            		)
+	            		{
+	            			foreach ( $category->value as $feature )
+            				{
+            					if ( isset($feature->uk) )
+            					{
+            						$feature = $feature = trim(ucwords((string)$category->name->uk), 's') . ': ' . trim((string)$feature->uk);
 
-						$term = term_exists( trim($feature), 'property_feature');
-						if ( $term !== 0 && $term !== null && isset($term['term_id']) )
-						{
-							$feature_term_ids[] = (int)$term['term_id'];
-						}
-						else
-						{
-							$term = wp_insert_term( trim($feature), 'property_feature' );
-							if ( is_array($term) && isset($term['term_id']) )
-							{
-								$feature_term_ids[] = (int)$term['term_id'];
-							}
-						}
-					}
-					if ( !empty($feature_term_ids) )
-					{
-						wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
-					}
-					else
-					{
-						wp_delete_object_term_relationships( $post_id, "property_feature" );
-					}
-				}*/
+            						$term = term_exists( $feature, 'property_feature');
+									if ( $term !== 0 && $term !== null && isset($term['term_id']) )
+									{
+										$feature_term_ids[] = (int)$term['term_id'];
+									}
+									else
+									{
+										$term = wp_insert_term( $feature, 'property_feature' );
+										if ( is_array($term) && isset($term['term_id']) )
+										{
+											$feature_term_ids[] = (int)$term['term_id'];
+										}
+									}
+            					}
+            				}
+	            		}
+	            	}
+	            }
+	            if ( !empty($feature_term_ids) )
+				{
+					wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
+				}
+				else
+				{
+					wp_delete_object_term_relationships( $post_id, "property_feature" );
+				}
 
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 

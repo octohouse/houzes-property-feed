@@ -449,7 +449,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 
                 	if ( $department == 'residential-sales' )
                 	{
-	                    update_post_meta( $post_id, 'fave_property_price_prefix', ( isset($property['Price']['PriceQualifierType']['DisplayName']) ? $property['Price']['PriceQualifierType']['DisplayName'] : '' ) );
+	                    update_post_meta( $post_id, 'fave_property_price_prefix', ( ( isset($property['Price']['PriceQualifierType']['DisplayName']) && strtolower($property['Price']['PriceQualifierType']['DisplayName']) != 'not specified' ) ? $property['Price']['PriceQualifierType']['DisplayName'] : '' ) );
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
 	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
 	                }
@@ -719,7 +719,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 						{
 							if ( isset($taxonomy_mappings[$flag['SystemName']]) && !empty($taxonomy_mappings[$flag['SystemName']]) )
 							{
-				                wp_set_post_terms( $post_id, (int)$taxonomy_mappings[$flag['SystemName']], 'availability' );
+				                wp_set_post_terms( $post_id, (int)$taxonomy_mappings[$flag['SystemName']], 'property_status' );
 				            }
 						}
 					}
