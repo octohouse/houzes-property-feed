@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.6.2
-Stable tag: 2.4.10
-Version: 2.4.10
+Stable tag: 2.4.11
+Version: 2.4.11
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -122,6 +122,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.11 - 2024-10-29 =
+* Added support for REAXML files provided via URL
+* Improved logging in PropCtrl format when invalid API details are entered
 
 = 2.4.10 - 2024-10-18 =
 * Import lat/lng from ReSales Online

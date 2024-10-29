@@ -106,6 +106,12 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			return false;
 		}
 
+		if ( wp_remote_retrieve_response_code($response) === 401 )
+        {
+            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when requesting properties. Error message: ' . wp_remote_retrieve_response_message($response) );
+            return false;
+        }
+
 		$json = json_decode( $response['body'], TRUE );
 
 		if ($json !== FALSE)
@@ -130,7 +136,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			}
 			else
 			{
-				$this->log_error( 'Parse JSON but no properties found: ' . $response['body'] );
+				$this->log_error( 'Parsed JSON but no properties found: ' . $response['body'] );
 
 				return false;
 			}

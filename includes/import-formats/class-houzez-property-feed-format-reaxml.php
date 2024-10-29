@@ -21,6 +21,78 @@ class Houzez_Property_Feed_Format_REAXML extends Houzez_Property_Feed_Process {
 	    }
 	}
 
+	public function parse()
+	{
+		$this->properties = array(); // Reset properties in the event we're importing multiple files
+
+		$this->log("Parsing properties", '', 0, '', false);
+
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$contents = '';
+
+		$response = wp_remote_get( $import_settings['xml_url'], array( 'timeout' => 360, 'sslverify' => false ) );
+		if ( !is_wp_error($response) && is_array( $response ) ) 
+		{
+			$contents = $response['body'];
+		}
+		else
+		{
+			$this->log_error( "Failed to obtain XML. Dump of response as follows: " . print_r($response, TRUE) );
+
+        	return false;
+		}
+
+		$xml = simplexml_load_string($contents);
+
+		if ( $xml !== FALSE )
+		{
+			if (isset($xml->residential))
+            {
+				foreach ($xml->residential as $property)
+				{
+					$property_attributes = $property->attributes();
+
+					if ( $property_attributes['status'] == 'current' )
+					{
+						$property->addChild('department', 'residential-sales');
+		                $this->properties[] = $property;
+		            }
+	            } // end foreach property
+	        }
+
+	        if (isset($xml->rental))
+            {
+				foreach ($xml->rental as $property)
+				{
+					$property_attributes = $property->attributes();
+
+					if ( $property_attributes['status'] == 'current' )
+					{
+						$property->addChild('department', 'residential-lettings');
+		                $this->properties[] = $property;
+		            }
+	            } // end foreach property
+	        }
+        }
+        else
+        {
+        	// Failed to parse XML
+        	$this->log_error( 'Failed to parse XML file: ' . $contents );
+
+        	return false;
+        }
+
+		if ( empty($this->properties) )
+		{
+			$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
+
+			return false;
+		}
+
+		return true;
+	}
+
 	public function parse_and_import()
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files

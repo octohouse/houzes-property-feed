@@ -1469,6 +1469,51 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/reaxml/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'reaxml_remote' => array(
+            'name' => __( 'REAXML - URL', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( 'suburb', 'state' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Current' => 'Current',
+                    'Under Offer' => 'Under Offer',
+                ),
+                'lettings_status' => array(
+                    'Current' => 'Current',
+                    'Deposit Taken' => 'Deposit Taken',
+                ),
+                'property_type' => array(
+                    'House' => 'House',
+                    'Unit' => 'Unit',
+                    'Townhouse' => 'Townhouse',
+                    'Villa' => 'Villa',
+                    'Apartment' => 'Apartment',
+                    'Flat' => 'Flat',
+                    'Studio' => 'Studio',
+                    'Warehouse' => 'Warehouse',
+                    'DuplexSemi-detached' => 'DuplexSemi-detached',
+                    'Alpine' => 'Alpine',
+                    'AcreageSemi-rural' => 'AcreageSemi-rural',
+                    'BlockOfUnits' => 'BlockOfUnits',
+                    'Terrace' => 'Terrace',
+                    'Retirement' => 'Retirement',
+                    'ServicedApartment' => 'ServicedApartment',
+                    'Other' => 'Other',
+                )
+            ),
+            'contact_information_fields' => array(
+                'agentID', 
+                'listingAgentName'
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/reaxml/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'remax' => array(
             'name' => __( 'RE/MAX', 'houzezpropertyfeed' ),
             'fields' => array(
