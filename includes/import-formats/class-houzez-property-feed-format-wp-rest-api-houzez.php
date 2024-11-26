@@ -513,6 +513,7 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$per_page = apply_filters( 'houzez_property_feed_wp_rest_api_per_page', 100 );
 		$current_page = 1;
 		$more_properties = true;
 
@@ -521,7 +522,7 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 			$this->log("Obtaining properties on page " . $current_page);
 
 			$url = ( isset($import_settings['url']) && !empty($import_settings['url']) ) ? rtrim($import_settings['url'], '/') : '';
-			$url .= '/wp-json/wp/v2/properties?per_page=100&page=' . $current_page;
+			$url .= '/wp-json/wp/v2/properties?per_page=' . $per_page . '&page=' . $current_page;
 
 			$url = apply_filters( 'houzez_property_feed_wp_rest_api_houzez_properties_url', $url, $this->import_id );
 
@@ -600,8 +601,22 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 							{
 								foreach ( $json as $attachment )
 								{
-									$attachment_urls[] = $attachment['source_url'];
+									$attachment_urls[$attachment['id']] = $attachment['source_url'];
 								}
+							}
+
+							if ( !empty($attachment_urls) )
+							{
+								$ordered_attachment_urls = array();
+								foreach ( $property['property_meta']['fave_property_images'] as $key ) 
+								{
+								    if ( isset($attachment_urls[$key]) )
+								    {
+								        $ordered_attachment_urls[$key] = $attachment_urls[$key];
+								    }
+								}
+
+								$attachment_urls = $ordered_attachment_urls;
 							}
 						}
 
@@ -845,7 +860,10 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 					'fave_property_agency',
 					'fave_attachments',
 					'fave_property_images',
-					'_thumbnail_id'
+					'_thumbnail_id',
+					'houzez_recently_viewed',
+					'houzez_total_property_views',
+					'houzez_views_by_date',
 				);
 
 				$meta_fields_to_ignore = apply_filters( 'houzez_property_feed_property_wp_rest_api_houzez_meta_fields_to_ignore', $meta_fields_to_ignore, $this->import_id );
@@ -854,9 +872,30 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 				{
 					foreach ( $property['property_meta'] as $meta_key => $meta_value )
 					{
+						$meta_value = $meta_value[0];
+
 						if ( !in_array($meta_key, $meta_fields_to_ignore) )
 						{
-							update_post_meta( $post_id, $meta_key, $meta_value[0] );
+							$double_serialized_fields = apply_filters( 'houzez_property_feed_wp_rest_api_double_serialized_fields', array( 'floor_plans', 'additional_features' ) );
+							if ( in_array($meta_key, $double_serialized_fields) )
+							{
+								if ( is_string($meta_value) && is_serialized($meta_value) ) 
+								{
+						            $unserialized = maybe_unserialize($meta_value);
+
+						            // If the unserialized value is still serialized, unserialize again
+						            if (is_string($unserialized) && is_serialized($unserialized)) 
+						            {
+						                $meta_value = maybe_unserialize($unserialized);
+						            }
+						            else
+						            {
+						                $meta_value = $unserialized;
+						            }
+						        }
+							}
+
+							update_post_meta( $post_id, $meta_key, $meta_value );
 						}
 					}
 				}

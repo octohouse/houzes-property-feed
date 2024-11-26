@@ -968,7 +968,20 @@ class Houzez_Property_Feed_Import {
                     }
                     else
                     {
+                        if ( $and_rules['houzez_field'] == 'fave_property_id' && class_exists('Houzez_Post_Type_Property') )
+                        {
+                            // Temporarily remove the actions as it's causing issues with ID being set to blank
+                            remove_action('added_post_meta', array('Houzez_Post_Type_Property', 'save_property_post_type'), 10);
+                            remove_action('updated_post_meta', array('Houzez_Post_Type_Property', 'save_property_post_type'), 10);
+                        }
+
                         update_post_meta( $post_id, $and_rules['houzez_field'], $result );
+
+                        if ( $and_rules['houzez_field'] == 'fave_property_id' && class_exists('Houzez_Post_Type_Property') )
+                        {
+                            add_action('added_post_meta', array('Houzez_Post_Type_Property', 'save_property_post_type'), 10, 4);
+                            add_action('updated_post_meta', array('Houzez_Post_Type_Property', 'save_property_post_type'), 10, 4);
+                        }
                     }
                 }
             }

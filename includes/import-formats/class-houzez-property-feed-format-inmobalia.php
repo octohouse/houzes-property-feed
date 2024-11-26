@@ -171,6 +171,26 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 	        }
 	        $display_address = implode(", ", $display_address);
 
+	        $summary_description = '';
+	        $full_description = '';
+	        if ( isset($property['propertyDescriptions']['shortDescription']) )
+	        {
+	        	$summary_description = isset($property['propertyDescriptions']['shortDescription']) ? $property['propertyDescriptions']['shortDescription'] : '';
+	        	$full_description = isset($property['propertyDescriptions']['description']) ? $property['propertyDescriptions']['description'] : '';
+	        }
+	        elseif ( isset($property['propertyDescriptions'][0]['shortDescription']) )
+	        {
+	        	foreach ( $property['propertyDescriptions'] as $property_description )
+	        	{
+	        		if ( isset($property_description['language']) && $property_description['language'] == 'en' )
+	        		{
+	        			$summary_description = isset($property_description['shortDescription']) ? $property_description['shortDescription'] : '';
+	        			$full_description = isset($property_description['description']) ? $property_description['description'] : '';
+	        			break;
+	        		}
+	        	}
+	        }
+
 	        if ($property_query->have_posts())
 	        {
 	        	$this->log( 'This property has been imported before. Updating it', $property['id'] );
@@ -185,8 +205,8 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 	                $my_post = array(
 				    	'ID'          	 => $post_id,
 				    	'post_title'     => wp_strip_all_tags( $display_address ),
-				    	'post_excerpt'   => $property['propertyDescriptions']['shortDescription'],
-				    	'post_content' 	 => $property['propertyDescriptions']['description'],
+				    	'post_excerpt'   => $summary_description,
+				    	'post_content' 	 => $full_description,
 				    	'post_status'    => 'publish',
 				  	);
 
@@ -209,8 +229,8 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 
 	        	// We've not imported this property before
 				$postdata = array(
-					'post_excerpt'   => $property['propertyDescriptions']['shortDescription'],
-				    'post_content' 	 => $property['propertyDescriptions']['description'],
+					'post_excerpt'   => $summary_description,
+				    'post_content' 	 => $full_description,
 					'post_title'     => wp_strip_all_tags( $display_address ),
 					'post_status'    => 'publish',
 					'post_type'      => 'property',
@@ -308,29 +328,34 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 	                }
                 }
 
-                update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($description['bedrooms']) ) ? $description['bedrooms'] : '' ) );
-	            update_post_meta( $post_id, 'fave_property_bathrooms', ( ( isset($description['bathrooms']) ) ? $description['bathrooms'] : '' ) );
+                update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property['bedrooms']) ) ? $property['bedrooms'] : '' ) );
+	            update_post_meta( $post_id, 'fave_property_bathrooms', ( ( isset($property['bathrooms']) ) ? $property['bathrooms'] : '' ) );
 	            update_post_meta( $post_id, 'fave_property_rooms', '' );
 
 	            update_post_meta( $post_id, 'fave_property_garage', '' );
-	            update_post_meta( $post_id, 'fave_property_id', $property['id'] );
+	            update_post_meta( $post_id, 'fave_property_id', ( ( isset($property['reference']) && !empty($property['reference']) ) ? $property['reference'] : $property['id'] ) );
+
+	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property['mtsBuild']) && !empty($property['mtsBuild']) ) ? $property['mtsBuild'] : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( isset($property['mtsBuild']) && !empty($property['mtsBuild']) ) ? 'sqm' : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property['mtsPlot']) && !empty($property['mtsPlot']) ) ? $property['mtsPlot'] : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property['mtsPlot']) && !empty($property['mtsPlot']) ) ? 'sqm' : '' ) );
 
 	            $address_parts = array();
 	            if ( isset($property['locationSubarea']['name']) && trim($property['locationSubarea']['name']) != '' )
 		        {
-		        	$display_address[] = trim($property['locationSubarea']['name']);
+		        	$address_parts[] = trim($property['locationSubarea']['name']);
 		        }
 		        if ( isset($property['locationArea']['name']) && trim($property['locationArea']['name']) != '' )
 		        {
-		        	$display_address[] = trim($property['locationArea']['name']);
+		        	$address_parts[] = trim($property['locationArea']['name']);
 		        }
 		        elseif ( isset($property['locationCity']['name']) && trim($property['locationCity']['name']) != '' )
 		        {
-		        	$display_address[] = trim($property['locationCity']['name']);
+		        	$address_parts[] = trim($property['locationCity']['name']);
 		        }
 		        elseif ( isset($property['locationProvince']['name']) && trim($property['locationProvince']['name']) != '' )
 		        {
-		        	$display_address[] = trim($property['locationProvince']['name']);
+		        	$address_parts[] = trim($property['locationProvince']['name']);
 		        }
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
@@ -353,7 +378,7 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 	            $address_parts = array();
 	            if ( isset($property['locationSubarea']['name']) && trim($property['locationSubarea']['name']) != '' )
 		        {
-		        	$display_address[] = trim($property['locationSubarea']['name']);
+		        	$address_parts[] = trim($property['locationSubarea']['name']);
 		        }
 	            update_post_meta( $post_id, 'fave_property_address', implode(", ", $address_parts) );
 	            update_post_meta( $post_id, 'fave_property_zip', '' );

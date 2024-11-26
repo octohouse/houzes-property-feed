@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.6.2
-Stable tag: 2.4.11
-Version: 2.4.11
+Tested up to: 6.7.1
+Stable tag: 2.4.12
+Version: 2.4.12
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -122,6 +122,17 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.12 - 2024-11-26 =
+* Updated list of default Loop property types
+* Cater for double serialized fields like floorplans in Houzez WP REST API imports
+* Exclude more fields imported from Houzez WP REST API
+* Ensure order of images is retained when importing from WP REST API
+* New filter to set per page requested in REST API calls
+* Correct property ID/ref being overwritten due to internal Houzez code
+* Look at country taxonomy when setting country in Facebook exports
+* Inmobalia import fixes to beds, baths, descriptions and import sizes
+* Declared compatibility with WordPress 6.7.1
 
 = 2.4.11 - 2024-10-29 =
 * Added support for REAXML files provided via URL

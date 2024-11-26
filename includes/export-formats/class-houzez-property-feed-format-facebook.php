@@ -93,6 +93,10 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
         $xml->addChild('title');
         $xml->title = get_bloginfo('name') . ' Feed';
 
+        $houzez_tax_settings = get_option('houzez_tax_settings', array() );
+
+        $countries = get_houzez_property_feed_countries();
+
         if ( $properties_query->have_posts() )
         {
             $this->log( "Beginning to iterate through properties" );
@@ -177,8 +181,41 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
                 //$xml->listing[$i]->address->component[$component_i]->addCData();
                 //++$component_i;
 
-                $country = 'United Kingdom';
-                $component_xml = $address_xml->addCData('component', $country);
+                $country_name = 'United Kingdom';
+                // Check if country taxonomy is active
+                if ( !isset($houzez_tax_settings['property_country']) || ( isset($houzez_tax_settings['property_country']) && $houzez_tax_settings['property_country'] != 'disabled' ) )
+                {
+                    $terms = get_the_terms( $post_id, 'property_country' );
+                    $term_ids_to_use = array();
+                    if ( !is_wp_error($terms) && !empty($terms) )
+                    {
+                        foreach ( $terms as $term )
+                        {
+                            // Check if valid country
+                            if ( strlen($term->name) == 2 )
+                            {
+                                // Get country name from ISO Code
+                                if ( isset($countries[strtoupper($term->name)]) && isset($countries[strtoupper($term->name)]) )
+                                {
+                                    $country_name = $countries[strtoupper($term->name)]['name'];
+                                }
+                                break;
+                            }
+                            else
+                            {
+                                // need to get country code from country name
+                                $temp_country = get_houzez_property_feed_country_by_name($term->name);
+                                if ( $temp_country_code !== FALSE )
+                                {
+                                    $country_name = $term->name;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+                $component_xml = $address_xml->addCData('component', $country_name);
                 $component_xml->addAttribute('name', 'country');
                 ++$component_i;
 

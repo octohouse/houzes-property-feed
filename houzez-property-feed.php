@@ -3,7 +3,7 @@
  * Plugin Name: Houzez Property Feed
  * Plugin Uri: https://houzezpropertyfeed.com
  * Description: Automatically import properties to Houzez from estate agency CRMs and export to portals
- * Version: 2.4.11
+ * Version: 2.4.12
  * Author: PropertyHive
  * Author URI: https://wp-property-hive.com
  */
@@ -17,7 +17,7 @@ final class Houzez_Property_Feed {
     /**
      * @var string
      */
-    public $version = '2.4.11';
+    public $version = '2.4.12';
 
     /**
      * @var Houzez Property Feed The single instance of the class
