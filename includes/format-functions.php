@@ -41,7 +41,7 @@ function get_houzez_property_feed_import_formats()
                     '0' => 'Not Specified',
                     '1' => 'Terraced',
                     '2' => 'End of Terrace',
-                    '3' => 'Semi-Detached ',
+                    '3' => 'Semi-Detached',
                     '4' => 'Detached',
                     '5' => 'Mews',
                     '6' => 'Cluster House',
@@ -777,6 +777,41 @@ function get_houzez_property_feed_import_formats()
                 'agency',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/inmobalia/'
+        ),
+        'inmovilla' => array(
+            'name' => __( 'Inmovilla', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'ciudad', 'zona' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Vender' => 'Vender',
+                ),
+                'lettings_status' => array(
+                    'Alquilar' => 'Alquilar',
+                ),
+                'property_type' => array(
+                    'Piso' => 'Piso',
+                    'Ático' => 'Ático',
+                    'Adosado' => 'Adosado',
+                    'Apartamento' => 'Apartamento',
+                    'Casa' => 'Casa',
+                    'Cortijo' => 'Cortijo',
+                    'Garaje' => 'Garaje',
+                    'Chalet' => 'Chalet',
+                )
+            ),
+            'contact_information_fields' => array(
+                'numagencia',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/inmovilla/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'jupix' => array(
             'name' => __( 'Jupix', 'houzezpropertyfeed' ),
