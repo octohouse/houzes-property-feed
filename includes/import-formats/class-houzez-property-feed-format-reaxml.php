@@ -1201,33 +1201,159 @@ class Houzez_Property_Feed_Format_REAXML extends Houzez_Property_Feed_Process {
 
 				$this->log( 'Imported ' . count($floorplans) . ' floorplans', (string)$property->uniqueID, $post_id );
 
-				update_post_meta( $post_id, 'fave_video_url', '' );
-				update_post_meta( $post_id, 'fave_virtual_tour', '' );
+				// Brochures and EPCs
+				$media_ids = array();
+				$new = 0;
+				$existing = 0;
+				$deleted = 0;
+				$previous_media_ids = get_post_meta( $post_id, 'fave_attachments' );
 
-				/*if (isset($property->virtualTours) && !empty($property->virtualTours))
+				if (isset($property->media->attachment))
                 {
-                    foreach ($property->virtualTours as $virtualTours)
+                	foreach ($property->media->attachment as $attachment)
                     {
-                        if (!empty($virtualTours->virtualTour))
-                        {
-                            foreach ($virtualTours->virtualTour as $virtualTour)
-                            {
-								// This is a URL
-								$url = trim((string)$virtualTour);
+                    	$attachment_attributes = $attachment->attributes();
 
-								if ( strpos(strtolower($url), 'youtu') !== false || strpos(strtolower($url), 'vimeo') !== false )
+                    	$url = isset($attachment_attributes['url']) ? (string)$attachment_attributes['url'] : '';
+						if ( 
+							substr( strtolower($url), 0, 2 ) == '//' || 
+							substr( strtolower($url), 0, 4 ) == 'http'
+						)
+						{
+							// This is a URL
+							$description = isset($attachment_attributes['usage']) ? (string)$attachment_attributes['usage'] : __( 'Brochure', 'houzezpropertyfeed' );
+							
+							$filename = basename( $url );
+
+							// Check, based on the URL, whether we have previously imported this media
+							$imported_previously = false;
+							$imported_previously_id = '';
+							if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
+							{
+								foreach ( $previous_media_ids as $previous_media_id )
 								{
-									update_post_meta( $post_id, 'fave_video_url', $url );
+									if ( 
+										get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
+									)
+									{
+										$imported_previously = true;
+										$imported_previously_id = $previous_media_id;
+										break;
+									}
 								}
-								else
+							}
+
+							if ($imported_previously)
+							{
+								$media_ids[] = $imported_previously_id;
+
+								if ( $description != '' )
 								{
-									$iframe = '<iframe src="' . $url . '" style="border:0; height:360px; width:640px; max-width:100%" allowFullScreen="true"></iframe>';
-									update_post_meta( $post_id, 'fave_virtual_tour', $iframe );
+									$my_post = array(
+								    	'ID'          	 => $imported_previously_id,
+								    	'post_title'     => $description,
+								    );
+
+								 	// Update the post into the database
+								    wp_update_post( $my_post );
+								}
+
+								++$existing;
+							}
+							else
+							{
+								$this->ping();
+
+								$tmp = download_url( $url );
+
+							    $file_array = array(
+							        'name' => $filename,
+							        'tmp_name' => $tmp
+							    );
+
+							    // Check for download errors
+							    if ( is_wp_error( $tmp ) ) 
+							    {
+							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->propertyID, $post_id );
+							    }
+							    else
+							    {
+								    $id = media_handle_sideload( $file_array, $post_id, $description, array(
+                                        'post_title' => $description,
+                                        'post_excerpt' => $description
+                                    ) );
+
+								    // Check for handle sideload errors.
+								    if ( is_wp_error( $id ) ) 
+								    {
+								        @unlink( $file_array['tmp_name'] );
+								        
+								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->propertyID, $post_id );
+								    }
+								    else
+								    {
+								    	$media_ids[] = $id;
+
+								    	update_post_meta( $id, '_imported_url', $url);
+
+								    	++$new;
+								    }
 								}
 							}
 						}
 					}
-				}*/
+				}
+
+				if ( $media_ids != $previous_media_ids )
+				{
+					delete_post_meta( $post_id, 'fave_attachments' );
+					foreach ( $media_ids as $media_id )
+					{
+						add_post_meta( $post_id, 'fave_attachments', $media_id );
+					}
+				}
+
+				// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
+				if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
+				{
+					foreach ( $previous_media_ids as $previous_media_id )
+					{
+						if ( !in_array($previous_media_id, $media_ids) )
+						{
+							if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
+							{
+								++$deleted;
+							}
+						}
+					}
+				}
+
+				$this->log( 'Imported ' . count($media_ids) . ' brochures and EPCs (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->propertyID, $post_id );
+				
+
+				update_post_meta( $post_id, 'fave_video_url', '' );
+				update_post_meta( $post_id, 'fave_virtual_tour', '' );
+
+				if ( isset($property->videoLink) )
+				{
+					$video_link_attributes = $property->videoLink->attributes();
+
+					if ( isset($video_link_attributes['href']) && !empty((string)$video_link_attributes['href']) )
+					{
+						// This is a URL
+						$url = trim((string)$video_link_attributes['href']);
+
+						if ( strpos(strtolower($url), 'youtu') !== false || strpos(strtolower($url), 'vimeo') !== false )
+						{
+							update_post_meta( $post_id, 'fave_video_url', $url );
+						}
+						else
+						{
+							$iframe = '<iframe src="' . $url . '" style="border:0; height:360px; width:640px; max-width:100%" allowFullScreen="true"></iframe>';
+							update_post_meta( $post_id, 'fave_virtual_tour', $iframe );
+						}
+					}
+				}
 
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
 				do_action( "houzez_property_feed_property_imported_reaxml", $post_id, $property, $this->import_id );

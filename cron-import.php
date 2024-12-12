@@ -608,12 +608,30 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "resales_online_api":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-resales-online-api.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Resales_Online_API( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "rex":
 		    		{
 		                // includes
                         require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-rex.php';
 
 						$import_object = new Houzez_Property_Feed_Format_Rex( $instance_id, $import_id );
+
+		    			break;
+		    		}
+		    		case "sme_professional_json":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-sme-professional-json.php';
+
+						$import_object = new Houzez_Property_Feed_Format_SME_Professional_JSON( $instance_id, $import_id );
 
 		    			break;
 		    		}

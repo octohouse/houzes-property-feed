@@ -3,7 +3,7 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.1
-Stable tag: 2.4.13
+Stable tag: 2.4.14
 Version: 2.4.13
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
@@ -48,6 +48,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Rentman
 * ReSales Online
 * Rex
+* SME Professional
 * Street (including sending enquiries back in Street)
 * thinkSPAIN
 * VaultEA
@@ -123,6 +124,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.14 - 2024-12-12 =
+* Added support for importing properties from an SME Professional JSON file
+* Added support for importing properties from the ReSales Online API
+* Import brochures and virtual tours from REAXML
+* Improve logic to determine number separators
 
 = 2.4.13 - 2024-12-02 =
 * Added support for importing properties from an Inmovilla XML file
