@@ -570,6 +570,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 				}
 
 				// Images
+				$image_width = apply_filters( 'houzez_property_feed_loop_image_width', 1150 );
 				if ( 
 					apply_filters('houzez_property_feed_images_stored_as_urls', false, $post_id, $property, $this->import_id) === true ||
 					apply_filters('houzez_property_feed_images_stored_as_urls_loop', false, $post_id, $property, $this->import_id) === true
@@ -591,7 +592,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 							)
 							{
 								$urls[] = array(
-									'url' => $image['url']
+									'url' => $image['url'] . '?width=' . $image_width
 								);
 							}
 						}
@@ -659,6 +660,11 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 								$url = $image['url'];
 								$description = '';
 								$modified = $image['dateUpdated'];
+								if ( !empty($modified) )
+								{
+									$dateTime = new DateTime($modified);
+									$modified = $dateTime->format('Y-m-d H:i:s');
+								}
 							    
 								$filename = basename( $url );
 
@@ -716,7 +722,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 								{
 									$this->ping();
 
-									$tmp = download_url( $url . '-big.jpg' );
+									$tmp = download_url( $url . '?width=' . $image_width );
 
 								    $file_array = array(
 								        'name' => $filename,
@@ -726,7 +732,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 								    // Check for download errors
 								    if ( is_wp_error( $tmp ) ) 
 								    {
-								        $this->log_error( 'An error occurred whilst importing ' . $url . '-big.jpg. The error was as follows: ' . $tmp->get_error_message(), $property['listingId'], $post_id );
+								        $this->log_error( 'An error occurred whilst importing ' . $url . '?width=' . $image_width . '. The error was as follows: ' . $tmp->get_error_message(), $property['listingId'], $post_id );
 								    }
 								    else
 								    {
@@ -737,7 +743,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 									    {
 									        @unlink( $file_array['tmp_name'] );
 									        
-									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '-big.jpg. The error was as follows: ' . $id->get_error_message(), $property['listingId'], $post_id );
+									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '?width=' . $image_width . '. The error was as follows: ' . $id->get_error_message(), $property['listingId'], $post_id );
 									    }
 									    else
 									    {

@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.1
-Stable tag: 2.4.14
-Version: 2.4.13
+Stable tag: 2.4.15
+Version: 2.4.15
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -124,6 +124,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.15 - 2024-12-12 =
+* Catered for Loop changing their image URL formats
+* Standardise the image modified date provided by Loop
 
 = 2.4.14 - 2024-12-12 =
 * Added support for importing properties from an SME Professional JSON file
