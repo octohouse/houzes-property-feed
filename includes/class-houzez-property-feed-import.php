@@ -221,7 +221,7 @@ class Houzez_Property_Feed_Import {
             {
                 if ($j !== '{rule_count}') // ignore template
                 {
-                    $result = stripslashes(wp_kses($field['result'], array('br' => array())));
+                    $result = stripslashes(wp_kses($field['result'], array('br' => array(), 'strong' => array(), 'em' => array())));
                     if ( $field['result_type'] == 'dropdown' )
                     {
                         $result = sanitize_text_field($field['result_option']);
@@ -956,9 +956,17 @@ class Houzez_Property_Feed_Import {
                     }
                     elseif ( $and_rules['houzez_field'] == 'fave_property_price' && $result != '' )
                     {
-                        $price_separators = hpf_determine_number_separators($result);
-                        $result = str_replace($price_separators['thousand'], '', $result);
-                        $result = str_replace($price_separators['decimal'], '.', $result);
+                        $explode_result = explode(" ", $result);
+                        $new_result = array();
+                        foreach ( $explode_result as $word )
+                        {
+                            $price_separators = hpf_determine_number_separators($word);
+                            $word = str_replace($price_separators['thousand'], '', $word);
+                            $word = str_replace($price_separators['decimal'], '.', $word);
+
+                            $new_result[] = $word;
+                        }
+                        $result = implode(" ", $new_result);
                     }
 
                     if ( isset($houzez_fields[$and_rules['houzez_field']]) && isset($houzez_fields[$and_rules['houzez_field']]['field_type']) && $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'multiselect' )

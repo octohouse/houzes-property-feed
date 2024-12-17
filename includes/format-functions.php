@@ -3146,6 +3146,7 @@ function get_houzez_property_feed_export_formats()
                     'let' => 'Let',
                 ),
                 'property_type' => array(
+                    // Residential
                     'barn_conversion' => 'Barn conversion',
                     'block_of_flats' => 'Block of flats',
                     'bungalow' => 'Bungalow',
@@ -3178,6 +3179,18 @@ function get_houzez_property_feed_export_formats()
                     'terraced_bungalow' => 'Terraced bungalow',
                     'town_house' => 'Town house',
                     'villa' => 'Villa',
+
+                    // Commercial
+                    'business_park' => 'Business park',
+                    'hotel' => 'Hotel/guest house',
+                    'industrial' => 'Industrial',
+                    'leisure' => 'Leisure/hospitality',
+                    'light_industrial' => 'Light industrial',
+                    'office' => 'Office',
+                    'pub_bar' => 'Pub/bar',
+                    'restaurant' => 'Restaurant/cafe',
+                    'retail' => 'Retail premises',
+                    'warehouse' => 'Warehouse',
                 )
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/zoopla/',

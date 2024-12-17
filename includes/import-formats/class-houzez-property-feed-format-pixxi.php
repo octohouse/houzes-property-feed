@@ -847,6 +847,46 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
 
+				// Floorplans
+				$floorplans = array();
+
+				if ( isset($property[strtolower($property['listingType']) . 'Param']['floorPlan']) && !empty($property[strtolower($property['listingType']) . 'Param']['floorPlan']) )
+				{
+					foreach ( $property[strtolower($property['listingType']) . 'Param']['floorPlan'] as $floorplan )
+					{
+						if ( isset($floorplan['imgUrl']) && !empty($floorplan['imgUrl']) && is_array($floorplan['imgUrl']) )
+						{
+							foreach ( $floorplan['imgUrl'] as $floorplan_img_url )
+							{
+								if (
+									substr( strtolower($floorplan_img_url), 0, 2 ) == '//' || 
+									substr( strtolower($floorplan_img_url), 0, 4 ) == 'http'
+								)
+								{
+									$floorplans[] = array( 
+										"fave_plan_title" => $floorplan['name'],
+										"fave_plan_image" => $floorplan_img_url,
+										"fave_plan_price" => ( isset($floorplan['price']) ? $floorplan['price'] : '' ),
+										"fave_plan_size" => ( isset($floorplan['area']) ? $floorplan['area'] : '' ),
+									);
+								}
+							}
+						}
+					}
+				}
+
+				if ( !empty($floorplans) )
+				{
+	                update_post_meta( $post_id, 'floor_plans', $floorplans );
+	                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
+	            }
+	            else
+	            {
+	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
+	            }
+
+				$this->log( 'Imported ' . count($floorplans) . ' floorplans', $property['id'], $post_id );
+
 				$virtual_tours = array();
 				if ( isset($property[strtolower($property['listingType']) . 'Param']['videoLink']) && !empty($property[strtolower($property['listingType']) . 'Param']['videoLink']) )
 				{

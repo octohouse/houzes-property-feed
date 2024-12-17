@@ -293,7 +293,7 @@ function hpf_determine_number_separators($number)
         }
     } elseif ($commaCount > 0) {
         // Only commas are present
-        if ($commaCount == 1 && strlen($number) - strrpos($number, ',') > 3 || hpf_is_thousands_grouping($number, ',')) {
+        if (($commaCount == 1 && strlen($number) - strrpos($number, ',') > 3) || ($commaCount > 1 && hpf_is_thousands_grouping($number, ','))) {
             // Single comma or valid thousands grouping
             $thousandSeparator = ',';
             $decimalSeparator = '.';
@@ -304,7 +304,7 @@ function hpf_determine_number_separators($number)
         }
     } elseif ($periodCount > 0) {
         // Only periods are present
-        if ($periodCount == 1 && strlen($number) - strrpos($number, '.') > 3 || hpf_is_thousands_grouping($number, '.')) {
+        if (($periodCount == 1 && strlen($number) - strrpos($number, '.') > 3) || ($periodCount > 1 && hpf_is_thousands_grouping($number, '.'))) {
             // Single period or valid thousands grouping
             $thousandSeparator = '.';
             $decimalSeparator = ',';
@@ -327,7 +327,8 @@ function hpf_is_thousands_grouping($number, $separator) {
     $parts = explode($separator, $number);
 
     // Allow the first part to have fewer than 3 digits
-    foreach (array_slice($parts, 1, -1) as $part) {
+    foreach (array_slice($parts, 1, -1) as $part) 
+    {
         if (strlen($part) !== 3) return false;
     }
 

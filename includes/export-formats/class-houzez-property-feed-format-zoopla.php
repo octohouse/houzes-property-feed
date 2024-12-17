@@ -278,10 +278,32 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
         $request_data = array();
 
+        $property_type = $this->get_export_mapped_value($post_id, 'property_type');
+
         $request_data['bathrooms'] = (int)get_post_meta( $post_id, 'fave_property_bathrooms', TRUE );
         $branch_code = $this->get_branch_code( $post_id );
         $request_data['branch_reference'] = $branch_code;
-        $request_data['category'] = 'residential';
+        $category = 'residential';
+
+        if ( 
+            in_array($property_type, array(
+                'business_park',
+                'hotel',
+                'industrial',
+                'leisure',
+                'light_industrial',
+                'office',
+                'pub_bar',
+                'restaurant',
+                'retail',
+                'warehouse',
+            )) 
+        ) 
+        { 
+            $category = 'commercial'; 
+        }
+        $request_data['category'] = $category;
+
         $request_data['detailed_description'] = array(
             array(
                 'text' => trim( ( strip_tags(get_the_content($post_id)) != '' ) ? get_the_content($post_id) : get_the_excerpt($post_id) )
@@ -462,7 +484,6 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         if ( $rent_frequency != '' ) { $request_data['pricing']['rent_frequency'] = $rent_frequency; }
         if ( $price_qualifier != '' ) { $request_data['pricing']['price_qualifier'] = $price_qualifier; }
 
-        $property_type = $this->get_export_mapped_value($post_id, 'property_type');
         if ( $property_type != '' ) { $request_data['property_type'] = $property_type; }
         $request_data['summary_description'] = trim(get_the_excerpt($post_id));
 
