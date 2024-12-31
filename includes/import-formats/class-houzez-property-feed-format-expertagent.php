@@ -200,7 +200,7 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 
 	        $display_address = (string)$property->advert_heading;
 
-	        $post_content = '';
+	        $post_content = (string)$property->main_advert;
 	        if ( isset($property->rooms) && !empty($property->rooms) )
 			{
 				foreach ($property->rooms as $rooms)
@@ -848,7 +848,7 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 											    {
 											    	$media_ids[] = $id;
 
-											    	update_post_meta( $id, '_imported_url', addslashes($url));
+											    	update_post_meta( $id, '_imported_url', $url);
 													update_post_meta( $id, '_modified', $modified);
 
 											    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
@@ -1039,7 +1039,7 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 							    {
 							    	$media_ids[] = $id;
 
-							    	update_post_meta( $id, '_imported_url', v);
+							    	update_post_meta( $id, '_imported_url', $url);
 
 							    	++$new;
 							    }

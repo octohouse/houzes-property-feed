@@ -506,7 +506,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                 );
                 if ( isset( $attachment_data['alt'] ) && $attachment_data['alt'] != '' )
                 {
-                    $media['caption'] = $attachment_data['alt'];
+                    $media['caption'] = trim($attachment_data['alt']);
                 }
 
                 $request_data['content'][] = $media;
@@ -529,7 +529,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                     );
                     if ( $text != '' )
                     {
-                        $media['caption'] = $text;
+                        $media['caption'] = trim($text);
                     }
 
                     $request_data['content'][] = $media;
@@ -552,7 +552,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                 );
                 if ( isset( $attachment_data['alt'] ) && $attachment_data['alt'] != '' )
                 {
-                    $media['caption'] = $attachment_data['alt'];
+                    $media['caption'] = trim($attachment_data['alt']);
                 }
 
                 $request_data['content'][] = $media;

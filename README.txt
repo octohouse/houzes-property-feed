@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.1
-Stable tag: 2.4.16
-Version: 2.4.16
+Stable tag: 2.4.17
+Version: 2.4.17
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -124,6 +124,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.17 - 2024-12-31 =
+* Display which import data was imported from above import data on property record. Useful for debugging when multiple imports are in place t ohelp distinguish which import a property originated from
+* Correct wrong variable being used in ExpertAgent imports for brochures
+* Trim the media captions in Zoopla exports. Spaces would cause rejection
 
 = 2.4.16 - 2024-12-17 =
 * Add support for commercial category in Zoopla exports

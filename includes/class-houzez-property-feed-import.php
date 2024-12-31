@@ -1274,6 +1274,41 @@ class Houzez_Property_Feed_Import {
     {
         if ( isset($post->ID) )
         {
+            global $wpdb;
+
+            // Query to get the meta value where the meta_key starts with '_imported_ref_'
+            $meta_row = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT meta_key 
+                     FROM {$wpdb->postmeta} 
+                     WHERE post_id = %d 
+                     AND meta_key LIKE %s 
+                     LIMIT 1",
+                    (int)$post->ID,
+                    '_imported_ref_%'
+                ),
+                ARRAY_A
+            );
+
+            // Check and handle the result.
+            if ( $meta_row ) 
+            {
+                $import_id = str_replace("_imported_ref_", "", $meta_row['meta_key']);
+                $import = get_import_settings_from_id( $import_id );
+
+                $format_name = 'import';
+                if ( $import !== false )
+                {
+                    $format = get_houzez_property_feed_import_format( $import['format'] );
+                    if ( $format !== false )
+                    {
+                        $format_name = $format['name'];
+                    }
+                }
+
+                echo '<p style="margin-top:0">Imported from ' . esc_html($format_name) . ' (' . (int)$import_id . ') with the following data:</p>';
+            }
+
             if ( get_post_meta( $post->ID, '_property_import_data', TRUE ) != '' )
             {
                 echo '<textarea readonly rows="20" style="width:100%;">' . get_post_meta( $post->ID, '_property_import_data', TRUE )  . '</textarea>';
