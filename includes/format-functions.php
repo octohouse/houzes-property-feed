@@ -1188,6 +1188,7 @@ function get_houzez_property_feed_import_formats()
             ),
             'contact_information_fields' => array(
                 'agent_name',
+                'portalAgent_name',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/pixxi/',
             'warnings' => array(),

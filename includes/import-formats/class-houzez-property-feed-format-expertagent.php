@@ -675,8 +675,13 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 										substr( strtolower((string)$picture->filename), 0, 4 ) == 'http'
 									)
 									{
+										$url = str_replace(" ", "%20", (string)$picture->filename);
+										$url = str_replace("{", "%7B", $url);
+										$url = str_replace("}", "%7D", $url);
+										$url = str_replace("http://", "https://", $url);
+										
 										$urls[] = array(
-											'url' => (string)$picture->filename
+											'url' => $url
 										);
 									}
 								}
@@ -916,9 +921,14 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 								)
 								{
 									// This is a URL
+									$url = str_replace(" ", "%20", (string)$floorplan->filename);
+									$url = str_replace("{", "%7B", $url);
+									$url = str_replace("}", "%7D", $url);
+									$url = str_replace("http://", "https://", $url);
+
 									$floorplans[] = array( 
 										"fave_plan_title" => __( 'Floorplan', 'houzezpropertyfeed' ), 
-										"fave_plan_image" => str_replace(" ", "%20", (string)$floorplan->filename)
+										"fave_plan_image" => $url
 									);
 								}
 							}

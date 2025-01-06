@@ -398,7 +398,7 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_zip', '' );
 
 	            $featured = '0';
-	            update_post_meta( $post_id, 'fave_featured', $featured );
+	            add_post_meta( $post_id, 'fave_featured', $featured, true );
 	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
 	            if ( 
@@ -420,6 +420,11 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 		            				case "agent_name":
 		            				{
 		            					$value_in_feed_to_check = $property['agent']['name'];
+		            					break;
+		            				}
+		            				case "portalAgent_name":
+		            				{
+		            					$value_in_feed_to_check = $property['portalAgent']['name'];
 		            					break;
 		            				}
 		            			}
@@ -452,6 +457,11 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 		            					$value_in_feed_to_check = $property['agent']['name'];
 		            					break;
 		            				}
+		            				case "portalAgent_name":
+		            				{
+		            					$value_in_feed_to_check = $property['portalAgent']['name'];
+		            					break;
+		            				}
 		            			}
 
 		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
@@ -472,6 +482,11 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 		            				case "agent_name":
 		            				{
 		            					$value_in_feed_to_check = $property['agent']['name'];
+		            					break;
+		            				}
+		            				case "portalAgent_name":
+		            				{
+		            					$value_in_feed_to_check = $property['portalAgent']['name'];
 		            					break;
 		            				}
 		            			}
