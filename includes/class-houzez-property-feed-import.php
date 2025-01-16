@@ -555,7 +555,8 @@ class Houzez_Property_Feed_Import {
         $import_settings['field_mapping_rules'] = convert_old_field_mapping_to_new( $import_settings['field_mapping_rules'] );
 
         $post_fields_to_update = array(
-            'ID' => $post_id
+            'ID' => $post_id,
+            'post_status' => 'publish',
         );
 
         $property_node = '';

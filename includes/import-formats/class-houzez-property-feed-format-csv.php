@@ -53,6 +53,12 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
         	return false;
 		}
 
+		$encoding = mb_detect_encoding($contents, 'UTF-8, ISO-8859-1', true);
+        if ( $encoding !== 'UTF-8' )
+        {
+            $contents = mb_convert_encoding($contents, 'UTF-8', $encoding);
+        }
+
 		$temp = tmpfile();
 		fwrite($temp, $contents);
 		fseek($temp, 0);

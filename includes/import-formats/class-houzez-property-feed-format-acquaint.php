@@ -400,7 +400,7 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 		            				// set post author
 		            				$my_post = array(
 								    	'ID'          	 => $post_id,
-								    	'post_author'    => $rule['reult'],
+								    	'post_author'    => $rule['result'],
 								  	);
 
 								 	// Update the post into the database

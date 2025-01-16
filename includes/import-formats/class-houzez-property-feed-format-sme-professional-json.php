@@ -501,7 +501,7 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 		            				// set post author
 		            				$my_post = array(
 								    	'ID'          	 => $post_id,
-								    	'post_author'    => $rule['reult'],
+								    	'post_author'    => $rule['result'],
 								  	);
 
 								 	// Update the post into the database

@@ -590,7 +590,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 		            				// set post author
 		            				$my_post = array(
 								    	'ID'          	 => $post_id,
-								    	'post_author'    => $rule['reult'],
+								    	'post_author'    => $rule['result'],
 								  	);
 
 								 	// Update the post into the database

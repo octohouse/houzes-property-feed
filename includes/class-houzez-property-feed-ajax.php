@@ -129,6 +129,12 @@ class Houzez_Property_Feed_Ajax {
             die();
         }
 
+        $encoding = mb_detect_encoding($contents, 'UTF-8, ISO-8859-1', true);
+        if ( $encoding !== 'UTF-8' )
+        {
+            $contents = mb_convert_encoding($contents, 'UTF-8', $encoding);
+        }
+
         $lines = explode( "\n", $contents );
         $headers = str_getcsv( array_shift( $lines ), ( isset($_GET['delimiter']) ? sanitize_text_field($_GET['delimiter']) : ',' ) );
 
