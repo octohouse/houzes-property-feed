@@ -102,6 +102,15 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
         	$this->properties = array_slice( $this->properties, 0, $limit );
         	$additional_message = '. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
         }
+        else
+        {
+        	// using pro, but check for limit setting
+        	if ( isset($import_settings['limit']) && !empty((int)$import_settings['limit']) && is_numeric($import_settings['limit']) )
+        	{
+        		$this->properties = array_slice( $this->properties, 0, (int)$import_settings['limit'] );
+        		$additional_message = '. Limited to ' . number_format((int)$import_settings['limit']) . ' properties due to advanced setting in <a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . $this->import_id) . '">import settings</a>.';
+        	}
+        }
 
 		$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
 

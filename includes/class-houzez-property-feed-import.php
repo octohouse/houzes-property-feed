@@ -167,6 +167,7 @@ class Houzez_Property_Feed_Import {
             'property_area_address_field' => ( isset($_POST['property_area_address_field']) ) ? sanitize_text_field($_POST['property_area_address_field']) : true,
             'property_state_address_field' => ( isset($_POST['property_state_address_field']) ) ? sanitize_text_field($_POST['property_state_address_field']) : true,
             'agent_display_option' => $agent_display_option,
+            'limit' => ( isset($_POST['limit']) && !empty((int)$_POST['limit']) ? (int)$_POST['limit'] : '' ),
         );
 
         $rules = array();

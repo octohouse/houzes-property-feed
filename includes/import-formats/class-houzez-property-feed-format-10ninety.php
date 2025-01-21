@@ -91,12 +91,21 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import_10ninety", $this->properties, $this->import_id );
 
-        $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        $limit = apply_filters( "houzez_property_feed_property_limit", 25, $this->import_id );
         $additional_message = '';
         if ( $limit !== false )
         {
         	$this->properties = array_slice( $this->properties, 0, $limit );
         	$additional_message = '. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
+        }
+        else
+        {
+        	// using pro, but check for limit setting
+        	if ( isset($import_settings['limit']) && !empty((int)$import_settings['limit']) && is_numeric($import_settings['limit']) )
+        	{
+        		$this->properties = array_slice( $this->properties, 0, (int)$import_settings['limit'] );
+        		$additional_message = '. Limited to ' . number_format((int)$import_settings['limit']) . ' properties due to advanced setting in <a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . $this->import_id) . '">import settings</a>.';
+        	}
         }
 
 		$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
@@ -1089,6 +1098,12 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 									$this->ping();
 
 									$tmp = download_url( $url );
+
+									if ( strpos($filename, '.') === FALSE )
+									{
+										// No extension. Let's put one on as a worst case scenario
+										$filename .= '.pdf' ;
+									}
 
 								    $file_array = array(
 								        'name' => $filename,

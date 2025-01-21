@@ -18,9 +18,10 @@
 						<li id="import_setting_tab_frequency"><a href="#frequency"><span class="dashicons dashicons-clock"></span> <?php echo __( 'Frequency', 'houzezpropertyfeed' ); ?></a></li>
 						<li id="import_setting_tab_taxonomies"><a href="#taxonomies"><span class="dashicons dashicons-tag"></span> <?php echo __( 'Taxonomies', 'houzezpropertyfeed' ); ?></a></li>
 						<li id="import_setting_tab_contactinfo"><a href="#contactinfo"><span class="dashicons dashicons-admin-users"></span> <?php echo __( 'Contact Information', 'houzezpropertyfeed' ); ?></a></li>
-						<li id="import_setting_tab_fieldmapping"><a href="#fieldmapping"><span class="dashicons dashicons-admin-settings"></span></span> <?php echo __( 'Field Mapping', 'houzezpropertyfeed' ); ?><span id="field_mapping_warning" style="color:#999; display:none">&nbsp;&nbsp;<span class="dashicons dashicons-warning"></span></span></a></li>
+						<li id="import_setting_tab_fieldmapping"><a href="#fieldmapping"><span class="dashicons dashicons-admin-links"></span></span> <?php echo __( 'Field Mapping', 'houzezpropertyfeed' ); ?><span id="field_mapping_warning" style="color:#999; display:none">&nbsp;&nbsp;<span class="dashicons dashicons-warning"></span></span></a></li>
 						<li id="import_setting_tab_media"><a href="#media"><span class="dashicons dashicons-admin-media"></span> <?php echo __( 'Media', 'houzezpropertyfeed' ); ?></a></li>
 						<li id="import_setting_tab_enquiries"><a href="#enquiries"><span class="dashicons dashicons-email"></span> <?php echo __( 'Export Enquiries', 'houzezpropertyfeed' ); ?></a></li>
+						<li id="import_setting_tab_advanced"><a href="#advanced"><span class="dashicons dashicons-admin-settings"></span> <?php echo __( 'Advanced', 'houzezpropertyfeed' ); ?></a></li>
 					</ul>
 				</div>
 
@@ -72,6 +73,10 @@
 
 						<div class="settings-panel" id="enquiries" style="display:none">
 							<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-import-settings-enquiries.php' ); ?>
+						</div>
+
+						<div class="settings-panel" id="advanced" style="display:none">
+							<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-import-settings-advanced.php' ); ?>
 						</div>
 
 					</div>

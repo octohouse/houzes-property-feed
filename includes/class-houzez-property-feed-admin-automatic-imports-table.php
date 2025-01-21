@@ -312,7 +312,11 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 {
                     $value = 'Yes';
                 }
-                $details .= '<strong>' . __( 'Export Enquiries', 'houzezpropertyfeed' ) . '</strong>: ' . $value . '<br>';
+                $details .= '<strong>' . esc_html( __( 'Export Enquiries', 'houzezpropertyfeed' ) ) . '</strong>: ' . esc_html($value) . '<br>';
+            }
+            if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true && isset($import['limit']) && !empty((int)$import['limit']) && is_numeric($import['limit']) )
+            {
+                $details .= '<strong>' . __( 'Limit', 'houzezpropertyfeed' ) . '</strong>: ' . esc_html(number_format((int)$import['limit']) . ' ' . __( 'properties', 'houzezpropertyfeed' ) ) . '<br>';
             }
 
             if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
@@ -321,7 +325,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 {
                     if ( isset($queued_media[$key]) && !empty($queued_media[$key]) )
                     {
-                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: <span class="queued-media-items" data-import-id="' . $key . '">' . $queued_media[$key] . '<span><br>';
+                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: <span class="queued-media-items" data-import-id="' . esc_attr($key) . '">' . esc_html($queued_media[$key]) . '<span><br>';
                     }
                 }
             }
