@@ -265,6 +265,42 @@ function get_houzez_fields_for_field_mapping()
 
     $houzez_fields = array_merge($houzez_fields, $taxonomies);
 
+    // ACF
+    if ( function_exists('acf_get_field_groups') ) 
+    {
+        $field_groups = acf_get_field_groups(['post_type' => 'property']);
+
+        foreach ( $field_groups as $group ) 
+        {
+            // Get all fields for this field group
+            $group_fields = acf_get_fields($group['key']);
+
+            if ( $group_fields ) 
+            {
+                foreach ( $group_fields as $field )
+                {
+                    if ( in_array($field['type'], ['text', 'number', 'email', 'textarea', 'url']) ) 
+                    {
+                        $houzez_fields[$field['name']] = array( 
+                            'type' => 'meta', 
+                            'label' => __( $field['label'], 'houzez' ) . ' (Added via ACF)', 
+                            'acf' => true
+                        );
+                    }
+                    elseif ( in_array($field['type'], ['select', 'radio']) )
+                    {
+                        $houzez_fields[$field['name']] = array(
+                            'type'    => 'meta',
+                            'label'   => __( $field['label'], 'houzez' ) . ' (Added via ACF)',
+                            'options' => $field['choices'],
+                            'acf' => true
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     $houzez_fields = apply_filters( 'houzez_property_feed_field_mapping_houzez_fields', $houzez_fields );
 
     $houzez_fields = houzez_property_feed_array_msort( $houzez_fields, array( 'label' => SORT_ASC ) );

@@ -675,7 +675,13 @@ jQuery(document).ready(function()
             	{
             		alert(response.error);
             	}
-         	}
+         	},
+         	error: function(jqXHR, textStatus, errorThrown) {
+		        jQuery('a.hpf-fetch-xml-nodes').text('Fetch XML');
+		        jQuery('a.hpf-fetch-xml-nodes').attr('disabled', false);
+		        console.error('AJAX Error:', textStatus, errorThrown);
+		        alert('Failed to fetch XML nodes. Error: ' + (errorThrown || 'Unknown error'));
+		    }
       	})  
 	});
 

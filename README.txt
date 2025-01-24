@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.1
-Stable tag: 2.4.20
-Version: 2.4.20
+Stable tag: 2.4.21
+Version: 2.4.21
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -124,6 +124,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.21 - 2025-01-24 =
+* Add ACF fields to list of Houzez Fields in Field Mapping import settings area
+* Display error if AJAX request fails when obtaining XML fields. Previously it would just silently bomb out
 
 = 2.4.20 - 2025-01-21 =
 * Added support for importing from AgestaNET using their XML format
