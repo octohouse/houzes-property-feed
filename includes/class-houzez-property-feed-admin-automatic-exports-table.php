@@ -315,31 +315,31 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
             $actions = array();
             if ( !$running )
             {
-                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=startexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Start Export', 'houzezpropertyfeed' ) . '">' . __( 'Start Export', 'houzezpropertyfeed' ) . '</a>';
+                $actions[] = '<a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-export&action=startexport&export_id=' . (int)$key) ) . '" aria-label="' . esc_attr__( __( 'Start Export', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'Start Export', 'houzezpropertyfeed' ) ) . '</a>';
             }
             else
             {
-                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=pauseexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Pause Export', 'houzezpropertyfeed' ) . '">' . __( 'Pause Export', 'houzezpropertyfeed' ) . '</a>';
+                $actions[] = '<a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-export&action=pauseexport&export_id=' . (int)$key) ) . '" aria-label="' . esc_attr__( __( 'Pause Export', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'Pause Export', 'houzezpropertyfeed' ) ) . '</a>';
             }
-            $actions[] = '<a href="' . admin_url('/admin.php?page=houzez-property-feed-export&tab=logs&export_id=' . (int)$key) . '" aria-label="' . __( 'View Logs', 'houzezpropertyfeed' ) . '">' . __( 'Logs', 'houzezpropertyfeed' ) . '</a>';
-            $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=editexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Edit Export', 'houzezpropertyfeed' ) . '">' . __( 'Edit', 'houzezpropertyfeed' ) . '</a>';
+            $actions[] = '<a href="' . esc_url( admin_url('/admin.php?page=houzez-property-feed-export&tab=logs&export_id=' . (int)$key) ) . '" aria-label="' . esc_attr__( __( 'View Logs', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'Logs', 'houzezpropertyfeed' ) ) . '</a>';
+            $actions[] = '<a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-export&action=editexport&export_id=' . (int)$key) ) . '" aria-label="' . esc_attr__( __( 'Edit Export', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'Edit', 'houzezpropertyfeed' ) ) . '</a>';
             
             if ( $export['format'] == 'blm' && $running )
             {
-                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) . '" aria-label="' . __( 'Preview BLM', 'houzezpropertyfeed' ) . '">' . __( 'View BLM', 'houzezpropertyfeed' ) . '</a>';
+                $actions[] = '<a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) ) . '" aria-label="' . esc_attr__( __( 'Preview BLM', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'View BLM', 'houzezpropertyfeed' ) ) . '</a>';
             }
 
             if ( $export['format'] == 'idealista' && $running )
             {
-                $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) . '" aria-label="' . __( 'Preview JSON', 'houzezpropertyfeed' ) . '">' . __( 'View JSON', 'houzezpropertyfeed' ) . '</a>';
+                $actions[] = '<a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-export&custom_property_export_cron=houzezpropertyfeedcronhook&preview=' . (int)$key) ) . '" aria-label="' . esc_attr__( __( 'Preview JSON', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'View JSON', 'houzezpropertyfeed' ) ) . '</a>';
             }
 
             if ( $format['method'] == 'realtime' && $running )
             {
-                $actions[] = '<a href="' . wp_nonce_url( admin_url('/admin.php?page=houzez-property-feed-export&action=pushall&export_id=' . (int)$key), 'push-all' ) . '" aria-label="' . __( 'Push All Properties', 'houzezpropertyfeed' ) . '">' . __( 'Push All', 'houzezpropertyfeed' ) . '</a>';
+                $actions[] = '<a href="' . esc_url( wp_nonce_url( admin_url('/admin.php?page=houzez-property-feed-export&action=pushall&export_id=' . (int)$key), 'push-all' ) ) . '" aria-label="' . esc_attr__( __( 'Push All Properties', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'Push All', 'houzezpropertyfeed' ) ) . '</a>';
             }
 
-            $actions[] = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=deleteexport&export_id=' . (int)$key) . '" class="submitdelete" aria-label="' . __( 'Delete Export', 'houzezpropertyfeed' ) . '">' . __( 'Delete', 'houzezpropertyfeed' ) . '';
+            $actions[] = '<a href="' . esc_url( wp_nonce_url( admin_url('admin.php?page=houzez-property-feed-export&action=deleteexport&export_id=' . (int)$key), 'delete-export' ) ) . '" class="submitdelete" aria-label="' . esc_attr__( __( 'Delete Export', 'houzezpropertyfeed' ) ) . '">' . esc_html__( __( 'Delete', 'houzezpropertyfeed' ) ) . '';
 
             $actions_html = '';
             foreach ( $actions as $action_i => $action )
@@ -356,7 +356,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
 
             $this->items[] = array(
                 'col_export_name' => '
-                    <strong><a href="' . admin_url('admin.php?page=houzez-property-feed-export&action=editexport&export_id=' . (int)$key) . '" aria-label="' . __( 'Edit Export', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . esc_html( ( (isset($export['name']) && !empty($export['name'])) ? $export['name'] : $export['format'] ) ) . '</a></strong>
+                    <strong><a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-export&action=editexport&export_id=' . (int)$key) ) . '" aria-label="' . __( 'Edit Export', 'houzezpropertyfeed' ) . '">' . ( $running ? '<span class="icon-running-status icon-running"></span>' : '<span class="icon-running-status icon-not-running"></span>' ) . ' ' . esc_html( ( (isset($export['name']) && !empty($export['name'])) ? $export['name'] : $export['format'] ) ) . '</a></strong>
                     <div class="row-actions">' .
                         $actions_html    
                     . '</div>',
@@ -365,7 +365,7 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
                 'col_export_frequency' => $frequency,
                 'col_export_last_ran' => $last_ran,
                 'col_export_next_due' => $next_due_display,
-                'col_export_active_properties' => '<a href="' . admin_url('edit.php?s&post_status=publish&post_type=property&_export_id=' . (int)$key) . '">' . $active_properties . '</a>',
+                'col_export_active_properties' => '<a href="' . esc_url( admin_url('edit.php?s&post_status=publish&post_type=property&_export_id=' . (int)$key) ) . '">' . esc_html($active_properties) . '</a>',
             );
         }
 

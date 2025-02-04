@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.1
-Stable tag: 2.4.21
-Version: 2.4.21
+Stable tag: 2.4.22
+Version: 2.4.22
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -23,6 +23,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Alto by Vebra
 * Another Houzez site (using the WordPress REST API)
 * Apex27
+* Apimo
 * BDP
 * BLM
 * CSV (any CSV file hosted on a public URL)
@@ -38,6 +39,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Loop
 * MRI
 * MLS/IDX (assuming XML URL can be provided)
+* MLS Grid
 * myCRM / PF Expert from Property Finder
 * OpenImmo
 * Pixxi
@@ -124,6 +126,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.22 - 2025-02-04 =
+* Added initial support for importing properties from MLS Grid
+* Added initial support for importing properties from Apimo
+* Security updates including performing nonce checks on certain actions and escaping output
 
 = 2.4.21 - 2025-01-24 =
 * Add ACF fields to list of Houzez Fields in Field Mapping import settings area

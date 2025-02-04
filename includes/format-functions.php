@@ -366,6 +366,64 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/apex27/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'apimo' => array(
+            'name' => __( 'Apimo', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'provider_id',
+                    'label' => __( 'Provider ID', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'token',
+                    'label' => __( 'Token', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'agency_id',
+                    'label' => __( 'Agency ID', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                )
+            ),
+            'address_fields' => array( 'district', 'city', 'region' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    '1' => 'In progress',
+                    '20' => 'Waiting for agreement',
+                    '21' => 'Agreement ended',
+                    '22' => 'Offer',
+                    '24' => 'Processing sale',
+                    '25' => 'Waiting for contract',
+                    '28' => 'Pending approval',
+                ),
+                'lettings_status' => array(
+                    '1' => 'In progress',
+                    '20' => 'Waiting for agreement',
+                    '21' => 'Agreement ended',
+                    '22' => 'Offer',
+                    '24' => 'Processing sale',
+                    '25' => 'Waiting for contract',
+                    '28' => 'Pending approval',
+                ),
+                'property_type' => array(
+                    '1' => 'Apartment',
+                    '2' => 'House',
+                    '3' => 'Land',
+                    '4' => 'Business',
+                    '5' => 'Garage/Parking',
+                    '6' => 'Building',
+                    '7' => 'Office',
+                    '8' => 'Boat',
+                    '9' => 'Warehouse',
+                    '10' => 'Cellar / Box',
+                )
+            ),
+            'contact_information_fields' => array(
+                'user id',
+                'user name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/apimo/',
+        ),
         'bdp' => array(
             'name' => __( 'BDP', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -1108,6 +1166,105 @@ function get_houzez_property_feed_import_formats()
                 'creatingAgentId',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/loop/'
+        ),
+        'mls_grid' => array(
+            'name' => __( 'MLS Grid', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'access_token',
+                    'label' => __( 'Access Token', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'originating_system_name',
+                    'label' => __( 'Originating System Name', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'actris' => 'ACTRIS MLS',
+                        'carolina' => 'Canopy MLS',
+                        'flinthills' => 'Flint Hills MLS',
+                        'scranton' => 'Greater Scranton Board of REALTORS®',
+                        'nira' => 'Northwest Indiana REALTORS® Association (formerly GNIAR)',
+                        'hmls' => 'Heartland Multiple Listing Service, Inc.',
+                        'highland' => 'Highland Lakes Association of REALTORS®',
+                        'lbor' => 'Lawrence Board of REALTORS®',
+                        'lascruces' => 'Southern New Mexico MLS',
+                        'maris' => 'MARIS MLS',
+                        'mfrmls' => 'My Florida Regional MLS DBA Stellar MLS',
+                        'mibor' => 'MIBOR REALTOR® Association',
+                        'mlsok' => 'MLSOK',
+                        'mred' => 'MRED Midwest Real Estate Data',
+                        'neirbr' => 'Northeast Iowa Regional Board of REALTORS®',
+                        'nocoast' => 'NoCoast MLS',
+                        'northstar' => 'NorthstarMLS®',
+                        'nwmls' => 'Northwest MLS',
+                        'onekey2' => 'OneKey® MLS (NEW)',
+                        'paar' => 'Prescott Area Association of REALTORS®',
+                        'pikewayne' => 'Pike/Wayne Association of REALTORS®',
+                        'prairie' => 'Mid-Kansas MLS (Prairie Land REALTORS®)',
+                        'ranw' => 'REALTOR® Association Northeast Wisconsin',
+                        'realtrac' => 'RT RealTracs',
+                        'recolorado' => 'REcolorado',
+                        'rmlsa' => 'RMLS Alliance',
+                        'rrar' => 'Reelfoot Regional Association of REALTORS®',
+                        'sarmls' => 'Spokane Association of REALTORS®',
+                        'sckansas' => 'South Central Kansas MLS',
+                        'somo' => 'Southern Missouri Regional MLS (SOMO)',
+                        'spartanburg' => 'Spartanburg Board of REALTORS®',
+                        'sunflower' => 'Sunflower MLS',
+                    )
+                ),
+                array(
+                    'id' => 'statuses',
+                    'label' => __( 'Status(es) To Import', 'houzezpropertyfeed' ),
+                    'type' => 'multiselect',
+                    'options' => array(
+                        'Active' => 'Active',
+                        'Active Under Contract' => 'Active Under Contract',
+                        'Canceled' => 'Canceled',
+                        'Closed' => 'Closed',
+                        'Coming Soon' => 'Coming Soon',
+                        'Delete' => 'Delete',
+                        'Expired' => 'Expired',
+                        'Hold' => 'Hold',
+                        'Incomplete' => 'Incomplete',
+                        'Pending' => 'Pending',
+                        'Withdrawn' => 'Withdrawn'
+                    ),
+                    'default' => array( 'Active', 'Coming Soon' ),
+                    'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
+                ),
+                array(
+                    'id' => 'only_updated',
+                    'label' => __( 'Only Import Updated Properties', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'default' => 'yes',
+                ),
+            ),
+            'address_fields' => array( 'City', 'StateOrProvince' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'lettings_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Single Family Residence' => 'Single Family Residence',
+                )
+            ),
+            'contact_information_fields' => array(
+                'ListAgentFullName',
+                'ListAgentKey',
+                'ListAgentMlsId',
+                'ListOfficeName',
+                'ListOfficeKey',
+                'ListOfficeMlsId',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mls-grid/'
         ),
         'mri' => array(
             'name' => __( 'MRI XML', 'houzezpropertyfeed' ),

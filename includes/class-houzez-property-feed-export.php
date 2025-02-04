@@ -378,6 +378,12 @@ class Houzez_Property_Feed_Export {
     {
         if ( isset($_GET['action']) && $_GET['action'] == 'deleteexport' && isset($_GET['export_id']) )
         {
+            if ( !isset($_GET['_wpnonce']) || !check_admin_referer('delete-export') )
+            {
+                wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'Security check failed', 'houzezpropertyfeed' ) ) ) );
+                die();
+            }
+
             $export_id = !empty($_GET['export_id']) ? (int)$_GET['export_id'] : '';
 
             if ( empty($export_id) )

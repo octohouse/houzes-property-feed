@@ -384,6 +384,15 @@ if ( is_array($imports) && !empty($imports) )
 
 		    			break;
 		    		}
+		    		case "apimo":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-apimo.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Apimo( $instance_id, $import_id );
+
+		    			break;
+		    		}
 		    		case "bdp":
 		    		{
 		                // includes
@@ -502,6 +511,15 @@ if ( is_array($imports) && !empty($imports) )
                         require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-loop.php';
 
 						$import_object = new Houzez_Property_Feed_Format_Loop( $instance_id, $import_id );
+
+		    			break;
+		    		}
+		    		case "mls_grid":
+		    		{
+		                // includes
+                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-mls-grid.php';
+
+						$import_object = new Houzez_Property_Feed_Format_Mls_Grid( $instance_id, $import_id );
 
 		    			break;
 		    		}
