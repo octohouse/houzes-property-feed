@@ -115,6 +115,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
@@ -307,6 +309,19 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 						foreach ( $explode_media as $media_item )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($urls) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+
 							$explode_media_item = explode("|", $media_item); // 0 => URL, 1 => Description
 
 							$url = trim($explode_media_item[0]);
@@ -399,6 +414,19 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 						foreach ( $explode_media as $media_item )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($media_ids) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+				        
 							$explode_media_item = explode("|", $media_item); // 0 => URL, 1 => Description
 
 							$url = trim($explode_media_item[0]);

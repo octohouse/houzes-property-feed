@@ -105,7 +105,28 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
-		$limit = 100;
+		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            $pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+            
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
+        }
+
+		$per_page = 100;
 
 		$endpoint = '/v1/rex/published-listings/search';
 
@@ -126,7 +147,7 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 					"value" => true
 				)
 			),
-			'limit' => $limit,
+			'limit' => $per_page,
 			'order_by' => array('system_publication_time' => 'desc')
 		);
 
@@ -137,7 +158,7 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 
 		while ( $found_results && $page < 99 )
 		{
-			$offset = ( $page - 1 ) * $limit;
+			$offset = ( $page - 1 ) * $per_page;
 			$data['offset'] = $offset;
 
 			$body = json_encode($data);
@@ -194,6 +215,11 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 
 					foreach ($json['result']['rows'] as $property)
 					{
+						if ( $limit !== FALSE && count($this->properties) >= $limit )
+                        {
+                            return true;
+                        }
+
 						$this->properties[] = $property;
 					}
 				}
@@ -230,6 +256,8 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
 		$this->import_start();
 
@@ -822,6 +850,19 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 					{
 						foreach ( $property['images'] as $image )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($urls) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+
 							$url = $image['url'];
 							if ( substr($url, 0, 2) == '//' )
 							{
@@ -879,6 +920,19 @@ class Houzez_Property_Feed_Format_Rex extends Houzez_Property_Feed_Process {
 					{
 						foreach ( $property['images'] as $image )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($media_ids) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+				        
 							$url = $image['url'];
 							if ( substr($url, 0, 2) == '//' )
 							{

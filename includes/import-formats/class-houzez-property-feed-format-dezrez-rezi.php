@@ -31,6 +31,27 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+		if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+        	$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
+        	// using pro, but check for limit setting
+        	if ( 
+        		$pro_active === true &&
+        		isset($import_settings['limit']) && 
+        		!empty((int)$import_settings['limit']) && 
+        		is_numeric($import_settings['limit'])
+        	)
+        	{
+        		$limit = (int)$import_settings['limit'];
+        	}
+        }
+
 		$api_calls = array(
 			'sales' => array(
 				'PageSize' => 999,
@@ -47,10 +68,6 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 		);
 		
 		$api_calls = apply_filters( 'propertyhive_dezrez_json_api_calls', $api_calls, $import_id );
-
-		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
-
-		$property_i = 1;
 
 		foreach ( $api_calls as $department => $params )
 		{
@@ -122,57 +139,57 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 
 						foreach ($properties_array as $property)
 						{
-							if ( $limit === FALSE || ($limit !== FALSE && $property_i <= $limit) )
+							if ( $limit !== FALSE && count($this->properties) >= $limit )
 		                	{
-								$property_id = $property['RoleId'];
+		                		return true;
+		                	}
 
-								$agent_ref = $property_id;
+							$property_id = $property['RoleId'];
 
-								$property_url = 'https://api.dezrez.com/api/simplepropertyrole/' . $property_id;
-								$fields = array(
-									'APIKey' => urlencode($import_settings['api_key']),
-								);
+							$agent_ref = $property_id;
 
-								//url-ify the data for the POST
-								$fields_string = '';
-								foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
-								$fields_string = rtrim($fields_string, '&');
+							$property_url = 'https://api.dezrez.com/api/simplepropertyrole/' . $property_id;
+							$fields = array(
+								'APIKey' => urlencode($import_settings['api_key']),
+							);
 
-								$property_url = $property_url . '?' . $fields_string;
-								
-								$this->ping();
-								
-								$response = wp_remote_get( 
-									$property_url, 
-									array(
-										'timeout' => 120,
-										'headers' => array(
-											'Rezi-Api-Version' => '1.0',
-											'Content-Type' => 'application/json'
-										),
-								    )
-								);
+							//url-ify the data for the POST
+							$fields_string = '';
+							foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+							$fields_string = rtrim($fields_string, '&');
 
-								if ( !is_wp_error( $response ) && is_array( $response ) ) 
+							$property_url = $property_url . '?' . $fields_string;
+							
+							$this->ping();
+							
+							$response = wp_remote_get( 
+								$property_url, 
+								array(
+									'timeout' => 120,
+									'headers' => array(
+										'Rezi-Api-Version' => '1.0',
+										'Content-Type' => 'application/json'
+									),
+							    )
+							);
+
+							if ( !is_wp_error( $response ) && is_array( $response ) ) 
+							{
+								$contents = $response['body'];
+
+								$property_json = json_decode($contents, TRUE);
+								if ($property_json !== FALSE)
 								{
-									$contents = $response['body'];
-
-									$property_json = json_decode($contents, TRUE);
-									if ($property_json !== FALSE)
-									{
-										$property_json['RoleId'] = $property_id;
-										$property_json['SummaryTextDescription'] = ( ( isset($property['SummaryTextDescription']) && !empty($property['SummaryTextDescription']) ) ? $property['SummaryTextDescription'] : '' );
-										$this->properties[] = $property_json;
-									}
-								}
-								else
-								{
-									$this->log_error( 'Failed to obtain property JSON. Dump of response as follows: ' . print_r($response, TRUE) );
-									return false;
+									$property_json['RoleId'] = $property_id;
+									$property_json['SummaryTextDescription'] = ( ( isset($property['SummaryTextDescription']) && !empty($property['SummaryTextDescription']) ) ? $property['SummaryTextDescription'] : '' );
+									$this->properties[] = $property_json;
 								}
 							}
-
-							++$property_i;
+							else
+							{
+								$this->log_error( 'Failed to obtain property JSON. Dump of response as follows: ' . print_r($response, TRUE) );
+								return false;
+							}
 						}
 					}
 					else
@@ -213,6 +230,8 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
 		$this->import_start();
 
@@ -833,6 +852,19 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 					{
 						foreach ( $property['Images'] as $image )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($urls) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+
 							if ( 
 								isset($image['Url']) && $image['Url'] != ''
 								&&
@@ -891,6 +923,19 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 					{
 						foreach ( $property['Images'] as $image )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($media_ids) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+					        
 							if ( 
 								isset($image['Url']) && $image['Url'] != ''
 								&&
@@ -1223,6 +1268,8 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 					$url = $property['EPC']['Image']['Url'];
 					// This is a URL
 					$description = __( 'EPC', 'houzezpropertyfeed' );
+
+					$filename = basename( $url );
 				   
 					// Check, based on the URL, whether we have previously imported this media
 					$imported_previously = false;

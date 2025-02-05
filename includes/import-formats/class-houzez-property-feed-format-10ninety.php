@@ -83,6 +83,8 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
@@ -564,6 +566,19 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 
 					for ( $i = 0; $i <= 49; ++$i )
 					{
+						if ( $pro_active === true )
+						{
+							if ( 
+								isset($import_settings['limit_images']) && 
+								!empty((int)$import_settings['limit_images']) && 
+								is_numeric($import_settings['limit_images']) &&
+								count($urls) >= $import_settings['limit_images']
+							)
+				        	{
+				        		break;
+				        	}
+				        }
+
 						$j = str_pad( $i, 2, '0', STR_PAD_LEFT );
 
 						if ( isset($property->{'MEDIA_IMAGE_' . $j}) && trim((string)$property->{'MEDIA_IMAGE_' . $j}) != '' )
@@ -617,6 +632,19 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 
 					for ( $i = 0; $i <= 49; ++$i )
 					{
+						if ( $pro_active === true )
+						{
+							if ( 
+								isset($import_settings['limit_images']) && 
+								!empty((int)$import_settings['limit_images']) && 
+								is_numeric($import_settings['limit_images']) &&
+								count($media_ids) >= $import_settings['limit_images']
+							)
+				        	{
+				        		break;
+				        	}
+				        }
+
 						$j = str_pad( $i, 2, '0', STR_PAD_LEFT );
 
 						if ( isset($property->{'MEDIA_IMAGE_' . $j}) && trim((string)$property->{'MEDIA_IMAGE_' . $j}) != '' )

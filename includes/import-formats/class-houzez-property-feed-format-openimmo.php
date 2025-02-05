@@ -204,6 +204,8 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
 		$local_directory = $import_settings['local_directory'];
 
 		$this->import_start();
@@ -775,6 +777,19 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	                {
 	                    foreach ($property->anhaenge->anhang as $image)
 	                    {
+	                    	if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($urls) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+
 	                        $image_attributes = $image->attributes();
 	                        if ( 
 	                        	isset($image_attributes['gruppe']) && 
@@ -814,6 +829,19 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	                {
 	                    foreach ($property->anhaenge->anhang as $image)
 	                    {
+	                    	if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($media_ids) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+				        
 	                        $image_attributes = $image->attributes();
 	                        if ( 
 	                        	isset($image_attributes['gruppe']) && 

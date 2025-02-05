@@ -314,9 +314,16 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 }
                 $details .= '<strong>' . esc_html( __( 'Export Enquiries', 'houzezpropertyfeed' ) ) . '</strong>: ' . esc_html($value) . '<br>';
             }
-            if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true && isset($import['limit']) && !empty((int)$import['limit']) && is_numeric($import['limit']) )
+            if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
             {
-                $details .= '<strong>' . __( 'Limit', 'houzezpropertyfeed' ) . '</strong>: ' . esc_html(number_format((int)$import['limit']) . ' ' . __( 'properties', 'houzezpropertyfeed' ) ) . '<br>';
+                if ( isset($import['limit']) && !empty((int)$import['limit']) && is_numeric($import['limit']) )
+                {
+                    $details .= '<strong>' . __( 'Limit Properties', 'houzezpropertyfeed' ) . '</strong>: ' . esc_html(number_format((int)$import['limit']) . ' ' . __( 'properties', 'houzezpropertyfeed' ) ) . '<br>';
+                }
+                if ( isset($import['limit_images']) && !empty((int)$import['limit_images']) && is_numeric($import['limit_images']) )
+                {
+                    $details .= '<strong>' . __( 'Limit Images', 'houzezpropertyfeed' ) . '</strong>: ' . esc_html(number_format((int)$import['limit_images']) . ' ' . __( 'per property', 'houzezpropertyfeed' ) ) . '<br>';
+                }
             }
 
             if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )

@@ -114,6 +114,27 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+        $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            $pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+            
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
+        }
+
         $imported_ref_key = '_imported_ref_' . $this->import_id;
 
 		$property_ids = array();
@@ -131,21 +152,6 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
             $embed[] = 'negotiator';
         }
         $new_negotiator_embed = time();
-
-        // only embed area if location taxonomy being used
-        /*if ( taxonomy_exists('location') )
-        {
-            $args = array(
-                'hide_empty' => false,
-                'parent' => 0
-            );
-            $terms = get_terms( 'location', $args );
-
-            if ( !empty( $terms ) && !is_wp_error( $terms ) )
-            {
-                $embed[] = 'area';
-            }
-        }*/
 
         $total_pages = 999;
         $page_size = 100;
@@ -232,6 +238,11 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
 
                         foreach ($json['_embedded'] as $property)
                         {
+                            if ( $limit !== FALSE && count($this->properties) >= $limit )
+                            {
+                                break 3;
+                            }
+
                             $property_id = $property['id'];
 
                             $ok_to_import = true;
@@ -525,6 +536,8 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
+
+        $pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
 		$this->import_start();
 
@@ -851,7 +864,7 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
     	            update_post_meta( $post_id, 'fave_property_zip', ( ( isset($property['address']['postcode']) ) ? $property['address']['postcode'] : '' ) );
 
     	            update_post_meta( $post_id, 'fave_featured', 0 );
-    	            /*update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
+    	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
     	            if ( 
     	            	isset($import_settings['agent_display_option']) && 
@@ -869,11 +882,11 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
     		            			$value_in_feed_to_check = '';
     		            			switch ( $rule['field'] )
     		            			{
-    		            				case "branch_uuid":
-    		            				{
-    		            					$value_in_feed_to_check = $property['attributes']['branch_uuid'];
-    		            					break;
-    		            				}
+    		            				default:
+                                        {
+                                            $value_in_feed_to_check = $property[$rule['field']];
+                                            break;
+                                        }
     		            			}
 
     		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
@@ -899,11 +912,11 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
     		            			$value_in_feed_to_check = '';
     		            			switch ( $rule['field'] )
     		            			{
-    		            				case "branch_uuid":
-    		            				{
-    		            					$value_in_feed_to_check = $property['attributes']['branch_uuid'];
-    		            					break;
-    		            				}
+    		            				default:
+                                        {
+                                            $value_in_feed_to_check = $property[$rule['field']];
+                                            break;
+                                        }
     		            			}
 
     		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
@@ -921,9 +934,9 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
     		            			$value_in_feed_to_check = '';
     		            			switch ( $rule['field'] )
     		            			{
-    		            				case "branch_uuid":
+    		            				default:
     		            				{
-    		            					$value_in_feed_to_check = $property['attributes']['branch_uuid'];
+    		            					$value_in_feed_to_check = $property[$rule['field']];
     		            					break;
     		            				}
     		            			}
@@ -937,7 +950,7 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
     		            		break;
     		            	}
     		            }
-    	        	}*/
+    	        	}
     	        	
     	            // Turn bullets into property features
     	            $feature_term_ids = array();
@@ -1058,7 +1071,7 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
                     }
 
     				// Location taxonomies
-    				/*$create_location_taxonomy_terms = isset( $import_settings['create_location_taxonomy_terms'] ) ? $import_settings['create_location_taxonomy_terms'] : false;
+    				$create_location_taxonomy_terms = isset( $import_settings['create_location_taxonomy_terms'] ) ? $import_settings['create_location_taxonomy_terms'] : false;
 
     				$houzez_tax_settings = get_option('houzez_tax_settings', array() );
     				
@@ -1110,7 +1123,7 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
     							wp_delete_object_term_relationships( $post_id, $location_taxonomy );
     						}
     					}
-    				}*/
+    				}
 
     				// If there is media, order the array by the order field
                     if (isset($property['_embedded']['images']) && !empty($property['_embedded']['images']))
@@ -1118,6 +1131,18 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
                         $media_order = array_column($property['_embedded']['images'], 'order');
 
                         array_multisort($media_order, SORT_ASC, $property['_embedded']['images']);
+
+                        if ( $pro_active === true )
+                        {
+                            if ( 
+                                isset($import_settings['limit_images']) && 
+                                !empty((int)$import_settings['limit_images']) && 
+                                is_numeric($import_settings['limit_images'])
+                            )
+                            {
+                                $property['_embedded']['images'] = array_slice($property['_embedded']['images'], 0, (int)$import_settings['limit_images']);
+                            }
+                        }
                     }
 
     				// Images

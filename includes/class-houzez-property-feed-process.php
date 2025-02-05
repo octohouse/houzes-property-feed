@@ -734,6 +734,25 @@ class Houzez_Property_Feed_Process {
             }
         }
     }
+
+    public function get_number_published_properties()
+    {
+    	$count_query = new WP_Query(array(
+		    'post_type'      => 'property',
+		    'post_status'    => 'publish',
+		    'meta_query'     => array(
+		        array(
+		            'key'     => '_imported_ref_' . $this->import_id,
+		            'compare' => 'EXISTS',
+		        ),
+		    ),
+		    'posts_per_page' => -1, // Fetch all matching posts
+		    'fields'         => 'ids', // Only get post IDs to improve performance
+		    'no_found_rows'  => true, // Improve performance since we only need the count
+		));
+
+    	return $count_query->post_count;
+    }
 }
 
 class SimpleXMLExtendedHpf extends SimpleXMLElement {

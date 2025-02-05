@@ -59,6 +59,27 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
         	}
         }
 
+        $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+		if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+        	$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
+        	// using pro, but check for limit setting
+        	if ( 
+        		$pro_active === true &&
+        		isset($import_settings['limit']) && 
+        		!empty((int)$import_settings['limit']) && 
+        		is_numeric($import_settings['limit'])
+        	)
+        	{
+        		$limit = (int)$import_settings['limit'];
+        	}
+        }
+
 		foreach ( $statuses as $status )
 		{
 			$this->log("Obtaining properties with status " . $status);
@@ -103,6 +124,14 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 						{
 							foreach ($json['value'] as $property)
 							{
+								if ( !$this->only_updated )
+								{
+									if ( $limit !== FALSE && count($this->properties) >= $limit )
+				                	{
+				                		return true;
+				                	}
+								}
+
 								if ( $this->only_updated || ( !$this->only_updated && isset($property['MlgCanView']) && $property['MlgCanView'] === true ) )
 								{
 									if ( isset($property['MlgCanUse']) && is_array($property['MlgCanUse']) && in_array('IDX', $property['MlgCanUse']) )
@@ -164,6 +193,8 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
@@ -194,6 +225,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		$start_at_property = get_option( 'houzez_property_feed_property_' . $this->import_id );
 
 		$property_row = 1;
+		// $this->properties could contain all properties, or only updated one. Check $this->only_updated
 		foreach ( $this->properties as $property )
 		{
 			if ( $this->only_updated )
@@ -205,6 +237,23 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 				{
 					$this->remove_property( $property['ListingKey'], '' );
 				}
+
+				if ( 
+	        		$pro_active === true &&
+	        		isset($import_settings['limit']) && 
+	        		!empty((int)$import_settings['limit']) && 
+	        		is_numeric($import_settings['limit'])
+	        	)
+	        	{
+	        		// Check how many published properties there are belonging to this import and, if more than limit, break out
+	        		$property_count = $this->get_number_published_properties();
+
+					if ( $property_count >= (int)$import_settings['limit'] )
+					{
+						$this->log( 'Stopping as we\'ve hit the advanced limit setting in <a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . $this->import_id) . '">import settings</a>.' );
+						break;
+					}
+	        	}
 			}
 			else
 			{
@@ -414,7 +463,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 	            add_post_meta( $post_id, 'fave_featured', '0', TRUE );
 	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
-	            /*if ( 
+	            if ( 
 	            	isset($import_settings['agent_display_option']) && 
 	            	isset($import_settings['agent_display_option_rules']) && 
 	            	is_array($import_settings['agent_display_option_rules']) && 
@@ -430,11 +479,6 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "api_key":
-		            				{
-		            					$value_in_feed_to_check = $import_settings['api_key'];
-		            					break;
-		            				}
 		            				default:
 		            				{
 		            					$value_in_feed_to_check = $property[$rule['field']];
@@ -464,11 +508,6 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "api_key":
-		            				{
-		            					$value_in_feed_to_check = $import_settings['api_key'];
-		            					break;
-		            				}
 		            				default:
 		            				{
 		            					$value_in_feed_to_check = $property[$rule['field']];
@@ -490,11 +529,6 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "api_key":
-		            				{
-		            					$value_in_feed_to_check = $import_settings['api_key'];
-		            					break;
-		            				}
 		            				default:
 		            				{
 		            					$value_in_feed_to_check = $property[$rule['field']];
@@ -510,9 +544,8 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		            		break;
 		            	}
 		            }
-	        	}*/
+	        	}
 	        	
-
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
 				// status taxonomies
@@ -651,6 +684,19 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 					{
 						foreach ( $property['Media'] as $image )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($media_ids) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+					        
 							if ( 
 								isset($image['MediaURL']) && $image['MediaURL'] != ''
 								&&

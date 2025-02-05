@@ -29,6 +29,27 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            $pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+            
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
+        }
+
 		$requests = 0;
 		$requests_per_chunk = apply_filters( 'houzez_property_feed_vaultea_requests_per_chunk', 10 );
 		$pause_between_requests = apply_filters( 'houzez_property_feed_vaultea_pause_between_requests', 1 );
@@ -111,6 +132,11 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 
 						foreach ($json['items'] as $property)
 						{
+							if ( $limit !== FALSE && count($this->properties) >= $limit )
+	                        {
+	                            return true;
+	                        }
+						        
 							$property['department'] = $endpoint['department'];
 
 							$property['features'] = array();
@@ -251,6 +277,8 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
 		$this->import_start();
 
@@ -777,6 +805,19 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 					{
 						foreach ( $property['photos'] as $image )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($urls) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+
 							if ( 
 								isset($image['url']) && $image['url'] != ''
 								&&
@@ -836,6 +877,19 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 					{
 						foreach ( $property['photos'] as $image )
 						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									count($media_ids) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+				        
 							if ( 
 								isset($image['url']) && $image['url'] != ''
 								&&

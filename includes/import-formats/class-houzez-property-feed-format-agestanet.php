@@ -84,6 +84,8 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
@@ -529,6 +531,19 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
 
 					for ( $i = 1; $i < 50; ++$i )
 					{
+						if ( $pro_active === true )
+						{
+							if ( 
+								isset($import_settings['limit_images']) && 
+								!empty((int)$import_settings['limit_images']) && 
+								is_numeric($import_settings['limit_images']) &&
+								count($urls) >= $import_settings['limit_images']
+							)
+				        	{
+				        		break;
+				        	}
+				        }
+
 						if ( isset($property->{'url' . $i}) && (string)$property->{'url' . $i} != '' )
                         {
 							$url = trim((string)$property->{'url' . $i});
@@ -582,6 +597,19 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
 
 					for ( $i = 1; $i < 50; ++$i )
 					{
+						if ( $pro_active === true )
+						{
+							if ( 
+								isset($import_settings['limit_images']) && 
+								!empty((int)$import_settings['limit_images']) && 
+								is_numeric($import_settings['limit_images']) &&
+								count($media_ids) >= $import_settings['limit_images']
+							)
+				        	{
+				        		break;
+				        	}
+				        }
+				        
 						if ( isset($property->{'url' . $i}) && (string)$property->{'url' . $i} != '' )
                         {
 							$url = trim((string)$property->{'url' . $i});
@@ -649,7 +677,7 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
 								}
 								else
 								{
-									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property_attributes['id'], $url, $url, $description, 'image', $image_i ) === true )
+									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property_attributes['id'], $url, $url, $description, 'image', $image_i, '' ) === true )
 									{
 										$this->ping();
 										

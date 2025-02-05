@@ -513,6 +513,27 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+		if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+        	$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+        	
+        	// using pro, but check for limit setting
+        	if ( 
+        		$pro_active === true &&
+        		isset($import_settings['limit']) && 
+        		!empty((int)$import_settings['limit']) && 
+        		is_numeric($import_settings['limit'])
+        	)
+        	{
+        		$limit = (int)$import_settings['limit'];
+        	}
+        }
+
 		$per_page = apply_filters( 'houzez_property_feed_wp_rest_api_per_page', 100 );
 		$current_page = 1;
 		$more_properties = true;
@@ -563,6 +584,11 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 
 					foreach ( $json as $property )
 					{
+						if ( $limit !== FALSE && count($this->properties) >= $limit )
+	                	{
+	                		return true;
+	                	}
+
 						// get media attachments for this property
 						$attachment_urls = array();
 
@@ -601,7 +627,9 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 							{
 								foreach ( $json as $attachment )
 								{
-									$attachment_urls[$attachment['id']] = $attachment['source_url'];
+									$url = $attachment['source_url'];
+									$url = apply_filters( 'houzez_property_feed_wp_rest_api_houzez_media_source_url', $url, $attachment );
+									$attachment_urls[$attachment['id']] = $url;
 								}
 							}
 
@@ -619,6 +647,18 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 								$attachment_urls = $ordered_attachment_urls;
 							}
 						}
+
+						if ( $pro_active === true )
+						{
+							if ( 
+								isset($import_settings['limit_images']) && 
+								!empty((int)$import_settings['limit_images']) && 
+								is_numeric($import_settings['limit_images'])
+							)
+				        	{
+				        		$attachment_urls = array_slice( $attachment_urls, 0, (int)$import_settings['limit_images'] );
+				        	}
+				        }
 
 						$property['image_urls'] = $attachment_urls;
 
@@ -1021,6 +1061,8 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 								// get name of property type from $this->property_types based on ID
 								foreach ( $this->{$taxonomy} as $property_type_bank ) 
 								{
+									$this->log( $property_type_bank['id'] . ' - ' . $property_property_type, $property['id'], $post_id );
+
 							        if ( $property_type_bank['id'] == $property_property_type ) 
 							        {
 							            // We have a name. Now see if the same taxonomy and term exists on this site

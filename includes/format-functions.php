@@ -1599,7 +1599,7 @@ function get_houzez_property_feed_import_formats()
                     'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
                 )
             ),
-            'address_fields' => array( 'area' ),
+            'address_fields' => array( 'line2', 'line3', 'line4' ),
             'taxonomy_values' => array(
                 'sales_status' => array(
                     'forSale' => 'forSale',
@@ -1694,7 +1694,7 @@ function get_houzez_property_feed_import_formats()
                     'warehouse' => 'warehouse',
                 )
             ),
-            'contact_information_fields' => array( 'negotiator_id', 'negotiator_name' ),
+            'contact_information_fields' => array( 'negotiatorId' ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/reapit-foundations/',
             'infos' => array_filter( 
                 array( 
