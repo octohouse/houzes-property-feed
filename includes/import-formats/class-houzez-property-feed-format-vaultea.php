@@ -21,6 +21,18 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 	    }
 	}
 
+	private function get_server()
+	{
+		$import_settings = get_import_settings_from_id( $this->import_id );
+
+		if ( isset($import_settings['server']) && $import_settings['server'] == 'ap' )
+		{
+			return 'https://ap-southeast-2.api.vaultre.com.au/api/v1.3/';
+		}
+
+		return 'https://eu-west-1.api.vaultea.co.uk/api/v1.3/';
+	}
+
 	public function parse()
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
@@ -53,6 +65,8 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 		$requests = 0;
 		$requests_per_chunk = apply_filters( 'houzez_property_feed_vaultea_requests_per_chunk', 10 );
 		$pause_between_requests = apply_filters( 'houzez_property_feed_vaultea_pause_between_requests', 1 );
+
+		$server = $this->get_server();
 
 		// List endpoints for getting both sales and lettings properties
 		$endpoints = array(
@@ -93,7 +107,7 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 				++$requests;
 				if ( $requests % $requests_per_chunk ) { sleep($pause_between_requests); }
 
-				$response = wp_remote_get( 'https://eu-west-1.api.vaultea.co.uk/api/v1.3/' . $endpoint['uri'] . '?' . ( isset($endpoint['portalStatus']) ? 'portalStatus=' . implode(",", $endpoint['portalStatus']) . '&' : '' ) . 'publishedOnPortals=' . $import_settings['portal'] . '&pagesize=50&page=' . $current_page, array( 'timeout' => 120, 'headers' => array(
+				$response = wp_remote_get( $server . $endpoint['uri'] . '?' . ( isset($endpoint['portalStatus']) ? 'portalStatus=' . implode(",", $endpoint['portalStatus']) . '&' : '' ) . 'publishedOnPortals=' . $import_settings['portal_id'] . '&pagesize=50&page=' . $current_page, array( 'timeout' => 120, 'headers' => array(
 					'accept' => 'application/json',
 					'Content-Type' => 'application/json',
 					'X-Api-Key' => $import_settings['api_key'],
@@ -130,13 +144,13 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 
 						$this->log("Found " . count($json['items']) . " properties in JSON from " . $endpoint['uri'] . " ready for parsing");
 
-						foreach ($json['items'] as $property)
+						foreach ($json['items'] as $property_i => $property)
 						{
 							if ( $limit !== FALSE && count($this->properties) >= $limit )
 	                        {
 	                            return true;
 	                        }
-						        
+
 							$property['department'] = $endpoint['department'];
 
 							$property['features'] = array();
@@ -147,13 +161,15 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 							$salelease = $explode_endpoint[count($explode_endpoint)-1];
 							$life_id = isset($property[$salelease . 'LifeId']) && !empty($property[$salelease . 'LifeId']) ? $property[$salelease . 'LifeId'] : '';
 
+							$this->log("Getting details for property " . ( $property_i + 1 ) . "/" . count($json['items']) . " with ID " . $property['id']);
+
 							// custom
 							if ( apply_filters( 'houzez_property_feed_vaultea_custom', false ) === true )
 							{
 								++$requests;
 								if ( $requests % $requests_per_chunk ) { sleep($pause_between_requests); }
 
-								$custom_response = wp_remote_get( 'https://eu-west-1.api.vaultea.co.uk/api/v1.3/properties/residential/' . $salelease . '/' . $property['id'] . '/custom?pagesize=50', array( 'timeout' => 120, 'headers' => array(
+								$custom_response = wp_remote_get( $server . 'properties/residential/' . $salelease . '/' . $property['id'] . '/custom?pagesize=50', array( 'timeout' => 120, 'headers' => array(
 									'accept' => 'application/json',
 									'Content-Type' => 'application/json',
 									'X-Api-Key' => $import_settings['api_key'],
@@ -180,7 +196,7 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 								++$requests;
 								if ( $requests % $requests_per_chunk ) { sleep($pause_between_requests); }
 
-								$rooms_response = wp_remote_get( 'https://eu-west-1.api.vaultea.co.uk/api/v1.3/properties/' . $property['id'] . '/' . $salelease . '/' . $life_id . '/rooms', array( 'timeout' => 120, 'headers' => array(
+								$rooms_response = wp_remote_get( $server . 'properties/' . $property['id'] . '/' . $salelease . '/' . $life_id . '/rooms', array( 'timeout' => 120, 'headers' => array(
 									'accept' => 'application/json',
 									'Content-Type' => 'application/json',
 									'X-Api-Key' => $import_settings['api_key'],
@@ -204,7 +220,7 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 							++$requests;
 							if ( $requests % $requests_per_chunk ) { sleep($pause_between_requests); }
 
-							$features_response = wp_remote_get( 'https://eu-west-1.api.vaultea.co.uk/api/v1.3/' . $endpoint['uri'] . '/' . $property['id'] . '', array( 'timeout' => 120, 'headers' => array(
+							$features_response = wp_remote_get( $server . $endpoint['uri'] . '/' . $property['id'] . '', array( 'timeout' => 120, 'headers' => array(
 								'accept' => 'application/json',
 								'Content-Type' => 'application/json',
 								'X-Api-Key' => $import_settings['api_key'],
@@ -715,9 +731,9 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 					}
 					else
 					{
-						$this->log( 'Received status of ' . $property['attributes'][$status_field . '_status'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+						$this->log( 'Received status of ' . $property['portalStatus'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
 
-						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property['attributes'][$status_field . '_status'], $this->import_id );
+						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property['portalStatus'], $this->import_id );
 					}
 				}
 

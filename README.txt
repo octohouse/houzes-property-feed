@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.1
-Stable tag: 2.4.23
-Version: 2.4.23
+Stable tag: 2.4.24
+Version: 2.4.24
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -126,6 +126,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.4.24 - 2025-02-06 =
+* Added support for VaultRE. Uses the same format as the existing VaultEA format but added ability to choose the server
+* Added additional logging to VaultEA/VaultRE as it paginates through results so it doesn't look like it's fallen over
+* Corrected mapping of non-existant statuses in VaultEA/VaultRE format
 
 = 2.4.23 - 2025-02-05 =
 * Added new advanced option to limit the number of images imported per property (pro only)

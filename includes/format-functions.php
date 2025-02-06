@@ -2308,8 +2308,17 @@ function get_houzez_property_feed_import_formats()
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'vaultea' => array(
-            'name' => __( 'VaultEA', 'houzezpropertyfeed' ),
+            'name' => __( 'VaultEA / VaultRE', 'houzezpropertyfeed' ),
             'fields' => array(
+                array(
+                    'id' => 'server',
+                    'label' => __( 'CRM', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'ea' => 'VaultEA',
+                        'ap' => 'VaultRE'
+                    )
+                ),
                 array(
                     'id' => 'api_key',
                     'label' => __( 'API Key', 'houzezpropertyfeed' ),
