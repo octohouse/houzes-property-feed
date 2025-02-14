@@ -102,6 +102,7 @@ function get_houzez_property_feed_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/10ninety/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
+            'background_mode' => true,
         ),
         'acquaint' => array(
             'name' => __( 'Acquaint', 'houzezpropertyfeed' ),
@@ -145,6 +146,7 @@ function get_houzez_property_feed_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/acquaint/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
+            'background_mode' => true,
         ),
         'agentos' => array(
             'name' => __( 'agentOS', 'houzezpropertyfeed' ),
@@ -2388,7 +2390,8 @@ function get_houzez_property_feed_import_formats()
             'contact_information_fields' => array(
                 //'fave_agents',
             ),
-            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/wp-rest-api-houzez/'
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/wp-rest-api-houzez/',
+            'background_mode' => true,
         ),
         'xml' => array(
             'name' => __( 'XML', 'houzezpropertyfeed' ),

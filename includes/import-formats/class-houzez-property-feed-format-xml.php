@@ -963,8 +963,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 					$this->log( 'Not importing documents due to no document fields specified in \'Media\' section of import settings', $property_id, $post_id );
 				}
 
-				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_xml", $post_id, $property, $this->import_id );
+				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_xml", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );

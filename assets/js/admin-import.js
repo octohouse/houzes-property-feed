@@ -110,6 +110,13 @@ function hpf_show_running_status()
 			    		{
 			    			jQuery('.queued-media-items[data-import-id="' + key + '"]').html(queued_media);
 			    		}
+
+			    		var queued_properties = response[key].queued_properties;
+
+			    		if ( parseInt(queued_properties) != 0 )
+			    		{
+			    			jQuery('.queued-properties[data-import-id="' + key + '"]').html(' (' + queued_properties + ' queued properties)');
+			    		}
 		            });
 		        }
 		        else
@@ -1330,6 +1337,8 @@ function hpf_show_format_settings()
 	jQuery('#missing_mandatory_xml_field_mapping').hide();
 	jQuery('#missing_mandatory_csv_field_mapping').hide();
 
+	jQuery('#row_background_mode').hide();
+
 	jQuery('.hpf-admin-settings-import-settings #property_city_address_field').empty();
 	jQuery('.hpf-admin-settings-import-settings #property_area_address_field').empty();
 	jQuery('.hpf-admin-settings-import-settings #property_state_address_field').empty();
@@ -1417,6 +1426,11 @@ function hpf_show_format_settings()
 				if ( hpf_admin_object.formats[i].hasOwnProperty('export_enquiries') && hpf_admin_object.formats[i].hasOwnProperty('export_enquiries') == true )
 				{
 					jQuery('#import_setting_tab_enquiries').show();
+				}
+
+				if ( hpf_admin_object.formats[i].hasOwnProperty('background_mode') && hpf_admin_object.formats[i].hasOwnProperty('background_mode') == true )
+				{
+					jQuery('#row_background_mode').show();
 				}
 
 				break;

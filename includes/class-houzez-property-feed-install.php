@@ -80,6 +80,10 @@ class Houzez_Property_Feed_Install {
         wp_unschedule_event($timestamp, 'houzezpropertyfeedcronhook' );
 		wp_clear_scheduled_hook('houzezpropertyfeedcronhook');
 
+		$timestamp = wp_next_scheduled( 'houzezpropertyfeedreconcilecronhook' );
+		wp_unschedule_event($timestamp, 'houzezpropertyfeedreconcilecronhook' );
+		wp_clear_scheduled_hook('houzezpropertyfeedreconcilecronhook');
+
 	}
 
 	/**
@@ -190,6 +194,22 @@ class Houzez_Property_Feed_Install {
 					date_queued datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 					PRIMARY KEY  (id),
   					INDEX import_post_media_order (import_id, post_id, media_type, media_order)
+				) $collate;";
+
+		$table_name = $wpdb->prefix . "houzez_property_feed_property_queue";
+
+		$sql .= "CREATE TABLE $table_name (
+					id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+					instance_id bigint(20) UNSIGNED NOT NULL,
+					import_id bigint(20) UNSIGNED NOT NULL,
+					crm_id varchar(255) NOT NULL,
+					data LONGTEXT NOT NULL,
+					status ENUM('pending', 'processed') NOT NULL,
+					date_queued datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+					date_processed datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+					PRIMARY KEY  (id),
+  					INDEX status_instance_date (status, instance_id, date_queued),
+  					INDEX instance (instance_id)
 				) $collate;";
 
 		$table_name = $wpdb->prefix . "houzez_property_feed_export_logs_instance";

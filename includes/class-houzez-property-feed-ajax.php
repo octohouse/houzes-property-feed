@@ -9,8 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Houzez_Property_Feed_Ajax {
 
-	public function __construct() {
-
+	public function __construct() 
+    {
         add_action( "wp_ajax_houzez_property_feed_fetch_xml_nodes", array( $this, "fetch_xml_nodes" ) );
 
         add_action( "wp_ajax_houzez_property_feed_fetch_csv_fields", array( $this, "fetch_csv_fields" ) );
@@ -19,6 +19,8 @@ class Houzez_Property_Feed_Ajax {
 
         add_action( "wp_ajax_houzez_property_feed_get_running_status", array( $this, "get_running_status" ) );
 
+        add_action( "wp_ajax_houzez_property_feed_import_properties_batch", array( $this, "import_properties_batch" ) );
+        add_action( "wp_ajax_nopriv_houzez_property_feed_import_properties_batch", array( $this, "import_properties_batch" ) );
 	}
 
     public function fetch_xml_nodes()
@@ -195,10 +197,13 @@ class Houzez_Property_Feed_Ajax {
 
         $failed = false;
 
+        $pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
         $options = get_option( 'houzez_property_feed' , array() );
 
         $queued_media = array();
-        if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
+        $queued_properties = array();
+        if ( $pro_active === true )
         {
             if ( isset($options['media_processing']) && $options['media_processing'] === 'background' )
             {
@@ -226,6 +231,17 @@ class Houzez_Property_Feed_Ajax {
         foreach ( $_GET['import_ids'] as $import_id )
         {
             $import_id = (int)$import_id;
+
+            $import = get_import_settings_from_id( $import_id );
+            if ( $import === false )
+            {
+                continue;
+            }
+            $format = get_houzez_property_feed_import_format( $import['format'] );
+            if ( $format === false )
+            {
+                continue;
+            }
 
             $status = '';
 
@@ -305,9 +321,38 @@ class Houzez_Property_Feed_Ajax {
                 }
             }
 
+            if ( $pro_active === true )
+            {
+                if ( isset($format['background_mode']) && $format['background_mode'] === true )
+                {
+                    if ( isset($import['background_mode']) && $import['background_mode'] == 'yes' )
+                    {
+                        $queued_properties[$import_id] = 0;
+
+                        $queued_properties_query = $wpdb->get_results(
+                            "
+                            SELECT 
+                                `id`
+                            FROM
+                                " . $wpdb->prefix . "houzez_property_feed_property_queue 
+                            WHERE
+                                `import_id` = '" . (int)$import_id . "'
+                            AND
+                                `status` = 'pending'
+                            "
+                        );
+                        if ( count($queued_properties_query) > 0 )
+                        {
+                            $queued_properties[$import_id] = count($queued_properties_query);
+                        }
+                    }
+                }
+            }
+
             $statuses[$import_id] = array( 
                 'status' => $status, 
-                'queued_media' => ( isset($queued_media[$import_id]) ? $queued_media[$import_id] : '' ) 
+                'queued_media' => ( isset($queued_media[$import_id]) ? $queued_media[$import_id] : '' ) ,
+                'queued_properties' => ( isset($queued_properties[$import_id]) ? $queued_properties[$import_id] : 0 ) 
             );
         }
 
@@ -324,6 +369,268 @@ class Houzez_Property_Feed_Ajax {
         echo json_encode($statuses);
 
         wp_die();
+    }
+
+    public function import_properties_batch()
+    {
+        /*if ( !defined('DOING_CRON') || !DOING_CRON ) 
+        {
+            // If running via WP Cron, skip nonce check
+            if ( !isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'import_properties_nonce') ) 
+            {
+                error_log('Invalid nonce: ' . $_POST['_wpnonce']);
+                return;
+            }
+        }*/
+
+        global $wpdb;
+
+        $batch_size = (int)apply_filters( 'houzez_property_feed_background_mode_batch_size', 10 );
+
+        $property_queue = $wpdb->get_results(
+            "
+            SELECT
+                *
+            FROM
+                " . $wpdb->prefix . "houzez_property_feed_property_queue
+            WHERE
+                `status` = 'pending'
+            ORDER BY
+                `instance_id`, `date_queued`
+            LIMIT " . $batch_size . "
+            "
+        );
+
+        if ( !empty($property_queue) ) 
+        {
+            $last_instance_id = false; // Use to track if we're doing a new instance or not
+
+            // Yes, there are queued items. Process $batch size and then fork the process again
+            foreach ( $property_queue as $property_queue_row )
+            {
+                if ( $property_queue_row->instance_id != $last_instance_id )
+                {
+                    // we've finished once instance and moving onto the next
+                    // At this point there should be no processed
+                    // and then delete all queue entries
+                    if ( $last_instance_id !== false )
+                    {
+                        // We have done one before. Run import on properties in batch
+                        $import_object->import();
+
+                        // Get all processed properties. We should only have processed properties at this point
+                        $processed_property_queue = $wpdb->get_results(
+                            "
+                            SELECT
+                                crm_id, import_id
+                            FROM
+                                " . $wpdb->prefix . "houzez_property_feed_property_queue
+                            WHERE
+                                `status` = 'processed' AND 
+                                `instance_id` = '" . (int)$last_instance_id . "'
+                            "
+                        );
+
+                        if ( $processed_property_queue ) 
+                        {
+                            if ( apply_filters( 'houzez_property_feed_remove_old_properties', true, $processed_property_queue[0]->import_id ) === true )
+                            {
+                                $import_refs = array();
+                                foreach ($processed_property_queue as $processed_property)
+                                {
+                                    $import_refs[] = $processed_property->crm_id;
+                                }
+
+                                $import_object->do_remove_old_properties( $import_refs );
+
+                                unset($import_refs);
+                            }
+                        }
+
+                        $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_property_queue WHERE instance_id = %d", $last_instance_id));
+
+                        // log instance end
+                        $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+                        $current_date = $current_date->format("Y-m-d H:i:s");
+
+                        $wpdb->update( 
+                            $wpdb->prefix . "houzez_property_feed_logs_instance", 
+                            array( 
+                                'end_date' => $current_date,
+                                'status' => json_encode(array('status' => 'finished')),
+                                'status_date' => $current_date
+                            ),
+                            array( 'id' => $last_instance_id )
+                        );
+
+                        do_action( 'houzez_property_feed_cron_end', $instance_id, $import_id );
+                        do_action( 'houzez_property_feed_import_cron_end', $instance_id, $import_id );
+                    }
+
+                    $import_id = (int)$property_queue_row->import_id;
+
+                    if ( isset($_GET['import_ids']) && !empty($_GET['import_ids']) )
+                    {
+                        $explode_import_ids = explode("|", sanitize_text_field($_GET['import_ids']));
+
+                        $explode_import_ids = array_filter($explode_import_ids, function($value) use ($import_id) {
+                            return (int)$value !== $import_id;
+                        });
+
+                        $_GET['import_ids'] = implode("|", $explode_import_ids);
+                    }
+
+                    $import_settings = get_import_settings_from_id( $import_id );
+
+                    $import_object = hpf_get_import_object_from_format($import_settings['format'], $property_queue_row->instance_id, $import_id);
+                    $import_object->background_mode = true;
+
+                    $all_property_queue = $wpdb->get_results(
+                        "
+                        SELECT
+                            id
+                        FROM
+                            " . $wpdb->prefix . "houzez_property_feed_property_queue
+                        WHERE
+                            `instance_id` = '" . (int)$property_queue_row->instance_id . "'
+                        "
+                    );
+
+                    $import_object->total_properties = count($all_property_queue);
+
+                    $import_object->ping();
+                }
+
+                $data = $this->convert_database_data_to_property( $property_queue_row->data );
+
+                $import_object->properties[] = $data;
+
+                $last_instance_id = $property_queue_row->instance_id;
+            }
+
+            $import_object->ping();
+
+            $import_object->import();
+
+            // Need to cater for where finished on an exact number that matches the batch size
+            $processed_property_queue = $wpdb->get_results(
+                "
+                SELECT
+                    crm_id, import_id
+                FROM
+                    " . $wpdb->prefix . "houzez_property_feed_property_queue
+                WHERE
+                    `status` = 'processed' AND 
+                    `instance_id` = '" . (int)$last_instance_id . "'
+                "
+            );
+
+            $all_property_queue = $wpdb->get_results(
+                "
+                SELECT
+                    crm_id, import_id
+                FROM
+                    " . $wpdb->prefix . "houzez_property_feed_property_queue
+                WHERE
+                    `instance_id` = '" . (int)$last_instance_id . "'
+                "
+            );
+
+            $import_object->ping();
+
+            // if number of processed matches all queued then we can assume we're done
+            if ( count($processed_property_queue) == count($all_property_queue) )
+            {
+                if ( $processed_property_queue ) 
+                {
+                    if ( apply_filters( 'houzez_property_feed_remove_old_properties', true, $processed_property_queue[0]->import_id ) === true )
+                    {
+                        $import_refs = array();
+                        foreach ($processed_property_queue as $processed_property)
+                        {
+                            $import_refs[] = $processed_property->crm_id;
+                        }
+
+                        $import_object->do_remove_old_properties( $import_refs );
+
+                        unset($import_refs);
+                    }
+                }
+
+                $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_property_queue WHERE instance_id = %d", $last_instance_id));
+
+                // log instance end
+                $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+                $current_date = $current_date->format("Y-m-d H:i:s");
+
+                $wpdb->update( 
+                    $wpdb->prefix . "houzez_property_feed_logs_instance", 
+                    array( 
+                        'end_date' => $current_date,
+                        'status' => json_encode(array('status' => 'finished')),
+                        'status_date' => $current_date
+                    ),
+                    array( 'id' => $last_instance_id )
+                );
+
+                do_action( 'houzez_property_feed_cron_end', $last_instance_id, $import_id );
+                do_action( 'houzez_property_feed_import_cron_end', $last_instance_id, $import_id );
+            }
+        }
+
+        // Check if we need to fire off task again
+        $property_queue = $wpdb->get_results(
+            "
+            SELECT
+                id
+            FROM
+                " . $wpdb->prefix . "houzez_property_feed_property_queue
+            WHERE
+                `status` = 'pending'
+            LIMIT 1
+            "
+        );
+
+        if ( !empty($property_queue) ) 
+        {
+            $url = admin_url('admin-ajax.php?action=houzez_property_feed_import_properties_batch&originally_ran_manually=' . ( ( isset($_GET['originally_ran_manually']) && $_GET['originally_ran_manually'] == 'yes' ) ? 'yes' : '' ) . '&import_ids=' . ( isset($_GET['import_ids']) ? rawurlencode(sanitize_text_field($_GET['import_ids'])) : '' ) );
+
+            // Using wget to make a background HTTP request
+            $command = "wget -q -O /dev/null \"$url\" > /dev/null 2>&1 &";
+            exec($command);
+        }
+        else
+        {
+            // No properties queued. Let's just fire the import hook again to make sure we any subsequent imports are ran
+            if ( isset($_GET['originally_ran_manually']) && $_GET['originally_ran_manually'] == 'yes' )
+            {
+                $_GET['custom_property_import_cron'] = 'houzezpropertyfeedcronhook';
+            }
+            do_action('houzezpropertyfeedcronhook');
+        }
+
+        wp_die();
+    }
+
+    private function convert_database_data_to_property( $data = '' )
+    {
+        // Detect JSON (array)
+        if ( is_string($data) && json_decode($data, true) !== null ) 
+        {
+            return json_decode($data, true);
+        }
+        // Detect XML
+        elseif ( is_string($data) && strpos($data, '<?xml') === 0 ) 
+        {
+            return simplexml_load_string($data);
+        }
+        // Detect serialized data
+        elseif ( @unserialize($data) !== false ) 
+        {
+            return unserialize($data);
+        }
+
+        return $data;
     }
 }
 

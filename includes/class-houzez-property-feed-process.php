@@ -27,6 +27,16 @@ class Houzez_Property_Feed_Process {
 	 */
 	public $properties = array();
 
+	/**
+	 * @var int
+	 */
+	public $total_properties = 0;
+
+	/**
+	 * @var bool
+	 */
+	public $background_mode = false;
+
     public function __construct() 
     {
 
@@ -34,7 +44,18 @@ class Houzez_Property_Feed_Process {
 
 	public function import_start()
 	{
-		$this->log( 'Starting import' );
+		if ( $this->background_mode === false )
+		{
+			$this->log( 'Starting import' );
+		}
+		else
+		{
+			$property_row = $this->get_starting_property_row();
+			if ( $property_row == 1 )
+			{
+				$this->log( 'Starting import' );
+			}
+		}
 		
 		wp_suspend_cache_invalidation( true );
 
@@ -53,16 +74,77 @@ class Houzez_Property_Feed_Process {
 	{
 		update_option( 'houzez_property_feed_property_' . $this->import_id, '', false );
 
-		do_action( "houzez_property_feed_post_import_properties", $this->import_id );
+		if ( $this->background_mode === false )
+		{
+			wp_cache_flush();
 
-		$this->log( 'Finished import' );
+			do_action( "houzez_property_feed_post_import_properties", $this->import_id );
 
-		wp_cache_flush();
+			$this->log( 'Finished import' );
+		}
+		else
+		{
+			$pending_queued_properties = $this->get_pending_queued_properties();
+			if ( $pending_queued_properties == 0 )
+			{
+				wp_cache_flush();
 
+				do_action( "houzez_property_feed_post_import_properties", $this->import_id );
+
+				$this->log( 'Finished import' );
+			}
+		}
+		
 		wp_suspend_cache_invalidation( false );
 
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+	}
+
+	public function write_to_queue( $crm_id, $data )
+	{
+		if ( $this->instance_id != '' )
+		{
+			global $wpdb;
+
+			$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+			$current_date = $current_date->format("Y-m-d H:i:s");
+
+			// Convert $data into a storable string
+	        if ( $data instanceof SimpleXMLElement ) 
+	        {
+	            $data = $data->asXML();  // Convert SimpleXML object to XML string
+
+	            // Ensure the XML declaration is present
+			    if ( strpos($data, '<?xml') !== 0 ) 
+			    {
+			        $data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" . $data;
+			    }
+	        }
+	        elseif ( is_array($data) ) 
+	        {
+	            $data = json_encode($data);  // Convert array to JSON string
+	        }
+	        elseif ( !is_string($data) ) 
+	        {
+	            $data = serialize($data); // Fallback for unexpected data types
+	        }
+
+			$data = array(
+                'instance_id' => $this->instance_id,
+                'import_id' => $this->import_id,
+                'crm_id' => $crm_id,
+                'data' => $data,
+                'status' => 'pending',
+                'date_queued' => $current_date,
+                'date_processed' => '0000-00-00 00:00:00'
+            );
+        
+	        $wpdb->insert( 
+	            $wpdb->prefix . "houzez_property_feed_property_queue", 
+	            $data
+	        );
+		}
 	}
 
 	public function ping( $status = array() )
@@ -752,6 +834,58 @@ class Houzez_Property_Feed_Process {
 		));
 
     	return $count_query->post_count;
+    }
+
+    public function get_pending_queued_properties()
+    {
+		if ( $this->background_mode !== false )
+		{
+			global $wpdb;
+
+			// This is from a background process. Get total number of processed
+			$pending_property_queue = $wpdb->get_results(
+	            "
+	            SELECT
+	                id
+	            FROM
+	                " . $wpdb->prefix . "houzez_property_feed_property_queue
+	            WHERE
+	                `status` = 'pending'
+	            AND
+	            	`instance_id` = '" . (int)$this->instance_id . "'
+	            "
+	        );
+	        return count($pending_property_queue);
+		}
+
+		return false;
+    }
+
+    public function get_starting_property_row()
+    {
+    	$property_row = 1;
+
+		if ( $this->background_mode !== false )
+		{
+			global $wpdb;
+
+			// This is from a background process. Get total number of processed
+			$property_queue = $wpdb->get_results(
+	            "
+	            SELECT
+	                id
+	            FROM
+	                " . $wpdb->prefix . "houzez_property_feed_property_queue
+	            WHERE
+	                `status` = 'processed'
+	            AND
+	            	`instance_id` = '" . (int)$this->instance_id . "'
+	            "
+	        );
+	        return count($property_queue) + 1;
+		}
+
+		return $property_row;
     }
 }
 

@@ -513,6 +513,20 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
+		$format = $import_settings['format'];
+
+    	$format_details = get_houzez_property_feed_import_format($format);
+    	$background_mode = false;
+    	if ( $pro_active === true && $format_details !== FALSE && isset($format_details['background_mode']) && $format_details['background_mode'] === true )
+    	{
+    		if ( isset($import_settings['background_mode']) && $import_settings['background_mode'] == 'yes' )
+    		{
+		    	$background_mode = true;
+		    }
+	    }
+
 		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
 		if ( $limit !== false )
         {
@@ -520,8 +534,6 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
         }
         else
         {
-        	$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
-        	
         	// using pro, but check for limit setting
         	if ( 
         		$pro_active === true &&
@@ -708,6 +720,11 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 						$property['attachment_urls'] = $attachment_urls;
 
 						$this->properties[] = $property;
+
+						if ( $background_mode === true )
+		                {
+		                	$this->write_to_queue( $property['id'], $property );
+		                }
 					}
 
 					++$current_page;
@@ -729,14 +746,14 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 			return false;
 		}
 
-		$this->get_other_site_terms();
-
 		return true;
 	}
 
 	public function import()
 	{
 		global $wpdb;
+
+		$this->get_other_site_terms();
 
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
@@ -768,14 +785,23 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
         	}
         }
 
-		$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
+		$property_row = $this->get_starting_property_row();
+
+        if ( $this->background_mode === false )
+        {
+			$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
+		}
+		else
+		{
+			$batch_size = (int)apply_filters( 'houzez_property_feed_background_mode_batch_size', 10 );
+			$this->log( 'Beginning to loop through properties ' . $property_row . ' - ' . ( $property_row + $batch_size ) . ' out of ' . $this->total_properties . $additional_message );
+		}
 
 		$start_at_property = get_option( 'houzez_property_feed_property_' . $this->import_id );
 
-		$property_row = 1;
 		foreach ( $this->properties as $property )
 		{
-			if ( !empty($start_at_property) )
+			if ( $this->background_mode === false && !empty($start_at_property) )
 			{
 				// we need to start on a certain property
 				if ( $property['id'] == $start_at_property )
@@ -795,7 +821,7 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 			
 			$this->log( 'Importing property ' . $property_row . ' with reference ' . $property['id'], $property['id'], 0, '', false );
 
-			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
+			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => $this->total_properties));
 
 			$inserted_updated = false;
 
@@ -1061,8 +1087,6 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 								// get name of property type from $this->property_types based on ID
 								foreach ( $this->{$taxonomy} as $property_type_bank ) 
 								{
-									$this->log( $property_type_bank['id'] . ' - ' . $property_property_type, $property['id'], $post_id );
-
 							        if ( $property_type_bank['id'] == $property_property_type ) 
 							        {
 							            // We have a name. Now see if the same taxonomy and term exists on this site
@@ -1403,8 +1427,8 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 				$this->log( 'Imported ' . count($media_ids) . ' attachments (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
 				
 
-				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_wp_rest_api_houzez", $post_id, $property, $this->import_id );
+				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_wp_rest_api_houzez", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );

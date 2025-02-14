@@ -1251,8 +1251,8 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 
 				if ( isset($property_attributes['hash']) ) { update_post_meta( $post_id, '_expertagent_hash_' . $import_id, (string)$property_attributes['hash'] ); }
 
-				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_expertagent", $post_id, $property, $this->import_id );
+				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_expertagent", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );

@@ -1596,8 +1596,8 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
                     // eTag only changes when property data changes, so store it and compare when parsing data to only import updated properties
                     update_post_meta( $post_id, '_reapit_foundations_json_eTag_' . $this->import_id, $property['_eTag'] );
 
-    				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-    				do_action( "houzez_property_feed_property_imported_reapit_foundations", $post_id, $property, $this->import_id );
+    				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
+    				do_action( "houzez_property_feed_property_imported_reapit_foundations", $post_id, $property, $this->import_id, $this->instance_id );
 
     				$post = get_post( $post_id );
     				do_action( "save_post_property", $post_id, $post, false );

@@ -761,8 +761,8 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 				update_post_meta( $post_id, 'fave_video_url', '' );
 				update_post_meta( $post_id, 'fave_virtual_tour', '' );
 
-				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_resales_online", $post_id, $property, $this->import_id );
+				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_resales_online", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );

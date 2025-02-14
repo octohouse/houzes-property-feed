@@ -54,6 +54,27 @@ function convert_old_field_mapping_to_new( $field_mapping_rules )
     return $field_mapping_rules;
 }
 
+/*function hpf_get_php_executable_path() {
+    // Check PHP_BINARY (available in PHP 5.4+)
+    if (defined('PHP_BINARY') && PHP_BINARY) {
+        return PHP_BINARY;
+    }
+
+    // Try which php (Linux/macOS)
+    $php_path = trim(shell_exec('which php'));
+    if ($php_path) {
+        return $php_path;
+    }
+
+    // Try where php (Windows)
+    $php_path = trim(shell_exec('where php'));
+    if ($php_path) {
+        return $php_path;
+    }
+
+    return false;
+}*/
+
 function get_houzez_fields_for_field_mapping()
 {
     $houzez_fields = array(
@@ -369,4 +390,387 @@ function hpf_is_thousands_grouping($number, $separator) {
     }
 
     return true;
+}
+
+function hpf_get_import_object_from_format($format, $instance_id, $import_id)
+{
+    switch ($format)
+    {
+        case "10ninety":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-10ninety.php';
+
+            $import_object = new Houzez_Property_Feed_Format_10ninety( $instance_id, $import_id );
+
+            break;
+        }
+        case "acquaint":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-acquaint.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Acquaint( $instance_id, $import_id );
+
+            break;
+        }
+        case "agentos":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-agentos.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Agentos( $instance_id, $import_id );
+
+            break;
+        }
+        case "agestanet":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-agestanet.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Agestanet( $instance_id, $import_id );
+
+            break;
+        }
+        case "alto":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-alto.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Alto( $instance_id, $import_id );
+
+            break;
+        }
+        case "apex27":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-apex27.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Apex27( $instance_id, $import_id );
+
+            break;
+        }
+        case "apimo":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-apimo.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Apimo( $instance_id, $import_id );
+
+            break;
+        }
+        case "bdp":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-bdp.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Bdp( $instance_id, $import_id );
+
+            break;
+        }
+        case "blm_local":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-blm.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Blm( $instance_id, $import_id );
+
+            break;
+        }
+        case "csv":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-csv.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Csv( $instance_id, $import_id );
+
+            break;
+        }
+        case "dezrez_rezi":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-dezrez-rezi.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Dezrez_Rezi( $instance_id, $import_id );
+
+            break;
+        }
+        case "domus":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-domus.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Domus( $instance_id, $import_id );
+
+            break;
+        }
+        case "expertagent":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-expertagent.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Expertagent( $instance_id, $import_id );
+
+            break;
+        }
+        case "gnomen":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-gnomen.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Gnomen( $instance_id, $import_id );
+
+            break;
+        }
+        case "inmobalia":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-inmobalia.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Inmobalia( $instance_id, $import_id );
+
+            break;
+        }
+        case "inmovilla":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-inmovilla.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Inmovilla( $instance_id, $import_id );
+
+            break;
+        }
+        case "jupix":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-jupix.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Jupix( $instance_id, $import_id );
+
+            break;
+        }
+        case "kato_xml":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-kato-xml.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Kato_Xml( $instance_id, $import_id );
+
+            break;
+        }
+        case "kyero":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-kyero.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Kyero( $instance_id, $import_id );
+
+            break;
+        }
+        case "loop":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-loop.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Loop( $instance_id, $import_id );
+
+            break;
+        }
+        case "mls_grid":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-mls-grid.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Mls_Grid( $instance_id, $import_id );
+
+            break;
+        }
+        case "mri":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-mri.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Mri( $instance_id, $import_id );
+
+            break;
+        }
+        case "openimmo_local":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-openimmo.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Openimmo( $instance_id, $import_id );
+
+            break;
+        }
+        case "pixxi":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-pixxi.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Pixxi( $instance_id, $import_id );
+
+            break;
+        }
+        case "propctrl":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-propctrl.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Propctrl( $instance_id, $import_id );
+
+            break;
+        }
+        case "property_finder":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-property-finder.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Property_Finder( $instance_id, $import_id );
+
+            break;
+        }
+        case "reapit_foundations":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-reapit-foundations.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Reapit_Foundations( $instance_id, $import_id );
+
+            break;
+        }
+        case "reaxml_local":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-reaxml.php';
+
+            $import_object = new Houzez_Property_Feed_Format_REAXML( $instance_id, $import_id );
+
+            break;
+        }
+        case "reaxml_remote":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-reaxml.php';
+
+            $import_object = new Houzez_Property_Feed_Format_REAXML( $instance_id, $import_id );
+
+            break;
+        }
+        case "remax":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/awsv4.php';
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-remax.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Remax( $instance_id, $import_id );
+
+            break;
+        }
+        case "rentman":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-rentman.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Rentman( $instance_id, $import_id );
+
+            break;
+        }
+        case "resales_online":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-resales-online.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Resales_Online( $instance_id, $import_id );
+
+            break;
+        }
+        case "resales_online_api":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-resales-online-api.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Resales_Online_API( $instance_id, $import_id );
+
+            break;
+        }
+        case "rex":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-rex.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Rex( $instance_id, $import_id );
+
+            break;
+        }
+        case "sme_professional_json":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-sme-professional-json.php';
+
+            $import_object = new Houzez_Property_Feed_Format_SME_Professional_JSON( $instance_id, $import_id );
+
+            break;
+        }
+        case "street":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-street.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Street( $instance_id, $import_id );
+
+            break;
+        }
+        case "thinkspain":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-thinkspain.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Thinkspain( $instance_id, $import_id );
+
+            break;
+        }
+        case "vaultea":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-vaultea.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Vaultea( $instance_id, $import_id );
+
+            break;
+        }
+        case "wp_rest_api_houzez":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-wp-rest-api-houzez.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez( $instance_id, $import_id );
+
+            break;
+        }
+        case "xml":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-xml.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Xml( $instance_id, $import_id );
+
+            break;
+        }
+        case "xml2u":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-xml2u.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Xml2u( $instance_id, $import_id );
+
+            break;
+        }
+        default:
+        {
+            $import_object = apply_filters( 'houzez_property_feed_import_object', null, $instance_id, $import_id );
+        }
+    }
+
+    return $import_object;
 }

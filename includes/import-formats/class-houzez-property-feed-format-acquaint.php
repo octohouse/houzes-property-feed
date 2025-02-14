@@ -29,6 +29,39 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 
 		$import_settings = get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
+		$format = $import_settings['format'];
+
+    	$format_details = get_houzez_property_feed_import_format($format);
+    	$background_mode = false;
+    	if ( $pro_active === true && $format_details !== FALSE && isset($format_details['background_mode']) && $format_details['background_mode'] === true )
+    	{
+    		if ( isset($import_settings['background_mode']) && $import_settings['background_mode'] == 'yes' )
+    		{
+		    	$background_mode = true;
+		    }
+	    }
+
+	    $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
+        }
+
 		$contents = '';
 
 		$response = wp_remote_get( $import_settings['xml_url'], array( 'timeout' => 360 ) );
@@ -43,13 +76,25 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
         	return false;
 		}
 
+		$this->ping();
+
 		$xml = simplexml_load_string($contents);
 
 		if ( $xml !== FALSE )
 		{
 			foreach ( $xml->properties->property as $property )
 			{
+                if ( $limit !== FALSE && count($this->properties) >= $limit )
+                {
+                    return true;
+                }
+
                 $this->properties[] = $property;
+
+                if ( $background_mode === true )
+                {
+                	$this->write_to_queue( (string)$property->id, $property );
+                }
             }
         }
         else
@@ -106,16 +151,25 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
         	}
         }
 
-		$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
+		$property_row = $this->get_starting_property_row();
+
+        if ( $this->background_mode === false )
+        {
+			$this->log( 'Beginning to loop through ' . count($this->properties) . ' properties' . $additional_message );
+		}
+		else
+		{
+			$batch_size = (int)apply_filters( 'houzez_property_feed_background_mode_batch_size', 10 );
+			$this->log( 'Beginning to loop through properties ' . $property_row . ' - ' . ( $property_row + $batch_size ) . ' out of ' . $this->total_properties . $additional_message );
+		}
 
 		$start_at_property = get_option( 'houzez_property_feed_property_' . $this->import_id );
 
 		$houzez_tax_settings = get_option('houzez_tax_settings', array() );
 
-		$property_row = 1;
 		foreach ( $this->properties as $property )
 		{
-			if ( !empty($start_at_property) )
+			if ( $this->background_mode === false && !empty($start_at_property) )
 			{
 				// we need to start on a certain property
 				if ( (string)$property->id == $start_at_property )
@@ -135,7 +189,7 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 			
 			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->id, (string)$property->id, 0, '', false );
 
-			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
+			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => $this->total_properties));
 
 			$inserted_updated = false;
 
@@ -1138,8 +1192,8 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 					}
 				}
 
-				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id );
-				do_action( "houzez_property_feed_property_imported_acquaint", $post_id, $property, $this->import_id );
+				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_acquaint", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );

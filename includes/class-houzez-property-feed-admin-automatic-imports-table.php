@@ -124,6 +124,8 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
     {
         global $wpdb;
 
+        $pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
         $columns = $this->get_columns(); 
         $hidden = array();
         $sortable = $this->get_sortable_columns();
@@ -238,7 +240,8 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
         $frequencies = get_houzez_property_feed_import_frequencies();
 
         $queued_media = array();
-        if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
+        $queued_properties = array();
+        if ( $pro_active === true )
         {
             if ( isset($options['media_processing']) && $options['media_processing'] === 'background' )
             {
@@ -272,7 +275,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
         foreach ( $imports as $key => $import )
         {
             // ensure frequency is not a PRO one if PRO not enabled
-            if ( apply_filters( 'houzez_property_feed_pro_active', false ) !== true )
+            if ( $pro_active !== true )
             {
                 if ( isset($frequencies[$import['frequency']]['pro']) && $frequencies[$import['frequency']]['pro'] === true )
                 {
@@ -281,6 +284,34 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             }
 
             $format = get_houzez_property_feed_import_format( $import['format'] );
+
+            if ( $pro_active === true )
+            {
+                if ( isset($format['background_mode']) && $format['background_mode'] === true )
+                {
+                    if ( isset($import['background_mode']) && $import['background_mode'] == 'yes' )
+                    {
+                        $queued_properties[$key] = 0;
+
+                        $queued_properties_query = $wpdb->get_results(
+                            "
+                            SELECT 
+                                `id`
+                            FROM
+                                " . $wpdb->prefix . "houzez_property_feed_property_queue 
+                            WHERE
+                                `import_id` = '" . (int)$key . "'
+                            AND
+                                `status` = 'pending'
+                            "
+                        );
+                        if ( count($queued_properties_query) > 0 )
+                        {
+                            $queued_properties[$key] = count($queued_properties_query);
+                        }
+                    }
+                }
+            }
 
             $details = '';
             if ( isset($format['fields']) && !empty($format['fields']) )
@@ -314,7 +345,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 }
                 $details .= '<strong>' . esc_html( __( 'Export Enquiries', 'houzezpropertyfeed' ) ) . '</strong>: ' . esc_html($value) . '<br>';
             }
-            if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
+            if ( $pro_active === true )
             {
                 if ( isset($import['limit']) && !empty((int)$import['limit']) && is_numeric($import['limit']) )
                 {
@@ -324,10 +355,13 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 {
                     $details .= '<strong>' . __( 'Limit Images', 'houzezpropertyfeed' ) . '</strong>: ' . esc_html(number_format((int)$import['limit_images']) . ' ' . __( 'per property', 'houzezpropertyfeed' ) ) . '<br>';
                 }
-            }
-
-            if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
-            {
+                if ( 
+                    isset($format['background_mode']) && $format['background_mode'] === true &&
+                    isset($import['background_mode']) && $import['background_mode'] === 'yes' 
+                )
+                {
+                    $details .= '<strong>' . __( 'Background Mode', 'houzezpropertyfeed' ) . '</strong>: ' . esc_html('Yes') . '<span class="queued-properties" data-import-id="' . esc_attr($key) . '">' . ( ( isset($queued_properties[$key]) && !empty($queued_properties[$key]) ) ? ' (' . esc_html($queued_properties[$key]) . ' queued properties)' : '' ) . '<span><br>';
+                }
                 if ( isset($options['media_processing']) && $options['media_processing'] === 'background' )
                 {
                     if ( isset($queued_media[$key]) && !empty($queued_media[$key]) )

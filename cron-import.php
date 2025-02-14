@@ -24,7 +24,7 @@ function houzez_property_feed_import_fatal_handler() {
 			$wpdb->insert(
 				$wpdb->prefix . "houzez_property_feed_logs_instance_log",
 				array(
-					'instance_id' => $instance_id,
+					'instance_id' => ( !empty($instance_id) ? $instance_id : 0 ),
 					'post_id' => 0,
 					'crm_id' => '',
 					'severity' => 1,
@@ -110,6 +110,42 @@ if ( is_array($imports) && !empty($imports) )
 
 	    	foreach( $import_id_keys as $import_id_key )
 	    	{
+	    		$import_settings = $imports[$import_id_key];
+
+	    		if ( !isset($import_settings['running']) || ( isset($import_settings['running']) && $import_settings['running'] !== true ) )
+	            {
+	            	continue;
+	            }
+
+	            if ( isset($import_settings['deleted']) && $import_settings['deleted'] === true )
+	            {
+	            	continue;
+	            }
+
+	    		if ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) )
+	            {
+	            	if ( $import_id_key != (int)$_GET['import_id'] )
+	            	{
+	            		continue;
+	            	}
+	            }
+	            if ( isset($_GET['import_ids']) )
+	            {
+	            	// should only exist when coming from background mode
+
+	            	if ( empty($_GET['import_ids']) )
+	            	{
+	            		continue;
+	            	}
+
+	            	$explode_import_ids = explode("|", sanitize_text_field($_GET['import_ids']));
+
+	            	if ( !in_array($import_id_key, $explode_import_ids) )
+	            	{
+	            		continue;
+	            	}
+	            }
+
 		    	$shuffled_import_array[$import_id_key] = $imports[$import_id_key];
 	    	}
 
@@ -129,12 +165,39 @@ if ( is_array($imports) && !empty($imports) )
 	            	continue;
 	            }
 
+	            if ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) )
+	            {
+	            	if ( $import_id != (int)$_GET['import_id'] )
+	            	{
+	            		continue;
+	            	}
+	            }
+	            if ( isset($_GET['import_ids']) )
+	            {
+	            	// should only exist when coming from background mode (which shouldn't be in here anyway as this is non-pro)
+	            	if ( empty($_GET['import_ids']) )
+	            	{
+	            		continue;
+	            	}
+
+	            	$explode_import_ids = explode("|", sanitize_text_field($_GET['import_ids']));
+
+	            	if ( !in_array($import_id, $explode_import_ids) )
+	            	{
+	            		continue;
+	            	}
+	            }
+
 	            $imports = array( $import_id => $import_settings );
 	            break;
     		}
 	    }
 
     	$frequencies = get_houzez_property_feed_import_frequencies();
+
+    	$process_background_queue_afterwards = false;
+
+    	$import_ids = array_keys($imports);
 
     	foreach ( $imports as $import_id => $import_settings )
     	{
@@ -150,15 +213,6 @@ if ( is_array($imports) && !empty($imports) )
             {
             	$ok_to_run_import = false;
             	continue;
-            }
-
-            if ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) )
-            {
-            	if ( $import_id != (int)$_GET['import_id'] )
-            	{
-            		$ok_to_run_import = false;
-            		continue;
-            	}
             }
 
             // ensure frequency is not a PRO one if PRO not enabled
@@ -203,9 +257,10 @@ if ( is_array($imports) && !empty($imports) )
 	            }
 	        }
 
+	        $originally_ran_manually = '';
             if ( isset($_GET['custom_property_import_cron']) )
             {
-
+            	$originally_ran_manually = 'yes';
             }
             else
             {
@@ -309,6 +364,62 @@ if ( is_array($imports) && !empty($imports) )
 
             if ($ok_to_run_import)
             {
+            	$format = $import_settings['format'];
+            	$background_mode = false;
+
+            	if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
+            	{
+            		$format_details = get_houzez_property_feed_import_format($format);
+			    	
+			    	if ( $format_details !== FALSE && isset($format_details['background_mode']) && $format_details['background_mode'] === true )
+			    	{
+			    		if ( isset($import_settings['background_mode']) && $import_settings['background_mode'] == 'yes' )
+			    		{
+				    		$background_mode = true;
+				    	}
+				    }
+
+				    if ( $background_mode !== true )
+				    {
+				    	// Delete any queued properties
+				    	$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_property_queue WHERE import_id = %d", $import_id));
+				    }
+
+	            	// Before we do anything, let's ensure there are no properties in the queue.
+	            	// If there is we should process them first
+	            	$property_queue = $wpdb->get_results(
+						"
+						SELECT
+							id, instance_id
+						FROM
+							" . $wpdb->prefix . "houzez_property_feed_property_queue
+						WHERE
+							`status` = 'pending'
+						LIMIT 1
+						"
+					);
+
+					if ( !empty($property_queue) ) 
+					{
+						// Yes. There are properties queued. Let's fork a process
+						// At the end of the forked process maybe run the normal cron
+						$url = admin_url('admin-ajax.php?action=houzez_property_feed_import_properties_batch&originally_ran_manually=' . $originally_ran_manually . '&import_ids=' . rawurlencode(implode("|", $import_ids) ));
+
+						// Using wget to make a background HTTP request
+					    $command = "wget -q -O /dev/null \"$url\" > /dev/null 2>&1 &";
+					    exec($command);
+
+						return;
+					}
+				}
+
+				if ( $background_mode === false )
+				{
+					$import_ids = array_filter($import_ids, function($value) use ($import_id) {
+		                return (int)$value !== (int)$import_id;
+		            });
+				}
+
 	            // log instance start
 	            $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
 				$current_date = $current_date->format("Y-m-d H:i:s");
@@ -324,402 +435,21 @@ if ( is_array($imports) && !empty($imports) )
 	            );
 	            $instance_id = $wpdb->insert_id;
 
-		    	$format = $import_settings['format'];
-
 		    	$parsed_in_class = false;
 
-		    	switch ($format)
+		    	$import_object = hpf_get_import_object_from_format($format, $instance_id, $import_id);
+
+		    	// parsed in class
+		    	if ( 
+		    		in_array(
+		    			$format, 
+		    			apply_filters( 'houzez_property_feed_formats_parsed_in_class', array( 'blm_local', 'openimmo_local', 'reaxml_local', 'rentman' ) ) 
+		    		)
+		    	)
 		    	{
-		    		case "10ninety":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-10ninety.php';
+		    		$import_object->parse_and_import();
 
-						$import_object = new Houzez_Property_Feed_Format_10ninety( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "acquaint":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-acquaint.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Acquaint( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "agentos":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-agentos.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Agentos( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "agestanet":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-agestanet.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Agestanet( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "alto":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-alto.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Alto( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "apex27":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-apex27.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Apex27( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "apimo":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-apimo.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Apimo( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "bdp":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-bdp.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Bdp( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "blm_local":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-blm.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Blm( $instance_id, $import_id );
-
-						$import_object->parse_and_import();
-
-						$parsed_in_class = true;
-
-		    			break;
-		    		}
-		    		case "csv":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-csv.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Csv( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "dezrez_rezi":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-dezrez-rezi.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Dezrez_Rezi( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "domus":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-domus.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Domus( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "expertagent":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-expertagent.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Expertagent( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "gnomen":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-gnomen.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Gnomen( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "inmobalia":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-inmobalia.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Inmobalia( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "inmovilla":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-inmovilla.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Inmovilla( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "jupix":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-jupix.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Jupix( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "kato_xml":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-kato-xml.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Kato_Xml( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "kyero":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-kyero.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Kyero( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "loop":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-loop.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Loop( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "mls_grid":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-mls-grid.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Mls_Grid( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "mri":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-mri.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Mri( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "openimmo_local":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-openimmo.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Openimmo( $instance_id, $import_id );
-
-						$import_object->parse_and_import();
-
-						$parsed_in_class = true;
-
-		    			break;
-		    		}
-		    		case "pixxi":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-pixxi.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Pixxi( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "propctrl":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-propctrl.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Propctrl( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "property_finder":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-property-finder.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Property_Finder( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "reapit_foundations":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-reapit-foundations.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Reapit_Foundations( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "reaxml_local":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-reaxml.php';
-
-						$import_object = new Houzez_Property_Feed_Format_REAXML( $instance_id, $import_id );
-
-						$import_object->parse_and_import();
-
-						$parsed_in_class = true;
-
-		    			break;
-		    		}
-		    		case "reaxml_remote":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-reaxml.php';
-
-						$import_object = new Houzez_Property_Feed_Format_REAXML( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "remax":
-		    		{
-		                // includes
-		                require_once dirname( __FILE__ ) . '/includes/awsv4.php';
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-remax.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Remax( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "rentman":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-rentman.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Rentman( $instance_id, $import_id );
-
-						$import_object->parse_and_import();
-
-						$parsed_in_class = true;
-
-		    			break;
-		    		}
-		    		case "resales_online":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-resales-online.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Resales_Online( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "resales_online_api":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-resales-online-api.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Resales_Online_API( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "rex":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-rex.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Rex( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "sme_professional_json":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-sme-professional-json.php';
-
-						$import_object = new Houzez_Property_Feed_Format_SME_Professional_JSON( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "street":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-street.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Street( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "thinkspain":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-thinkspain.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Thinkspain( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "vaultea":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-vaultea.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Vaultea( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "wp_rest_api_houzez":
-		    		{
-		    			// includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-wp-rest-api-houzez.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "xml":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-xml.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Xml( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		case "xml2u":
-		    		{
-		                // includes
-                        require_once dirname( __FILE__ ) . '/includes/import-formats/class-houzez-property-feed-format-xml2u.php';
-
-						$import_object = new Houzez_Property_Feed_Format_Xml2u( $instance_id, $import_id );
-
-		    			break;
-		    		}
-		    		default:
-		    		{
-		    			$import_object = apply_filters( 'houzez_property_feed_import_object', null, $instance_id, $import_id );
-		    		}
+            		$parsed_in_class = true;
 		    	}
 
 		    	if ( !$parsed_in_class && isset($import_object) && !empty($import_object) )
@@ -728,36 +458,56 @@ if ( is_array($imports) && !empty($imports) )
 		    		
 			    	$parsed = $import_object->parse();
 
-	                if ( $parsed !== FALSE )
+	                if ( $parsed !== false )
 	                {
-	                    $import_object->import();
+	                	if ( $background_mode === false ) // this'll be handled separately if running in background mode
+	                	{
+	                		$import_object->total_properties = count($import_object->properties);
+		                    $import_object->import();
 
-	                    if ( apply_filters( 'houzez_property_feed_remove_old_properties', true, $import_id ) === true )
-	                    {
-		                    $import_object->remove_old_properties();
-		                }
+		                    if ( apply_filters( 'houzez_property_feed_remove_old_properties', true, $import_id ) === true )
+		                    {
+			                    $import_object->remove_old_properties();
+			                }
+			            }
+			            else
+			            {
+			            	$process_background_queue_afterwards = true;
+			            }
 	                }
 
 	                unset($import_object);
 	            }
 
-		    	// log instance end
-		    	$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
-				$current_date = $current_date->format("Y-m-d H:i:s");
+	            if ( $background_mode === false ) // this'll be handled separately if running in background mode
+	            {
+			    	// log instance end
+			    	$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+					$current_date = $current_date->format("Y-m-d H:i:s");
 
-		    	$wpdb->update( 
-		            $wpdb->prefix . "houzez_property_feed_logs_instance", 
-		            array( 
-		                'end_date' => $current_date,
-		                'status' => json_encode(array('status' => 'finished')),
-	                	'status_date' => $current_date
-		            ),
-		            array( 'id' => $instance_id )
-		        );
+			    	$wpdb->update( 
+			            $wpdb->prefix . "houzez_property_feed_logs_instance", 
+			            array( 
+			                'end_date' => $current_date,
+			                'status' => json_encode(array('status' => 'finished')),
+		                	'status_date' => $current_date
+			            ),
+			            array( 'id' => $instance_id )
+			        );
 
-		        do_action( 'houzez_property_feed_cron_end', $instance_id, $import_id );
-		        do_action( 'houzez_property_feed_import_cron_end', $instance_id, $import_id );
+			        do_action( 'houzez_property_feed_cron_end', $instance_id, $import_id );
+			        do_action( 'houzez_property_feed_import_cron_end', $instance_id, $import_id );
+			    }
 	    	}
-	    }
+	    } // end foreach import
+
+	    if ( $process_background_queue_afterwards === true ) // at least one import had background mode enabled so let's fire it off
+	    {
+	    	$url = admin_url('admin-ajax.php?action=houzez_property_feed_import_properties_batch&originally_ran_manually=' . $originally_ran_manually . '&import_ids=' . rawurlencode(implode("|", $import_ids)));
+	    	
+	    	// Using wget to make a background HTTP request
+		    $command = "wget -q -O /dev/null \"$url\" > /dev/null 2>&1 &";
+		    exec($command);
+		}
     }
 }

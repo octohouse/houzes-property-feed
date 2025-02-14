@@ -31,6 +31,8 @@ class Houzez_Property_Feed_Import {
         add_action( 'add_meta_boxes', array( $this, 'import_data_meta_box') );
 
         add_action( "houzez_property_feed_post_import_properties", array( $this, 'set_location_taxonomy_parents' ) );
+
+        add_action( "houzez_property_feed_property_imported", array( $this, 'update_queue_status' ), 10, 4 );
 	}
 
     public function check_not_multiple_if_no_pro()
@@ -133,6 +135,10 @@ class Houzez_Property_Feed_Import {
             // remove any options we stored about current status
             update_option( 'houzez_property_feed_property_' . $import_id, '', false );
             update_option( 'houzez_property_feed_property_image_media_ids_' . $import_id, '', false );
+
+            global $wpdb;
+            
+            $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_property_queue WHERE import_id = %d", $import_id));
         }
 
         $running = ( isset($_POST['running']) && sanitize_text_field($_POST['running']) == 'yes' ) ? true : false;
@@ -176,6 +182,21 @@ class Houzez_Property_Feed_Import {
             'limit' => ( isset($_POST['limit']) && !empty((int)$_POST['limit']) ? (int)$_POST['limit'] : '' ),
             'limit_images' => ( isset($_POST['limit_images']) && !empty((int)$_POST['limit_images']) ? (int)$_POST['limit_images'] : '' ),
         );
+
+        $background_mode = '';
+        if ( isset($_POST['background_mode']) && sanitize_text_field($_POST['background_mode']) == 'yes' )
+        {
+            $background_mode = 'yes';
+        }
+        else
+        {
+            // Clear queue as setting has been disabled
+            global $wpdb;
+            
+            $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_property_queue WHERE import_id = %d", $import_id));
+        }
+        $import_options['background_mode'] = $background_mode;
+        
 
         $rules = array();
         switch ( $agent_display_option )
@@ -492,6 +513,7 @@ class Houzez_Property_Feed_Import {
 
                     update_option( 'houzez_property_feed_property_' . $import_id, '', false );
 
+                    $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_property_queue WHERE import_id = %d", $import_id));
                     $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_media_queue WHERE import_id = %d", $import_id));
 
                     wp_redirect( admin_url( $redirect_url . '&hpfsuccessmessage=' . __( 'Import paused', 'houzezpropertyfeed' ) ) );
@@ -1445,6 +1467,38 @@ class Houzez_Property_Feed_Import {
                 }
             }
         }
+    }
+
+    public function update_queue_status($post_id, $property, $import_id, $instance_id = null)
+    {
+        global $wpdb;
+
+        if ( empty($instance_id) )
+        {
+            return;
+        }
+
+        // get CRM_ID from post meta
+        $imported_ref_key = ( ( $import_id != '' ) ? '_imported_ref_' . $import_id : '_imported_ref' );
+        $imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $import_id );
+
+        $crm_id = get_post_meta( $post_id, $imported_ref_key, true );
+
+        $current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+        $current_date = $current_date->format("Y-m-d H:i:s");
+
+        $wpdb->update( 
+            $wpdb->prefix . "houzez_property_feed_property_queue", 
+            array( 
+                'status' => 'processed',
+                'date_processed' => $current_date
+            ),
+            array( 
+                'crm_id' => $crm_id,
+                'instance_id' => $instance_id,
+                'status' => 'pending'
+            )
+        );
     }
 }
 

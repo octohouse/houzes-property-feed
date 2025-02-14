@@ -95,6 +95,8 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
         $kyero_xml->addChild('feed_version');
         $kyero_xml->feed_version = 3;
 
+        $allowed_extensions = apply_filters( 'houzez_property_feed_kyero_export_allowed_file_extensions', array('gif', 'jpeg', 'jpg', 'png') );
+
         if ( $properties_query->have_posts() )
         {
             $this->log( "Beginning to iterate through properties" );
@@ -176,6 +178,12 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $property_xml->addChild('price_freq', $price_freq);
 
                 $property_type = $this->get_export_mapped_value($post_id, 'property_type');
+                if ( empty($property_type) )
+                {
+                    // Default so it doesn't fail validation
+                    $this->log("No property type set or property type mappings not completed in export settings under 'Taxonomies tab'. Defaulting to 'apartment'.", '', $post_id);
+                    $property_type = 'apartment';
+                }
                 $property_xml->addChild('type', $property_type);
 
                 $address_fields = array();
@@ -197,6 +205,10 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
                 $province = isset($address_fields[0]) ? $address_fields[0] : '';
                 $town = isset($address_fields[1]) ? $address_fields[1] : '';
+                if ( empty($town) && !empty($province) )
+                {
+                    $town = $province;
+                }
 
                 $property_xml->addChild('town', $town);
                 $property_xml->addChild('province', $province);
@@ -341,6 +353,25 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     $description = get_the_excerpt($post_id);
                 }
                 $description = str_replace("&nbsp;", " ", $description);
+
+                $description = trim($description);
+
+                // Replace Gutenberg block comments (start & end tags)
+                $description = preg_replace('/<!--\s*wp:.*?-->/s', '', $description);
+                $description = preg_replace('/<!--\s*\/wp:.*?-->/s', '', $description);
+
+                // Convert <p> tags to new lines
+                $description = str_replace(array('<p>', '</p>'), "\n", $description);
+
+                // Convert <br> tags to new lines
+                $description = str_replace(array('<br>', '<br/>', '<br />'), "\n", $description);
+
+                // Strip remaining HTML tags but keep newlines
+                $description = strip_tags($description);
+
+                // Trim excess spaces and normalize multiple new lines
+                $description = preg_replace("/\n+/", "\n", trim($description));
+
                 $desc_xml = $property_xml->addChild('desc');
                 $desc_xml->addChild('en', htmlspecialchars($description, ENT_QUOTES | ENT_XML1, 'UTF-8'));
 
@@ -370,9 +401,26 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                             continue;
                         }
 
+                        // Check extension meets the criteria '.(gif|jpe?g|png|GIF|JPE?G|PNG)' as specified in the validator
+                        $image_url = wp_get_attachment_url($attachment_id);
+                        $explode_image_url = explode("?", $image_url);
+                        $explode_image_url = explode(".", $explode_image_url[0]);
+                        $ext = strtolower($explode_image_url[count($explode_image_url)-1]);
+
+                        if ( 
+                            !in_array(
+                                $ext, 
+                                $allowed_extensions
+                            ) 
+                        )
+                        {
+                            $this->log("Not writing image " . $image_url . " as it doesn\'t have one of the allowed extensions " . implode(", ", $allowed_extensions), '', $post_id);
+                            continue;
+                        }
+
                         $image_xml = $images_xml->addChild('image');
                         $image_xml->addAttribute('id', $j+1);
-                        $image_xml->addChild('url', wp_get_attachment_url($attachment_id));
+                        $image_xml->addChild('url', $image_url);
 
                         ++$j;
                     }

@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.7.1
-Stable tag: 2.4.24
-Version: 2.4.24
+Tested up to: 6.7.2
+Stable tag: 2.5.0
+Version: 2.5.0
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -53,7 +53,7 @@ We can import properties from the following estate agency CRMs/formats:
 * SME Professional
 * Street (including sending enquiries back in Street)
 * thinkSPAIN
-* VaultEA
+* VaultEA (UK) / VaultRE (AUS)
 * XML (any XML file hosted on a public URL)
 * XML2U
 
@@ -126,6 +126,15 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.0 - 2025-02-14 =
+* Added new 'Background Mode' pro setting to some formats to trial processing imports in an asynchronous queue. This setting can be found under the 'Advanced' tab for some formats and, when enabled, will store the properties in a queue and then separate processes with process the queue 10 properties at a time. This is in an effort to get around one of the biggest support headaches which is imports timing out.
+* Remove HTML from descriptions in exported Kyero XML files
+* Ensure images included in Kyero exports have one of the allowed extensions (gif, jpeg, jpg, png). webp images for example will be excluded and a log entry written accordingly
+* Default 'type' in Kyero exports to 'apartment' if not set and write to log accordingly to alert the user this has happened
+* Set 'town' to be the same as 'province' in Kyero exports to guarantee it exists as it is a mandatory field
+* Change icon of 'Field Mapping' tab in export settings to match that of import settings
+* Ensure all scheduled tasks are stopped when the plugin is deactivated
 
 = 2.4.24 - 2025-02-06 =
 * Added support for VaultRE. Uses the same format as the existing VaultEA format but added ability to choose the server
