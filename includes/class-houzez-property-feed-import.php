@@ -595,6 +595,8 @@ class Houzez_Property_Feed_Import {
             'post_status' => 'publish',
         );
 
+        $original_post_fields_to_update = $post_fields_to_update;
+
         $property_node = '';
         if ( isset($import_settings['property_node']) )
         {
@@ -1079,7 +1081,7 @@ class Houzez_Property_Feed_Import {
             $post_fields_to_update['post_name'] = sanitize_title($post_fields_to_update['post_name']);
         }
 
-        if ( count($post_fields_to_update) > 1 ) // if it contains more than just ID
+        if ( $post_fields_to_update != $original_post_fields_to_update ) // Something about the post has changed
         {
             wp_update_post($post_fields_to_update, TRUE);
         }

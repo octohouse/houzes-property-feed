@@ -606,7 +606,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 									isset($import_settings['limit_images']) && 
 									!empty((int)$import_settings['limit_images']) && 
 									is_numeric($import_settings['limit_images']) &&
-									count($media_ids) >= $import_settings['limit_images']
+									(count($media_ids) + $queued) >= $import_settings['limit_images']
 								)
 					        	{
 					        		break;
@@ -684,7 +684,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 								}
 								else
 								{
-									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->reference_number, $url, $url, $description, 'image', $image_i, '' ) === true )
+									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->reference_number, $url, $url, $description, 'image', $image_i, $modified ) === true )
 									{
 										$this->ping();
 										

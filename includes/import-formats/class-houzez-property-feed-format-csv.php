@@ -412,6 +412,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 					$existing = 0;
 					$deleted = 0;
 					$image_i = 0;
+					$queued = 0;
 					$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
 					$start_at_image_i = false;
@@ -451,7 +452,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 										isset($import_settings['limit_images']) && 
 										!empty((int)$import_settings['limit_images']) && 
 										is_numeric($import_settings['limit_images']) &&
-										count($media_ids) >= $import_settings['limit_images']
+										(count($media_ids) + $queued) >= $import_settings['limit_images']
 									)
 						        	{
 						        		break;
@@ -643,7 +644,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 												isset($import_settings['limit_images']) && 
 												!empty((int)$import_settings['limit_images']) && 
 												is_numeric($import_settings['limit_images']) &&
-												count($media_ids) >= $import_settings['limit_images']
+												(count($media_ids) + $queued) >= $import_settings['limit_images']
 											)
 								        	{
 								        		break;

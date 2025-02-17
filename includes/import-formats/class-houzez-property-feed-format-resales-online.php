@@ -597,7 +597,7 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 											isset($import_settings['limit_images']) && 
 											!empty((int)$import_settings['limit_images']) && 
 											is_numeric($import_settings['limit_images']) &&
-											count($media_ids) >= $import_settings['limit_images']
+											(count($media_ids) + $queued) >= $import_settings['limit_images']
 										)
 							        	{
 							        		break 2;

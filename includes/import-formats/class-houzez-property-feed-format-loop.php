@@ -634,6 +634,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 					$existing = 0;
 					$deleted = 0;
 					$image_i = 0;
+					$queued = 0;
 					$previous_media_ids = get_post_meta( $post_id, 'fave_property_images' );
 
 					$start_at_image_i = false;
@@ -666,7 +667,7 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 									isset($import_settings['limit_images']) && 
 									!empty((int)$import_settings['limit_images']) && 
 									is_numeric($import_settings['limit_images']) &&
-									count($media_ids) >= $import_settings['limit_images']
+									(count($media_ids) + $queued) >= $import_settings['limit_images']
 								)
 					        	{
 					        		break;
@@ -757,46 +758,54 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 								}
 								else
 								{
-									$this->ping();
+									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, $property['listingId'], $url, $url, $description, 'image', $image_i, $modified ) === true )
+									{
+										$this->ping();
 
-									$tmp = download_url( $url . '?width=' . $image_width );
+										$tmp = download_url( $url . '?width=' . $image_width );
 
-								    $file_array = array(
-								        'name' => $filename,
-								        'tmp_name' => $tmp
-								    );
+									    $file_array = array(
+									        'name' => $filename,
+									        'tmp_name' => $tmp
+									    );
 
-								    // Check for download errors
-								    if ( is_wp_error( $tmp ) ) 
-								    {
-								        $this->log_error( 'An error occurred whilst importing ' . $url . '?width=' . $image_width . '. The error was as follows: ' . $tmp->get_error_message(), $property['listingId'], $post_id );
-								    }
-								    else
-								    {
-									    $id = media_handle_sideload( $file_array, $post_id, $description );
-
-									    // Check for handle sideload errors.
-									    if ( is_wp_error( $id ) ) 
+									    // Check for download errors
+									    if ( is_wp_error( $tmp ) ) 
 									    {
-									        @unlink( $file_array['tmp_name'] );
-									        
-									        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '?width=' . $image_width . '. The error was as follows: ' . $id->get_error_message(), $property['listingId'], $post_id );
+									        $this->log_error( 'An error occurred whilst importing ' . $url . '?width=' . $image_width . '. The error was as follows: ' . $tmp->get_error_message(), $property['listingId'], $post_id );
 									    }
 									    else
 									    {
-									    	$media_ids[] = $id;
+										    $id = media_handle_sideload( $file_array, $post_id, $description );
 
-									    	update_post_meta( $id, '_imported_url', $url);
-									    	update_post_meta( $id, '_modified', $modified);
+										    // Check for handle sideload errors.
+										    if ( is_wp_error( $id ) ) 
+										    {
+										        @unlink( $file_array['tmp_name'] );
+										        
+										        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '?width=' . $image_width . '. The error was as follows: ' . $id->get_error_message(), $property['listingId'], $post_id );
+										    }
+										    else
+										    {
+										    	$media_ids[] = $id;
 
-									    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
+										    	update_post_meta( $id, '_imported_url', $url);
+										    	update_post_meta( $id, '_modified', $modified);
 
-									    	++$new;
+										    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
 
-									    	++$image_i;
+										    	++$new;
 
-									    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
-									    }
+										    	++$image_i;
+
+										    	update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, $post_id . '|' . implode(",", $media_ids), false );
+										    }
+										}
+									}
+									else
+									{
+										++$queued;
+										++$image_i;
 									}
 								}
 							}
@@ -829,7 +838,11 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
 					}
 
 					$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['listingId'], $post_id );
-
+					if ( $queued > 0 ) 
+					{
+						$this->log( $queued . ' photos added to download queue', $property['listingId'], $post_id );
+					}
+					
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
 

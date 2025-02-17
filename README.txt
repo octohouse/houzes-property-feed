@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.0
-Version: 2.5.0
+Stable tag: 2.5.1
+Version: 2.5.1
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -86,10 +86,14 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 * All of the above, plus:
 * Import and export unlimited properties
 * Multiple simulateous active imports and exports
+* Choose how frequently imports and exports run
 * Priority support
 * Logs stored for seven days
+* Choose additional actions when a property is removed
 * Import logs emailed to a specified email address
 * Import media in a separate background queue
+* Limit the number of properties imported
+* Limit the number of images imported per property
 
 [Update to PRO here](https://houzezpropertyfeed.com/#pricing)
 
