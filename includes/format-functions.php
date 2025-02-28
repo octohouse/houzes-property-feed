@@ -200,7 +200,7 @@ function get_houzez_property_feed_import_formats()
                     'placeholder' => 'https://',
                 )
             ),
-            'address_fields' => array( 'comune', 'provincia', 'region ' ),
+            'address_fields' => array( 'comune', 'provincia', 'region' ),
             'taxonomy_values' => array(
                 'sales_status' => array(
                     'Sales' => 'Sales',
@@ -947,6 +947,49 @@ function get_houzez_property_feed_import_formats()
                 'numagencia',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/inmovilla/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
+        'inmoweb' => array(
+            'name' => __( 'Inmoweb', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'poblacion', 'provincia' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'activo' => 'activo',
+                    'reservado' => 'reservado',
+                ),
+                'lettings_status' => array(
+                    'activo' => 'activo',
+                    'reservado' => 'reservado',
+                ),
+                'property_type' => array(
+                    'Apartamento' => 'Apartamento',
+                    'Local comercial' => 'Local comercial',
+                    'Casa de campo' => 'Casa de campo',
+                    'Bungalow' => 'Bungalow',
+                    'Casa de pueblo' => 'Casa de pueblo',
+                    'Casa adosada' => 'Casa adosada',
+                    'Dúplex' => 'Dúplex',
+                    'Piso' => 'Piso',
+                    'Hotel' => 'Hotel',
+                    'Triplex' => 'Triplex',
+                    'Solar Urbano' => 'Solar Urbano',
+                    'Edificio' => 'Edificio',
+                    'Casa / Chalet' => 'Casa / Chalet',
+                    'Parcela' => 'Parcela',
+                    'Villa de Lujo' => 'Villa de Lujo',
+                    'Finca rústica' => 'Finca rústica'
+                )
+            ),
+            'contact_information_fields' => array(),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/inmoweb/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'jupix' => array(

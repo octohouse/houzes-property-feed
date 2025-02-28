@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.2
-Version: 2.5.2
+Stable tag: 2.5.3
+Version: 2.5.3
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,6 +33,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Gnomen
 * Inmobalia
 * Inmovilla
+* Inmoweb
 * Jupix
 * Kato
 * Kyero
@@ -130,6 +131,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.3 - 2025-02-28 =
+* Added support for importing properties from Inmoweb
+* Corrected new import data date from being compared and shown in the logs for every property updated
+* Corrected typo in AgestaNET location mapping fields
 
 = 2.5.2 - 2025-02-28 =
 * Store and display date of imported data to aid with debugging

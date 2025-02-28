@@ -540,6 +540,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "inmoweb":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-inmoweb.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Inmoweb( $instance_id, $import_id );
+
+            break;
+        }
         case "jupix":
         {
             // includes
