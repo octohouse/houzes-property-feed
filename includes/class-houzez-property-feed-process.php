@@ -277,6 +277,9 @@ class Houzez_Property_Feed_Process {
 					),
 				),
 			);
+
+			$args = apply_filters( 'houzez_property_feed_remove_old_properties_query_args', $args, $this->import_id );
+
 			$property_query = new WP_Query( $args );
 
 			if ( $property_query->have_posts() )

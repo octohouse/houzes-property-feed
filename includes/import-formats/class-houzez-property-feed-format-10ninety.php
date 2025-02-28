@@ -136,7 +136,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import_10ninety", $this->properties, $this->import_id );
 
-        $limit = apply_filters( "houzez_property_feed_property_limit", 25, $this->import_id );
+        $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
         $additional_message = '';
         if ( $limit !== false )
         {

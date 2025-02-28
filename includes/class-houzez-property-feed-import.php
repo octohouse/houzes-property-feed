@@ -33,6 +33,7 @@ class Houzez_Property_Feed_Import {
         add_action( "houzez_property_feed_post_import_properties", array( $this, 'set_location_taxonomy_parents' ) );
 
         add_action( "houzez_property_feed_property_imported", array( $this, 'update_queue_status' ), 10, 4 );
+        add_action( "houzez_property_feed_property_imported", array( $this, 'set_property_data_date' ), 10, 4 );
 	}
 
     public function check_not_multiple_if_no_pro()
@@ -1355,7 +1356,9 @@ class Houzez_Property_Feed_Import {
                     }
                 }
 
-                echo '<p style="margin-top:0">Imported from ' . esc_html($format_name) . ' (' . (int)$import_id . ') with the following data:</p>';
+                $import_data_time = get_post_meta( (int)$post->ID, '_property_import_data_time', true );
+
+                echo '<p style="margin-top:0">Imported from ' . esc_html($format_name) . ' (' . (int)$import_id . ')' . ( !empty($import_data_time) ? ' on ' . get_date_from_gmt( date( 'Y-m-d H:i:s', $import_data_time ), "jS F Y" ) . ' at ' . get_date_from_gmt( date( 'Y-m-d H:i:s', $import_data_time ), "H:i:s" ) : '' ) . ' with the following data:</p>';
             }
 
             if ( get_post_meta( $post->ID, '_property_import_data', TRUE ) != '' )
@@ -1501,6 +1504,11 @@ class Houzez_Property_Feed_Import {
                 'status' => 'pending'
             )
         );
+    }
+
+    public function set_property_data_date($post_id, $property, $import_id, $instance_id = null)
+    {
+        update_post_meta( $post_id, '_property_import_data_time', time() );
     }
 }
 

@@ -41,7 +41,7 @@
 							<th><label for="license_key"><?php echo __( 'License Key', 'houzezpropertyfeed' ); ?></label></th>
 							<td>
 								<input type="text" name="license_key" id="license_key" value="<?php echo ( isset($options['license_key']) ? esc_attr($options['license_key']) : '' ); ?>"> 
-								<p style="font-size:0.8em; margin-top:6px; color:#666">Your license key can be found and your subscription managed in the '<a href="http://houzezpropertyfeed.com/my-account" target="_blank">My Account</a>' section of the Houzez Property Feed website.</p>
+								<p style="font-size:0.8em; margin-top:6px; color:#666">Your license key can be found and your subscription managed in the '<a href="https://houzezpropertyfeed.com/my-account" target="_blank">My Account</a>' section of the Houzez Property Feed website.</p>
 							</td>
 						</tr>
 					</tbody>

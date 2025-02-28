@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.1
-Version: 2.5.1
+Stable tag: 2.5.2
+Version: 2.5.2
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -130,6 +130,16 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.2 - 2025-02-28 =
+* Store and display date of imported data to aid with debugging
+* Added filter 'houzez_property_feed_remove_old_properties_query_args' when removing old properties. This is so pro can remove draft properties when opting to delete off market properties at a later date
+* Correct http to https link in tooltip
+
+= 2.5.1 - 2025-02-18 =
+* Ensure option to queue importing of media in the background works for all import formats
+* Set post date and modified date when importing via WP REST API. Only works for properties imported going forward
+* Corrected advanced image limit setting  not working when queue enabled
 
 = 2.5.0 - 2025-02-14 =
 * Added new 'Background Mode' pro setting to some formats to trial processing imports in an asynchronous queue. This setting can be found under the 'Advanced' tab for some formats and, when enabled, will store the properties in a queue and then separate processes with process the queue 10 properties at a time. This is in an effort to get around one of the biggest support headaches which is imports timing out.
