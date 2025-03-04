@@ -168,7 +168,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 			if ( empty($property_id) )
 			{
-				$this->log_error( 'Unique ID empty. Please ensure you have a field specified that we can use as the unique identifer in the import setting under the \'Format\' tab and that is has a value set in the XML' );
+				$this->log_error( 'Unique ID empty. Please ensure you have a field specified that we can use as the unique identifier in the import setting under the \'Format\' tab and that is has a value set in the XML' );
 				continue;
 			}
 

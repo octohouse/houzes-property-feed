@@ -81,7 +81,7 @@ class Houzez_Property_Feed_Admin {
             $error = 'The Houzez theme must be active to use the Houzez Property Feed plugin';
         }
         
-        if( $error != '' )
+        if ( $error != '' )
         {
             $allowed_html = array(
                 'a' => array(

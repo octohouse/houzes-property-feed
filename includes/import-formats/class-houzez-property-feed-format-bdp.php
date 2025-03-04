@@ -813,7 +813,7 @@ class Houzez_Property_Feed_Format_Bdp extends Houzez_Property_Feed_Process {
 									    // Check for download errors
 									    if ( is_wp_error( $tmp ) ) 
 									    {
-									        $this->log_error( 'An error occurred whilst importing ' . $url . '-big.jpg. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
+									        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
 									    }
 									    else
 									    {

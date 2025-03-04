@@ -1069,12 +1069,25 @@ class Houzez_Property_Feed_Import {
         }
 
         // remove fields that are handled in the main XML/CSV import class
+        $update_post = false;
         if ( $import_settings['format'] == 'csv' || $import_settings['format'] == 'xml' )
         {
             if ( isset($post_fields_to_update['post_title']) ) { unset($post_fields_to_update['post_title']); }
             if ( isset($post_fields_to_update['post_excerpt']) ) { unset($post_fields_to_update['post_excerpt']); }
             if ( isset($post_fields_to_update['post_content']) ) { unset($post_fields_to_update['post_content']); }
             if ( isset($post_fields_to_update['post_status']) ) { unset($post_fields_to_update['post_status']); }
+
+            if ( count($post_fields_to_update) > 1 )
+            {
+                $update_post = true;
+            }
+        }
+        else
+        {
+            if ( $post_fields_to_update != $original_post_fields_to_update ) // Something about the post has changed
+            {
+                $update_post = true;
+            }
         }
 
         if ( isset($post_fields_to_update['post_name']) )
@@ -1082,7 +1095,7 @@ class Houzez_Property_Feed_Import {
             $post_fields_to_update['post_name'] = sanitize_title($post_fields_to_update['post_name']);
         }
 
-        if ( $post_fields_to_update != $original_post_fields_to_update ) // Something about the post has changed
+        if ( $update_post === true ) // Something about the post has changed
         {
             wp_update_post($post_fields_to_update, TRUE);
         }
@@ -1155,6 +1168,7 @@ class Houzez_Property_Feed_Import {
                     {
                         // Using XPATH syntax
                         $values_to_check = $property->xpath('/' . $property_node . $rule['field']);
+
                         if ( $values_to_check === FALSE || empty($values_to_check) )
                         {
                             continue;
@@ -1175,7 +1189,6 @@ class Houzez_Property_Feed_Import {
                             {
                                 $found = true;
                             }
-                            
                         }
 
                         if ( $found )
@@ -1190,6 +1203,7 @@ class Houzez_Property_Feed_Import {
                     $result = $and_rules['result'];
 
                     preg_match_all('/{[^}]*}/', $and_rules['result'], $matches);
+
                     if ( $matches !== FALSE && isset($matches[0]) && is_array($matches[0]) && !empty($matches[0]) )
                     {
                         foreach ( $matches[0] as $match )

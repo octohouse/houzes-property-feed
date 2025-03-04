@@ -12,7 +12,7 @@ function get_all_node_names( $node, $names, $parents = array() )
 
         foreach ( $node->attributes() as $a => $b ) 
         {
-            $nodes_names[] = ( !empty($parents) ? '/' . implode("/", $parents) : '' ) . '/' . $node->getName() . '[@' . $a . ']';
+            $nodes_names[] = ( !empty($parents) ? '/' . implode("/", $parents) : '' ) . '/' . $node->getName() . '/@' . $a . '';
         }
 
         if ( count($node->children($name)) ) 

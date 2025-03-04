@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.3
-Version: 2.5.3
+Stable tag: 2.5.4
+Version: 2.5.4
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,6 +20,7 @@ We can import properties from the following estate agency CRMs/formats:
 * 10ninety
 * Acquaint
 * agentOS
+* AgestaNET
 * Alto by Vebra
 * Another Houzez site (using the WordPress REST API)
 * Apex27
@@ -29,7 +30,9 @@ We can import properties from the following estate agency CRMs/formats:
 * CSV (any CSV file hosted on a public URL)
 * Dezrez Rezi
 * Domus
+* eGO Real Estate
 * Expert Agent
+* Getrix
 * Gnomen
 * Inmobalia
 * Inmovilla
@@ -131,6 +134,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.4 - 2025-03-04 =
+* Added support for importing properties from eGO Real Estate
+* Added support for importing properties from Getrix
+* Changed XML nodes so they're not wrapped in square brackets when clicking 'Fetch XML' as that wasn't standard XPATH syntax
+* Corrected status not importing in Property Finder format
+* Corrected queued images not working in Inmobalia format
+* Corrected error message in BDP format when image can't be imported
 
 = 2.5.3 - 2025-02-28 =
 * Added support for importing properties from Inmoweb

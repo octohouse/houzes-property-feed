@@ -775,6 +775,41 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/domus/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'ego' => array(
+            'name' => __( 'eGO Real Estate', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'PoblacionBarrio', 'Provinciaoisla' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Sales' => 'Sales',
+                ),
+                'lettings_status' => array(
+                    'Lettings' => 'Lettings',
+                ),
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Bungalow' => 'Bungalow',
+                    'Finca' => 'Finca',
+                    'Penthouse' => 'Penthouse',
+                    'Plot' => 'Plot',
+                    'Townhouse' => 'Townhouse',
+                    'Villa' => 'Villa',
+                )
+            ),
+            'contact_information_fields' => array(
+                'Agent ID',
+                'Agent Name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/ego/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
         'expertagent' => array(
             'name' => __( 'Expert Agent', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -840,6 +875,37 @@ function get_houzez_property_feed_import_formats()
                 'branch',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/expert-agent/',
+            'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
+        'getrix' => array(
+            'name' => __( 'Getrix', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'xml_url',
+                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'Zona', 'Comune' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Sales' => 'Sales',
+                ),
+                'lettings_status' => array(
+                    'Lettings' => 'Lettings',
+                ),
+                'property_type' => array(
+                    'Appartamento' => 'Appartamento',
+                    'Capannone' => 'Capannone',
+                    'Magazzino' => 'Magazzino',
+                    'Negozio' => 'Negozio',
+                    'Stabile' => 'Stabile',
+                    'Villa' => 'Villa'
+                )
+            ),
+            'contact_information_fields' => array(),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/getrix/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'gnomen' => array(

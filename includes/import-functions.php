@@ -504,12 +504,30 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "ego":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-ego.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Ego( $instance_id, $import_id );
+
+            break;
+        }
         case "expertagent":
         {
             // includes
             require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-expertagent.php';
 
             $import_object = new Houzez_Property_Feed_Format_Expertagent( $instance_id, $import_id );
+
+            break;
+        }
+        case "getrix":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-getrix.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Getrix( $instance_id, $import_id );
 
             break;
         }

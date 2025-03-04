@@ -825,6 +825,11 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 										    }
 										}
 									}
+									else
+									{
+										++$queued;
+										++$image_i;
+									}
 								}
 							}
 						}
