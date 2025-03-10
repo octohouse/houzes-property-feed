@@ -28,13 +28,24 @@ switch ( $import_settings['format'] )
 	case "reaxml_local":
 	case "rentman":
 	{
-		$file = $import_settings['local_directory'] . '/' . base64_decode($_GET['file']);
-		$filename = base64_decode($_GET['file']);
-		$parts = explode('-', $filename);
-		array_pop($parts);
-		$filename = implode('-', $parts);
-		header('Content-Disposition: attachment; filename="' . $filename . '"');
-		readfile($file);
+		$file_name = base64_decode($_GET['file']);
+
+		// Prevent directory traversal
+		$file_name = basename($file_name);
+
+		// Construct the absolute file path
+		$allowed_dir = realpath($import_settings['local_directory']);
+		$file_path = realpath($allowed_dir . '/' . $file_name);
+
+		// Ensure the file is within the allowed directory
+		if ( strpos($file_path, $allowed_dir) !== 0 || !file_exists($file_path) ) 
+		{
+		    die("Invalid file path.");
+		}
+
+		header('Content-Disposition: attachment; filename="' . basename($file_name) . '"');
+		header('Content-Length: ' . filesize($file_path));
+		readfile($file_path);
     	exit;
 	}
 	default:

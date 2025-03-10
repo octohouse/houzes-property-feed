@@ -331,7 +331,29 @@ class Houzez_Property_Feed_Format_Getrix extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_garage', '' );
 	            update_post_meta( $post_id, 'fave_property_id', (string)$property_attributes['IDImmobile'] );
 
+	            $energy_global_index = ( ( isset($property->Residenziale->IPE) ) ? (string)$property->Residenziale->IPE : '' );
+	            if ( empty($energy_global_index) )
+	            {
+	            	$energy_global_index = ( ( isset($property->Commerciale->IPE) ) ? (string)$property->Commerciale->IPE : '' );
+	            }
+	            if ( !empty($energy_global_index) )
+	            {
+	            	$energy_global_index .= ' kWh/m² anno';
+	            }
+	            update_post_meta( $post_id, 'fave_energy_global_index', $energy_global_index );
+
+	            $energy_class = ( ( isset($property->Residenziale->ClasseEnergetica) ) ? (string)$property->Residenziale->ClasseEnergetica : '' );
+	            if ( empty($energy_class) )
+	            {
+	            	$energy_class = ( ( isset($property->Commerciale->ClasseEnergetica) ) ? (string)$property->Commerciale->ClasseEnergetica : '' );
+	            }
+	            update_post_meta( $post_id, 'fave_energy_class', $energy_class );
+
 	            $address_parts = array();
+	            if ( isset($property->Comune) && (string)$property->Comune != '' )
+				{
+					$address_parts[] = (string)$property->Comune;
+				}
 	            if ( isset($property->Indirizzo) && (string)$property->Indirizzo != '' )
 				{
 					$address_parts[] = (string)$property->Indirizzo;
@@ -366,7 +388,20 @@ class Houzez_Property_Feed_Format_Getrix extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
 	            update_post_meta( $post_id, 'fave_property_country', 'IT' );
 	            
-	            update_post_meta( $post_id, 'fave_property_address', '' );
+	            $address_parts = array();
+	            if ( isset($property->Comune) && (string)$property->Comune != '' )
+				{
+					$address_parts[] = (string)$property->Comune;
+				}
+	            if ( isset($property->Indirizzo) && (string)$property->Indirizzo != '' )
+				{
+					$address_parts[] = (string)$property->Indirizzo;
+				}
+				if ( isset($property->Civico) && (string)$property->Civico != '' )
+				{
+					$address_parts[] = (string)$property->Civico;
+				}
+	            update_post_meta( $post_id, 'fave_property_address', implode(", ", $address_parts) );
 	            update_post_meta( $post_id, 'fave_property_zip', ( ( isset($property->Cap) ) ? (string)$property->Cap : '' ) );
 
 	            update_post_meta( $post_id, 'fave_featured', '0' );
@@ -470,13 +505,80 @@ class Houzez_Property_Feed_Format_Getrix extends Houzez_Property_Feed_Process {
 	            //turn bullets into property features
 	            /*$feature_term_ids = array();
 				$features = array(); // Initialize the array to hold features
-				foreach ($feature_fields as $field => $description) 
+
+				// List of all possible residential fields with labels
+		        $feature_nodes = [
+		            'StatoImmobile' => 'Stato immobile',
+		            'NrLivelli' => 'Livelli',
+		            'Piano' => 'Piano',
+		            'PianoFuoriTerra' => 'Piano fuori terra',
+		            'PianiEdificio' => 'Piani edificio',
+		            'Cucina' => 'Cucina',
+		            'NrBalconi' => 'Balconi',
+		            'NrTerrazzi' => 'Terrazzi',
+		            'BoxAuto' => 'Box auto',
+		            'Cantina' => 'Cantina',
+		            'GiardinoPrivato' => 'Giardino privato',
+		            'GiardinoComune' => 'Giardino comune',
+		            'Riscaldamento' => 'Riscaldamento',
+		            'Arredamento' => 'Arredamento',
+		            'CategoriaCatastale' => 'Categoria catastale',
+		            'AnnoCostruzione' => 'Anno di costruzione',
+		            'TipoCostruzione' => 'Tipo di costruzione',
+		            'StatoManutenzione' => 'Stato manutenzione',
+		            'StatoCostruzione' => 'Stato costruzione',
+		            'Ascensore' => 'Ascensore',
+		            'ImpiantoTV' => 'Impianto TV',
+		            'InfissiEsterni' => 'Infissi esterni',
+		            'EsposizioneEsterna' => 'Esposizione esterna',
+		            'PortaBlindata' => 'Porta blindata',
+		            'Allarme' => 'Allarme',
+		            'Videocitofono' => 'Videocitofono',
+		            'Climatizzatore' => 'Climatizzatore',
+		            'FibraOttica' => 'Fibra ottica',
+		            'CancelloElettrico' => 'Cancello elettrico',
+		            'Camino' => 'Camino',
+		            'NrPostiAuto' => 'Posti auto',
+		            'TipologiaUso' => 'Posti auto',
+		            'StatoManutenzione' => 'Posti auto'
+		            'AriaCondizionata' => 'Aria Condizionata'
+		            'StatoManutenzione' => 'Posti auto'
+		            'StatoManutenzione' => 'Posti auto'
+		            'StatoManutenzione' => 'Posti auto'
+		            'StatoManutenzione' => 'Posti auto'
+		        ];
+		        $feature_nodes = apply_filters( 'houzez_property_feed_getrix_feature_nodes', $feature_nodes );
+
+				foreach ($feature_nodes as $key => $label) 
 				{
-				    if ( isset($xml->$field) && (string)$xml->$field == 'Sí')
-				    {
-				        $features[] = $description; // Add the description to the features array
-				    }
-				}
+		            if (isset($property->Residenziale->$key)) 
+		            {
+		                $value = (string) $property->Residenziale->$key;
+
+		                // Skip empty or false values
+		                if ($value === "" || $value === "false") {
+		                    continue;
+		                }
+
+		                // Format the value based on its type
+		                if (is_numeric($value)) {
+		                    if (strlen($value) === 4 && (int)$value > 1800) {
+		                        // If it's a 4-digit number and greater than 1800, assume it's a year
+		                        $features[] = "$label: $value";
+		                    } else {
+		                        // Otherwise, treat it as a numeric value
+		                        $features[] = "$value $label";
+		                    }
+		                } elseif ($value === "true") {
+		                    // Boolean true values just include the label
+		                    $features[] = $label;
+		                } else {
+		                    // Any other value (string, categorical data)
+		                    $features[] = "$label: $value";
+		                }
+		            }
+		        }
+
 				if ( !empty($features) )
 				{
 					foreach ( $features as $feature )
@@ -631,10 +733,16 @@ class Houzez_Property_Feed_Format_Getrix extends Houzez_Property_Feed_Process {
 							        	}
 							        }
 
+							        $image_attributes = $immagine->attributes();
+
 							        $url = (string)$immagine->URL;
 									if ( 
-										substr( strtolower($url), 0, 2 ) == '//' ||
-										substr( strtolower($url), 0, 4 ) == 'http'
+										(
+											substr( strtolower($url), 0, 2 ) == '//' ||
+											substr( strtolower($url), 0, 4 ) == 'http'
+										)
+										&&
+										isset($image_attributes['Tipo']) && $image_attributes['Tipo'] == 'F'
 									)
 									{
 										$urls[] = array(
@@ -702,10 +810,16 @@ class Houzez_Property_Feed_Format_Getrix extends Houzez_Property_Feed_Process {
 							        	}
 							        }
 
+							        $image_attributes = $immagine->attributes();
+
 							        $url = (string)$immagine->URL;
 									if ( 
-										substr( strtolower($url), 0, 2 ) == '//' ||
-										substr( strtolower($url), 0, 4 ) == 'http'
+										(
+											substr( strtolower($url), 0, 2 ) == '//' ||
+											substr( strtolower($url), 0, 4 ) == 'http'
+										)
+										&&
+										isset($image_attributes['Tipo']) && $image_attributes['Tipo'] == 'F'
 									)
 									{
 										if ( $start_at_image_i !== false )
@@ -866,6 +980,51 @@ class Houzez_Property_Feed_Format_Getrix extends Houzez_Property_Feed_Process {
 					
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
+
+				// Floorplans
+				$floorplans = array();
+
+				if ( isset($property->Immagini) && !empty($property->Immagini) )
+                {
+                    foreach ($property->Immagini as $immagini)
+                    {
+                    	if ( isset($immagini->Immagine) )
+		                {
+	                        foreach ($immagini->Immagine as $immagine)
+	                        {
+						        $image_attributes = $immagine->attributes();
+
+						        $url = (string)$immagine->URL;
+								if ( 
+									(
+										substr( strtolower($url), 0, 2 ) == '//' ||
+										substr( strtolower($url), 0, 4 ) == 'http'
+									)
+									&&
+									isset($image_attributes['Tipo']) && $image_attributes['Tipo'] == 'P'
+								)
+								{
+									$floorplans[] = array( 
+										"fave_plan_title" => __( 'Floorplan', 'houzezpropertyfeed' ), 
+										"fave_plan_image" => $url
+									);
+								}
+							}
+						}
+					}
+				}
+
+				if ( !empty($floorplans) )
+				{
+	                update_post_meta( $post_id, 'floor_plans', $floorplans );
+	                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
+	            }
+	            else
+	            {
+	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
+	            }
+
+				$this->log( 'Imported ' . count($floorplans) . ' floorplans', (string)$property_attributes['IDImmobile'], $post_id );
 
 				update_post_meta( $post_id, 'fave_video_url', '' );
 				update_post_meta( $post_id, 'fave_virtual_tour', '' );
