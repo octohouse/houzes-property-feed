@@ -1,6 +1,8 @@
 <?php
 
-function get_import_settings_from_id( $import_id )
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+function houzez_property_feed_get_import_settings_from_id( $import_id )
 {
     $options = get_option( 'houzez_property_feed' , array() );
     $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
@@ -13,7 +15,7 @@ function get_import_settings_from_id( $import_id )
     return false;
 }
 
-function convert_old_field_mapping_to_new( $field_mapping_rules )
+function houzez_property_feed_convert_old_field_mapping_to_new( $field_mapping_rules )
 {
     $old_style = false;
 
@@ -54,28 +56,7 @@ function convert_old_field_mapping_to_new( $field_mapping_rules )
     return $field_mapping_rules;
 }
 
-/*function hpf_get_php_executable_path() {
-    // Check PHP_BINARY (available in PHP 5.4+)
-    if (defined('PHP_BINARY') && PHP_BINARY) {
-        return PHP_BINARY;
-    }
-
-    // Try which php (Linux/macOS)
-    $php_path = trim(shell_exec('which php'));
-    if ($php_path) {
-        return $php_path;
-    }
-
-    // Try where php (Windows)
-    $php_path = trim(shell_exec('where php'));
-    if ($php_path) {
-        return $php_path;
-    }
-
-    return false;
-}*/
-
-function get_houzez_fields_for_field_mapping()
+function houzez_property_feed_get_fields_for_field_mapping()
 {
     $houzez_fields = array(
         // Post Fields
@@ -540,6 +521,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "infocasa":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-infocasa.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Infocasa( $instance_id, $import_id );
+
+            break;
+        }
         case "inmobalia":
         {
             // includes
@@ -800,4 +790,10 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
     }
 
     return $import_object;
+}
+
+// Deprecated functions:
+function get_import_settings_from_id( $import_id )
+{
+    return houzez_property_feed_get_import_settings_from_id($import_id);
 }

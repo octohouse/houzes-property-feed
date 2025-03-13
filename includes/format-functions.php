@@ -1,6 +1,8 @@
 <?php
 
-function get_houzez_property_feed_import_formats()
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+function houzez_property_feed_get_import_formats()
 {
     $curl_warning = !function_exists('curl_version') ? __( 'cURL must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
     $simplexml_warning = !class_exists('SimpleXMLElement') ? __( 'SimpleXML must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
@@ -949,6 +951,75 @@ function get_houzez_property_feed_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/gnomen/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'infocasa' => array(
+            'name' => __( 'InfoCasa', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'idre',
+                    'label' => __( 'IDRE (Agency Identifier)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'license_key',
+                    'label' => __( 'License Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'language',
+                    'label' => __( 'Language', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'en' => 'English',
+                        'es' => 'Spanish',
+                        'de' => 'German',
+                        'nl' => 'Dutch',
+                        'da' => 'Danish',
+                        'fr' => 'French',
+                        'sv' => 'Swedish',
+                        'no' => 'Norwegian',
+                        'fi' => 'Finnish',
+                        'ca' => 'Catalan',
+                        'it' => 'Italian',
+                        'ru' => 'Russian',
+                        'el' => 'Greek',
+                        'cs' => 'Czech',
+                        'sk' => 'Slovak',
+                        'pl' => 'Polish',
+                    )
+                ),
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => 'Please note: Your server IP address (' . $_SERVER['SERVER_ADDR'] . ') will need to be whitelisted by InfoCasa before you\'re able to import properties.'
+                ),
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => 'Please note: <strong>This format is in BETA</strong>. Please contact us at support@houzezpropertyfeed.com if you experience issues.'
+                ),
+            ),
+            'address_fields' => array( 'ADR', 'PRO' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    '2' => 'Available',
+                    '3' => 'Offer Made',
+                    '14' => 'Sold',
+                    '15' => 'Subject To Contract',
+                ),
+                'lettings_status' => array(
+                    '2' => 'Available',
+                    '3' => 'Offer Made',
+                    '4' => 'Reserved',
+                    '9' => 'Empty',
+                ),
+                'property_type' => array()
+            ),
+            'contact_information_fields' => array(
+                'Office',
+                'Salesperson ID'
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/infocasa/'
+        ),
         'inmobalia' => array(
             'name' => __( 'Inmobalia API', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -1567,6 +1638,12 @@ function get_houzez_property_feed_import_formats()
                     'label' => __( 'Branch ID(s)', 'houzezpropertyfeed' ),
                     'type' => 'text',
                     'tooltip' => __( 'Enter a comma-delimited list of branch IDs if only wanting to import specific branch listings. Enter only Agency ID(s) or Branch ID(s). Not both.', 'houzezpropertyfeed' ),
+                ),
+                array(
+                    'id' => 'only_updated',
+                    'label' => __( 'Only Import Updated Properties', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'default' => 'yes',
                 ),
             ),
             'address_fields' => array( 'suburb', 'city', 'province' ),
@@ -2579,16 +2656,16 @@ function houzez_property_feed_compare_by_name($a, $b)
     return strcasecmp($a['name'], $b['name']);
 }
 
-function get_houzez_property_feed_import_format( $key )
+function houzez_property_feed_get_import_format( $key )
 {
-    $formats = get_houzez_property_feed_import_formats();
+    $formats = houzez_property_feed_get_import_formats();
     
     return isset($formats[$key]) ? $formats[$key] : false;
 }
 
-function get_format_from_import_id( $import_id )
+function houzez_property_feed_get_format_from_import_id( $import_id )
 {
-    $formats = get_houzez_property_feed_import_formats();
+    $formats = houzez_property_feed_get_import_formats();
 
     $options = get_option( 'houzez_property_feed' , array() );
     $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
@@ -2597,13 +2674,13 @@ function get_format_from_import_id( $import_id )
     {
         $format = $imports[$import_id]['format'];
 
-        return get_houzez_property_feed_import_format( $format );
+        return houzez_property_feed_get_import_format( $format );
     }
     
     return false;
 }
 
-function get_houzez_property_feed_export_formats()
+function houzez_property_feed_get_export_formats()
 {
     $curl_warning = !function_exists('curl_version') ? __( 'cURL must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
     $simplexml_warning = !class_exists('SimpleXMLElement') ? __( 'SimpleXML must be enabled in order to use this format', 'houzezpropertyfeed' ) : '';
@@ -3013,39 +3090,42 @@ function get_houzez_property_feed_export_formats()
             'fields' => array_merge(array(
                 array(
                     'type' => 'html',
-                    'html' => '<div style="border:1px solid #c3c4c7; border-left:2px solid #2271b1; padding:1px 12px; box-shadow:0 1px 1px rgba(0,0,0,.04)">
-                        <p style="margin:0.5em 0; padding:2px">Please note we have been made aware that Idealista no longer support this format but instead use the \'Kyero\' format to accept properties export.</p>
-                        <p style="margin:0.5em 0; padding:2px"><a href="https://houzezpropertyfeed.com/documentation/managing-exports/formats/idealista/" target="_blank">Read more here</a></p>
-                    </div>',
-                ),
-                array(
-                    'type' => 'html',
                     'html' => '<p style="font-size:1.1em"><strong>' . __( 'Details', 'houzezpropertyfeed' ) . '</strong></p>',
                 ),
                 array(
                     'id' => 'customer_code',
                     'label' => __( 'Customer Code', 'houzezpropertyfeed' ),
                     'type' => 'text',
+                    'placeholder' => 'ilcXXXXXXX'
                 ),
                 array(
                     'id' => 'country',
                     'label' => __( 'Country', 'houzezpropertyfeed' ),
-                    'type' => 'text',
+                    'type' => 'select',
+                    'options' => array(
+                        'Spain' => 'Spain',
+                        'Italy' => 'Italy',
+                        'Portugal' => 'Portugal',
+                    )
                 ),
                 array(
                     'id' => 'contact_name',
                     'label' => __( 'Contact Name', 'houzezpropertyfeed' ),
                     'type' => 'text',
+                    'default' => get_bloginfo('name')
                 ),
                 array(
                     'id' => 'contact_email',
                     'label' => __( 'Contact Email Address', 'houzezpropertyfeed' ),
                     'type' => 'text',
+                    'default' => get_bloginfo('admin_email')
                 ),
                 array(
                     'id' => 'primary_telephone_number_prefix',
                     'label' => __( 'Primary Telephone Number Prefix', 'houzezpropertyfeed' ),
                     'type' => 'text',
+                    'placeholder' => '34',
+                    'tooltip' => 'Numbers only. Do not include the +'
                 ),
                 array(
                     'id' => 'primary_telephone_number',
@@ -3088,32 +3168,36 @@ function get_houzez_property_feed_export_formats()
             ),
             'taxonomy_values' => array(
                 'property_type' => array(
-                    "flat" => "",
-                    "house" => "",
-                    "house_andar_moradia" => "",
-                    "house_independent" => "",
-                    "house_semidetached" => "",
-                    "house_terraced" => "",
-                    "house_villa" => "",
-                    "rustic" => "",
-                    "rustic_house" => "",
-                    "rustic_village" => "",
-                    "rustic_castle" => "",
-                    "rustic_palace" => "",
-                    "rustic_baita" => "",
-                    "rustic_rural" => "",
-                    "rustic_casalecascina" => "",
-                    "rustic_caseron" => "",
-                    "rustic_cortijo" => "",
-                    "rustic_masia" => "",
-                    "rustic_masseria" => "",
-                    "rustic_moinho" => "",
-                    "rustic_montealentejano" => "",
-                    "rustic_quinta" => "",
-                    "rustic_solar" => "",
-                    "rustic_terrera" => "",
-                    "rustic_torre" => "",
-                    "rustic_trullo" => "",
+                    "flat" => "flat",
+                    "house" => "house",
+                    "house_andar_moradia" => "house_andar_moradia (Portugal only)",
+                    "house_independent" => "house_independent",
+                    "house_semidetached" => "house_semidetached",
+                    "house_terraced" => "house_terraced",
+                    "house_villa" => "house_villa (Italy only)",
+                    "rustic" => "rustic",
+                    "rustic_house" => "rustic_house",
+                    "rustic_village" => "rustic_village",
+                    "rustic_castle" => "rustic_castle",
+                    "rustic_palace" => "rustic_palace (Spain and Portugal only)",
+                    "rustic_baita" => "rustic_baita (Italy only)",
+                    "rustic_rural" => "rustic_rural (Spain only)",
+                    "rustic_casalecascina" => "rustic_casalecascina (Italy only)",
+                    "rustic_caseron" => "rustic_caseron (Spain only)",
+                    "rustic_cortijo" => "rustic_cortijo (Spain only)",
+                    "rustic_masia" => "rustic_masia (Spain only)",
+                    "rustic_masseria" => "rustic_masseria (Italy only)",
+                    "rustic_moinho" => "rustic_moinho (Portugal only)",
+                    "rustic_montealentejano" => "rustic_montealentejano (Portugal only)",
+                    "rustic_quinta" => "rustic_quinta (Portugal only)",
+                    "rustic_solar" => "rustic_solar (Portugal only)",
+                    "rustic_terrera" => "rustic_terrera (Spain only)",
+                    "rustic_torre" => "rustic_torre (Spain only)",
+                    "rustic_trullo" => "rustic_trullo (Italy only)",
+                    "land" => "land",
+                    "land_urban" => "land_urban",
+                    "land_countrybuildable" => "land_countrybuildable",
+                    "land_countrynonbuildable" => "land_countrynonbuildable",
                 ),
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/idealista/',
@@ -3558,16 +3642,16 @@ function get_houzez_property_feed_export_formats()
     return $formats;
 }
 
-function get_houzez_property_feed_export_format( $key )
+function houzez_property_feed_get_export_format( $key )
 {
-    $formats = get_houzez_property_feed_export_formats();
+    $formats = houzez_property_feed_get_export_formats();
     
     return isset($formats[$key]) ? $formats[$key] : false;
 }
 
-function get_format_from_export_id( $export_id )
+function houzez_property_feed_get_format_from_export_id( $export_id )
 {
-    $formats = get_houzez_property_feed_export_formats();
+    $formats = houzez_property_feed_get_export_formats();
 
     $options = get_option( 'houzez_property_feed' , array() );
     $exports = ( isset($options['exports']) && is_array($options['exports']) && !empty($options['exports']) ) ? $options['exports'] : array();
@@ -3576,8 +3660,18 @@ function get_format_from_export_id( $export_id )
     {
         $format = $exports[$export_id]['format'];
 
-        return get_houzez_property_feed_export_format( $format );
+        return houzez_property_feed_get_export_format( $format );
     }
     
     return false;
+}
+
+// Deprecated functions:
+function get_houzez_property_feed_import_format( $key )
+{
+    return houzez_property_feed_get_import_format($key);
+}
+function get_houzez_property_feed_export_format( $key )
+{
+    return houzez_property_feed_get_export_format($key);
 }

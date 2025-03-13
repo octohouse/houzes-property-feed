@@ -37,7 +37,7 @@ class Houzez_Property_Feed_Export_Enquiries {
                 continue;
             }
 
-            $format = get_houzez_property_feed_import_format( $import['format'] );
+            $format = houzez_property_feed_get_import_format( $import['format'] );
 
             if ( !isset($format['export_enquiries']) || ( isset($format['export_enquiries']) && $format['export_enquiries'] !== true ) )
             {
@@ -74,7 +74,7 @@ class Houzez_Property_Feed_Export_Enquiries {
             return false;
         }
 
-        $import_settings = get_import_settings_from_id( $import_id );
+        $import_settings = houzez_property_feed_get_import_settings_from_id( $import_id );
 
         // Get imported ref for Property ID
         $street_property_id = null;

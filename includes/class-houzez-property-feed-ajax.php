@@ -27,13 +27,13 @@ class Houzez_Property_Feed_Ajax {
     {
         header( 'Content-Type: application/json; charset=utf-8' );
 
-        if ( !wp_verify_nonce( $_GET['ajax_nonce'], "hpf_ajax_nonce" ) ) 
+        if ( !wp_verify_nonce( sanitize_text_field(wp_unslash($_GET['ajax_nonce'])), "hpf_ajax_nonce" ) ) 
         {
             $return = array(
                 'success' => false,
                 'error' => __( 'Invalid nonce provided', 'houzezpropertyfeed' )
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         } 
 
@@ -42,8 +42,8 @@ class Houzez_Property_Feed_Ajax {
         $contents = '';
 
         $args = array( 'timeout' => 120, 'sslverify' => false );
-        $args = apply_filters( 'houzez_property_feed_xml_request_args', $args, $_GET['url'] );
-        $response = wp_remote_get( $_GET['url'], $args );
+        $args = apply_filters( 'houzez_property_feed_xml_request_args', $args, sanitize_url($_GET['url']) );
+        $response = wp_remote_get( sanitize_url($_GET['url']), $args );
         if ( !is_wp_error($response) && is_array( $response ) ) 
         {
             $contents = $response['body'];
@@ -59,7 +59,7 @@ class Houzez_Property_Feed_Ajax {
                 'success' => false,
                 'error' => $error
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         }
 
@@ -67,14 +67,14 @@ class Houzez_Property_Feed_Ajax {
 
         if ($xml !== FALSE)
         {
-            $node_names = get_all_node_names($xml, array_merge(array(''), $xml->getNamespaces(true)));
+            $node_names = houzez_property_feed_get_all_node_names($xml, array_merge(array(''), $xml->getNamespaces(true)));
             $node_names = array_unique($node_names);
 
             $return = array(
                 'success' => true,
                 'nodes' => $node_names
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         }
         else
@@ -84,7 +84,7 @@ class Houzez_Property_Feed_Ajax {
                 'success' => false,
                 'error' => __( 'Failed to parse XML file', 'houzezpropertyfeed' ) . ': ' . print_r($contents, TRUE)
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         }
 
@@ -95,13 +95,13 @@ class Houzez_Property_Feed_Ajax {
     {
         header( 'Content-Type: application/json; charset=utf-8' );
 
-        if ( !wp_verify_nonce( $_GET['ajax_nonce'], "hpf_ajax_nonce" ) ) 
+        if ( !wp_verify_nonce( sanitize_text_field(wp_unslash($_GET['ajax_nonce'])), "hpf_ajax_nonce" ) ) 
         {
             $return = array(
                 'success' => false,
                 'error' => __( 'Invalid nonce provided', 'houzezpropertyfeed' )
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         } 
 
@@ -110,8 +110,8 @@ class Houzez_Property_Feed_Ajax {
         $contents = '';
 
         $args = array( 'timeout' => 120, 'sslverify' => false );
-        $args = apply_filters( 'houzez_property_feed_csv_request_args', $args, $_GET['url'] );
-        $response = wp_remote_get( $_GET['url'], $args );
+        $args = apply_filters( 'houzez_property_feed_csv_request_args', $args, sanitize_url($_GET['url']) );
+        $response = wp_remote_get( sanitize_url($_GET['url']), $args );
         if ( !is_wp_error($response) && is_array( $response ) ) 
         {
             $contents = $response['body'];
@@ -127,7 +127,7 @@ class Houzez_Property_Feed_Ajax {
                 'success' => false,
                 'error' => $error
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         }
 
@@ -144,14 +144,14 @@ class Houzez_Property_Feed_Ajax {
             'success' => true,
             'fields' => $headers
         );
-        echo json_encode($return);
+        echo wp_json_encode($return);
 
         wp_die();
     }
 
     public function draw_automatic_imports_table()
     {
-        if ( !wp_verify_nonce( $_GET['ajax_nonce'], "hpf_ajax_nonce" ) ) 
+        if ( !wp_verify_nonce( sanitize_text_field(wp_unslash($_GET['ajax_nonce'])), "hpf_ajax_nonce" ) ) 
         {
             echo 'Failed to verify nonce. Please reload the page';
             die();
@@ -171,13 +171,13 @@ class Houzez_Property_Feed_Ajax {
     {
         header( 'Content-Type: application/json; charset=utf-8' );
 
-        if ( !wp_verify_nonce( $_GET['ajax_nonce'], "hpf_ajax_nonce" ) ) 
+        if ( !wp_verify_nonce( sanitize_text_field(wp_unslash($_GET['ajax_nonce'])), "hpf_ajax_nonce" ) ) 
         {
             $return = array(
                 'success' => false,
                 'error' => __( 'Invalid nonce provided', 'houzezpropertyfeed' )
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         }
 
@@ -187,7 +187,7 @@ class Houzez_Property_Feed_Ajax {
                 'success' => false,
                 'error' => __( 'No import ID(s) passed', 'houzezpropertyfeed' )
             );
-            echo json_encode($return);
+            echo wp_json_encode($return);
             die();
         }
 
@@ -232,12 +232,12 @@ class Houzez_Property_Feed_Ajax {
         {
             $import_id = (int)$import_id;
 
-            $import = get_import_settings_from_id( $import_id );
+            $import = houzez_property_feed_get_import_settings_from_id( $import_id );
             if ( $import === false )
             {
                 continue;
             }
-            $format = get_houzez_property_feed_import_format( $import['format'] );
+            $format = houzez_property_feed_get_import_format( $import['format'] );
             if ( $format === false )
             {
                 continue;
@@ -330,16 +330,16 @@ class Houzez_Property_Feed_Ajax {
                         $queued_properties[$import_id] = 0;
 
                         $queued_properties_query = $wpdb->get_results(
-                            "
+                            $wpdb->prepare("
                             SELECT 
                                 `id`
                             FROM
                                 " . $wpdb->prefix . "houzez_property_feed_property_queue 
                             WHERE
-                                `import_id` = '" . (int)$import_id . "'
+                                `import_id` = %d
                             AND
                                 `status` = 'pending'
-                            "
+                            ", (int)$import_id)
                         );
                         if ( count($queued_properties_query) > 0 )
                         {
@@ -366,29 +366,19 @@ class Houzez_Property_Feed_Ajax {
             ob_end_clean();
         }
 
-        echo json_encode($statuses);
+        echo wp_json_encode($statuses);
 
         wp_die();
     }
 
     public function import_properties_batch()
     {
-        /*if ( !defined('DOING_CRON') || !DOING_CRON ) 
-        {
-            // If running via WP Cron, skip nonce check
-            if ( !isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'import_properties_nonce') ) 
-            {
-                error_log('Invalid nonce: ' . $_POST['_wpnonce']);
-                return;
-            }
-        }*/
-
         global $wpdb;
 
         $batch_size = (int)apply_filters( 'houzez_property_feed_background_mode_batch_size', 10 );
 
         $property_queue = $wpdb->get_results(
-            "
+            $wpdb->prepare("
             SELECT
                 *
             FROM
@@ -397,8 +387,8 @@ class Houzez_Property_Feed_Ajax {
                 `status` = 'pending'
             ORDER BY
                 `instance_id`, `date_queued`
-            LIMIT " . $batch_size . "
-            "
+            LIMIT %d
+            ", $batch_size)
         );
 
         if ( !empty($property_queue) ) 
@@ -420,15 +410,15 @@ class Houzez_Property_Feed_Ajax {
 
                         // Get all processed properties. We should only have processed properties at this point
                         $processed_property_queue = $wpdb->get_results(
-                            "
+                            $wpdb->prepare("
                             SELECT
                                 crm_id, import_id
                             FROM
                                 " . $wpdb->prefix . "houzez_property_feed_property_queue
                             WHERE
                                 `status` = 'processed' AND 
-                                `instance_id` = '" . (int)$last_instance_id . "'
-                            "
+                                `instance_id` = %d
+                            ", (int)$last_instance_id)
                         );
 
                         if ( $processed_property_queue ) 
@@ -457,7 +447,7 @@ class Houzez_Property_Feed_Ajax {
                             $wpdb->prefix . "houzez_property_feed_logs_instance", 
                             array( 
                                 'end_date' => $current_date,
-                                'status' => json_encode(array('status' => 'finished')),
+                                'status' => wp_json_encode(array('status' => 'finished')),
                                 'status_date' => $current_date
                             ),
                             array( 'id' => $last_instance_id )
@@ -480,20 +470,20 @@ class Houzez_Property_Feed_Ajax {
                         $_GET['import_ids'] = implode("|", $explode_import_ids);
                     }
 
-                    $import_settings = get_import_settings_from_id( $import_id );
+                    $import_settings = houzez_property_feed_get_import_settings_from_id( $import_id );
 
                     $import_object = hpf_get_import_object_from_format($import_settings['format'], $property_queue_row->instance_id, $import_id);
                     $import_object->background_mode = true;
 
                     $all_property_queue = $wpdb->get_results(
-                        "
+                        $wpdb->prepare("
                         SELECT
                             id
                         FROM
                             " . $wpdb->prefix . "houzez_property_feed_property_queue
                         WHERE
-                            `instance_id` = '" . (int)$property_queue_row->instance_id . "'
-                        "
+                            `instance_id` = %d
+                        ", (int)$property_queue_row->instance_id)
                     );
 
                     $import_object->total_properties = count($all_property_queue);
@@ -514,26 +504,26 @@ class Houzez_Property_Feed_Ajax {
 
             // Need to cater for where finished on an exact number that matches the batch size
             $processed_property_queue = $wpdb->get_results(
-                "
+                $wpdb->prepare("
                 SELECT
                     crm_id, import_id
                 FROM
                     " . $wpdb->prefix . "houzez_property_feed_property_queue
                 WHERE
                     `status` = 'processed' AND 
-                    `instance_id` = '" . (int)$last_instance_id . "'
-                "
+                    `instance_id` = %d
+                ", (int)$last_instance_id)
             );
 
             $all_property_queue = $wpdb->get_results(
-                "
+                $wpdb->prepare("
                 SELECT
                     crm_id, import_id
                 FROM
                     " . $wpdb->prefix . "houzez_property_feed_property_queue
                 WHERE
-                    `instance_id` = '" . (int)$last_instance_id . "'
-                "
+                    `instance_id` = %d
+                ", (int)$last_instance_id)
             );
 
             $import_object->ping();
@@ -567,7 +557,7 @@ class Houzez_Property_Feed_Ajax {
                     $wpdb->prefix . "houzez_property_feed_logs_instance", 
                     array( 
                         'end_date' => $current_date,
-                        'status' => json_encode(array('status' => 'finished')),
+                        'status' => wp_json_encode(array('status' => 'finished')),
                         'status_date' => $current_date
                     ),
                     array( 'id' => $last_instance_id )

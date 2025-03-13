@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <form method="POST" action="">
 
 	<input type="hidden" name="save_license_key" value="yes">

@@ -29,7 +29,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		if ( !isset($import_settings['property_id_field']) || ( isset($import_settings['property_id_field']) && empty($import_settings['property_id_field']) ) )
 		{
@@ -99,7 +99,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
@@ -315,7 +315,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				                    	// foreach field in xpath
 				                        $field_name = str_replace(array("{", "}"), "", $match);
 
-				                        $value_to_check = check_array_for_matching_key( $property, $field_name );
+				                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
 			                            if ( $value_to_check === false )
 			                            {
@@ -344,7 +344,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 						{
 							$image_mapping_specified = true;
 
-							$value_to_check = check_array_for_matching_key( $property, $import_settings['image_field'] );
+							$value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $import_settings['image_field'] );
 
 	                        if ( $value_to_check !== false )
 	                        {
@@ -473,7 +473,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				                    	// foreach field in xpath
 				                        $field_name = str_replace(array("{", "}"), "", $match);
 
-				                        $value_to_check = check_array_for_matching_key( $property, $field_name );
+				                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
 			                            if ( $value_to_check === false )
 			                            {
@@ -494,7 +494,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 					                    	// foreach field in xpath
 					                        $field_name = str_replace(array("{", "}"), "", $match);
 
-					                        $value_to_check = check_array_for_matching_key( $property, $field_name );
+					                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
 				                            if ( $value_to_check === false )
 				                            {
@@ -622,7 +622,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 						{
 							$image_mapping_specified = true;
 
-							$value_to_check = check_array_for_matching_key( $property, $import_settings['image_field'] );
+							$value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $import_settings['image_field'] );
 
 	                        if ( $value_to_check !== false )
 	                        {
@@ -845,7 +845,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 			                    	// foreach field in xpath
 			                        $field_name = str_replace(array("{", "}"), "", $match);
 
-			                        $value_to_check = check_array_for_matching_key( $property, $field_name );
+			                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
 		                            if ( $value_to_check === false )
 		                            {
@@ -866,7 +866,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				                    	// foreach field in xpath
 				                        $field_name = str_replace(array("{", "}"), "", $match);
 
-				                        $value_to_check = check_array_for_matching_key( $property, $field_name );
+				                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
 			                            if ( $value_to_check === false )
 			                            {
@@ -897,7 +897,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 					{
 						$floorplan_mapping_specified = true;
 
-						$value_to_check = check_array_for_matching_key( $property, $import_settings['floorplan_field'] );
+						$value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $import_settings['floorplan_field'] );
 
                         if ( $value_to_check !== false )
                         {
@@ -982,7 +982,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 			                    	// foreach field in xpath
 			                        $field_name = str_replace(array("{", "}"), "", $match);
 
-			                        $value_to_check = check_array_for_matching_key( $property, $field_name );
+			                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
 		                            if ( $value_to_check === false )
 		                            {
@@ -1003,7 +1003,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 				                    	// foreach field in xpath
 				                        $field_name = str_replace(array("{", "}"), "", $match);
 
-				                        $value_to_check = check_array_for_matching_key( $property, $field_name );
+				                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
 			                            if ( $value_to_check === false )
 			                            {
@@ -1112,7 +1112,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 					{
 						$document_mapping_specified = true;
 
-						$value_to_check = check_array_for_matching_key( $property, $import_settings['document_field'] );
+						$value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $import_settings['document_field'] );
 
                         if ( $value_to_check !== false )
                         {
@@ -1288,7 +1288,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 
 		if ( !empty($this->properties) )
 		{
-			$import_settings = get_import_settings_from_id( $this->import_id );
+			$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 			$property_id_field = $import_settings['property_id_field'];
 

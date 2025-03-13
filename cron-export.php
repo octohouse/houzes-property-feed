@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 register_shutdown_function( "houzez_property_feed_export_fatal_handler" );
 function houzez_property_feed_export_fatal_handler() {
 
@@ -76,7 +78,7 @@ if ( is_array($exports) && !empty($exports) )
 	// remove any non-cron formats
 	foreach ( $exports as $export_id => $export_settings  )
 	{
-		$format = get_format_from_export_id( $export_id );
+		$format = houzez_property_feed_get_format_from_export_id( $export_id );
 		if ( isset($format['method']) && ( $format['method'] == 'cron' || $format['method'] == 'url' ) )
 		{
             if ( isset($_GET['preview']) && $export_id != (int)$_GET['preview'] )
@@ -126,7 +128,7 @@ if ( is_array($exports) && !empty($exports) )
 		}
     }
 
-    $frequencies = get_houzez_property_feed_export_frequencies();
+    $frequencies = houzez_property_feed_get_export_frequencies();
 
 	foreach ( $exports as $export_id => $export_settings )
 	{
@@ -156,19 +158,19 @@ if ( is_array($exports) && !empty($exports) )
         if ( !isset($_GET['force']) && !isset($_GET['preview']) )
     	{
     		// Make sure there's been no activity in the logs for at least 5 minutes for this feed as that indicates there's possible a feed running
-        	$row = $wpdb->get_row( "
+        	$row = $wpdb->get_row( $wpdb->prepare("
                 SELECT 
                     log_date
                 FROM 
                     " . $wpdb->prefix . "houzez_property_feed_export_logs_instance
                 INNER JOIN " .$wpdb->prefix . "houzez_property_feed_export_logs_instance_log ON " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log.instance_id
                 WHERE
-                    export_id = '" . $export_id . "'
+                    export_id = %d
                 AND
                 	end_date = '0000-00-00 00:00:00'
                 ORDER BY log_date DESC
                 LIMIT 1
-            ", ARRAY_A);
+            ", $export_id), ARRAY_A);
             if ( null !== $row )
             {
                 if ( ( ( time() - strtotime($row['log_date']) ) / 60 ) < 5 )
@@ -180,7 +182,7 @@ if ( is_array($exports) && !empty($exports) )
                 	// if we're running it manually. Needs to be presented nicer
 		            if ( isset($_GET['custom_property_export_cron']) )
 		            {
-		            	echo $message; die();
+		            	echo esc_html($message); die();
 		            }
 
                 	continue;
@@ -197,15 +199,15 @@ if ( is_array($exports) && !empty($exports) )
             // Work out if we need to send this portal by looking
             // at the send frequency and the last date sent
             $last_start_date = '2000-01-01 00:00:00';
-            $row = $wpdb->get_row( "
+            $row = $wpdb->get_row( $wpdb->prepare("
                 SELECT 
                     start_date
                 FROM 
                     " .$wpdb->prefix . "houzez_property_feed_export_logs_instance
                 WHERE
-                    export_id = '" . $export_id . "'
+                    export_id = %d
                 ORDER BY start_date DESC LIMIT 1
-            ", ARRAY_A);
+            ", $export_id), ARRAY_A);
             if ( null !== $row )
             {
                 $last_start_date = $row['start_date'];   

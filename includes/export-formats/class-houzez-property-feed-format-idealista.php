@@ -28,7 +28,7 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
 
         $this->log("Starting export");
 
-		$export_settings = get_export_settings_from_id( $this->export_id );
+		$export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
 		$options = get_option( 'houzez_property_feed' , array() );
 
@@ -143,7 +143,7 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
 
         $local_json_file = $this->export_id . '_' . date("YmdHis") . '.json';
 
-        $remote_json_file = date("YmdHis") . '.json';
+        $remote_json_file = $export_settings['customer_code'] . '.json';
 
         $json_filename = $wp_upload_dir['basedir'] . '/houzez_property_feed_export/' . $local_json_file;
         $handle = fopen($json_filename, 'w+');
@@ -170,14 +170,16 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
 
                 $property_data = array();
 
-                $property_data['propertyCode'] = $post->ID;
-                $property_data['propertyReference'] = get_post_meta( $post_id, 'fave_property_id', true );
+                $department = $this->get_department( $post->ID );
+
+                $property_data['propertyCode'] = (string)$post->ID;
+                $property_data['propertyReference'] = get_post_meta( $post->ID, 'fave_property_id', true );
                 $property_data['propertyVisibility'] = 'idealista';
                 $property_data['propertyOperation'] = array();
-                $property_data['propertyOperation']['operationType'] = 'sale'; // "rent","sale","rentToOwn"
-                $property_data['propertyOperation']['operationPrice'] = get_post_meta( $post_id, 'fave_property_price', true );
-                $property_data['propertyOperation']['operationPriceCommunity'] = '';
-                $property_data['propertyOperation']['operationPriceParking'] = '';
+                $property_data['propertyOperation']['operationType'] = ( $department == 'residential-lettings' ? 'rent' : 'sale' ); // "rent","sale","rentToOwn"
+                $property_data['propertyOperation']['operationPrice'] = (int)get_post_meta( $post->ID, 'fave_property_price', true );
+                //$property_data['propertyOperation']['operationPriceCommunity'] = '';
+                //$property_data['propertyOperation']['operationPriceParking'] = '';
                 $property_data['propertyContact'] = array();
                 $property_data['propertyContact']['contactName'] = $export_settings['contact_name'];
                 $property_data['propertyContact']['contactEmail'] = $export_settings['contact_email'];
@@ -185,17 +187,52 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
                 $property_data['propertyContact']['contactPrimaryPhoneNumber'] = $export_settings['primary_telephone_number'];
                 $property_data['propertyAddress'] = array();
                 $property_data['propertyAddress']['addressVisibility'] = 'street';
-                $property_data['propertyAddress']['addressStreetName'] = '';
-                $property_data['propertyAddress']['addressStreetNumber'] = '';
-                $property_data['propertyAddress']['addressBlock'] = '';
-                $property_data['propertyAddress']['addressFloor'] = '';
-                $property_data['propertyAddress']['addressStair'] = '';
-                $property_data['propertyAddress']['addressDoor'] = '';
-                $property_data['propertyAddress']['addressUrbanization'] = '';
-                $property_data['propertyAddress']['addressPostalCode'] = get_post_meta($post->ID, 'fave_property_zip', true);
-                $property_data['propertyAddress']['addressNsiCode'] = '';
+                //$property_data['propertyAddress']['addressStreetName'] = '';
+                //$property_data['propertyAddress']['addressStreetNumber'] = '';
+                //$property_data['propertyAddress']['addressBlock'] = '';
+                //$property_data['propertyAddress']['addressFloor'] = '';
+                //$property_data['propertyAddress']['addressStair'] = '';
+                //$property_data['propertyAddress']['addressDoor'] = '';
+                //$property_data['propertyAddress']['addressUrbanization'] = '';
+                if ( get_post_meta($post->ID, 'fave_property_zip', true) != '' ) { $property_data['propertyAddress']['addressPostalCode'] = get_post_meta($post->ID, 'fave_property_zip', true); }
+                //$property_data['propertyAddress']['addressNsiCode'] = '';
                 $property_data['propertyAddress']['addressTown'] = '';
-                $property_data['propertyAddress']['addressCountry'] = ( get_post_meta($post->ID, '_address_country', true) != '' ? get_post_meta($post->ID, '_address_country', true) : $export_settings['country'] );
+
+                $address_taxonomies = array( 'property_state', 'property_city', 'property_area' );
+                $address_fields = array();
+                foreach ( $address_taxonomies as $address_taxonomy )
+                {
+                    $terms = get_the_terms( $post->ID, $address_taxonomy );
+                    $term_ids_to_use = array();
+                    if ( !is_wp_error($terms) && !empty($terms) )
+                    {
+                        foreach ( $terms as $term )
+                        {
+                            $address_fields[] = $term->name;
+                            break;
+                        }
+                    }
+                }
+
+                $town = '';
+                if ( isset($address_fields[1]) ) 
+                { 
+                    $town = $address_fields[1]; 
+                }
+                elseif ( isset($address_fields[0]) ) 
+                { 
+                    $town = $address_fields[0]; 
+                }
+                elseif ( isset($address_fields[2]) ) 
+                { 
+                    $town = $address_fields[2]; 
+                }
+                if ( !empty($town) )
+                {
+                    $property_data['propertyAddress']['addressTown'] = $town; 
+                }
+                
+                $property_data['propertyAddress']['addressCountry'] = $export_settings['country'];
                 $property_data['propertyAddress']['addressCoordinatesPrecision'] = 'exact';
                 $fave_property_location = get_post_meta($post->ID, 'fave_property_location', true);
                 $explode_fave_property_location = explode(",", $fave_property_location);
@@ -206,43 +243,66 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
                     $lat = $explode_fave_property_location[0];
                     $lng = $explode_fave_property_location[1];
                 }
-                $property_data['propertyAddress']['addressCoordinatesLatitude'] = $lat;
-                $property_data['propertyAddress']['addressCoordinatesLongitude'] = $lng;
+                if ( !empty($lat) ) { $property_data['propertyAddress']['addressCoordinatesLatitude'] = (float)$lat; }
+                if ( !empty($lng) ) { $property_data['propertyAddress']['addressCoordinatesLongitude'] = (float)$lng; }
+                
                 $property_data['propertyFeatures'] = array();
                 $property_data['propertyFeatures']['featuresType'] = $this->get_export_mapped_value($post->ID, 'property_type');
-                $property_data['propertyFeatures']['featuresBathroomNumber'] = get_post_meta( $post->ID, 'fave_property_bedrooms', TRUE );
-                $property_data['propertyFeatures']['featuresBedroomNumber'] = get_post_meta( $post->ID, 'fave_property_bathrooms', TRUE );
-                $property_data['propertyDescriptions'] = array(
+                if ( get_post_meta( $post->ID, 'fave_property_bedrooms', TRUE ) != '' ) { $property_data['propertyFeatures']['featuresBathroomNumber'] = (int)get_post_meta( $post->ID, 'fave_property_bedrooms', TRUE ); }
+                if ( get_post_meta( $post->ID, 'fave_property_bathrooms', TRUE ) != '' ) { $property_data['propertyFeatures']['featuresBedroomNumber'] = (int)get_post_meta( $post->ID, 'fave_property_bathrooms', TRUE ); }
+                if ( get_post_meta( $post->ID, 'fave_property_size', TRUE ) != '' ) { $property_data['propertyFeatures']['featuresAreaConstructed'] = (int)get_post_meta( $post->ID, 'fave_property_size', TRUE ); }
+                
+                $property_data['propertyDescriptions'] = array(array(
                     'descriptionLanguage' => 'english',
                     'descriptionText' => substr(strip_tags(get_the_content()), 0, 4000),
-                );
+                ));
 
                 // Images
                 $property_data['propertyImages'] = array();
-
-                $attachment_ids = get_post_meta( $post->ID, 'fave_property_images' );
-                $i = 1;
-                if ( is_array($attachment_ids) && !empty($attachment_ids) )
+                if ( get_post_meta($post->ID, 'images_stored_as_urls', true) === '1' )
                 {
-                    foreach ( $attachment_ids as $attachment_id )
+                    $properties_images = get_post_meta($post->ID, 'image_urls', true);
+
+                    $i = 1;
+                    if ( is_array($properties_images) && !empty($properties_images) )
                     {
-                        if ( !wp_attachment_is_image($attachment_id) )
+                        foreach ( $properties_images as $image )
                         {
-                            continue;
+                            $property_data['propertyImages'][] = array(
+                                'imageOrder' => $i,
+                                //'imageLabel' => '',
+                                'imageUrl' => $image['url'],
+                            );
+
+                            ++$i;
                         }
+                    }
+                }
+                else
+                {
+                    $attachment_ids = get_post_meta( $post->ID, 'fave_property_images' );
+                    $i = 1;
+                    if ( is_array($attachment_ids) && !empty($attachment_ids) )
+                    {
+                        foreach ( $attachment_ids as $attachment_id )
+                        {
+                            if ( !wp_attachment_is_image($attachment_id) )
+                            {
+                                continue;
+                            }
 
-                        $property_data['propertyImages'][] = array(
-                            'imageOrder' => $i,
-                            'imageLabel' => '',
-                            'imageUrl' => wp_get_attachment_image_src( $attachment_id, 'full' ),
-                        );
+                            $property_data['propertyImages'][] = array(
+                                'imageOrder' => $i,
+                                //'imageLabel' => '',
+                                'imageUrl' => wp_get_attachment_url( $attachment_id ),
+                            );
 
-                        ++$i;
+                            ++$i;
+                        }
                     }
                 }
 
                 // Virtual tours
-                $property_data['propertyVirtualTours'] = array();
                 $virtual_tours = array();
                 if ( get_post_meta( $post->ID, 'fave_video_url', true ) != '' )
                 {
@@ -254,6 +314,7 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
                 $i = 0;
                 if ( !empty($virtual_tours) )
                 {
+                    $property_data['propertyVirtualTours'] = array();
                     foreach ($virtual_tours as $virtual_tour)
                     {
                         $property_data['propertyVirtualTours'][] = array(
@@ -282,7 +343,7 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
 
         $file_data['customerCountry'] = $export_settings['country'];
         $file_data['customerCode'] = $export_settings['customer_code'];
-        $file_data['customerReference'] = '';
+        //$file_data['customerReference'] = '';
         $file_data['customerSendDate'] = date("Y/m/d H:i:s");
         $file_data['customerContact'] = array(
             'contactName' => $export_settings['contact_name'],
@@ -387,6 +448,33 @@ class Houzez_Property_Feed_Format_Idealista extends Houzez_Property_Feed_Process
 
         return true;
 	}
+
+    private function get_department( $post_id )
+    {
+        $department = 'sales';
+
+        $options = get_option( 'houzez_property_feed' , array() );
+        $sales_statuses = ( isset($options['sales_statuses']) && is_array($options['sales_statuses']) && !empty($options['sales_statuses']) ) ? $options['sales_statuses'] : array();
+        $lettings_statuses = ( isset($options['lettings_statuses']) && is_array($options['lettings_statuses']) && !empty($options['lettings_statuses']) ) ? $options['lettings_statuses'] : array();
+
+        $status_terms = get_the_terms( $post_id, 'property_status' );
+        if ( !is_wp_error($status_terms) && !empty($status_terms) )
+        {
+            foreach ( $status_terms as $term )
+            {
+                if ( in_array($term->term_id, $sales_statuses) )
+                {
+                    $department = 'sales';
+                }
+                elseif ( in_array($term->term_id, $lettings_statuses) )
+                {
+                    $department = 'lettings';
+                }
+            }
+        }
+
+        return $department;
+    }
 
 }
 

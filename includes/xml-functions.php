@@ -1,7 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 // https://stackoverflow.com/a/54661392/762994
-function get_all_node_names( $node, $names, $parents = array() )
+function houzez_property_feed_get_all_node_names( $node, $names, $parents = array() )
 {
     $children = false;
     $nodes_names = array();
@@ -24,7 +26,7 @@ function get_all_node_names( $node, $names, $parents = array() )
 
             foreach ( $node->children($name) as $i => $child ) 
             {
-                $new_node_names = get_all_node_names($child, $names, $new_parents);
+                $new_node_names = houzez_property_feed_get_all_node_names($child, $names, $new_parents);
                 if ( !empty($new_node_names) )
                 {
                     $nodes_names = array_merge($nodes_names, $new_node_names);
@@ -41,7 +43,7 @@ function get_all_node_names( $node, $names, $parents = array() )
     return $nodes_names;
 }
 
-function SimpleXML2ArrayWithCDATASupport( $xml )
+function houzez_property_feed_simplexml_to_array_with_cdata_support( $xml )
 {   
     $array = (array)$xml;
 
@@ -56,7 +58,7 @@ function SimpleXML2ArrayWithCDATASupport( $xml )
         {
             continue;
         }
-        $array[$key] = SimpleXML2ArrayWithCDATASupport($value);
+        $array[$key] = houzez_property_feed_simplexml_to_array_with_cdata_support($value);
     }
 
     return $array;

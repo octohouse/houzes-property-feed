@@ -29,7 +29,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 	// Function to authenticate self to API and return/store the Token
 	private function get_token($url, $filename) 
 	{
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$wp_upload_dir = wp_upload_dir();
 		$uploads_dir = $wp_upload_dir['basedir'] . '/houzez_property_feed_import/';
@@ -224,7 +224,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$wp_upload_dir = wp_upload_dir();
 		$uploads_dir = $wp_upload_dir['basedir'] . '/houzez_property_feed_import/';
@@ -366,7 +366,7 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
@@ -612,6 +612,38 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_rooms', ( ( isset($property->receptions) ) ? (string)$property->receptions : '' ) );
 	            update_post_meta( $post_id, 'fave_property_garage', '' ); // need to look at parking
 	            update_post_meta( $post_id, 'fave_property_id', (string)$property->reference->agents );
+
+	            $area = '';
+				$area_unit = '';
+
+				foreach ( $property->area as $area ) 
+				{
+				    $unit = ( isset($area['unit']) && (string)$area['unit'] != '' ) ? strtolower((string)$area['unit']) : 'sqft';
+				    $min = (int)$area->min;
+				    $max = (int)$area->max;
+
+				    // Ignore if both min and max are 0
+				    if ( $min == 0 && $max == 0 ) 
+				    {
+				        continue;
+				    }
+
+				    // Use sqft if available, otherwise fallback to sqm
+				    if ( $unit === "sqft" ) 
+				    {
+				        $area = ($max > 0) ? $max : $min; // Prefer max if available
+				        $area_unit = "sqft";
+				        break; // Stop searching once we find a valid area entry
+				    } 
+				    elseif ( $unit === "sqm" && $area == '' ) 
+				    {
+				        $area = ($max > 0) ? $max : $min;
+				        $area_unit = "sqm";
+				    }
+				}
+
+	            update_post_meta( $post_id, 'fave_property_size', $area );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', $area_unit );
 
 	            $address_parts = array();
 	            if ( isset($property->address->street) && (string)$property->address->street != '' )

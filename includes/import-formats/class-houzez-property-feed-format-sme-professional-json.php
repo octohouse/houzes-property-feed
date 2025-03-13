@@ -27,13 +27,13 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$departments = array( 'residential-sales', 'residential-lettings' );
-		$departments = apply_filters( 'propertyhive_sme_professional_json_departments', $departments, $import_id );
+		$departments = apply_filters( 'houzez_property_feed_sme_professional_json_departments', $departments, $import_id );
 
 		$branch_ids = array( '' );
-		$branch_ids = apply_filters( 'propertyhive_sme_professional_json_branch_ids', $branch_ids, $import_id );
+		$branch_ids = apply_filters( 'houzez_property_feed_sme_professional_json_branch_ids', $branch_ids, $import_id );
 
 		foreach ( $branch_ids as $branch_id )
 		{
@@ -215,7 +215,7 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

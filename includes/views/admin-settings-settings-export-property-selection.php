@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Property Selection', 'houzezpropertyfeed' ); ?></h3>
 
 <p>Here you can choose how you determine which properties are sent in the exports.</p>

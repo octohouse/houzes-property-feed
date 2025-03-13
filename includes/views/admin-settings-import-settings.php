@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <form method="POST" action="">
 
 	<input type="hidden" name="import_id" value="<?php echo ( $import_id !== FALSE ? $import_id : '' ); ?>">

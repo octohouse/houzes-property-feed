@@ -22,7 +22,7 @@ class Houzez_Property_Feed_Settings {
             return;
         }
 
-        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( $_POST['_wpnonce'], 'save-hpf-settings' ) ) ) 
+        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'save-hpf-settings' ) ) ) 
         {
             die( __( "Failed security check", 'houzezpropertyfeed' ) );
         }

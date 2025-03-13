@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Media Processing', 'houzezpropertyfeed' ); ?></h3>
 
 <p>Here you can control at what time media is imported; either at the same time as properties, or in a separate queue.</p>

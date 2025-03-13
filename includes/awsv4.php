@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 // phpcs:disable WordPress.Files.FileName
 // phpcs:disable WordPress.NamingConventions
 

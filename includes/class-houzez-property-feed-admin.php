@@ -217,18 +217,18 @@ class Houzez_Property_Feed_Admin {
                             $next_instance = false;
 
                             $logs = $wpdb->get_results( 
-                                "
+                                $wpdb->prepare("
                                 SELECT * 
                                 FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
                                 INNER JOIN 
                                     " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
                                 WHERE 
                                     " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
-                                    instance_id < '" . (int)$_GET['log_id'] . "'
+                                    instance_id < %d
                                 GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
                                 ORDER BY start_date DESC
                                 LIMIT 1
-                                "
+                                ", (int)$_GET['log_id'])
                             );
 
                             if ( $logs )
@@ -240,18 +240,18 @@ class Houzez_Property_Feed_Admin {
                             }
 
                             $logs = $wpdb->get_results( 
-                                "
+                                $wpdb->prepare("
                                 SELECT * 
                                 FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
                                 INNER JOIN 
                                     " . $wpdb->prefix . "houzez_property_feed_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.instance_id
                                 WHERE 
                                      " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
-                                    instance_id > '" . (int)$_GET['log_id'] . "'
+                                    instance_id > %d
                                 GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
                                 ORDER BY start_date ASC
                                 LIMIT 1
-                                "
+                                ", (int)$_GET['log_id'])
                             );
 
                             if ( $logs )
@@ -278,7 +278,9 @@ class Houzez_Property_Feed_Admin {
                                         OR ";
                             }
 
-                            $query = "
+                            $like_log_search = '%' . esc_sql($_POST['log_search']) . '%';
+
+                            $query = $wpdb->prepare("
                                 SELECT " . $wpdb->prefix . "houzez_property_feed_logs_instance_log.id
                                 FROM " . $wpdb->prefix . "houzez_property_feed_logs_instance
                                 INNER JOIN 
@@ -289,13 +291,13 @@ class Houzez_Property_Feed_Admin {
                                      " . ( ( isset($_GET['import_id']) && !empty((int)$_GET['import_id']) ) ? " import_id = '" . (int)$_GET['import_id'] . "' AND " : "" ) . "
                                     (
                                         " . $extra_sql . "
-                                        crm_id = '" . esc_sql($_POST['log_search']) . "'
+                                        crm_id = %s
                                         OR 
-                                        " . $wpdb->posts . ".post_title LIKE '%" . esc_sql($_POST['log_search']) . "%'
+                                        " . $wpdb->posts . ".post_title LIKE %s
                                     )
                                 GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
                                 ORDER BY start_date ASC
-                            ";
+                            ", $_POST['log_search'], $like_log_search);
 
                             $log_results = $wpdb->get_results( 
                                 $query
@@ -361,7 +363,7 @@ class Houzez_Property_Feed_Admin {
                 {
                     $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
 
-                    $frequencies = get_houzez_property_feed_import_frequencies();
+                    $frequencies = houzez_property_feed_get_import_frequencies();
 
                     $import_settings = array();
                     if ( $active_tab == 'editimport' )
@@ -441,7 +443,7 @@ class Houzez_Property_Feed_Admin {
                         wp_reset_postdata();
                     }
 
-                    $formats = get_houzez_property_feed_import_formats();
+                    $formats = houzez_property_feed_get_import_formats();
 
                     include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-import-settings.php' );
                 }
@@ -517,18 +519,18 @@ class Houzez_Property_Feed_Admin {
                     $next_instance = false;
 
                     $logs = $wpdb->get_results( 
-                        "
+                        $wpdb->prepare("
                         SELECT * 
                         FROM " . $wpdb->prefix . "houzez_property_feed_export_logs_instance
                         INNER JOIN 
                             " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log.instance_id
                         WHERE 
                             " . ( ( isset($_GET['export_id']) && !empty((int)$_GET['export_id']) ) ? " export_id = '" . (int)$_GET['export_id'] . "' AND " : "" ) . "
-                            instance_id < '" . (int)$_GET['log_id'] . "'
+                            instance_id < %d
                         GROUP BY " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id
                         ORDER BY start_date DESC
                         LIMIT 1
-                        "
+                        ", (int)$_GET['log_id'])
                     );
 
                     if ( $logs )
@@ -540,18 +542,18 @@ class Houzez_Property_Feed_Admin {
                     }
 
                     $logs = $wpdb->get_results( 
-                        "
+                        $wpdb->prepare("
                         SELECT * 
                         FROM " . $wpdb->prefix . "houzez_property_feed_export_logs_instance
                         INNER JOIN 
                             " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log.instance_id
                         WHERE 
                              " . ( ( isset($_GET['export_id']) && !empty((int)$_GET['export_id']) ) ? " export_id = '" . (int)$_GET['export_id'] . "' AND " : "" ) . "
-                            instance_id > '" . (int)$_GET['log_id'] . "'
+                            instance_id > %d
                         GROUP BY " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id
                         ORDER BY start_date ASC
                         LIMIT 1
-                        "
+                        ", (int)$_GET['log_id'])
                     );
 
                     if ( $logs )
@@ -617,9 +619,9 @@ class Houzez_Property_Feed_Admin {
                         }
                     }
 
-                    $formats = get_houzez_property_feed_export_formats();
+                    $formats = houzez_property_feed_get_export_formats();
 
-                    $frequencies = get_houzez_property_feed_export_frequencies();
+                    $frequencies = houzez_property_feed_get_export_frequencies();
 
                     include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-export-settings.php' );
                 }
@@ -638,7 +640,7 @@ class Houzez_Property_Feed_Admin {
                     // remove any non-cron formats
                     foreach ( $exports as $export_id => $export_settings  )
                     {
-                        $format = get_format_from_export_id( $export_id );
+                        $format = houzez_property_feed_get_format_from_export_id( $export_id );
                         if ( isset($format['method']) && ( $format['method'] == 'cron' || $format['method'] == 'url' ) )
                         {
 
@@ -789,7 +791,7 @@ class Houzez_Property_Feed_Admin {
 
             wp_register_script( 'houzez_property_feed_admin_import_script', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/admin-import.js', array( 'jquery' ), HOUZEZ_PROPERTY_FEED_VERSION );
 
-            $formats = get_houzez_property_feed_import_formats();
+            $formats = houzez_property_feed_get_import_formats();
 
             $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
 
@@ -876,7 +878,7 @@ class Houzez_Property_Feed_Admin {
                 'import_settings' => $import_settings,
                 'statuses' => $statuses,
                 'property_types' => $property_types,
-                'houzez_fields_for_field_mapping' => get_houzez_fields_for_field_mapping(),
+                'houzez_fields_for_field_mapping' => houzez_property_feed_get_fields_for_field_mapping(),
                 'ajax_nonce' => wp_create_nonce("hpf_ajax_nonce"),
                 'table_order' => ( isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '' ),
                 'table_orderby' => ( isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '' ),
@@ -893,7 +895,7 @@ class Houzez_Property_Feed_Admin {
         {
             wp_register_script( 'houzez_property_feed_admin_export_script', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/admin-export.js', array( 'jquery' ), HOUZEZ_PROPERTY_FEED_VERSION );
 
-            $formats = get_houzez_property_feed_export_formats();
+            $formats = houzez_property_feed_get_export_formats();
 
             $export_id = ( isset($_GET['export_id']) && !empty(sanitize_text_field($_GET['export_id'])) ) ? (int)$_GET['export_id'] : false;
 
@@ -952,7 +954,7 @@ class Houzez_Property_Feed_Admin {
                         continue;
                     }
 
-                    $format = get_houzez_property_feed_import_format( $import['format'] );
+                    $format = houzez_property_feed_get_import_format( $import['format'] );
 
                     $output .= '<option value="' . esc_attr($key) . '"';
                     if ( isset($_GET['_import_id']) && !empty($_GET['_import_id']) && is_numeric($_GET['_import_id']) && (int)$_GET['_import_id'] == $key ) 

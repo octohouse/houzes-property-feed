@@ -12,6 +12,10 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 	private $branch_cache = array();
 	private $agent_cache = array();
 
+	private $only_updated = false;
+
+	private $time_at_start = 0;
+
 	public function __construct( $instance_id = '', $import_id = '' )
 	{
 		$this->instance_id = $instance_id;
@@ -24,13 +28,25 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
 
+	    add_filter( 'houzez_property_feed_remove_old_properties', array( $this, 'dont_remove' ), 10, 2 );
+
 	    add_action( "houzez_property_feed_property_removed", array( $this, 'send_put_request_to_withdraw' ), 10, 2 );
 
 	}
 
+	public function dont_remove( $remove, $import_id )
+	{
+		if ($this->only_updated === true)
+		{
+			return false;
+		}
+
+		return $remove;
+	}
+
 	public function send_put_request_to_withdraw( $property_post_id, $import_id )
 	{
-		$import_settings = get_import_settings_from_id( $import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $import_id );
 
 		$imported_ref_key = ( ( $import_id != '' ) ? '_imported_ref_' . $import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $import_id );
@@ -82,9 +98,28 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$this->time_at_start = time();
 
-		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/changes?fromDate=2020-01-01 00:00:00';
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		$from_date = '2020-01-01 00:00:00';
+		if ( ( isset($import_settings['only_updated']) && $import_settings['only_updated'] == 'yes' ) || !isset($import_settings['only_updated']) )
+        {
+        	// get last ran date
+        	$last_ran_date = get_option( 'houzez_property_feed_last_ran_' . $this->import_id, '' );
+        	if ( !empty($last_ran_date) )
+        	{
+        		$date = new DateTime();
+			    $date->setTimestamp($last_ran_date);
+			    $date->setTimezone(new DateTimeZone('Africa/Johannesburg'));
+			    $from_date = $date->format('Y-m-d H:i:s');
+
+        		$this->only_updated = true;
+        	}
+        }
+		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/changes?fromDate=' . $from_date;
+
+		$this->log("Making request to " . $url);
 
 		$headers = array(
 			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
@@ -118,21 +153,36 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		{
 			if ( isset($json['items']) )
 			{
-				$property_ids_in_batch = array();
-
-				foreach ($json['items'] as $property)
+				if ( !empty($json['items']) )
 				{
-					if ( count($property_ids_in_batch) == 10 )
-					{
-						$this->get_properties_in_batch( $property_ids_in_batch );
+					$this->log("Found " . number_format(count($json['items'])) . " properties to import. Getting further details by getting properties in " . number_format(ceil( count($json['items']) / 10 )) . " batches of 10");
 
-						$property_ids_in_batch = array();
+					$property_ids_in_batch = array();
+
+					foreach ( $json['items'] as $property )
+					{
+						if ( count($property_ids_in_batch) == 10 )
+						{
+							$done = $this->get_properties_in_batch( $property_ids_in_batch );
+
+							if ( $done === false )
+							{
+								return false;
+							}
+
+							$property_ids_in_batch = array();
+						}
+
+						$property_ids_in_batch[] = $property['id'];
 					}
 
-					$property_ids_in_batch[] = $property['id'];
-				}
+					$done = $this->get_properties_in_batch( $property_ids_in_batch );
 
-				$this->get_properties_in_batch( $property_ids_in_batch );
+					if ( $done === false )
+					{
+						return false;
+					}
+				}
 			}
 			else
 			{
@@ -151,8 +201,15 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 		if ( empty($this->properties) )
 		{
-			$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
-
+			if ( $this->only_updated === true )
+			{
+				update_option( 'houzez_property_feed_last_ran_' . $this->import_id, $this->time_at_start );
+				$this->log_error( 'No properties modified since the last time an import ran.' );
+			}
+			else
+			{
+				$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
+			}
 			return false;
 		}
 
@@ -166,7 +223,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			return false;
 		}
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings?';
 
@@ -182,7 +239,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
 		);
 
-		$this->ping();
+		$this->log("Making request to " . $url);
 
 		$response = wp_remote_request(
 			$url,
@@ -202,116 +259,122 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 		$json = json_decode( $response['body'], TRUE );
 
+		$off_market_listing_statuses = apply_filters( 'houzez_property_feed_propctrl_off_market_statuses', array('cancelled', 'withdrawn', 'expired', 'rented', 'sold') );
+
 		if ($json !== FALSE)
 		{
-			if ( is_array($json) && !empty($json) )
+			if ( is_array($json) )
 			{
-				foreach ( $json as $property )
+				if ( !empty($json) )
 				{
-					if ( 
-						isset($property['listingStatus']) &&
-						(
-							strtolower($property['listingStatus']) == 'cancelled' ||
-							strtolower($property['listingStatus']) == 'withdrawn' ||
-							strtolower($property['listingStatus']) == 'expired' ||
-							strtolower($property['listingStatus']) == 'rented' ||
-							strtolower($property['listingStatus']) == 'sold'
+					foreach ( $json as $property )
+					{
+						if ( isset($import_settings['agency_id']) && !empty($import_settings['agency_id']) )
+						{
+							$agency_ids_to_import = explode(",", $import_settings['agency_id']);
+				        	$agency_ids_to_import = array_map('trim', $agency_ids_to_import);
+				        	$agency_ids_to_import = array_filter($agency_ids_to_import);
+				        	$agency_ids_to_import = array_unique($agency_ids_to_import);
+
+				        	if (
+				        		!isset($property['agencyId']) ||
+				        		( 
+				        			isset($property['agencyId']) && 
+				        			!in_array($property['agencyId'], $agency_ids_to_import) 
+				        		)
+				        	)
+				        	{
+				        		continue;
+				        	}
+						}
+						
+						if ( isset($import_settings['branch_id']) && !empty($import_settings['branch_id']) )
+						{
+							$branch_ids_to_import = explode(",", $import_settings['branch_id']);
+				        	$branch_ids_to_import = array_map('trim', $branch_ids_to_import);
+				        	$branch_ids_to_import = array_filter($branch_ids_to_import);
+				        	$branch_ids_to_import = array_unique($branch_ids_to_import);
+
+				        	if (
+				        		!isset($property['branchId']) ||
+				        		( 
+				        			isset($property['branchId']) && 
+				        			!in_array($property['branchId'], $branch_ids_to_import) 
+				        		)
+				        	)
+				        	{
+				        		continue;
+				        	}
+						}
+
+						if ( 
+							isset($property['listingStatus']) &&
+							in_array(strtolower($property['listingStatus']), $off_market_listing_statuses)
 						)
-					)
-					{
-						continue;
-					}
-
-					if ( isset($import_settings['agency_id']) && !empty($import_settings['agency_id']) )
-					{
-						$agency_ids_to_import = explode(",", $import_settings['agency_id']);
-			        	$agency_ids_to_import = array_map('trim', $agency_ids_to_import);
-			        	$agency_ids_to_import = array_filter($agency_ids_to_import);
-			        	$agency_ids_to_import = array_unique($agency_ids_to_import);
-
-			        	if (
-			        		!isset($property['agencyId']) ||
-			        		( 
-			        			isset($property['agencyId']) && 
-			        			!in_array($property['agencyId'], $agency_ids_to_import) 
-			        		)
-			        	)
-			        	{
-			        		continue;
-			        	}
-					}
-					
-					if ( isset($import_settings['branch_id']) && !empty($import_settings['branch_id']) )
-					{
-						$branch_ids_to_import = explode(",", $import_settings['branch_id']);
-			        	$branch_ids_to_import = array_map('trim', $branch_ids_to_import);
-			        	$branch_ids_to_import = array_filter($branch_ids_to_import);
-			        	$branch_ids_to_import = array_unique($branch_ids_to_import);
-
-			        	if (
-			        		!isset($property['branchId']) ||
-			        		( 
-			        			isset($property['branchId']) && 
-			        			!in_array($property['branchId'], $branch_ids_to_import) 
-			        		)
-			        	)
-			        	{
-			        		continue;
-			        	}
-					}
-
-					list($suburb, $city, $province, $postcode, $country) = $this->get_suburb_info($property['suburbId']);
-
-					$property['suburb'] = $suburb;
-					$property['city'] = $city;
-					$property['province'] = $province;
-					$property['postcode'] = $postcode;
-					$property['country'] = $country;
-
-					$property['agencyDetails'] = array();
-					$property['branchDetails'] = array();
-					$property['agentDetails'] = array();
-
-					if ( isset($property['agencyId']) && !empty($property['agencyId']) )
-					{
-						$agency = $this->get_agency_details($property['agencyId']);
-
-						if ( $agency !== FALSE )
 						{
-							$property['agencyDetails'] = $agency;
+							$this->remove_property( $property['listingId'], '' );
+							continue;
 						}
-					}
 
-					if ( isset($property['branchId']) && !empty($property['branchId']) )
-					{
-						$branch = $this->get_branch_details($property['branchId']);
+						list($suburb, $city, $province, $postcode, $country) = $this->get_suburb_info($property['suburbId']);
 
-						if ( $branch !== FALSE )
+						$property['suburb'] = $suburb;
+						$property['city'] = $city;
+						$property['province'] = $province;
+						$property['postcode'] = $postcode;
+						$property['country'] = $country;
+
+						$property['agencyDetails'] = array();
+						$property['branchDetails'] = array();
+						$property['agentDetails'] = array();
+
+						if ( isset($property['agencyId']) && !empty($property['agencyId']) )
 						{
-							$property['branchDetails'] = $branch;
-						}
-					}
+							$agency = $this->get_agency_details($property['agencyId']);
 
-					if ( isset($property['agentIds']) && !empty($property['agentIds']) && is_array($property['agentIds']) )
-					{
-						foreach ( $property['agentIds'] as $agent_id )
-						{
-							$agent = $this->get_agent_details($agent_id);
-
-							if ( $agent !== FALSE )
+							if ( $agency !== FALSE )
 							{
-								$property['agentDetails'][] = $agent;
+								$property['agencyDetails'] = $agency;
 							}
 						}
-					}
 
-					$this->properties[] = $property;
-					
+						if ( isset($property['branchId']) && !empty($property['branchId']) )
+						{
+							$branch = $this->get_branch_details($property['branchId']);
+
+							if ( $branch !== FALSE )
+							{
+								$property['branchDetails'] = $branch;
+							}
+						}
+
+						if ( isset($property['agentIds']) && !empty($property['agentIds']) && is_array($property['agentIds']) )
+						{
+							foreach ( $property['agentIds'] as $agent_id )
+							{
+								$agent = $this->get_agent_details($agent_id);
+
+								if ( $agent !== FALSE )
+								{
+									$property['agentDetails'][] = $agent;
+								}
+							}
+						}
+
+						$this->properties[] = $property;
+						
+					}
+				}
+				else
+				{
+					$this->log_error( 'Parsed property JSON but it\'s empty: ' . $response['body'] );
+
+					//return false;
 				}
 			}
 			else
 			{
-				$this->log_error( 'Parsed JSON but it\'s empty: ' . $response['body'] );
+				$this->log_error( 'Parsed property JSON but it\'s not an array: ' . $response['body'] );
 
 				return false;
 			}
@@ -319,7 +382,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		else
 		{
 			// Failed to parse JSON
-			$this->log_error( 'Failed to parse JSON: ' . $response['body'] );
+			$this->log_error( 'Failed to parse property JSON: ' . $response['body'] );
 
 			return false;
 		}
@@ -332,7 +395,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			return $this->agency_cache[$agency_id];
 		}
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agencies?agencyIds=' . $agency_id;
 
@@ -390,7 +453,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			return $this->branch_cache[$branch_id];
 		}
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/branches?branchIds=' . $branch_id;
 
@@ -448,7 +511,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			return $this->agent_cache[$agent_id];
 		}
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agents?agentIds=' . $agent_id;
 
@@ -508,7 +571,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		$postcode = '';
 		$country = '';
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/suburbs?suburbIds=' . $suburb_id;
 
@@ -569,7 +632,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
@@ -605,19 +668,43 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		$property_row = 1;
 		foreach ( $this->properties as $property )
 		{
-			if ( !empty($start_at_property) )
+			if ( $this->only_updated )
 			{
-				// we need to start on a certain property
-				if ( $property['listingId'] == $start_at_property )
+				update_option( 'houzez_property_feed_property_' . $this->import_id, '', false );
+
+				if ( 
+	        		$pro_active === true &&
+	        		isset($import_settings['limit']) && 
+	        		!empty((int)$import_settings['limit']) && 
+	        		is_numeric($import_settings['limit'])
+	        	)
+	        	{
+	        		// Check how many published properties there are belonging to this import and, if more than limit, break out
+	        		$property_count = $this->get_number_published_properties();
+
+					if ( $property_count >= (int)$import_settings['limit'] )
+					{
+						$this->log( 'Stopping as we\'ve hit the advanced limit setting in <a href="' . admin_url('admin.php?page=houzez-property-feed-import&action=editimport&import_id=' . $this->import_id) . '">import settings</a>.' );
+						break;
+					}
+	        	}
+			}
+			else
+			{
+				if ( !empty($start_at_property) )
 				{
-					// we found the property. We'll continue for this property onwards
-					$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . $property['listingId'] );
-					$start_at_property = false;
-				}
-				else
-				{
-					++$property_row;
-					continue;
+					// we need to start on a certain property
+					if ( $property['listingId'] == $start_at_property )
+					{
+						// we found the property. We'll continue for this property onwards
+						$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . $property['listingId'] );
+						$start_at_property = false;
+					}
+					else
+					{
+						++$property_row;
+						continue;
+					}
 				}
 			}
 
@@ -1795,6 +1882,8 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 			++$property_row;
 
 		} // end foreach property
+
+		update_option( 'houzez_property_feed_last_ran_' . $this->import_id, $this->time_at_start );
 
 		do_action( "houzez_property_feed_post_import_properties_propctrl", $this->import_id );
 

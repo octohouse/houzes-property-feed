@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Export Property Enquiries', 'houzezpropertyfeed' ); ?></h3>
 
 <p><?php echo __( 'Export property enquiries made through your website back into', 'houzezpropertyfeed' ); ?> <span class="hpf-import-format-name"></span>.</p>

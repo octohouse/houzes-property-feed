@@ -1,12 +1,12 @@
 <?php
 /**
- * Class for managing the import process of an Apimo JSON file
+ * Class for managing the import process of an InfoCasa file
  *
  * @package WordPress
  */
 if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
-class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
+class Houzez_Property_Feed_Format_Infocasa extends Houzez_Property_Feed_Process {
 
 	public function __construct( $instance_id = '', $import_id = '' )
 	{
@@ -19,6 +19,8 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 
 	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
+
+	    if ( !defined('ALLOW_UNFILTERED_UPLOADS') ) { define( 'ALLOW_UNFILTERED_UPLOADS', true ); }
 	}
 
 	public function parse()
@@ -29,84 +31,163 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
-		//$statuses = ( isset($import_settings['statuses']) && !empty($import_settings['statuses']) && is_array($import_settings['statuses']) ) ? $import_settings['statuses'] : array( 'in progress' );
+		$api_url = 'https://api.infocasa.com/xmlservice';
 
-		$current_page = 1;
-		$per_page = 1000;
-		$more_properties = true;
+		$requests = array(
+			'sales' => array(
+				'sf' => true,
+			),
+			'lettings' => array(
+				'sf' => false,
+			),
+		);
 
-		while ( $more_properties )
+		foreach ( $requests as $department => $request_details )
 		{
-			$url = 'https://api.apimo.pro/agencies/' . $import_settings['agency_id'] . '/properties?limit=' . $per_page;
-			$url .= '&offset=' . ( $per_page * ( $current_page - 1 ) );
-			$url .= '&step=1';
+			$page = 0;
+			$per_page = 200;
+			$more_properties = true;
 
-			$headers = array(
-				'Authorization' => 'Basic ' . base64_encode($import_settings['provider_id'] . ':' . $import_settings['token']),
-			);
-
-			$response = wp_remote_request(
-				$url,
-				array(
-					'method' => 'GET',
-					'timeout' => 360,
-					'headers' => $headers
-				)
-			);
-
-			if ( is_wp_error( $response ) )
+			while ( $more_properties )
 			{
-				$this->log_error( 'Response: ' . $response->get_error_message() );
+				$index = $page * $per_page;
 
-				return false;
-			}
+				$search_request_body = <<<XML
+<operation name="SearchProperties">
+    <header>
+        <lk>{$import_settings['license_key']}</lk>
+    </header>
+    <input>
+		<SearchProperties xmlns="urn:schemas-infocasa-com:client-service:2005-11">
+		    <searchProperties>
+		        <idre>{$import_settings['idre']}</idre>
+		        <ci>{$import_settings['language']}</ci>
+		        <sf>{$request_details['sf']}</sf>  <!-- Sale flag: true for sale properties -->
+		        <arc>false</arc> <!-- Not archived -->
+		        <index>{$index}</index>
+		    </searchProperties>
+		</SearchProperties>
+	</input>
+</operation>
+XML;
 
-			$json = json_decode( $response['body'], TRUE );
+				$search_response = wp_remote_post( 
+					$api_url,
+					array(
+						'body' => $search_request_body,
+						'headers' => [ 'Content-Type' => 'application/xml' ],
+						'timeout' => 120,
+				    )
+				);
 
-			if ($json !== FALSE)
-			{
-				$this->log("Parsing properties on page " . $current_page);
-
-				if ( isset($json['total_items']) )
+				if ( !is_wp_error( $search_response ) && is_array( $search_response ) ) 
 				{
-					if ( $json['total_items'] == 0 )
-					{
-						$more_properties = false;
-					}
-					else
-					{
-						$total_pages = ceil( $json['total_items'] / $per_page );
+					$search_contents = $search_response['body'];
 
-						if ( $current_page == $total_pages )
+					$search_xml = simplexml_load_string( $search_contents );
+
+					if ( $search_xml !== FALSE )
+					{
+						if ( isset($search_xml->error) && (string)$search_xml->error != '' )
 						{
-							$more_properties = false;
+							$this->log_error( 'Error in search response: ' . (string)$search_xml->error );
+							return false;
 						}
-					}
-				}
-				else
-				{
-					$this->log_error( 'No pagination element found in response. This should always exist so likely something went wrong. As a result we\'ll play it safe and not continue further.' );
-					
-					return false;
-				}
 
-				if ( isset($json['properties']) )
-				{
-					foreach ($json['properties'] as $property)
-					{
-						$this->properties[] = $property;
-					}
-				}
+			            if ( isset($search_xml->propertyIds) && isset($search_xml->propertyIds->id) ) 
+			            {
+				            foreach ( $search_xml->propertyIds->id as $id ) 
+				            {
+				            	$property_id = (string)$id;
 
-				++$current_page;
-			}
-			else
-			{
-				// Failed to parse JSON
-				$this->log_error( 'Failed to parse JSON.' );
+				                $details_request_body = <<<XML
+<operation name="GetPropertyDetails">
+    <header>
+        <lk>{$import_settings['license_key']}</lk>
+    </header>
+    <input>
+		<GetPropertyDetails xmlns="urn:schemas-infocasa-com:client-service:2005-11">
+		    <getPropertyDetails>
+		        <idre>{$import_settings['idre']}</idre>
+		        <ci>{$import_settings['language']}</ci>
+		        <pi>{$property_id}</pi> <!-- Property ID -->
+		        <arc>false</arc> <!-- Not archived -->
+		        <sf>{$request_details['sf']}</sf> <!-- Sale flag: true for sale properties -->
+		        <rtg>true</rtg>
+		        <rln>true</rln>
+		    </getPropertyDetails>
+		</GetPropertyDetails>
+	</input>
+</operation>
+XML;
 
-				return false;
-			}
+					            $details_response = wp_remote_post( 
+									$api_url,
+									array(
+										'body' => $details_request_body,
+										'headers' => [ 'Content-Type' => 'application/xml' ],
+										'timeout' => 120,
+								    )
+								);
+
+					            if ( !is_wp_error( $details_response ) && is_array( $details_response ) ) 
+								{
+									$details_contents = $details_response['body'];
+
+									$details_xml = simplexml_load_string( $details_contents );
+
+									if ( $details_xml !== FALSE )
+									{
+										if ( isset($details_xml->error) && (string)$details_xml->error != '' )
+										{
+											$this->log_error( 'Error in details response: ' . (string)$details_xml->error );
+											return false;
+										}
+
+										if ( isset($details_xml->propertyDetails->properties->p) )
+										{
+											$this->properties[] = $details_xml->propertyDetails->properties->p;
+										}
+										else
+										{
+											$this->log_error( 'Missing property data: ' . print_r($details_contents, TRUE) );
+							        		return false;
+										}
+									}
+							        else
+							        {
+							        	// Failed to parse XML
+							        	$this->log_error( 'Failed to parse details XML file: ' . print_r($details_contents, TRUE) );
+							        	return false;
+							        }
+								}
+						        else
+						        {
+						        	$this->log_error( 'Failed to obtain details XML. Dump of response as follows: ' . print_r($details_response, TRUE) );
+						        	return false;
+						        }
+				            }
+				        }
+				        else
+				        {
+				        	$more_properties = false;
+				        }
+			        }
+			        else
+			        {
+			        	// Failed to parse XML
+			        	$this->log_error( 'Failed to parse search XML file: ' . print_r($search_contents, TRUE) );
+			        	return false;
+			        }
+			    }
+		        else
+		        {
+		        	$this->log_error( 'Failed to obtain search XML. Dump of response as follows: ' . print_r($search_response, TRUE) );
+		        	return false;
+		        }
+
+		        ++$page;
+		    }
 		}
 
 		if ( empty($this->properties) )
@@ -117,6 +198,24 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 		}
 
 		return true;
+	}
+
+	private function get_additional_field_value( $property, $type )
+	{
+		if ( isset($property->fields) && isset($property->fields->fld) )
+		{
+			foreach ( $property->fields->fld as $field )
+			{
+				$field_attributes = $field->attributes();
+
+				if ( isset($field_attributes['tp']) && (string)$field_attributes['tp'] == $type )
+				{
+					return (string)$field->value;
+				}
+			}
+		}
+
+		return '';
 	}
 
 	public function import()
@@ -133,10 +232,10 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
-        do_action( "houzez_property_feed_pre_import_properties_apimo", $this->properties, $this->import_id );
+        do_action( "houzez_property_feed_pre_import_properties_infocasa", $this->properties, $this->import_id );
 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
-        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_apimo", $this->properties, $this->import_id );
+        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_infocasa", $this->properties, $this->import_id );
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
         $additional_message = '';
@@ -165,10 +264,10 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 			if ( !empty($start_at_property) )
 			{
 				// we need to start on a certain property
-				if ( $property['id'] == $start_at_property )
+				if ( (string)$property->pi == $start_at_property )
 				{
 					// we found the property. We'll continue for this property onwards
-					$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . $property['id'] );
+					$this->log( 'Previous import failed to complete. Continuing from property ' . $property_row . ' with ID ' . (string)$property->pi );
 					$start_at_property = false;
 				}
 				else
@@ -178,9 +277,9 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 				}
 			}
 
-			update_option( 'houzez_property_feed_property_' . $this->import_id, $property['id'], false );
+			update_option( 'houzez_property_feed_property_' . $this->import_id, (string)$property->pi, false );
 			
-			$this->log( 'Importing property ' . $property_row . ' with reference ' . $property['id'], $property['id'], 0, '', false );
+			$this->log( 'Importing property ' . $property_row . ' with reference ' . (string)$property->pi, (string)$property->pi, 0, '', false );
 
 			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
 
@@ -193,53 +292,30 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	            'meta_query' => array(
 	            	array(
 		            	'key' => $imported_ref_key,
-		            	'value' => $property['id']
+		            	'value' => (string)$property->pi
 		            )
 	            )
 	        );
 	        $property_query = new WP_Query($args);
 
-			$display_address = '';
-			$post_content = '';
+	        /*$display_address = array();
 
-			if ( isset($property['comments']) && !empty($property['comments']) )
-			{
-				foreach ( $property['comments'] as $comment )
-				{
-					if ( isset($comment['language']) && $comment['language'] == 'en' )
-					{
-						if ( isset($comment['title']) && !empty($comment['title']) ) { $display_address = $comment['title']; }
-						if ( isset($comment['comment']) && !empty($comment['comment']) ) { $post_content = $comment['comment']; }
-						break;
-					}
-				}
-			}
+	        $province = $this->get_additional_field_value($property, 'PRO');
+	        if ( !empty($province) )
+	        {
+	        	$display_address[] = $province;
+	        }
 
-			if ( empty($display_address) )
-			{
-				$display_address = array();
-		        if ( isset($property['publish_address']) && $property['publish_address'] === true && !empty($property['address']) )
-	        	{
-	        		$display_address[] = $property['address'];
-	        	}
-				if ( isset($property['district']['name']) && !empty($property['district']['name']) )
-				{
-					$display_address[] = $property['district']['name'];
-				}
-				if ( isset($property['city']['name']) && !empty($property['city']['name']) )
-				{
-					$display_address[] = $property['city']['name'];
-				}
-				if ( isset($property['region']['name']) && !empty($property['region']['name']) )
-				{
-					$display_address[] = $property['region']['name'];
-				}
-				$display_address = implode(", ", $display_address);
-			}
-	        
+	        $display_address = implode(", ", $display_address);*/
+
+	        $display_address = $this->get_additional_field_value($property, 'HTMLT');
+
+	        $summary_description = $this->get_additional_field_value($property, 'SHD');
+	        $full_description = $this->get_additional_field_value($property, 'DE');
+
 	        if ($property_query->have_posts())
 	        {
-	        	$this->log( 'This property has been imported before. Updating it', $property['id'] );
+	        	$this->log( 'This property has been imported before. Updating it', (string)$property->pi );
 
 	        	// We've imported this property before
 	            while ($property_query->have_posts())
@@ -251,8 +327,8 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	                $my_post = array(
 				    	'ID'          	 => $post_id,
 				    	'post_title'     => wp_strip_all_tags( $display_address ),
-				    	'post_excerpt'   => $post_content,
-				    	'post_content' 	 => $post_content,
+				    	'post_excerpt'   => $summary_description,
+				    	'post_content' 	 => $full_description,
 				    	'post_status'    => 'publish',
 				  	);
 
@@ -261,7 +337,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 
 				    if ( is_wp_error( $post_id ) ) 
 					{
-						$this->log_error( 'Failed to update post. The error was as follows: ' . $post_id->get_error_message(), $property['id'] );
+						$this->log_error( 'Failed to update post. The error was as follows: ' . $post_id->get_error_message(), (string)$property->pi );
 					}
 					else
 					{
@@ -271,23 +347,31 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	        }
 	        else
 	        {
-	        	$this->log( 'This property hasn\'t been imported before. Inserting it', $property['id'] );
+	        	$this->log( 'This property hasn\'t been imported before. Inserting it', (string)$property->pi );
+
+	        	$post_date = '';
+	        	$create_date = $this->get_additional_field_value($property, 'CD'); // Unsure what timezone/format this is provided in
+				if ( !empty($create_date) )
+				{
+					$post_date = date( 'Y-m-d H:i:s', strtotime($create_date) );
+				}
 
 	        	// We've not imported this property before
 				$postdata = array(
-					'post_excerpt'   => $post_content,
-					'post_content' 	 => $post_content,
+					'post_excerpt'   => $summary_description,
+				    'post_content' 	 => $full_description,
 					'post_title'     => wp_strip_all_tags( $display_address ),
 					'post_status'    => 'publish',
 					'post_type'      => 'property',
 					'comment_status' => 'closed',
+					'post_date'      => $create_date,
 				);
 
 				$post_id = wp_insert_post( $postdata, true );
 
 				if ( is_wp_error( $post_id ) ) 
 				{
-					$this->log_error( 'Failed to insert post. The error was as follows: ' . $post_id->get_error_message(), $property['id'] );
+					$this->log_error( 'Failed to insert post. The error was as follows: ' . $post_id->get_error_message(), (string)$property->pi );
 				}
 				else
 				{
@@ -314,25 +398,20 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 					}
 				}
 
-				$this->log( 'Successfully ' . $inserted_updated . ' post', $property['id'], $post_id );
+				$this->log( 'Successfully ' . $inserted_updated . ' post', (string)$property->pi, $post_id );
 
-				update_post_meta( $post_id, $imported_ref_key, $property['id'] );
+				update_post_meta( $post_id, $imported_ref_key, (string)$property->pi );
 
 				update_post_meta( $post_id, '_property_import_data', json_encode($property, JSON_PRETTY_PRINT) );
 
-				$department = 'residential-sales';
-				if ( $property['category'] == 2 || $property['category'] == 3 )
-				{
-					$department = 'residential-lettings';
-				}
+				$department = ( $this->get_additional_field_value($property, 'FSL') != '1' ? 'residential-lettings' : 'residential-sales' );
 
 				$poa = false;
-				if ( 
-					( isset($property['price']['hide']) && $property['price']['hide'] === true )
-				)
-				{
-					$poa = true;
-				}
+
+				if ( $this->get_additional_field_value($property, 'POA') == true )
+            	{
+                	$poa = true;
+            	}
 
 				if ( $poa === true ) 
                 {
@@ -341,97 +420,77 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
                 }
                 else
                 {
-                	if ( $department == 'residential-sales' )
-                	{
-                		$price = '';
-                		if ( isset($property['price']['value']) && !empty($property['price']['value']) )
-                		{
-	                		$price = round(preg_replace("/[^0-9.]/", '', $property['price']['value']));
-	                	}
-	                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
-	                    update_post_meta( $post_id, 'fave_property_price', $price );
-	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
-	                }
-	                elseif ( $department == 'residential-lettings' )
-	                {
-	                	$price = '';
-                		if ( isset($property['price']['value']) && !empty($property['price']['value']) )
-                		{
-	                		$price = round(preg_replace("/[^0-9.]/", '', $property['price']['value']));
-	                	}
-	                	update_post_meta( $post_id, 'fave_property_price_prefix', '' );
-	                    update_post_meta( $post_id, 'fave_property_price', $price );
+            		$price = (string)$property->pr;
+            		if ( !empty($price) )
+            		{
+                		$price = preg_replace("/[^0-9.]/", '', $price);
+                	}
 
-	                    $rent_frequency = 'pcm';
-	                    if ( isset($property['price']['period']) )
-	                    {
-	                    	switch ( $property['price']['period'] )
-	                    	{
-	                    		case "1": { $rent_frequency = 'per day'; }
-	                    		case "2": { $rent_frequency = 'per week'; }
-	                    		case "3": { $rent_frequency = 'per fortnight'; }
-	                    		case "4": { $rent_frequency = 'per month'; }
-	                    		case "5": { $rent_frequency = 'quarterly'; }
-	                    		case "6": { $rent_frequency = 'bimonthly'; }
-	                    		case "7": { $rent_frequency = 'half-yearly'; }
-	                    		case "8": { $rent_frequency = 'yearly'; }
-	                    	}
-	                    }
-	                    update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
-	                }
+                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
+                    update_post_meta( $post_id, 'fave_property_price', $price );
+                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
+
+                    if ( $department == 'residential-lettings' )
+                    {
+		                $rent_frequency = $this->get_additional_field_value($property, 'RPF');
+
+		                update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
+		            }
                 }
 
-                update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property['bedrooms']) ) ? $property['bedrooms'] : '' ) );
-	            update_post_meta( $post_id, 'fave_property_bathrooms', '' );
-	            update_post_meta( $post_id, 'fave_property_rooms', '' );
-	            
+                update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property->bd) ) ? (string)$property->bd : '' ) );
+	            update_post_meta( $post_id, 'fave_property_bathrooms', $this->get_additional_field_value($property, 'BR') );
+	            update_post_meta( $post_id, 'fave_property_rooms', $this->get_additional_field_value($property, 'NR') );
+
 	            update_post_meta( $post_id, 'fave_property_garage', '' );
-	            update_post_meta( $post_id, 'fave_property_id', $property['reference'] );
+	            update_post_meta( $post_id, 'fave_property_id', $this->get_additional_field_value($property, 'PI') );
+
+	            $area = $this->get_additional_field_value($property, 'BS');
+	            update_post_meta( $post_id, 'fave_property_size', ( ( !empty($area) ) ? $area : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( !empty($area) ) ? 'sqm' : '' ) );
+	            
+	            $area = $this->get_additional_field_value($property, 'PS');
+	            update_post_meta( $post_id, 'fave_property_land', ( ( !empty($area) ) ? $area : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( !empty($area) ) ? 'sqm' : '' ) );
 
 	            $address_parts = array();
-	            if ( isset($property['district']['name']) && $property['district']['name'] != '' )
-	            {
-	                $address_parts[] = $property['district']['name'];
-	            }
-	            if ( isset($property['city']['name']) && $property['city']['name'] != '' )
-	            {
-	                $address_parts[] = $property['city']['name'];
-	            }
-	            if ( isset($property['region']['line_3']) && $property['region']['line_3'] != '' )
-	            {
-	                $address_parts[] = $property['region']['line_3'];
-	            }
-	            if ( isset($property['city']['zipcode']) && $property['city']['zipcode'] != '' )
-	            {
-	                $address_parts[] = $property['city']['zipcode'];
-	            }
+
+	            $province = $this->get_additional_field_value($property, 'PRO');
+	            if ( !empty($province) )
+		        {
+		        	$address_parts[] = trim($province);
+		        }
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
 	            $lat = '';
 	            $lng = '';
-	            if ( isset($property['latitude']) && !empty($property['latitude']) )
-	            {
-	                update_post_meta( $post_id, 'houzez_geolocation_lat', $property['latitude'] );
-	                $lat = $property['latitude'];
+	            if ( !empty($this->get_additional_field_value($property, 'MAPX')) )
+	            {	
+	            	$lat = $this->get_additional_field_value($property, 'MAPX');
+	                update_post_meta( $post_id, 'houzez_geolocation_lat', $lat );
 	            }
-	            if ( isset($property['longitude']) && !empty($property['longitude']) )
+	            if ( !empty($this->get_additional_field_value($property, 'MAPY')) )
 	            {
-	                update_post_meta( $post_id, 'houzez_geolocation_long', $property['longitude'] );
-	                $lng = $property['longitude'];
+	            	$lng = $this->get_additional_field_value($property, 'MAPY');
+	                update_post_meta( $post_id, 'houzez_geolocation_long', $lng );
 	            }
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
-	            update_post_meta( $post_id, 'fave_property_country', $property['country'] );
+	            update_post_meta( $post_id, 'fave_property_country', $this->get_additional_field_value($property, 'C') );
 	            
-	            $address_parts = array();
-	            if ( $address_street != '' )
-	            {
-	                $address_parts[] = $address_street;
-	            }
+	            /*$address_parts = array();
+	            if ( isset($property['locationSubarea']['name']) && trim($property['locationSubarea']['name']) != '' )
+		        {
+		        	$address_parts[] = trim($property['locationSubarea']['name']);
+		        }*/
 	            update_post_meta( $post_id, 'fave_property_address', implode(", ", $address_parts) );
-	            update_post_meta( $post_id, 'fave_property_zip', ( ( isset($property['city']['zipcode']) ) ? $property['city']['zipcode'] : '' ) );
+	            update_post_meta( $post_id, 'fave_property_zip', $this->get_additional_field_value($property, 'ZIP') );
 
 	            $featured = '0';
+	            if ( this->get_additional_field_value($property, 'WH') === true )
+				{
+			    	$featured = '1';
+				}
 	            update_post_meta( $post_id, 'fave_featured', $featured );
 	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
@@ -451,14 +510,14 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "user id":
+		            				case "Office":
 		            				{
-		            					$value_in_feed_to_check = $property['user']['id'];
+		            					$value_in_feed_to_check = $this->get_additional_field_value($property, 'AREG');
 		            					break;
 		            				}
-		            				case "user name":
+		            				case "Salesperson ID":
 		            				{
-		            					$value_in_feed_to_check = $property['user']['firstname'] . ' ' . $property['user']['lastname'];
+		            					$value_in_feed_to_check = $this->get_additional_field_value($property, 'PSPE');
 		            					break;
 		            				}
 		            			}
@@ -486,14 +545,14 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "user id":
+		            				case "Office":
 		            				{
-		            					$value_in_feed_to_check = $property['user']['id'];
+		            					$value_in_feed_to_check = $this->get_additional_field_value($property, 'AREG');
 		            					break;
 		            				}
-		            				case "user name":
+		            				case "Salesperson ID":
 		            				{
-		            					$value_in_feed_to_check = $property['user']['firstname'] . ' ' . $property['user']['lastname'];
+		            					$value_in_feed_to_check = $this->get_additional_field_value($property, 'PSPE');
 		            					break;
 		            				}
 		            			}
@@ -513,14 +572,14 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "user id":
+		            				case "Office":
 		            				{
-		            					$value_in_feed_to_check = $property['user']['id'];
+		            					$value_in_feed_to_check = $this->get_additional_field_value($property, 'AREG');
 		            					break;
 		            				}
-		            				case "user name":
+		            				case "Salesperson ID":
 		            				{
-		            					$value_in_feed_to_check = $property['user']['firstname'] . ' ' . $property['user']['lastname'];
+		            					$value_in_feed_to_check = $this->get_additional_field_value($property, 'PSPE');
 		            					break;
 		            				}
 		            			}
@@ -536,73 +595,69 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 		            }
 	        	}
 	        	
-				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
-
-				// status taxonomies
-				$mapping_name = 'lettings_status';
-				if ( $department == 'residential-sales' )
+	            // Turn bullets into property features
+	            /*$feature_term_ids = array();
+	            if ( isset($property['features']) && is_array($property['features']) && !empty($property['features']) )
 				{
-					$mapping_name = 'sales_status';
-				}
-
-				$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
-
-				if ( isset($property['status']) && !empty($property['status']) )
-				{
-					if ( isset($taxonomy_mappings[$property['status']]) && !empty($taxonomy_mappings[$property['status']]) )
+					foreach ( $property['features'] as $feature )
 					{
-						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['status']], "property_status" );
+						$term = term_exists( trim($feature['name']), 'property_feature');
+						if ( $term !== 0 && $term !== null && isset($term['term_id']) )
+						{
+							$feature_term_ids[] = (int)$term['term_id'];
+						}
+						else
+						{
+							$term = wp_insert_term( trim($feature['name']), 'property_feature' );
+							if ( is_array($term) && isset($term['term_id']) )
+							{
+								$feature_term_ids[] = (int)$term['term_id'];
+							}
+						}
+					}
+					if ( !empty($feature_term_ids) )
+					{
+						wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
 					}
 					else
 					{
-						$this->log( 'Received status of ' . $property['status'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
-
-						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property['status'], $this->import_id );
+						wp_delete_object_term_relationships( $post_id, "property_feature" );
 					}
+				}*/
+
+				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
+
+				// status taxonomies
+				if ( $department == 'residential-sales' )
+				{
+					$taxonomy_mappings = ( isset($mappings['sales_status']) && is_array($mappings['sales_status']) && !empty($mappings['sales_status']) ) ? $mappings['sales_status'] : array();
 				}
+				else
+				{
+					$taxonomy_mappings = ( isset($mappings['lettings_status']) && is_array($mappings['lettings_status']) && !empty($mappings['lettings_status']) ) ? $mappings['lettings_status'] : array();
+				}
+
+				$status = $this->get_additional_field_value($property, 'STA');
+
+				if ( isset($taxonomy_mappings[$status]) && !empty($taxonomy_mappings[$status]) )
+				{
+	                wp_set_post_terms( $post_id, (int)$taxonomy_mappings[$status], 'availability' );
+	            }
 
 				// property type taxonomies
 				$taxonomy_mappings = ( isset($mappings['property_type']) && is_array($mappings['property_type']) && !empty($mappings['property_type']) ) ? $mappings['property_type'] : array();
 
-				if ( isset($property['type']) && !empty($property['type']) )
+				if ( isset($property->pt) && (string)$property->pt != '' )
 				{
-					$type_mapped = false;
-
-					if ( 
-						isset($property['type']) && 
-						$property['type'] != '' &&
-						isset($property['subtype']) && 
-						$property['subtype'] != ''
-					)
+					if ( isset($taxonomy_mappings[(string)$property->pt]) )
 					{
-						if ( 
-							isset($taxonomy_mappings[$property['type'] . ' - ' . $property['subtype']]) && 
-							!empty($taxonomy_mappings[$property['type'] . ' - ' . $property['subtype']]) 
-						)
-						{
-							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['type'] . ' - ' . $property['subtype']], "property_type" );
-							$type_mapped = true;
-						}
-						else
-						{
-							$this->log( 'Received property type of ' . $property['type'] . ' - ' . $property['subtype'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
-
-							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['type'] . ' - ' . $property['subtype'], $this->import_id );
-						}
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[(string)$property->pt], "property_type" );
 					}
-
-					if ( !$type_mapped )
+					else
 					{
-						if ( isset($taxonomy_mappings[$property['type']]) && !empty($taxonomy_mappings[$property['type']]) )
-						{
-							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['type']], "property_type" );
-						}
-						else
-						{
-							$this->log( 'Received property type of ' . $property['type'] . ' that isn\'t mapped in the import settings', $property['id'], $post_id );
+						$this->log( 'Received property type of ' . (string)$property->pt . ' that isn\'t mapped in the import settings', (string)$property->pi, $post_id );
 
-							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['type'], $this->import_id );
-						}
+						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', (string)$property->pt, $this->import_id );
 					}
 				}
 
@@ -631,9 +686,10 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 					if ( !empty($address_field_to_use) )
 					{
 						$location_term_ids = array();
-						if ( isset($property[$address_field_to_use]['name']) && !empty($property[$address_field_to_use]['name']) )
+
+						if ( !empty($this->get_additional_field_value($property, $address_field_to_use)) )
 		            	{
-		            		$term = term_exists( trim($property[$address_field_to_use]['name']), $location_taxonomy);
+		            		$term = term_exists( trim($this->get_additional_field_value($property, $address_field_to_use)), $location_taxonomy);
 							if ( $term !== 0 && $term !== null && isset($term['term_id']) )
 							{
 								$location_term_ids[] = (int)$term['term_id'];
@@ -642,7 +698,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 							{
 								if ( $create_location_taxonomy_terms === true )
 								{
-									$term = wp_insert_term( trim($property[$address_field_to_use]['name']), $location_taxonomy );
+									$term = wp_insert_term( trim($this->get_additional_field_value($property, $address_field_to_use)), $location_taxonomy );
 									if ( is_array($term) && isset($term['term_id']) )
 									{
 										$location_term_ids[] = (int)$term['term_id'];
@@ -664,15 +720,15 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 				// Images
 				if ( 
 					apply_filters('houzez_property_feed_images_stored_as_urls', false, $post_id, $property, $this->import_id) === true ||
-					apply_filters('houzez_property_feed_images_stored_as_urls_apimo', false, $post_id, $property, $this->import_id) === true
+					apply_filters('houzez_property_feed_images_stored_as_urls_infocasa', false, $post_id, $property, $this->import_id) === true
 				)
 				{
 					$urls = array();
 
-					if (isset($property['pictures']) && !empty($property['pictures']))
+					if ( isset($property->attachments->at) ) 
 					{
-						foreach ($property['pictures'] as $image)
-						{
+            			foreach ( $property->attachments->at as $attachment ) 
+            			{
 							if ( $pro_active === true )
 							{
 								if ( 
@@ -686,11 +742,25 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 					        	}
 					        }
 
-							$url = $image['url'];
+					        $attachment_attributes = $attachment->attributes();
+
+					        $url = 'https://cdn.infocasa.com/property-image/xxlarge_' . $attachment->na;
 
 							if ( 
-								substr( strtolower($url), 0, 2 ) == '//' || 
-								substr( strtolower($url), 0, 4 ) == 'http'
+								(
+									substr( strtolower($url), 0, 2 ) == '//' || 
+									substr( strtolower($url), 0, 4 ) == 'http'
+								)
+								&& 
+								(
+									isset($attachment_attributes['tp']) &&
+									(string)$attachment_attributes['tp'] == 'image'
+								)
+								&& 
+								(
+									isset($attachment_attributes['st']) &&
+									(string)$attachment_attributes['st'] == ''
+								)
 							)
 							{
 								$urls[] = array(
@@ -703,7 +773,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 					update_post_meta( $post_id, 'image_urls', $urls );
 					update_post_meta( $post_id, 'images_stored_as_urls', true );
 
-					$this->log( 'Imported ' . count($urls) . ' photo URLs', $property['id'], $post_id );
+					$this->log( 'Imported ' . count($urls) . ' photo URLs', (string)$property->pi, $post_id );
 				}
 				else
 				{
@@ -730,15 +800,15 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 								$media_ids = explode(",", $explode_previous_import_media_ids[1]);
 								$start_at_image_i = count($media_ids);
 
-								$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', $property['id'], $post_id );
+								$this->log( 'Imported ' . count($media_ids) . ' images before failing in the previous import. Continuing from here', (string)$property->pi, $post_id );
 							}
 						}
 					}
 
-					if (isset($property['pictures']) && !empty($property['pictures']))
+					if ( isset($property->attachments->at) ) 
 					{
-						foreach ($property['pictures'] as $image)
-						{
+            			foreach ( $property->attachments->at as $attachment ) 
+            			{
 							if ( $pro_active === true )
 							{
 								if ( 
@@ -751,12 +821,26 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 					        		break;
 					        	}
 					        }
-				        
-							$url = $image['url'];
 
+					        $attachment_attributes = $attachment->attributes();
+
+					        $url = 'https://cdn.infocasa.com/property-image/xxlarge_' . $attachment->na;
+				        
 							if ( 
-								substr( strtolower($url), 0, 2 ) == '//' || 
-								substr( strtolower($url), 0, 4 ) == 'http'
+								(
+									substr( strtolower($url), 0, 2 ) == '//' || 
+									substr( strtolower($url), 0, 4 ) == 'http'
+								)
+								&& 
+								(
+									isset($attachment_attributes['tp']) &&
+									(string)$attachment_attributes['tp'] == 'image'
+								)
+								&& 
+								(
+									isset($attachment_attributes['st']) &&
+									(string)$attachment_attributes['st'] == ''
+								)
 							)
 							{
 								if ( $start_at_image_i !== false )
@@ -771,7 +855,13 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 								}
 
 								// This is a URL
-								$description = '';
+								$description = (string)$attachment->ca;
+								$modified = (string)$attachment->lmd;
+								if ( !empty($modified) )
+								{
+									$dateTime = new DateTime($modified);
+									$modified = $dateTime->format('Y-m-d H:i:s');
+								}
 							    
 								$filename = basename( $url );
 
@@ -784,6 +874,15 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 									{
 										if ( 
 											get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
+											&&
+											(
+												get_post_meta( $previous_media_id, '_modified', TRUE ) == '' 
+												||
+												(
+													get_post_meta( $previous_media_id, '_modified', TRUE ) != '' &&
+													get_post_meta( $previous_media_id, '_modified', TRUE ) == $modified
+												)
+											)
 										)
 										{
 											$imported_previously = true;
@@ -818,7 +917,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 								}
 								else
 								{
-									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, $property['id'], $url, $url, $description, 'image', $image_i, '' ) === true )
+									if ( apply_filters( 'houzez_property_feed_import_media', true, $this->import_id, $post_id, (string)$property->pi, $url, $url, $description, 'image', $image_i, $modified ) === true )
 									{
 										$this->ping();
 										
@@ -832,7 +931,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 									    // Check for download errors
 									    if ( is_wp_error( $tmp ) ) 
 									    {
-									        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['id'], $post_id );
+									        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), (string)$property->pi, $post_id );
 									    }
 									    else
 									    {
@@ -843,13 +942,14 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 										    {
 										        @unlink( $file_array['tmp_name'] );
 										        
-										        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['id'], $post_id );
+										        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), (string)$property->pi, $post_id );
 										    }
 										    else
 										    {
 										    	$media_ids[] = $id;
 
 										    	update_post_meta( $id, '_imported_url', $url);
+										    	update_post_meta( $id, '_modified', $modified);
 
 										    	if ( $image_i == 0 ) set_post_thumbnail( $post_id, $id );
 
@@ -896,17 +996,17 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 						}
 					}
 
-					$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
+					$this->log( 'Imported ' . count($media_ids) . ' photos (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', (string)$property->pi, $post_id );
 					if ( $queued > 0 ) 
 					{
-						$this->log( $queued . ' photos added to download queue', $property['id'], $post_id );
+						$this->log( $queued . ' photos added to download queue', (string)$property->pi, $post_id );
 					}
 					
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
-
+				
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
-				do_action( "houzez_property_feed_property_imported_apimo", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_infocasa", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
@@ -914,7 +1014,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 
 				if ( $inserted_updated == 'updated' )
 				{
-					$this->compare_meta_and_taxonomy_data( $post_id, $property['id'], $metadata_before, $taxonomy_terms_before );
+					$this->compare_meta_and_taxonomy_data( $post_id, (string)$property->pi, $metadata_before, $taxonomy_terms_before );
 				}
 			}
 
@@ -922,7 +1022,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 
 		} // end foreach property
 
-		do_action( "houzez_property_feed_post_import_properties_apimo", $this->import_id );
+		do_action( "houzez_property_feed_post_import_properties_infocasa", $this->import_id );
 
 		$this->import_end();
 	}
@@ -936,7 +1036,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 			$import_refs = array();
 			foreach ($this->properties as $property)
 			{
-				$import_refs[] = $property['id'];
+				$import_refs[] = (string)$property->pi;
 			}
 
 			$this->do_remove_old_properties( $import_refs );

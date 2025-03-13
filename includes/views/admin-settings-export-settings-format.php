@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Export Format', 'houzezpropertyfeed' ); ?></h3>
 
 <p><?php echo __( 'Select the format that you want to export in using below', 'houzezpropertyfeed' ); ?>:</p>

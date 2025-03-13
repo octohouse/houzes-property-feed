@@ -27,7 +27,7 @@ class Houzez_Property_Feed_Format_Resales_Online_API extends Houzez_Property_Fee
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$filter_ids = explode(",", $import_settings['filter_ids']);
 		$filter_ids = array_filter(array_map('trim', $filter_ids));
@@ -140,7 +140,7 @@ class Houzez_Property_Feed_Format_Resales_Online_API extends Houzez_Property_Fee
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

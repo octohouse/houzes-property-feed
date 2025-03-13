@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <div class="notice notice-error no-format-notice inline"><p>Please select an export format in order to configure the following page.</p></div>
 
 <h3><?php echo __( 'Additional Field Mapping', 'houzezpropertyfeed' ); ?></h3>
@@ -5,12 +7,12 @@
 <p><?php echo __( 'Here you can do any additional field mapping to cater for non-standard mapping or to export into any custom fields you\'ve set up in the <a href="' . admin_url('admin.php?page=houzez_fbuilder') . '" target="_blank">Houzez Field Builder</a>', 'houzezpropertyfeed' ); ?>.</p>
 
 <?php
-	$houzez_fields = get_houzez_fields_for_field_mapping();
+	$houzez_fields = houzez_property_feed_get_fields_for_field_mapping();
 
 	// convert old-style rules to new style
 	if ( isset($import_settings['field_mapping_rules']) && !empty($import_settings['field_mapping_rules']) )
 	{
-		$import_settings['field_mapping_rules'] = convert_old_field_mapping_to_new( $import_settings['field_mapping_rules'] );
+		$import_settings['field_mapping_rules'] = houzez_property_feed_convert_old_field_mapping_to_new( $import_settings['field_mapping_rules'] );
 	}
 ?>
 

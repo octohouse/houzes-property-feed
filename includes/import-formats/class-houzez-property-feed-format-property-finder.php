@@ -27,7 +27,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$urls = explode( ",", trim($import_settings['xml_url']) );
 
@@ -85,7 +85,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

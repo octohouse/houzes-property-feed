@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Media', 'houzezpropertyfeed' ); ?></h3>
 
 <p><?php echo __( 'Specify which fields should be used for media', 'houzezpropertyfeed' ); ?>:</p>

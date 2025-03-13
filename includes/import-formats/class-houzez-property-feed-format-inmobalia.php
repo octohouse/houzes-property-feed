@@ -29,7 +29,7 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$search_url = 'https://api.inmobalia.com/rest/property?page=1&size=999999';
 
@@ -90,7 +90,7 @@ class Houzez_Property_Feed_Format_Inmobalia extends Houzez_Property_Feed_Process
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

@@ -28,7 +28,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 
         $this->log("Starting export");
 
-		$export_settings = get_export_settings_from_id( $this->export_id );
+		$export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
 		$options = get_option( 'houzez_property_feed' , array() );
 		$sales_statuses = ( isset($options['sales_statuses']) && is_array($options['sales_statuses']) && !empty($options['sales_statuses']) ) ? $options['sales_statuses'] : array();

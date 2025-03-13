@@ -55,7 +55,7 @@ class Houzez_Property_Feed_Export {
             return;
         }
 
-        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( $_POST['_wpnonce'], 'save-export-settings' ) ) ) 
+        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'save-export-settings' ) ) ) 
         {
             die( __( "Failed security check", 'houzezpropertyfeed' ) );
         }
@@ -115,7 +115,7 @@ class Houzez_Property_Feed_Export {
         $export_options['field_mapping_rules'] = $rules;
 
         // Save core format fields (FTP Details etc)
-        $formats = get_houzez_property_feed_export_formats();
+        $formats = houzez_property_feed_get_export_formats();
         if ( isset($formats[$format]) )
         {
             if ( isset($formats[$format]['fields']) && !empty($formats[$format]['fields']) )
@@ -148,16 +148,16 @@ class Houzez_Property_Feed_Export {
                                         throw new RuntimeException('No file sent.');
                                     case UPLOAD_ERR_INI_SIZE:
                                     case UPLOAD_ERR_FORM_SIZE:
-                                        $error = __( 'File exceeded filesize limit.', 'propertyhive' );
+                                        $error = __( 'File exceeded filesize limit.', 'houzezpropertyfeed' );
                                     default:
-                                        $error = __( 'Unknown error when uploading file.', 'propertyhive' );
+                                        $error = __( 'Unknown error when uploading file.', 'houzezpropertyfeed' );
                                 }
 
                                 if ($error == '')
                                 {  
                                     // You should also check filesize here. 
                                     if ($_FILES[$format . '_' . $field['id']]['size'] > 1000000) {
-                                        $error = __( 'Exceeded filesize limit.', 'propertyhive' );
+                                        $error = __( 'Exceeded filesize limit.', 'houzezpropertyfeed' );
                                     }
 
                                     if ($error == '')
@@ -177,7 +177,7 @@ class Houzez_Property_Feed_Export {
                                                 ),
                                                 true
                                             )) {
-                                                $error = __( 'Certificate file must be of type .pem', 'propertyhive' );
+                                                $error = __( 'Certificate file must be of type .pem', 'houzezpropertyfeed' );
                                             }
                                         }*/
 
@@ -198,7 +198,7 @@ class Houzez_Property_Feed_Export {
                                                     $uploaded_file_name
                                                 )
                                             )) {
-                                                $error = __( 'Failed to move uploaded file.', 'propertyhive' );
+                                                $error = __( 'Failed to move uploaded file.', 'houzezpropertyfeed' );
                                                 $uploaded_file_name = '';
                                             }
                                         }
@@ -337,7 +337,7 @@ class Houzez_Property_Feed_Export {
                 }
                 case "pushall":
                 {
-                    if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'push-all' ) )
+                    if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'push-all' ) )
                     {
                         wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . urlencode( __( 'Nonce verification failed. Please try again', 'houzezpropertyfeed' ) ) ) );
                         die();
@@ -355,7 +355,7 @@ class Houzez_Property_Feed_Export {
                         die();
                     }
 
-                    $format = get_houzez_property_feed_export_format( $options['exports'][$export_id]['format'] );
+                    $format = houzez_property_feed_get_export_format( $options['exports'][$export_id]['format'] );
 
                     if ( $format['method'] != 'realtime' )
                     {
@@ -412,7 +412,7 @@ class Houzez_Property_Feed_Export {
 
     public function perform_field_mapping( $property, $post_id, $export_id )
     {
-        $export_settings = get_export_settings_from_id( $export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $export_id );
 
         if ( $export_settings === false )
         {
@@ -433,7 +433,7 @@ class Houzez_Property_Feed_Export {
 
         $original_post = $post;
 
-        $houzez_fields = get_houzez_fields_for_field_mapping();
+        $houzez_fields = houzez_property_feed_get_fields_for_field_mapping();
 
         foreach ( $export_settings['field_mapping_rules'] as $and_rules )
         {

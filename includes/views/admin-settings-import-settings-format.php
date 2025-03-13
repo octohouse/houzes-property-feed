@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Import Format', 'houzezpropertyfeed' ); ?></h3>
 
 <p><?php echo __( 'Select the CRM or format that you want to import using below', 'houzezpropertyfeed' ); ?>:</p>

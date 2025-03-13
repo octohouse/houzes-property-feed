@@ -14,7 +14,7 @@ if ( !isset($_GET['file']) || ( isset($_GET['file']) && empty($_GET['file']) ) )
 	die("No file passed");
 }
 
-$import_settings = get_import_settings_from_id( (int)$_GET['import_id'] );
+$import_settings = houzez_property_feed_get_import_settings_from_id( (int)$_GET['import_id'] );
 
 if ( $import_settings === false )
 {
@@ -28,7 +28,7 @@ switch ( $import_settings['format'] )
 	case "reaxml_local":
 	case "rentman":
 	{
-		$file_name = base64_decode($_GET['file']);
+		$file_name = base64_decode(sanitize_text_field($_GET['file']));
 
 		// Prevent directory traversal
 		$file_name = basename($file_name);
@@ -50,6 +50,6 @@ switch ( $import_settings['format'] )
 	}
 	default:
 	{
-		die('Unknown format: ' . $import_settings['format']);
+		die('Unknown format: ' . esc_html($import_settings['format']));
 	}
 }

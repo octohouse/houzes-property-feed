@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Removing Properties', 'houzezpropertyfeed' ); ?></h3>
 
 <p>Here you can control what happens when a property is removed from the CRM feed.</p>

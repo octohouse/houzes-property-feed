@@ -28,7 +28,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 		$agent_ids_to_import = array();
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
 		$url = 'https://' . $host;
@@ -126,7 +126,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 		if ( !empty($office_ids) )
         {
-        	$import_settings = get_import_settings_from_id( $this->import_id );
+        	$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 	        foreach ( $office_ids as $office_id )
 	        {
@@ -214,7 +214,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$agent_ids_to_import = array();
 		$office_ids_to_import = array();
@@ -415,7 +415,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

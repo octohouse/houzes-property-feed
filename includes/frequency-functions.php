@@ -1,6 +1,8 @@
 <?php
 
-function get_houzez_property_feed_import_frequencies()
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+function houzez_property_feed_get_import_frequencies()
 {
     $frequencies = array(
         'daily' => array(
@@ -30,14 +32,14 @@ function get_houzez_property_feed_import_frequencies()
     return $frequencies;
 }
 
-function get_houzez_property_feed_import_frequency( $key )
+function houzez_property_feed_get_import_frequency( $key )
 {
-    $frequencies = get_houzez_property_feed_import_frequencies();
+    $frequencies = houzez_property_feed_get_import_frequencies();
     
     return $frequencies[$key];
 }
 
-function get_houzez_property_feed_export_frequencies()
+function houzez_property_feed_get_export_frequencies()
 {
     $frequencies = array(
         'daily' => array(
@@ -59,9 +61,9 @@ function get_houzez_property_feed_export_frequencies()
     return $frequencies;
 }
 
-function get_houzez_property_feed_export_frequency( $key )
+function houzez_property_feed_get_export_frequency( $key )
 {
-    $frequencies = get_houzez_property_feed_export_frequencies();
+    $frequencies = houzez_property_feed_get_export_frequencies();
     
     return $frequencies[$key];
 }

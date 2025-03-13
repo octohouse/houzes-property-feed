@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 register_shutdown_function( "houzez_property_feed_import_fatal_handler" );
 function houzez_property_feed_import_fatal_handler() {
 
@@ -193,7 +195,7 @@ if ( is_array($imports) && !empty($imports) )
     		}
 	    }
 
-    	$frequencies = get_houzez_property_feed_import_frequencies();
+    	$frequencies = houzez_property_feed_get_import_frequencies();
 
     	$process_background_queue_afterwards = false;
 
@@ -267,15 +269,15 @@ if ( is_array($imports) && !empty($imports) )
 	            // Work out if we need to send this portal by looking
 	            // at the send frequency and the last date sent
 	            $last_start_date = '2000-01-01 00:00:00';
-	            $row = $wpdb->get_row( "
+	            $row = $wpdb->get_row( $wpdb->prepare("
 	                SELECT 
 	                    start_date
 	                FROM 
 	                    " .$wpdb->prefix . "houzez_property_feed_logs_instance
 	                WHERE
-	                    import_id = '" . $import_id . "'
+	                    import_id = %d
 	                ORDER BY start_date DESC LIMIT 1
-	            ", ARRAY_A);
+	            ", $import_id), ARRAY_A);
 	            if ( null !== $row )
 	            {
 	                $last_start_date = $row['start_date'];   
@@ -369,7 +371,7 @@ if ( is_array($imports) && !empty($imports) )
 
             	if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true )
             	{
-            		$format_details = get_houzez_property_feed_import_format($format);
+            		$format_details = houzez_property_feed_get_import_format($format);
 			    	
 			    	if ( $format_details !== FALSE && isset($format_details['background_mode']) && $format_details['background_mode'] === true )
 			    	{

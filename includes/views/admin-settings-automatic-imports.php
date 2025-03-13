@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <div class="hpf-admin-settings-body wrap">
 
 	<div class="hpf-admin-settings-automatic-imports">
@@ -31,15 +33,15 @@
 	        	{
 	        		++$all_imports_active;
 
-		        	$row = $wpdb->get_row( "
+		        	$row = $wpdb->get_row( $wpdb->prepare("
 		                SELECT 
 		                    start_date, end_date
 		                FROM 
 		                    " .$wpdb->prefix . "houzez_property_feed_logs_instance
 		                WHERE 
-		                    import_id = '" . $key . "'
+		                    import_id = %d
 		                ORDER BY start_date DESC LIMIT 1
-		            ", ARRAY_A);
+		            ", $key), ARRAY_A);
 		            if ( null !== $row )
 		            {
 		                if ($row['start_date'] <= $row['end_date'])
@@ -74,7 +76,7 @@
 					foreach ( $format_counts as $format => $count )
 					{
 						$format_name = $format;
-						$format_details = get_houzez_property_feed_import_format( $format );
+						$format_details = houzez_property_feed_get_import_format( $format );
 						if ( $format_details !== FALSE )
 						{
 							$format_name = $format_details['name'];

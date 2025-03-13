@@ -27,7 +27,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$sales_statuses = ( isset($import_settings['sales_statuses']) && !empty($import_settings['sales_statuses']) && is_array($import_settings['sales_statuses']) ) ? $import_settings['sales_statuses'] : apply_filters( 'houzez_property_feed_street_sales_statuses', array( 'for_sale', 'under_offer', 'sold_stc', 'for_sale_and_to_let' ) );
 		$lettings_statuses = ( isset($import_settings['lettings_statuses']) && !empty($import_settings['lettings_statuses']) && is_array($import_settings['lettings_statuses']) ) ? $import_settings['lettings_statuses'] : apply_filters( 'houzez_property_feed_street_lettings_statuses', array( 'to_let', 'let_agreed', 'for_sale_and_to_let' ) );
@@ -255,7 +255,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Email Reports', 'houzezpropertyfeed' ); ?></h3>
 
 <p>With email reports enabled you can have the logs automatically emailed to you each time an import finishes running.</p>

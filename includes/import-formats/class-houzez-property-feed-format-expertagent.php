@@ -27,7 +27,7 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$ftp_conn = $this->open_ftp_connection($import_settings['ftp_host'], $import_settings['ftp_user'], $import_settings['ftp_pass'], '', $import_settings['ftp_passive']);
 		if ( $ftp_conn === null)
@@ -134,7 +134,7 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

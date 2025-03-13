@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Import Frequency', 'houzezpropertyfeed' ); ?></h3>
 
 <p><?php echo __( 'Choose how often imports should run by selecting the frequency below', 'houzezpropertyfeed' ); ?>:</p>

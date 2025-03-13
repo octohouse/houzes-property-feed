@@ -205,15 +205,15 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
 
                         if ( isset($import['running']) && $import['running'] === true )
                         {
-                            $row = $wpdb->get_row( "
+                            $row = $wpdb->get_row( $wpdb->prepare("
                                 SELECT 
                                     start_date, end_date
                                 FROM 
                                     " .$wpdb->prefix . "houzez_property_feed_logs_instance
                                 WHERE 
-                                    import_id = '" . $key . "'
+                                    import_id = %d
                                 ORDER BY start_date DESC LIMIT 1
-                            ", ARRAY_A);
+                            ", $key), ARRAY_A);
                             if ( null !== $row )
                             {
                                 if ($row['start_date'] <= $row['end_date'])
@@ -237,7 +237,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
             }
         }
 
-        $frequencies = get_houzez_property_feed_import_frequencies();
+        $frequencies = houzez_property_feed_get_import_frequencies();
 
         $queued_media = array();
         $queued_properties = array();
@@ -283,7 +283,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 }
             }
 
-            $format = get_houzez_property_feed_import_format( $import['format'] );
+            $format = houzez_property_feed_get_import_format( $import['format'] );
 
             if ( $pro_active === true )
             {
@@ -294,16 +294,16 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                         $queued_properties[$key] = 0;
 
                         $queued_properties_query = $wpdb->get_results(
-                            "
+                            $wpdb->prepare("
                             SELECT 
                                 `id`
                             FROM
                                 " . $wpdb->prefix . "houzez_property_feed_property_queue 
                             WHERE
-                                `import_id` = '" . (int)$key . "'
+                                `import_id` = %d
                             AND
                                 `status` = 'pending'
-                            "
+                            ", (int)$key)
                         );
                         if ( count($queued_properties_query) > 0 )
                         {
@@ -379,15 +379,15 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 $running = true;
 
                 // Last ran
-                $row = $wpdb->get_row( "
+                $row = $wpdb->get_row( $wpdb->prepare("
                     SELECT 
                         start_date, end_date, status, status_date, media
                     FROM 
                         " .$wpdb->prefix . "houzez_property_feed_logs_instance
                     WHERE 
-                        import_id = '" . $key . "'
+                        import_id = %d
                     ORDER BY start_date DESC LIMIT 1
-                ", ARRAY_A);
+                ", $key), ARRAY_A);
                 if ( null !== $row )
                 {
                     if ($row['start_date'] <= $row['end_date'])
@@ -448,15 +448,15 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 else
                 {
                     $last_start_date = '2020-01-01 00:00:00';
-                    $row = $wpdb->get_row( "
+                    $row = $wpdb->get_row( $wpdb->prepare("
                         SELECT 
                             start_date
                         FROM 
                             " .$wpdb->prefix . "houzez_property_feed_logs_instance
                         WHERE
-                            import_id = '" . $key . "'
+                            import_id = %d
                         ORDER BY start_date DESC LIMIT 1
-                    ", ARRAY_A);
+                    ", $key), ARRAY_A);
                     if ( null !== $row )
                     {
                         $last_start_date = $row['start_date'];   

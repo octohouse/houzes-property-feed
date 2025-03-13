@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 // https://www.php.net/manual/en/function.array-multisort.php#91638
 function houzez_property_feed_array_msort($array, $cols)
 {
@@ -25,7 +27,7 @@ function houzez_property_feed_array_msort($array, $cols)
     return $ret;
 }
 
-function check_array_for_matching_key( $array, $looking_for ) 
+function houzez_property_feed_check_array_for_matching_key( $array, $looking_for ) 
 {
     if ( is_array($array) && !empty($array) )
     {
@@ -38,7 +40,7 @@ function check_array_for_matching_key( $array, $looking_for )
 
             if ( is_array($value) && !empty($value) ) 
             {
-                $value_to_check = check_array_for_matching_key( $value, $looking_for );
+                $value_to_check = houzez_property_feed_check_array_for_matching_key( $value, $looking_for );
                 if ( $value_to_check !== false )
                 {
                     return $value_to_check;

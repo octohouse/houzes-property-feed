@@ -29,7 +29,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		if ( !isset($import_settings['property_node']) || ( isset($import_settings['property_node']) && empty($import_settings['property_node']) ) )
 		{
@@ -113,7 +113,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
@@ -993,7 +993,7 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		if ( !empty($this->properties) )
 		{
-			$import_settings = get_import_settings_from_id( $this->import_id );
+			$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 			$property_node = $import_settings['property_node'];
 			$explode_property_node = explode("/", $property_node);

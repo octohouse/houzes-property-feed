@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.5
-Version: 2.5.5
+Stable tag: 2.5.6
+Version: 2.5.6
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,6 +34,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Expert Agent
 * Getrix
 * Gnomen
+* InfoCasa (beta)
 * Inmobalia
 * Inmovilla
 * Inmoweb
@@ -134,6 +135,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.6 - 2025-03-13 =
+* Added preliminary support for importing properties from InfoCasa. Releasing in beta until we get to test it with real client data
+* Import area/size in Alto feeds
+* Strip commas from prices and support different currencies in Zoopla exports
+* Added 'Only import updated properties' setting to PropCTRL format
+* Tweaks to Idealista exports following a review process to get this back online
+* Lots of tweaks after running the plugin through 'Plugin Check' review. Including sanitization, escaping, preparing SQL, change of function names. More to be done on this
 
 = 2.5.5 - 2025-03-10 =
 * Import floorplans in Getrix format

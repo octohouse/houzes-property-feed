@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Advanced', 'houzezpropertyfeed' ); ?></h3>
 
 <p><?php echo __( 'Advanced import options', 'houzezpropertyfeed' ); ?>.</p>

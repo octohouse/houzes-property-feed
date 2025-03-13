@@ -115,7 +115,7 @@ class Houzez_Property_Feed_Import {
             return;
         }
 
-        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( $_POST['_wpnonce'], 'save-import-settings' ) ) ) 
+        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'save-import-settings' ) ) ) 
         {
             die( __( "Failed security check", 'houzezpropertyfeed' ) );
         }
@@ -286,7 +286,7 @@ class Houzez_Property_Feed_Import {
         $import_options['field_mapping_rules'] = $rules;
 
         // Save core format fields (API Key, XML URL etc)
-        $formats = get_houzez_property_feed_import_formats();
+        $formats = houzez_property_feed_get_import_formats();
         if ( isset($formats[$format]) )
         {
             if ( isset($formats[$format]['fields']) && !empty($formats[$format]['fields']) )
@@ -362,9 +362,9 @@ class Houzez_Property_Feed_Import {
                         
                         if ( trim($custom_mapping) != '' )
                         {
-                            if ( isset($_POST['custom_mapping_value'][$taxonomy][$key]) && trim($_POST['custom_mapping_value'][$taxonomy][$key]) != '' )
+                            if ( isset($_POST['custom_mapping_value'][$taxonomy][$key]) && trim(sanitize_text_field($_POST['custom_mapping_value'][$taxonomy][$key])) != '' )
                             {
-                                $import_mappings[$taxonomy][$custom_mapping] = $_POST['custom_mapping_value'][$taxonomy][$key];
+                                $import_mappings[$taxonomy][$custom_mapping] = sanitize_text_field($_POST['custom_mapping_value'][$taxonomy][$key]);
                             }
                         }
                     }
@@ -565,7 +565,7 @@ class Houzez_Property_Feed_Import {
 
     public function perform_field_mapping( $post_id, $property, $import_id )
     {
-        $import_settings = get_import_settings_from_id( $import_id );
+        $import_settings = houzez_property_feed_get_import_settings_from_id( $import_id );
 
         if ( $import_settings === false )
         {
@@ -586,10 +586,10 @@ class Houzez_Property_Feed_Import {
 
         if ( is_object($property) )
         {
-            $property = SimpleXML2ArrayWithCDATASupport($property);
+            $property = houzez_property_feed_simplexml_to_array_with_cdata_support($property);
         }
 
-        $import_settings['field_mapping_rules'] = convert_old_field_mapping_to_new( $import_settings['field_mapping_rules'] );
+        $import_settings['field_mapping_rules'] = houzez_property_feed_convert_old_field_mapping_to_new( $import_settings['field_mapping_rules'] );
 
         $post_fields_to_update = array(
             'ID' => $post_id,
@@ -610,7 +610,7 @@ class Houzez_Property_Feed_Import {
 
         $multiselect_meta = array();
 
-        $houzez_fields = get_houzez_fields_for_field_mapping();
+        $houzez_fields = houzez_property_feed_get_fields_for_field_mapping();
 
         foreach ( $import_settings['field_mapping_rules'] as $and_rules )
         {
@@ -659,7 +659,7 @@ class Houzez_Property_Feed_Import {
                     // loop through all fields in data and see if $rule['field'] is found
                     if ( is_array($property) )
                     {
-                        $value_to_check = check_array_for_matching_key( $property, $rule['field'] );
+                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
 
                         if ( $value_to_check === false )
                         {
@@ -712,7 +712,7 @@ class Houzez_Property_Feed_Import {
                         }
                         else
                         {
-                            $value_to_check = check_array_for_matching_key( $property, $field_name );
+                            $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $field_name );
 
                             if ( $value_to_check === false )
                             {
@@ -893,7 +893,7 @@ class Houzez_Property_Feed_Import {
                                 // loop through all fields in data and see if $rule['field'] is found
                                 if ( is_array($property) )
                                 {
-                                    $value_to_check = check_array_for_matching_key( $property, $rule['field'] );
+                                    $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
 
                                     if ( $value_to_check === false )
                                     {
@@ -964,7 +964,7 @@ class Houzez_Property_Feed_Import {
                                 // loop through all fields in data and see if $rule['field'] is found
                                 if ( is_array($property) )
                                 {
-                                    $value_to_check = check_array_for_matching_key( $property, $rule['field'] );
+                                    $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
 
                                     if ( $value_to_check === false )
                                     {
@@ -1131,7 +1131,7 @@ class Houzez_Property_Feed_Import {
 
     public function get_xml_mapped_field_value( $value, $property, $field_name, $import_id )
     {
-        $import_settings = get_import_settings_from_id( $import_id );
+        $import_settings = houzez_property_feed_get_import_settings_from_id( $import_id );
 
         if ( $import_settings === false )
         {
@@ -1236,7 +1236,7 @@ class Houzez_Property_Feed_Import {
 
     public function get_csv_mapped_field_value( $value, $property, $field_name, $import_id )
     {
-        $import_settings = get_import_settings_from_id( $import_id );
+        $import_settings = houzez_property_feed_get_import_settings_from_id( $import_id );
 
         if ( $import_settings === false )
         {
@@ -1358,12 +1358,12 @@ class Houzez_Property_Feed_Import {
             if ( $meta_row ) 
             {
                 $import_id = str_replace("_imported_ref_", "", $meta_row['meta_key']);
-                $import = get_import_settings_from_id( $import_id );
+                $import = houzez_property_feed_get_import_settings_from_id( $import_id );
 
                 $format_name = 'import';
                 if ( $import !== false )
                 {
-                    $format = get_houzez_property_feed_import_format( $import['format'] );
+                    $format = houzez_property_feed_get_import_format( $import['format'] );
                     if ( $format !== false )
                     {
                         $format_name = $format['name'];

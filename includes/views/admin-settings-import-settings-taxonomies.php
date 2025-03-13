@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <div class="notice notice-error no-format-notice inline"><p>Please select an import format in order to configure the following page.</p></div>
 
 <h3><?php echo __( 'Taxonomy Settings', 'houzezpropertyfeed' ); ?></h3>

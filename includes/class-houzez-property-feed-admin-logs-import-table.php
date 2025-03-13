@@ -112,7 +112,7 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
             }
             case 'col_log_import_format':
             {
-                $format = get_format_from_import_id( $item->import_id );
+                $format = houzez_property_feed_get_format_from_import_id( $item->import_id );
 
                 if ( $format === false)
                 {
@@ -200,7 +200,7 @@ class Houzez_Property_Feed_Admin_Logs_Import_Table extends WP_List_Table {
 
         $this->screen->render_screen_reader_content( 'heading_list' );
         ?>
-<table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
+<table class="wp-list-table <?php echo esc_attr(implode( ' ', $this->get_table_classes() )); ?>">
     <thead>
     <tr>
         <?php $this->print_column_headers(); ?>

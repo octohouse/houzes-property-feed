@@ -87,7 +87,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             // remove any non-cron formats
             foreach ( $exports as $export_id => $export_settings  )
             {
-                $format = get_format_from_export_id( $export_id );
+                $format = houzez_property_feed_get_format_from_export_id( $export_id );
                 if ( $export_settings['format'] != 'rtdf' )
                 {
                     //remove non-RTDF exports from being processed
@@ -272,7 +272,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
     public function create_send_property_request( $post_id, $force = false )
     {
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $department = $this->get_department( $post_id );
 
@@ -455,7 +455,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                     else
                     {
                         // need to get country code from country name
-                        $temp_country_code = get_houzez_property_feed_country_by_name($term->name);
+                        $temp_country_code = houzez_property_feed_get_country_by_name($term->name);
                         if ( $temp_country_code !== FALSE )
                         {
                             $country_code = $temp_country_code;
@@ -527,7 +527,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         {
             // overseas. Make sure price is in right currency
             $gbp_countries = array( 'AE', 'AU', 'BG', 'BR', 'CZ', 'EG', 'HU', 'MA', 'NY', 'NZ', 'SG', 'TH', 'TR', 'ZA' );
-            $gbp_countries = apply_filters( 'propertyhive_rtdf_gbp_countries' , $gbp_countries );
+            $gbp_countries = apply_filters( 'houzez_property_feed_rtdf_gbp_countries' , $gbp_countries );
 
             if ( in_array($country, $gbp_countries) )
             {
@@ -774,7 +774,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
     {
         global $wpdb;
         
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $branch_codes = $export_settings['branch_codes'];
 
@@ -926,7 +926,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
     public function do_curl_request( $request_data, $api_url, $post_id, $log_success = true, $log_errors = true ) 
     {
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $request_data = json_encode($request_data);
 
@@ -999,7 +999,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
 
     private function get_branch_code( $post_id )
     {
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $branch_code = '';
         $agent_display_option = get_post_meta( $post_id, 'fave_agent_display_option', true );
@@ -1089,7 +1089,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         $this->export_id = $export_id;
 
         // Check this export_id is a RTDF feed
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         if ( !isset($export_settings['format']) || $export_settings['format'] !== 'rtdf' )
         {

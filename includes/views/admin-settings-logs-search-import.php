@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <div class="hpf-admin-settings-body wrap">
 
 	<div class="hpf-admin-settings-logs">
@@ -7,7 +9,7 @@
 		<form method="post" action="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&tab=logs&action=search')); ?>">
 			<p class="search-box">
 				<label class="screen-reader-text" for="logs-search-input">Search Logs:</label>
-				<input type="search" id="logs-search-input" name="log_search" value="<?php if ( isset($_POST['log_search']) ) { echo esc_attr($_POST['log_search']); } ?>">
+				<input type="search" id="logs-search-input" name="log_search" value="<?php if ( isset($_POST['log_search']) ) { echo esc_attr(sanitize_text_field(wp_unslash($_POST['log_search']))); } ?>">
 				<input type="submit" id="search-submit" class="button" value="Search Logs">
 			</p>
 		</form>
@@ -26,7 +28,7 @@
 			}
 			else
 			{
-				echo '<p>No logs found containing the term \'' . esc_html($_POST['log']) . '\'</p>';
+				echo '<p>No logs found containing the term \'' . esc_html(sanitize_text_field(wp_unslash($_POST['log_search']))) . '\'</p>';
 			}
 		?>
 

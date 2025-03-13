@@ -105,7 +105,7 @@ class Houzez_Property_Feed_Admin_Logs_View_Import_Table extends WP_List_Table {
 
         $this->_column_headers = array($columns, $hidden, $sortable);
 
-        $query = "SELECT
+        $query = $wpdb->prepare("SELECT
             log_date,
             entry,
             post_id,
@@ -113,8 +113,8 @@ class Houzez_Property_Feed_Admin_Logs_View_Import_Table extends WP_List_Table {
         FROM 
             " . $wpdb->prefix . "houzez_property_feed_logs_instance_log
         WHERE
-            instance_id = '" . (int)$_GET['log_id'] . "'
-        ORDER BY id ASC";
+            instance_id = %d
+        ORDER BY id ASC", (int)$_GET['log_id']);
 
         $this->items = $wpdb->get_results($query);
         $totalitems = count($this->items);

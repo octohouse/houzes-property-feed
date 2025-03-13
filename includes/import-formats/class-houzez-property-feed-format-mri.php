@@ -25,7 +25,7 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$departments = array( 'RS', 'RL' );
 
@@ -203,7 +203,7 @@ class Houzez_Property_Feed_Format_Mri extends Houzez_Property_Feed_Process {
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

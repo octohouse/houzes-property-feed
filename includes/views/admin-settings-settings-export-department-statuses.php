@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <h3><?php echo __( 'Department Statuses', 'houzezpropertyfeed' ); ?></h3>
 
 <p>Here you can select which statuses determine whether a property should be sent in exports as a sales or lettings property. Statuses can be <a href="<?php echo admin_url('edit-tags.php?taxonomy=property_status&post_type=property'); ?>" target="_blank">configured here</a>.</p>

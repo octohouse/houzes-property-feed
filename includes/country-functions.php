@@ -1,8 +1,10 @@
 <?php
 
-function get_houzez_property_feed_country_by_name($name)
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+function houzez_property_feed_get_country_by_name($name)
 {
-	$countries = get_houzez_property_feed_countries();
+	$countries = houzez_property_feed_get_countries();
 
 	foreach ( $countries as $key => $value ) 
 	{
@@ -44,7 +46,7 @@ function get_houzez_property_feed_country_by_name($name)
     return false;
 }
 
-function get_houzez_property_feed_countries()
+function houzez_property_feed_get_countries()
 {
 	$countries = array(
 	    'AF' => array(

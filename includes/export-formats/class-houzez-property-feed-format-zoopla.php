@@ -89,7 +89,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             // remove any non-cron formats
             foreach ( $exports as $export_id => $export_settings  )
             {
-                $format = get_format_from_export_id( $export_id );
+                $format = houzez_property_feed_get_format_from_export_id( $export_id );
                 if ( $export_settings['format'] != 'zoopla' )
                 {
                     //remove non-Zoopla exports from being processed
@@ -266,7 +266,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
     public function create_send_property_request( $post_id )
     {
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $department = $this->get_department( $post_id );
 
@@ -346,7 +346,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                     else
                     {
                         // need to get country code from country name
-                        $temp_country_code = get_houzez_property_feed_country_by_name($term->name);
+                        $temp_country_code = houzez_property_feed_get_country_by_name($term->name);
                         if ( $temp_country_code !== FALSE )
                         {
                             $country_code = $temp_country_code;
@@ -476,10 +476,17 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         }
 
         $price_qualifier = '';
+        $currency = 'GBP';
+        if ( get_post_meta( $post_id, 'fave_currency', TRUE ) != '' && strlen(get_post_meta( $post_id, 'fave_currency', TRUE )) == 3 )
+        {
+            $currency = strtoupper(get_post_meta( $post_id, 'fave_currency', TRUE ));
+        }
+        $price = get_post_meta( $post_id, 'fave_property_price', TRUE );
+        $price = str_replace(",", "", $price);
         $request_data['pricing'] = array(
             'transaction_type' => ( $department == "lettings" ? 'rent' : 'sale' ),
-            'currency_code' => 'GBP',
-            'price' => (int)get_post_meta( $post_id, 'fave_property_price', TRUE ),
+            'currency_code' => $currency,
+            'price' => (int)$price,
         );
         if ( $rent_frequency != '' ) { $request_data['pricing']['rent_frequency'] = $rent_frequency; }
         if ( $price_qualifier != '' ) { $request_data['pricing']['price_qualifier'] = $price_qualifier; }
@@ -623,7 +630,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
     public function create_remove_property_request( $post_id )
     {
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $department = $this->get_department( $post_id );
 
@@ -714,7 +721,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
     public function do_curl_request( $request_data, $api_url, $profile_url, $post_id = 0, $log_success = true ) 
     {
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $request_data = json_encode($request_data);
 
@@ -780,7 +787,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
 
     private function get_branch_code( $post_id )
     {
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         $branch_code = '';
         $agent_display_option = get_post_meta( $post_id, 'fave_agent_display_option', true );
@@ -1112,7 +1119,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         $this->export_id = $export_id;
 
         // Check this export_id is a RTDF feed
-        $export_settings = get_export_settings_from_id( $this->export_id );
+        $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
         if ( !isset($export_settings['format']) || $export_settings['format'] !== 'zoopla' )
         {

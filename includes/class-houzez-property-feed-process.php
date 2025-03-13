@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 class Houzez_Property_Feed_Process {
 
 	/**
@@ -474,7 +476,7 @@ class Houzez_Property_Feed_Process {
 	        
 	        if ( !empty($term_ids_to_use) )
 	        {
-	        	$export_settings = get_export_settings_from_id( $this->export_id );
+	        	$export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
 	        	$mappings = ( isset($export_settings['mappings'][$taxonomy]) && !empty($export_settings['mappings'][$taxonomy]) ) ? $export_settings['mappings'][$taxonomy] : array();
 
@@ -497,7 +499,7 @@ class Houzez_Property_Feed_Process {
 
 			if ( !empty($field_value) )
 			{
-				$export_settings = get_export_settings_from_id( $this->export_id );
+				$export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
 	        	$mappings = ( isset($export_settings['mappings'][$field_type]) && !empty($export_settings['mappings'][$field_type]) ) ? $export_settings['mappings'][$field_type] : array();
 
@@ -727,7 +729,7 @@ class Houzez_Property_Feed_Process {
 		}
 
 		// Check 'show map' is one of the field mappings
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
         if ( $import_settings === false )
         {
@@ -847,7 +849,7 @@ class Houzez_Property_Feed_Process {
 
 			// This is from a background process. Get total number of processed
 			$pending_property_queue = $wpdb->get_results(
-	            "
+	            $wpdb->prepare("
 	            SELECT
 	                id
 	            FROM
@@ -855,8 +857,8 @@ class Houzez_Property_Feed_Process {
 	            WHERE
 	                `status` = 'pending'
 	            AND
-	            	`instance_id` = '" . (int)$this->instance_id . "'
-	            "
+	            	`instance_id` = %d
+	            ", (int)$this->instance_id)
 	        );
 	        return count($pending_property_queue);
 		}
@@ -874,7 +876,7 @@ class Houzez_Property_Feed_Process {
 
 			// This is from a background process. Get total number of processed
 			$property_queue = $wpdb->get_results(
-	            "
+	            $wpdb->prepare("
 	            SELECT
 	                id
 	            FROM
@@ -882,8 +884,8 @@ class Houzez_Property_Feed_Process {
 	            WHERE
 	                `status` = 'processed'
 	            AND
-	            	`instance_id` = '" . (int)$this->instance_id . "'
-	            "
+	            	`instance_id` = %d
+	            ", (int)$this->instance_id)
 	        );
 	        return count($property_queue) + 1;
 		}

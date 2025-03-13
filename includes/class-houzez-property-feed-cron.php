@@ -113,7 +113,7 @@ class Houzez_Property_Feed_Cron {
                 // remove any non-cron formats
                 foreach ( $exports as $export_id => $export_settings  )
                 {
-                    $format = get_format_from_export_id( $export_id );
+                    $format = houzez_property_feed_get_format_from_export_id( $export_id );
                     if ( isset($format['method']) && $format['method'] == 'cron' )
                     {
 
@@ -137,19 +137,19 @@ class Houzez_Property_Feed_Cron {
                     }
 
                     // Make sure there's been no activity in the logs for at least 5 minutes for this feed as that indicates there's possible a feed running
-                    $row = $wpdb->get_row( "
+                    $row = $wpdb->get_row( $wpdb->prepare("
                         SELECT 
                             log_date
                         FROM 
                             " . $wpdb->prefix . "houzez_property_feed_export_logs_instance
                         INNER JOIN " .$wpdb->prefix . "houzez_property_feed_export_logs_instance_log ON " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log.instance_id
                         WHERE
-                            export_id = '" . $export_id . "'
+                            export_id = %d
                         AND
                             end_date = '0000-00-00 00:00:00'
                         ORDER BY log_date DESC
                         LIMIT 1
-                    ", ARRAY_A);
+                    ", $export_id), ARRAY_A);
 
                     if ( null !== $row )
                     {

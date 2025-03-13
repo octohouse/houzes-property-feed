@@ -29,13 +29,13 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
 		$format = $import_settings['format'];
 
-    	$format_details = get_houzez_property_feed_import_format($format);
+    	$format_details = houzez_property_feed_get_import_format($format);
     	$background_mode = false;
     	if ( $pro_active === true && $format_details !== FALSE && isset($format_details['background_mode']) && $format_details['background_mode'] === true )
     	{
@@ -124,7 +124,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

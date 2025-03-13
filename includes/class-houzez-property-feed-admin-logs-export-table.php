@@ -47,11 +47,11 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
         /*$export_id = !empty($_GET['export_id']) ? (int)$_GET['export_id'] : '';
         if ( !empty($export_id) )
         {
-            $export_settings = get_export_settings_from_id( $export_id );
+            $export_settings = houzez_property_feed_get_export_settings_from_id( $export_id );
 
             if ( $export_settings !== false )
             {
-                $format = get_houzez_property_feed_export_format( $export_settings['format'] );
+                $format = houzez_property_feed_get_export_format( $export_settings['format'] );
 
                 if ($format['method'] == 'realtime')
                 {
@@ -120,7 +120,7 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
                     }
                     else
                     {
-                        return count($explode_property_ids) . ' ' . __( 'properties','houzezpropertyfeed' );
+                        return count($explode_property_ids) . ' ' . __( 'properties', 'houzezpropertyfeed' );
                     }
                 }
                 return '-';
@@ -128,7 +128,7 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
             }
             case 'col_log_export_format':
             {
-                $format = get_format_from_export_id( $item->export_id );
+                $format = houzez_property_feed_get_format_from_export_id( $item->export_id );
 
                 if ( $format === false)
                 {
@@ -170,11 +170,11 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
         /*$extra_query = "";
         if ( !empty($export_id) )
         {
-            $export_settings = get_export_settings_from_id( $export_id );
+            $export_settings = houzez_property_feed_get_export_settings_from_id( $export_id );
 
             if ( $export_settings !== false )
             {
-                $format = get_houzez_property_feed_export_format( $export_settings['format'] );
+                $format = houzez_property_feed_get_export_format( $export_settings['format'] );
 
                 if ($format['method'] == 'realtime')
                 {*/

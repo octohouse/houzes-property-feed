@@ -29,7 +29,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
 		if ( $limit !== false )
@@ -67,7 +67,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 			)
 		);
 		
-		$api_calls = apply_filters( 'propertyhive_dezrez_json_api_calls', $api_calls, $import_id );
+		$api_calls = apply_filters( 'houzez_property_feed_dezrez_json_api_calls', $api_calls, $import_id );
 
 		foreach ( $api_calls as $department => $params )
 		{
@@ -229,7 +229,7 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 

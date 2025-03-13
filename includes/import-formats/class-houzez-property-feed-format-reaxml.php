@@ -27,7 +27,7 @@ class Houzez_Property_Feed_Format_REAXML extends Houzez_Property_Feed_Process {
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$contents = '';
 
@@ -97,7 +97,7 @@ class Houzez_Property_Feed_Format_REAXML extends Houzez_Property_Feed_Process {
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		if ( $import_settings['format'] == 'reaxml_local' )
 		{
@@ -275,7 +275,7 @@ class Houzez_Property_Feed_Format_REAXML extends Houzez_Property_Feed_Process {
 		$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 		$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 
-		$import_settings = get_import_settings_from_id( $this->import_id );
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
@@ -1481,7 +1481,7 @@ class Houzez_Property_Feed_Format_REAXML extends Houzez_Property_Feed_Process {
 
 	private function clean_up_old_xmls()
     {
-    	$import_settings = get_import_settings_from_id( $this->import_id );
+    	$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
     	$local_directory = $import_settings['local_directory'];
 

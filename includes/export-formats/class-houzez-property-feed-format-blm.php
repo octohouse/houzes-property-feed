@@ -28,7 +28,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
         $this->log("Starting export");
 
-		$export_settings = get_export_settings_from_id( $this->export_id );
+		$export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
 		$options = get_option( 'houzez_property_feed' , array() );
 		$sales_statuses = ( isset($options['sales_statuses']) && is_array($options['sales_statuses']) && !empty($options['sales_statuses']) ) ? $options['sales_statuses'] : array();
@@ -354,20 +354,20 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 
                 // Get date when this property was last sent to this portal
                 $property_last_sent = '2000-01-01 00:00:00';
-                $row = $wpdb->get_row( "
+                $row = $wpdb->get_row( $wpdb->prepare("
                     SELECT 
                         end_date
                     FROM " . $wpdb->prefix . "houzez_property_feed_export_logs_instance
                     INNER JOIN 
                         " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log ON  " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id = " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log.instance_id
                     WHERE 
-                        export_id = '" . $this->export_id . "'
+                        export_id = %d
                         AND
-                        post_id = '" . $post->ID . "'
+                        post_id = %d
                         AND
                         end_date != '0000-00-00 00:00:00'
                     ORDER BY log_date DESC LIMIT 1
-                ", ARRAY_A);
+                ", $this->export_id, $post->ID), ARRAY_A);
                 if ( null !== $row )
                 {
                     $property_last_sent = $row['end_date'];
@@ -532,7 +532,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                             }
                             else
                             {
-                                $temp_country_code = get_houzez_property_feed_country_by_name($term->name);
+                                $temp_country_code = houzez_property_feed_get_country_by_name($term->name);
                                 if ( $temp_country_code !== FALSE )
                                 {
                                     $country_code = $temp_country_code;
@@ -630,7 +630,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
                 if ( isset($export_settings['overseas']) && $export_settings['overseas'] == 'yes' )
                 {
                     $gbp_countries = array( 'AE', 'AU', 'BG', 'BR', 'CZ', 'EG', 'HU', 'MA', 'NY', 'NZ', 'SG', 'TH', 'TR', 'ZA' );
-                    $gbp_countries = apply_filters( 'propertyhive_blm_gbp_countries' , $gbp_countries );
+                    $gbp_countries = apply_filters( 'houzez_property_feed_blm_gbp_countries' , $gbp_countries );
 
                     $country = get_post_meta($post->ID, '_address_country', true);
 

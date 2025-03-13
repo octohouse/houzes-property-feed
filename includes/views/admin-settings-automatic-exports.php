@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <div class="hpf-admin-settings-body wrap">
 
 	<div class="hpf-admin-settings-automatic-imports">

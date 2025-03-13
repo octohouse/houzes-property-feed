@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+
 <div class="notice notice-error no-format-notice inline"><p>Please select an export format in order to configure the following page.</p></div>
 
 <h3><?php echo __( 'Taxonomy Settings', 'houzezpropertyfeed' ); ?></h3>
@@ -108,7 +110,7 @@
 	        <tr>
 				<td style="padding-left:0"><?php echo esc_html($unique_price_qualifier_value['meta_value']); ?></td>
 				<td style="padding-left:0">
-					<select name="taxonomy_mapping[price_qualifier][<?php echo sanitize_title($unique_price_qualifier_value['meta_value']); ?>]">
+					<select name="taxonomy_mapping[price_qualifier][<?php echo esc_attr(sanitize_title($unique_price_qualifier_value['meta_value'])); ?>]">
 						<option value=""></option>
 					</select>
 				</td>
