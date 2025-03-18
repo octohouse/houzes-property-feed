@@ -2,16 +2,18 @@
 
 <div class="notice notice-error no-format-notice inline"><p>Please select an import format in order to configure the following page.</p></div>
 
-<h3><?php echo __( 'Taxonomy Settings', 'houzezpropertyfeed' ); ?></h3>
+<?php if ( isset($_GET['import_id']) ) { ?><div class="notice notice-info only-updated-warning inline" style="display:none"><p><?php echo esc_html(__( 'You currently have the \'Only Import Updated Properties\' setting checked. For changes below to take effect for existing properties you\'ll need to unselect this option.', 'houzezpropertyfeed' )); ?></p></div><?php } ?>
 
-<p>Houzez has a number of <a href="<?php echo admin_url('admin.php?page=houzez_taxonomies'); ?>" target="_blank">taxonomies included</a> and we appreciate that everyone uses them slightly differently and that they come in differently depending on which format you're using. That's why we've added various options below to allow you to configure how these are used.</p>
+<h3><?php echo esc_html(__( 'Taxonomy Settings', 'houzezpropertyfeed' )); ?></h3>
+
+<p>Houzez has a number of <a href="<?php echo esc_url(admin_url('admin.php?page=houzez_taxonomies')); ?>" target="_blank">taxonomies included</a> and we appreciate that everyone uses them slightly differently and that they come in differently depending on which format you're using. That's why we've added various options below to allow you to configure how these are used.</p>
 <p><strong>Need help?</strong> Our <a href="https://houzezpropertyfeed.com/documentation/managing-imports/taxonomies/" target="_blank">documentation</a> covers this step in more detail.</p>
 
 <hr>
 
 <div id="taxonomy_mapping_sales_status">
 
-	<h3><?php echo __( 'Sales Statuses Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+	<h3><?php echo esc_html(__( 'Sales Statuses Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 	<table class="form-table" id="taxonomy_mapping_table_sales_status">
 		<tbody>
@@ -30,7 +32,7 @@
 
 <div id="taxonomy_mapping_lettings_status">
 
-	<h3><?php echo __( 'Lettings Status Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+	<h3><?php echo esc_html(__( 'Lettings Status Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 	<table class="form-table" id="taxonomy_mapping_table_lettings_status">
 		<tbody>
@@ -49,7 +51,7 @@
 
 <div id="taxonomy_mapping_property_type">
 
-	<h3><?php echo __( 'Property Type Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+	<h3><?php echo esc_html(__( 'Property Type Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 	<table class="form-table" id="taxonomy_mapping_table_property_type">
 		<tbody>
@@ -75,7 +77,7 @@
 	{
 ?>
 
-<h3><?php echo __( 'City Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo esc_html(__( 'City Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 <table class="form-table">
 	<tbody>
@@ -99,7 +101,7 @@
 ?>
 <hr>
 
-<h3><?php echo __( 'Area Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo esc_html(__( 'Area Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 <table class="form-table">
 	<tbody>
@@ -123,7 +125,7 @@
 ?>
 <hr>
 
-<h3><?php echo __( 'County / State Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo esc_html(__( 'County / State Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 <table class="form-table">
 	<tbody>
@@ -153,12 +155,12 @@
 ?>
 <hr>
 
-<h3><?php echo __( 'Location Taxomomies', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo esc_html(__( 'Location Taxomomies', 'houzezpropertyfeed' )); ?></h3>
 
 <table class="form-table">
 	<tbody>
 		<tr>
-			<th><label for="create_location_taxonomy_terms"><?php echo __( 'Create Location Terms If New Ones Found', 'houzezpropertyfeed' ); ?></label></th>
+			<th><label for="create_location_taxonomy_terms"><?php echo esc_html(__( 'Create Location Terms If New Ones Found', 'houzezpropertyfeed' )); ?></label></th>
 			<td>
 				<input type="checkbox" name="create_location_taxonomy_terms" id="create_location_taxonomy_terms" value="yes"<?php if ( isset($import_settings['create_location_taxonomy_terms']) && $import_settings['create_location_taxonomy_terms'] === true ) { echo ' checked'; } ?>>
 			</td>

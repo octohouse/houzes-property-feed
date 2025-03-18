@@ -1,6 +1,6 @@
 <?php
 /**
- * Class for managing the import process of an MLS Grid JSON file
+ * Class for managing the import process of a Trestle API JSON file
  *
  * @package WordPress
  */
@@ -22,7 +22,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
 
-	    add_filter( 'houzez_property_feed_remove_old_properties', array( $this, 'dont_remove' ), 10, 2 );
+	    //add_filter( 'houzez_property_feed_remove_old_properties', array( $this, 'dont_remove' ), 10, 2 );
 	}
 
 	public function dont_remove( $remove, $import_id )
@@ -35,9 +35,62 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		return $remove;
 	}
 
+	private function get_token()
+	{
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		$data = array(
+			'client_id' => $import_settings['client_id'],
+		    'client_secret' => $import_settings['client_secret'],
+		    'scope' => 'api',
+		    'grant_type' => 'client_credentials'
+		);
+
+
+		$response = wp_remote_post(
+			'https://api-trestle.corelogic.com/trestle/oidc/connect/token',
+			array(
+				'body' => $data,
+				'headers' => array(
+					'Content-Type' => 'x-www-form-urlencoded'
+				),
+			)
+		);
+
+		if ( is_wp_error($response) )
+		{
+			$this->log_error( 'WP Error returned in response when requesting token: ' . $response->get_error_message() );
+			return false;
+		}
+
+		if ( wp_remote_retrieve_response_code($response) !== 200 )
+        {
+            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when requesting token. Error message: ' . wp_remote_retrieve_response_message($response) );
+            return false;
+        }
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ( !$json )
+		{
+			$this->log_error( 'Failed to decode authentication response data' );
+			return false;
+		}
+
+		if ( !isset($json['access_token']) )
+		{
+			$this->log_error( 'Request for token successful but no token returned: ' . print_r( $response['body'], TRUE ) );
+        	return false;
+		}
+
+		return $json['access_token'];
+	}
+
 	public function parse()
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
+
+		$token = $this->get_token();
 
 		$this->log("Parsing properties", '', 0, '', false);
 
@@ -47,7 +100,8 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		
 		$statuses = ( isset($import_settings['statuses']) && !empty($import_settings['statuses']) && is_array($import_settings['statuses']) ) ? $import_settings['statuses'] : array( 'Active', 'Coming Soon' );
 
-		$additional_url = '%20and%20MlgCanView%20eq%20true';
+		$additional_url = '';
+		/*$additional_url = '%20and%20MlgCanView%20eq%20true';
 		if ( ( isset($import_settings['only_updated']) && $import_settings['only_updated'] == 'yes' ) || !isset($import_settings['only_updated']) )
         {
         	// get last ran date
@@ -57,7 +111,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
         		$additional_url = '%20and%20ModificationTimestamp%20gt%20' . date("Y-m-d\TH:i:s\Z");
         		$this->only_updated = true;
         	}
-        }
+        }*/
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
 		if ( $limit !== false )
@@ -87,10 +141,12 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 			$more_properties = true;
 			$current_page = 1;
 
-			$url = 'https://api.mlsgrid.com/v2/Property?$filter=OriginatingSystemName%20eq%20%27' . $import_settings['originating_system_name'] . '%27%20and%20StandardStatus+eq+%27' . urlencode($status) . '%27' . $additional_url .'&$expand=Media,Rooms&$top=' . $per_page;
+			$url = 'https://api-trestle.corelogic.com/trestle/odata/Property?$filter=StandardStatus+eq+%27' . urlencode($status) . '%27' . $additional_url .'&$expand=Media,Rooms&$top=' . $per_page;
 
 			while ( $more_properties )
 			{
+				$this->ping();
+
 				$this->log("Obtaining properties on page " . $current_page . " from URL: " . $url);
 
 				$response = wp_remote_get( 
@@ -135,21 +191,21 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 						{
 							foreach ($json['value'] as $property)
 							{
-								if ( !$this->only_updated )
-								{
+								//if ( !$this->only_updated )
+								//{
 									if ( $limit !== FALSE && count($this->properties) >= $limit )
 				                	{
 				                		return true;
 				                	}
-								}
+								//}
 
-								if ( $this->only_updated || ( !$this->only_updated && isset($property['MlgCanView']) && $property['MlgCanView'] === true ) )
-								{
-									if ( isset($property['MlgCanUse']) && is_array($property['MlgCanUse']) && in_array('IDX', $property['MlgCanUse']) )
-									{
+								//if ( $this->only_updated || ( !$this->only_updated && isset($property['MlgCanView']) && $property['MlgCanView'] === true ) )
+								//{
+									//if ( isset($property['MlgCanUse']) && is_array($property['MlgCanUse']) && in_array('IDX', $property['MlgCanUse']) )
+									//{
 										$this->properties[] = $property;
-									}
-								}
+									//}
+								//}
 							}
 						}
 
@@ -209,10 +265,10 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
-        do_action( "houzez_property_feed_pre_import_properties_mls_grid", $this->properties, $this->import_id );
+        do_action( "houzez_property_feed_pre_import_properties_trestle", $this->properties, $this->import_id );
 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
-        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_mls_grid", $this->properties, $this->import_id );
+        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_trestle", $this->properties, $this->import_id );
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
         $additional_message = '';
@@ -239,7 +295,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		// $this->properties could contain all properties, or only updated one. Check $this->only_updated
 		foreach ( $this->properties as $property )
 		{
-			if ( $this->only_updated )
+			/*if ( $this->only_updated )
 			{
 				update_option( 'houzez_property_feed_property_' . $this->import_id, '', false );
 
@@ -267,7 +323,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 	        	}
 			}
 			else
-			{
+			{*/
 				if ( !empty($start_at_property) )
 				{
 					// we need to start on a certain property
@@ -283,7 +339,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 						continue;
 					}
 				}
-			}
+			//}
 
 			update_option( 'houzez_property_feed_property_' . $this->import_id, $property['ListingKey'], false );
 			
@@ -336,14 +392,14 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 	        
 	        if ($property_query->have_posts())
 	        {
+	        	$this->log( 'This property has been imported before. Updating it', $property['ListingKey'] );
+
 	        	// We've imported this property before
 	            while ($property_query->have_posts())
 	            {
 	                $property_query->the_post();
 
 	                $post_id = get_the_ID();
-
-	                $this->log( 'This property has been imported before. Updating it', $property['ListingKey'], $post_id );
 
 	                $my_post = array(
 				    	'ID'          	 => $post_id,
@@ -657,7 +713,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 				// Images
 				if ( 
 					apply_filters('houzez_property_feed_images_stored_as_urls', false, $post_id, $property, $this->import_id) === true ||
-					apply_filters('houzez_property_feed_images_stored_as_urls_mls_grid', false, $post_id, $property, $this->import_id) === true
+					apply_filters('houzez_property_feed_images_stored_as_urls_trestle', false, $post_id, $property, $this->import_id) === true
 				)
 				{
 					$this->log( 'MLS Grid don\'t allow storing of images as URLs', $property['ListingKey'], $post_id );
@@ -716,8 +772,6 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 									substr( strtolower($image['MediaURL']), 0, 2 ) == '//' || 
 									substr( strtolower($image['MediaURL']), 0, 4 ) == 'http'
 								)
-								&&
-								isset($image['MediaCategory']) && in_array(strtolower($image['MediaCategory']), array('photo', 'image'))
 							)
 							{
 								if ( $start_at_image_i !== false )
@@ -909,7 +963,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 				}
 
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
-				do_action( "houzez_property_feed_property_imported_mls_grid", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_trestle", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
@@ -927,7 +981,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 
 		update_option( 'houzez_property_feed_last_ran_' . $this->import_id, time() );
 
-		do_action( "houzez_property_feed_post_import_properties_mls_grid", $this->import_id );
+		do_action( "houzez_property_feed_post_import_properties_trestle", $this->import_id );
 
 		$this->import_end();
 	}

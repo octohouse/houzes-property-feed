@@ -1,12 +1,12 @@
 <?php
 /**
- * Class for managing the import process of an MLS Grid JSON file
+ * Class for managing the import process of a Bridge API file
  *
  * @package WordPress
  */
 if ( class_exists( 'Houzez_Property_Feed_Process' ) ) {
 
-class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process {
+class Houzez_Property_Feed_Format_Bridge extends Houzez_Property_Feed_Process {
 
 	private $only_updated = false;
 
@@ -22,7 +22,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 	    	$this->log("Executed manually by " . ( ( isset($current_user->display_name) ) ? $current_user->display_name : '' ), '', 0, '', false );
 	    }
 
-	    add_filter( 'houzez_property_feed_remove_old_properties', array( $this, 'dont_remove' ), 10, 2 );
+	    //add_filter( 'houzez_property_feed_remove_old_properties', array( $this, 'dont_remove' ), 10, 2 );
 	}
 
 	public function dont_remove( $remove, $import_id )
@@ -43,21 +43,20 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
-		$per_page = 1000;
-		
 		$statuses = ( isset($import_settings['statuses']) && !empty($import_settings['statuses']) && is_array($import_settings['statuses']) ) ? $import_settings['statuses'] : array( 'Active', 'Coming Soon' );
 
-		$additional_url = '%20and%20MlgCanView%20eq%20true';
-		if ( ( isset($import_settings['only_updated']) && $import_settings['only_updated'] == 'yes' ) || !isset($import_settings['only_updated']) )
+		$additional_url = '';
+		//$additional_url = '%20and%20MlgCanView%20eq%20true';
+		/*if ( ( isset($import_settings['only_updated']) && $import_settings['only_updated'] == 'yes' ) || !isset($import_settings['only_updated']) )
         {
         	// get last ran date
         	$last_ran_date = get_option( 'houzez_property_feed_last_ran_' . $this->import_id, '' );
         	if ( !empty($last_ran_date) )
         	{
-        		$additional_url = '%20and%20ModificationTimestamp%20gt%20' . date("Y-m-d\TH:i:s\Z");
+        		$additional_url = ' and date(BridgeModificationTimestamp) ge ' . date("Y-m-d");
         		$this->only_updated = true;
         	}
-        }
+        }*/
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
 		if ( $limit !== false )
@@ -87,7 +86,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 			$more_properties = true;
 			$current_page = 1;
 
-			$url = 'https://api.mlsgrid.com/v2/Property?$filter=OriginatingSystemName%20eq%20%27' . $import_settings['originating_system_name'] . '%27%20and%20StandardStatus+eq+%27' . urlencode($status) . '%27' . $additional_url .'&$expand=Media,Rooms&$top=' . $per_page;
+			$url = 'https://api.bridgedataoutput.com/api/v2/OData/' . $import_settings['dataset_id'] . '/Property/replication?$top=50&$filter=StandardStatus eq %27' . urlencode($status) . '%27' . $additional_url;
 
 			while ( $more_properties )
 			{
@@ -127,7 +126,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 					{
 						if ( isset($json['error']) && !empty($json['error']) )
 						{
-							$this->log_error( 'Error received from MLS Grid API: ' . print_r($json['error'], true) );
+							$this->log_error( 'Error received from Bridge API: ' . print_r($json['error'], true) );
 							return false;
 						}
 
@@ -143,13 +142,15 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 				                	}
 								}
 
-								if ( $this->only_updated || ( !$this->only_updated && isset($property['MlgCanView']) && $property['MlgCanView'] === true ) )
+								$this->properties[] = $property;
+
+								/*if ( $this->only_updated || ( !$this->only_updated && isset($property['MlgCanView']) && $property['MlgCanView'] === true ) )
 								{
 									if ( isset($property['MlgCanUse']) && is_array($property['MlgCanUse']) && in_array('IDX', $property['MlgCanUse']) )
 									{
 										$this->properties[] = $property;
 									}
-								}
+								}*/
 							}
 						}
 
@@ -181,14 +182,14 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 
 		if ( empty($this->properties) )
 		{
-			if ( $this->only_updated === true )
+			/*if ( $this->only_updated === true )
 			{
 				$this->log_error( 'No properties modified since the last time an import ran.' );
 			}
 			else
-			{
+			{*/
 				$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
-			}
+			//}
 			return false;
 		}
 
@@ -209,10 +210,10 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
-        do_action( "houzez_property_feed_pre_import_properties_mls_grid", $this->properties, $this->import_id );
+        do_action( "houzez_property_feed_pre_import_properties_bridge", $this->properties, $this->import_id );
 
         $this->properties = apply_filters( "houzez_property_feed_properties_due_import", $this->properties, $this->import_id );
-        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_mls_grid", $this->properties, $this->import_id );
+        $this->properties = apply_filters( "houzez_property_feed_properties_due_import_bridge", $this->properties, $this->import_id );
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
         $additional_message = '';
@@ -239,7 +240,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 		// $this->properties could contain all properties, or only updated one. Check $this->only_updated
 		foreach ( $this->properties as $property )
 		{
-			if ( $this->only_updated )
+			/*if ( $this->only_updated )
 			{
 				update_option( 'houzez_property_feed_property_' . $this->import_id, '', false );
 
@@ -247,7 +248,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 				if ( isset($property['MlgCanView']) && $property['MlgCanView'] === false )
 				{
 					$this->remove_property( $property['ListingKey'], '' );
-				}
+				}*
 
 				if ( 
 	        		$pro_active === true &&
@@ -267,7 +268,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 	        	}
 			}
 			else
-			{
+			{*/
 				if ( !empty($start_at_property) )
 				{
 					// we need to start on a certain property
@@ -283,7 +284,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 						continue;
 					}
 				}
-			}
+			//}
 
 			update_option( 'houzez_property_feed_property_' . $this->import_id, $property['ListingKey'], false );
 			
@@ -336,14 +337,14 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 	        
 	        if ($property_query->have_posts())
 	        {
+	        	$this->log( 'This property has been imported before. Updating it', $property['ListingKey'] );
+
 	        	// We've imported this property before
 	            while ($property_query->have_posts())
 	            {
 	                $property_query->the_post();
 
 	                $post_id = get_the_ID();
-
-	                $this->log( 'This property has been imported before. Updating it', $property['ListingKey'], $post_id );
 
 	                $my_post = array(
 				    	'ID'          	 => $post_id,
@@ -657,10 +658,50 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 				// Images
 				if ( 
 					apply_filters('houzez_property_feed_images_stored_as_urls', false, $post_id, $property, $this->import_id) === true ||
-					apply_filters('houzez_property_feed_images_stored_as_urls_mls_grid', false, $post_id, $property, $this->import_id) === true
+					apply_filters('houzez_property_feed_images_stored_as_urls_bridge', false, $post_id, $property, $this->import_id) === true
 				)
 				{
-					$this->log( 'MLS Grid don\'t allow storing of images as URLs', $property['ListingKey'], $post_id );
+					$urls = array();
+
+					if ( isset($property['Media']) && is_array($property['Media']) && !empty($property['Media']) )
+					{
+						foreach ( $property['Media'] as $image )
+						{
+							if ( $pro_active === true )
+							{
+								if ( 
+									isset($import_settings['limit_images']) && 
+									!empty((int)$import_settings['limit_images']) && 
+									is_numeric($import_settings['limit_images']) &&
+									(count($media_ids) + $queued) >= $import_settings['limit_images']
+								)
+					        	{
+					        		break;
+					        	}
+					        }
+					        
+							if ( 
+								isset($image['MediaURL']) && $image['MediaURL'] != ''
+								&&
+								(
+									substr( strtolower($image['MediaURL']), 0, 2 ) == '//' || 
+									substr( strtolower($image['MediaURL']), 0, 4 ) == 'http'
+								)
+								&&
+								isset($image['MediaCategory']) && in_array(strtolower($image['MediaCategory']), array('photo', 'image'))
+							)
+							{
+								$urls[] = array(
+									'url' => $image['MediaURL']
+								);
+							}
+						}
+					}
+
+					update_post_meta( $post_id, 'image_urls', $urls );
+					update_post_meta( $post_id, 'images_stored_as_urls', true );
+
+					$this->log( 'Imported ' . count($urls) . ' photo URLs', $property['ListingKey'], $post_id );
 				}
 				else
 				{
@@ -733,8 +774,8 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 
 								// This is a URL
 								$url = $image['MediaURL'];
-								$description = '';
-								$modified = $image['MediaModificationTimestamp'];
+								$description = isset($image['ShortDescription']) ? $image['ShortDescription'] : '';
+								$modified = $property['ModificationTimestamp'];
 								if ( !empty($modified) )
 								{
 									$dateTime = new DateTime($modified);
@@ -883,6 +924,44 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
 
+				// Floorplans
+				$floorplans = array();
+
+				if ( isset($property['Media']) && is_array($property['Media']) && !empty($property['Media']) )
+				{
+					foreach ( $property['Media'] as $floorplan )
+					{
+						if ( 
+							isset($floorplan['MediaURL']) && $floorplan['MediaURL'] != ''
+							&&
+							(
+								substr( strtolower($floorplan['MediaURL']), 0, 2 ) == '//' || 
+								substr( strtolower($floorplan['MediaURL']), 0, 4 ) == 'http'
+							)
+							&&
+							isset($image['MediaCategory']) && in_array(strtolower($image['MediaCategory']), array('photo', 'image'))
+						)
+						{
+							$description = ( ( isset($floorplan['ShortDescription']) && !empty($floorplan['ShortDescription']) ) ? $floorplan['ShortDescription'] : __( 'Floorplan', 'houzezpropertyfeed' ) );
+
+							$floorplans[] = array( 
+								"fave_plan_title" => $description, 
+								"fave_plan_image" => $floorplan['MediaURL']
+							);
+						}
+					}
+				}
+
+				if ( !empty($floorplans) )
+				{
+	                update_post_meta( $post_id, 'floor_plans', $floorplans );
+	                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
+	            }
+	            else
+	            {
+	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
+	            }
+
 				update_post_meta( $post_id, 'fave_video_url', '' );
 				update_post_meta( $post_id, 'fave_virtual_tour', '' );
 
@@ -909,7 +988,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 				}
 
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
-				do_action( "houzez_property_feed_property_imported_mls_grid", $post_id, $property, $this->import_id, $this->instance_id );
+				do_action( "houzez_property_feed_property_imported_bridge", $post_id, $property, $this->import_id, $this->instance_id );
 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
@@ -927,7 +1006,7 @@ class Houzez_Property_Feed_Format_Mls_Grid extends Houzez_Property_Feed_Process 
 
 		update_option( 'houzez_property_feed_last_ran_' . $this->import_id, time() );
 
-		do_action( "houzez_property_feed_post_import_properties_mls_grid", $this->import_id );
+		do_action( "houzez_property_feed_post_import_properties_bridge", $this->import_id );
 
 		$this->import_end();
 	}

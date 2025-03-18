@@ -776,8 +776,6 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         
         $export_settings = houzez_property_feed_get_export_settings_from_id( $this->export_id );
 
-        $branch_codes = $export_settings['branch_codes'];
-
         $department = $this->get_department( $post_id );
 
         $response = true;

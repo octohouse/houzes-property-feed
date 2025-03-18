@@ -458,6 +458,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "bridge":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-bridge.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Bridge( $instance_id, $import_id );
+
+            break;
+        }
         case "csv":
         {
             // includes
@@ -729,6 +738,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "spark":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-spark.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Spark( $instance_id, $import_id );
+
+            break;
+        }
         case "street":
         {
             // includes
@@ -744,6 +762,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
             require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-thinkspain.php';
 
             $import_object = new Houzez_Property_Feed_Format_Thinkspain( $instance_id, $import_id );
+
+            break;
+        }
+        case "trestle":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-trestle.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Trestle( $instance_id, $import_id );
 
             break;
         }

@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.6
-Version: 2.5.6
+Stable tag: 2.5.7
+Version: 2.5.7
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,6 +27,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Apimo
 * BDP
 * BLM
+* Bridge - RESO MLS API Provider (beta)
 * CSV (any CSV file hosted on a public URL)
 * Dezrez Rezi
 * Domus
@@ -56,8 +57,10 @@ We can import properties from the following estate agency CRMs/formats:
 * ReSales Online
 * Rex
 * SME Professional
+* Spark - RESO MLS API Provider (beta)
 * Street (including sending enquiries back in Street)
 * thinkSPAIN
+* Trestle - RESO MLS API Provider (beta)
 * VaultEA (UK) / VaultRE (AUS)
 * XML (any XML file hosted on a public URL)
 * XML2U
@@ -97,6 +100,7 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 * Choose additional actions when a property is removed
 * Import logs emailed to a specified email address
 * Import media in a separate background queue
+* The ability to select which properties are included in exports
 * Limit the number of properties imported
 * Limit the number of images imported per property
 
@@ -135,6 +139,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.7 - 2025-03-18 =
+* Added preliminary support for Bridge RESO MLS API provider. Releasing in beta until we get to test it with real client data
+* Added preliminary support for Spark RESO MLS API provider. Releasing in beta until we get to test it with real client data
+* Added preliminary support for Trestle RESO MLS API provider. Releasing in beta until we get to test it with real client data
+* Added 'Only import updated properties' option to RE/MAX format so only new or updated properties are imported
+* Show warning on relevant settings screens when 'Only import updated properties' setting is ticked where a full feed will need to be ran for them to take effect
+* Ensure property address is recorded against all update messages in logs
 
 = 2.5.6 - 2025-03-13 =
 * Added preliminary support for importing properties from InfoCasa. Releasing in beta until we get to test it with real client data

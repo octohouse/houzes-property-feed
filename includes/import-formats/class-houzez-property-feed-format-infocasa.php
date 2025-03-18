@@ -315,14 +315,14 @@ XML;
 
 	        if ($property_query->have_posts())
 	        {
-	        	$this->log( 'This property has been imported before. Updating it', (string)$property->pi );
-
 	        	// We've imported this property before
 	            while ($property_query->have_posts())
 	            {
 	                $property_query->the_post();
 
 	                $post_id = get_the_ID();
+
+	                $this->log( 'This property has been imported before. Updating it', (string)$property->pi, $post_id );
 
 	                $my_post = array(
 				    	'ID'          	 => $post_id,

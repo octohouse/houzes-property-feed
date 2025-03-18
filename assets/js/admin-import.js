@@ -243,6 +243,33 @@ jQuery(document).ready(function()
 			jQuery('#floorplan_fields').attr('placeholder', '{/floorplans/floorplan[1]/url}|{/floorplans/floorplan[1]/caption}' + "\n" + '{/floorplans/floorplan[2]}');
 			jQuery('#document_fields').attr('placeholder', '{/brochureURL}|Brochure' + "\n" + '{/epcs/epc[1]}' + "\n" + '{/documents/document[1]/url}|{/documents/document[1]/caption}');
 		}
+
+		// Show 'only import updated properties' warning
+		jQuery('.only-updated-warning').hide();
+
+		for ( var i in hpf_admin_object.formats )
+		{
+			if ( i == selected_format )
+			{
+				if ( hpf_admin_object.formats[i].hasOwnProperty('fields') )
+				{
+					for ( var j in hpf_admin_object.formats[i].fields )
+					{
+						if ( hpf_admin_object.formats[i].fields[j].hasOwnProperty('id') )
+						{
+							if ( hpf_admin_object.formats[i].fields[j].id == 'only_updated' )
+							{
+								if ( jQuery('input[name=\'' + selected_format + '_only_updated\']').is(':checked') )
+								{
+									jQuery('.only-updated-warning').show();
+								}
+							}
+						}
+					}
+					
+				}
+			}
+		}
 	});
 
 	jQuery('.hpf-admin-settings-import-settings .settings-panel #format').change(function()

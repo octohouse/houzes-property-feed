@@ -2,6 +2,8 @@
 
 <div class="notice notice-error no-format-notice inline"><p>Please select an import format in order to configure the following page.</p></div>
 
+<?php if ( isset($_GET['import_id']) ) { ?><div class="notice notice-info only-updated-warning inline" style="display:none"><p><?php echo esc_html(__( 'You currently have the \'Only Import Updated Properties\' setting checked. For changes below to take effect for existing properties you\'ll need to unselect this option.', 'houzezpropertyfeed' )); ?></p></div><?php } ?>
+
 <h3><?php echo __( 'Additional Field Mapping', 'houzezpropertyfeed' ); ?></h3>
 
 <p><?php echo __( 'Here you can do any additional field mapping to cater for non-standard mapping or to import into any custom fields you\'ve set up in the <a href="' . admin_url('admin.php?page=houzez_fbuilder') . '" target="_blank">Houzez Field Builder</a>', 'houzezpropertyfeed' ); ?>.</p>

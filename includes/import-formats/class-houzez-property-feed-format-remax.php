@@ -216,6 +216,8 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
 		$agent_ids_to_import = array();
 		$office_ids_to_import = array();
 
@@ -267,6 +269,25 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
         if ( empty($agent_ids_to_import) && !empty($office_ids_to_import) )
         {
         	$agent_ids_to_import = $this->get_agents_from_office_id($office_ids_to_import);
+        }
+
+        $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
         }
 
         if ( !empty($agent_ids_to_import) )
@@ -366,6 +387,11 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					    {
 						    foreach ( $data_json['properties']['property'] as $property )
 						    {
+						    	if ( $limit !== FALSE && count($this->properties) >= $limit )
+				                {
+				                    return true;
+				                }
+
 						    	$property['agent_details'] = $data_json['agent_details'];
 
 						    	$property['branch_details'] = array();
@@ -473,6 +499,8 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 			$this->ping(array('status' => 'importing', 'property' => $property_row, 'total' => count($this->properties)));
 
+			$import_property = true;
+			
 			$inserted_updated = false;
 
 			$args = array(
@@ -494,8 +522,6 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 	        
 	        if ($property_query->have_posts())
 	        {
-	        	$this->log( 'This property has been imported before. Updating it', $property['property_id'] );
-
 	        	// We've imported this property before
 	            while ($property_query->have_posts())
 	            {
@@ -503,20 +529,46 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 
 	                $post_id = get_the_ID();
 
-	                $my_post = array(
-				    	'ID'          	 => $post_id,
-				    	'post_title'     => wp_strip_all_tags( $display_address ),
-				    	'post_excerpt'   => '',
-				    	'post_content' 	 => $post_content,
-				    	'post_status'    => 'publish',
-				  	);
+	                $this->log( 'This property has been imported before. Updating it', $property['property_id'], $post_id );
 
-				 	// Update the post into the database
-				    $post_id = wp_update_post( $my_post, true );
+	                if ( ( isset($import_settings['only_updated']) && $import_settings['only_updated'] == 'yes' ) || !isset($import_settings['only_updated']) )
+			        {
+			        	// get last ran date
+			        	$last_imported = get_post_meta( $post_id, 'houzez_property_feed_last_imported', true );
+			        	if ( !empty($last_imported) )
+			        	{
+			        		// This property has a last imported date
+			        		if ( isset($property['date_last_updated']) && !empty($property['date_last_updated']) )
+			        		{
+			        			if ( strtotime($property['date_last_updated']) <= $last_imported )
+			        			{
+			        				$import_property = false;
+			        			}
+			        		}
+			        	}
+			        }
 
-				    if ( is_wp_error( $post_id ) ) 
-					{
-						$this->log_error( 'Failed to update post. The error was as follows: ' . $post_id->get_error_message(), $property['property_id'] );
+			        if ( $import_property === true )
+			        {
+		                $my_post = array(
+					    	'ID'          	 => $post_id,
+					    	'post_title'     => wp_strip_all_tags( $display_address ),
+					    	'post_excerpt'   => '',
+					    	'post_content' 	 => $post_content,
+					    	'post_status'    => 'publish',
+					  	);
+
+					 	// Update the post into the database
+					    $post_id = wp_update_post( $my_post, true );
+
+					    if ( is_wp_error( $post_id ) ) 
+						{
+							$this->log_error( 'Failed to update post. The error was as follows: ' . $post_id->get_error_message(), $property['property_id'] );
+						}
+						else
+						{
+							$inserted_updated = 'updated';
+						}
 					}
 					else
 					{
@@ -554,6 +606,13 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			if ( $inserted_updated !== false )
 			{
 				// Inserted property ok. Continue
+				if ( $import_property === false )
+				{
+					$this->log( 'Skipping property as not updated since last import ran', $property['property_id'], $post_id );
+
+					++$property_row;
+					continue;
+				}
 
 				if ( $inserted_updated == 'updated' )
 				{
@@ -1132,325 +1191,6 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
 
-				// Floorplans
-				/*$floorplans = array();
-
-				if (isset($property['floorplans']) && !empty($property['floorplans']))
-				{
-					foreach ($property['floorplans'] as $floorplan)
-					{
-						if ( 
-							isset($floorplan['url']) && $floorplan['url'] != ''
-							&&
-							(
-								substr( strtolower($floorplan['url']), 0, 2 ) == '//' || 
-								substr( strtolower($floorplan['url']), 0, 4 ) == 'http'
-							)
-						)
-						{
-							$description = ( ( isset($floorplan['title']) && !empty($floorplan['title']) ) ? $floorplan['title'] : __( 'Floorplan', 'houzezpropertyfeed' ) );
-
-							$floorplans[] = array( 
-								"fave_plan_title" => $description, 
-								"fave_plan_image" => $floorplan['url']
-							);
-						}
-					}
-				}
-
-				if ( !empty($floorplans) )
-				{
-	                update_post_meta( $post_id, 'floor_plans', $floorplans );
-	                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
-	            }
-	            else
-	            {
-	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
-	            }
-
-				$this->log( 'Imported ' . count($floorplans) . ' floorplans', $property['property_id'], $post_id );
-
-				// Brochures and EPCs
-				$media_ids = array();
-				$new = 0;
-				$existing = 0;
-				$deleted = 0;
-				$previous_media_ids = get_post_meta( $post_id, 'fave_attachments' );
-
-				if (isset($property['brochure']) && !empty($property['brochure']))
-				{
-					if ( 
-						substr( strtolower($property['brochure']['url']), 0, 2 ) == '//' || 
-						substr( strtolower($property['brochure']['url']), 0, 4 ) == 'http'
-					)
-					{
-						// This is a URL
-						$url = $property['brochure']['url'];
-						$description = '';
-					    
-						$explode_url = explode("?", $url);
-						$filename = basename( $explode_url[0] );
-
-						// Check, based on the URL, whether we have previously imported this media
-						$imported_previously = false;
-						$imported_previously_id = '';
-						if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
-						{
-							foreach ( $previous_media_ids as $previous_media_id )
-							{
-								if ( 
-									get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
-								)
-								{
-									$imported_previously = true;
-									$imported_previously_id = $previous_media_id;
-									break;
-								}
-							}
-						}
-
-						if ($imported_previously)
-						{
-							$media_ids[] = $imported_previously_id;
-
-							if ( $description != '' )
-							{
-								$my_post = array(
-							    	'ID'          	 => $imported_previously_id,
-							    	'post_title'     => $description,
-							    );
-
-							 	// Update the post into the database
-							    wp_update_post( $my_post );
-							}
-
-							++$existing;
-						}
-						else
-						{
-							$this->ping();
-
-							$tmp = download_url( $url );
-
-						    $file_array = array(
-						        'name' => $filename,
-						        'tmp_name' => $tmp
-						    );
-
-						    // Check for download errors
-						    if ( is_wp_error( $tmp ) ) 
-						    {
-						        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
-						    }
-						    else
-						    {
-							    $id = media_handle_sideload( $file_array, $post_id, $description, array(
-                                    'post_title' => __( 'Brochure', 'houzezpropertyfeed' ),
-                                    'post_excerpt' => $description
-                                ) );
-
-							    // Check for handle sideload errors.
-							    if ( is_wp_error( $id ) ) 
-							    {
-							        @unlink( $file_array['tmp_name'] );
-							        
-							        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['property_id'], $post_id );
-							    }
-							    else
-							    {
-							    	$media_ids[] = $id;
-
-							    	update_post_meta( $id, '_imported_url', $url);
-
-							    	++$new;
-							    }
-							}
-						}
-					}
-				}
-
-				if (isset($property['additionalMedia']) && !empty($property['additionalMedia']))
-				{
-					foreach ($property['additionalMedia'] as $brochure)
-					{	
-						if ( 
-							substr( strtolower($brochure['url']), 0, 2 ) == '//' || 
-							substr( strtolower($brochure['url']), 0, 4 ) == 'http'
-						)
-						{
-							// This is a URL
-							$url = $property['brochure']['url'];
-							$description = ( (isset($brochure['title'])) ? $brochure['title'] : '' );
-						    
-							$explode_url = explode("?", $url);
-							$filename = basename( $explode_url[0] );
-
-							// Check, based on the URL, whether we have previously imported this media
-							$imported_previously = false;
-							$imported_previously_id = '';
-							if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
-							{
-								foreach ( $previous_media_ids as $previous_media_id )
-								{
-									if ( 
-										get_post_meta( $previous_media_id, '_imported_url', TRUE ) == $url
-									)
-									{
-										$imported_previously = true;
-										$imported_previously_id = $previous_media_id;
-										break;
-									}
-								}
-							}
-
-							if ($imported_previously)
-							{
-								$media_ids[] = $imported_previously_id;
-
-								if ( $description != '' )
-								{
-									$my_post = array(
-								    	'ID'          	 => $imported_previously_id,
-								    	'post_title'     => $description,
-								    );
-
-								 	// Update the post into the database
-								    wp_update_post( $my_post );
-								}
-
-								++$existing;
-							}
-							else
-							{
-								$this->ping();
-								
-								$tmp = download_url( $url );
-
-							    $file_array = array(
-							        'name' => $filename,
-							        'tmp_name' => $tmp
-							    );
-
-							    // Check for download errors
-							    if ( is_wp_error( $tmp ) ) 
-							    {
-							        $this->log_error( 'An error occurred whilst importing ' . $url . '. The error was as follows: ' . $tmp->get_error_message(), $property['property_id'], $post_id );
-							    }
-							    else
-							    {
-								    $id = media_handle_sideload( $file_array, $post_id, $description, array(
-	                                    'post_title' => $description,
-	                                    'post_excerpt' => $description
-	                                ) );
-
-								    // Check for handle sideload errors.
-								    if ( is_wp_error( $id ) ) 
-								    {
-								        @unlink( $file_array['tmp_name'] );
-								        
-								        $this->log_error( 'ERROR: An error occurred whilst importing ' . $url . '. The error was as follows: ' . $id->get_error_message(), $property['property_id'], $post_id );
-								    }
-								    else
-								    {
-								    	$media_ids[] = $id;
-
-								    	update_post_meta( $id, '_imported_url', $url);
-
-								    	++$new;
-								    }
-								}
-							}
-						}
-					}
-				}
-
-				// No EPCs as I believe this gets sent as a URL to a webpage
-				// They do provide EPC ratings that we could look to use in future
-
-				if ( $media_ids != $previous_media_ids )
-				{
-					delete_post_meta( $post_id, 'fave_attachments' );
-					foreach ( $media_ids as $media_id )
-					{
-						add_post_meta( $post_id, 'fave_attachments', $media_id );
-					}
-				}
-
-				// Loop through $previous_media_ids, check each one exists in $media_ids, and if it doesn't then delete
-				if ( is_array($previous_media_ids) && !empty($previous_media_ids) )
-				{
-					foreach ( $previous_media_ids as $previous_media_id )
-					{
-						if ( !in_array($previous_media_id, $media_ids) )
-						{
-							if ( wp_delete_attachment( $previous_media_id, TRUE ) !== FALSE )
-							{
-								++$deleted;
-							}
-						}
-					}
-				}
-
-				$this->log( 'Imported ' . count($media_ids) . ' brochures (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['property_id'], $post_id );
-				
-				$virtual_tours = array();
-				if ( isset($property['details']['virtual_tour']) && !empty($property['details']['virtual_tour']) )
-				{
-					$virtual_tours[] = $property['details']['virtual_tour'];
-				}
-				if ( isset($property['attributes']['property_urls']) && !empty($property['attributes']['property_urls']) && is_array($property['attributes']['property_urls']) )
-				{
-					foreach ( $property['attributes']['property_urls'] as $property_url )
-					{
-						if ( 
-							isset($property_url['media_type']) && 
-							(
-								strpos(strtolower($property_url['media_type']), 'virtual') !== FALSE ||
-								strpos(strtolower($property_url['media_type']), 'video') !== FALSE ||
-								strpos(strtolower($property_url['media_type']), 'tour') !== FALSE
-							) &&
-							isset($property_url['media_url']) && 
-							!empty($property_url['media_url']) &&
-							!in_array($property_url['media_url'], $virtual_tours)
-						)
-						{
-							$virtual_tours[] = $property_url['media_url'];
-						}
-					}
-				}
-
-				update_post_meta( $post_id, 'fave_video_url', '' );
-				update_post_meta( $post_id, 'fave_virtual_tour', '' );
-
-				if ( !empty($virtual_tours) )
-				{
-					foreach ( $virtual_tours as $virtual_tour )
-					{
-						if ( 
-							$virtual_tour != ''
-							&&
-							(
-								substr( strtolower($virtual_tour), 0, 2 ) == '//' || 
-								substr( strtolower($virtual_tour), 0, 4 ) == 'http'
-							)
-						)
-						{
-							// This is a URL
-							$url = $virtual_tour;
-
-							if ( strpos(strtolower($url), 'youtu') !== false || strpos(strtolower($url), 'vimeo') !== false )
-							{
-								update_post_meta( $post_id, 'fave_video_url', $url );
-							}
-							else
-							{
-								$iframe = '<iframe src="' . $url . '" style="border:0; height:360px; width:640px; max-width:100%" allowFullScreen="true"></iframe>';
-								update_post_meta( $post_id, 'fave_virtual_tour', $iframe );
-							}
-						}
-					}
-				}*/
-
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
 				do_action( "houzez_property_feed_property_imported_remax", $post_id, $property, $this->import_id, $this->instance_id );
 
@@ -1462,8 +1202,10 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 				{
 					$this->compare_meta_and_taxonomy_data( $post_id, $property['property_id'], $metadata_before, $taxonomy_terms_before );
 				}
-			}
 
+				if ( isset($property['date_last_updated']) && !empty($property['date_last_updated']) ) { update_post_meta( $post_id, 'houzez_property_feed_last_imported', strtotime($property['date_last_updated']) ); }
+			}
+			
 			++$property_row;
 
 		} // end foreach property

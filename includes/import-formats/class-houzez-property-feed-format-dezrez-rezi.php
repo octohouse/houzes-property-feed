@@ -356,14 +356,14 @@ class Houzez_Property_Feed_Format_Dezrez_Rezi extends Houzez_Property_Feed_Proce
 	        
 	        if ($property_query->have_posts())
 	        {
-	        	$this->log( 'This property has been imported before. Updating it', $property['RoleId'] );
-
 	        	// We've imported this property before
 	            while ($property_query->have_posts())
 	            {
 	                $property_query->the_post();
 
 	                $post_id = get_the_ID();
+
+	                $this->log( 'This property has been imported before. Updating it', $property['RoleId'], $post_id );
 
 	                $my_post = array(
 				    	'ID'          	 => $post_id,

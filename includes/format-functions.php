@@ -584,6 +584,79 @@ function houzez_property_feed_get_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/blm/',
         ),
+        'bridge' => array(
+            'name' => __( 'Bridge (MLS API Provider)', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'access_token',
+                    'label' => __( 'Access Token', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'dataset_id',
+                    'label' => __( 'Datafeed ID', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'test' => 'Test Data',
+                    )
+                ),
+                array(
+                    'id' => 'statuses',
+                    'label' => __( 'Status(es) To Import', 'houzezpropertyfeed' ),
+                    'type' => 'multiselect',
+                    'options' => array(
+                        'Active' => 'Active',
+                        'Active Under Contract' => 'Active Under Contract',
+                        'Canceled' => 'Canceled',
+                        'Closed' => 'Closed',
+                        'Coming Soon' => 'Coming Soon',
+                        'Delete' => 'Delete',
+                        'Expired' => 'Expired',
+                        'Hold' => 'Hold',
+                        'Incomplete' => 'Incomplete',
+                        'Pending' => 'Pending',
+                        'Withdrawn' => 'Withdrawn'
+                    ),
+                    'default' => array( 'Active', 'Coming Soon' ),
+                    'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
+                ),
+                /*array(
+                    'id' => 'only_updated',
+                    'label' => __( 'Only Import Updated Properties', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'default' => 'yes',
+                ),*/
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => '<div class="notice notice-info inline"><p>Please note: <strong>This format is in BETA</strong>. Please contact us at support@houzezpropertyfeed.com if you experience issues.</p></div>'
+                ),
+            ),
+            'address_fields' => array( 'City', 'StateOrProvince' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'lettings_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Single Family Residence' => 'Single Family Residence',
+                )
+            ),
+            'contact_information_fields' => array(
+                'ListAgentFullName',
+                'ListAgentKey',
+                'ListAgentMlsId',
+                'ListOfficeName',
+                'ListOfficeKey',
+                'ListOfficeMlsId',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mls-grid/'
+        ),
         'csv' => array(
             'name' => __( 'CSV', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -995,7 +1068,7 @@ function houzez_property_feed_get_import_formats()
                 array(
                     'type' => 'html',
                     'label' => '',
-                    'html' => 'Please note: <strong>This format is in BETA</strong>. Please contact us at support@houzezpropertyfeed.com if you experience issues.'
+                    'html' => '<div class="notice notice-info inline"><p>Please note: <strong>This format is in BETA</strong>. Please contact us at support@houzezpropertyfeed.com if you experience issues.</p></div>'
                 ),
             ),
             'address_fields' => array( 'ADR', 'PRO' ),
@@ -2013,6 +2086,12 @@ function houzez_property_feed_get_import_formats()
                     'type' => 'text',
                     'tooltip' => __( 'Enter a comma-delimited list of agent IDs if only wanting to import specific agents listings. Enter only Agent ID(s) or Office ID(s). Not both.', 'houzezpropertyfeed' ),
                 ),
+                array(
+                    'id' => 'only_updated',
+                    'label' => __( 'Only Import Updated Properties', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'default' => 'yes',
+                ),
             ),
             'address_fields' => array( 'suburb', 'city', 'province' ),
             'taxonomy_values' => array(
@@ -2391,6 +2470,71 @@ function houzez_property_feed_get_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/sme/'
         ),
+        'spark' => array(
+            'name' => __( 'Spark (MLS API Provider)', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'access_token',
+                    'label' => __( 'Access Token', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'statuses',
+                    'label' => __( 'Status(es) To Import', 'houzezpropertyfeed' ),
+                    'type' => 'multiselect',
+                    'options' => array(
+                        'Active' => 'Active',
+                        'Active Under Contract' => 'Active Under Contract',
+                        'Canceled' => 'Canceled',
+                        'Closed' => 'Closed',
+                        'Coming Soon' => 'Coming Soon',
+                        'Delete' => 'Delete',
+                        'Expired' => 'Expired',
+                        'Hold' => 'Hold',
+                        'Incomplete' => 'Incomplete',
+                        'Pending' => 'Pending',
+                        'Withdrawn' => 'Withdrawn'
+                    ),
+                    'default' => array( 'Active', 'Coming Soon' ),
+                    'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
+                ),
+                /*array(
+                    'id' => 'only_updated',
+                    'label' => __( 'Only Import Updated Properties', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'default' => 'yes',
+                ),*/
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => '<div class="notice notice-info inline"><p>Please note: <strong>This format is in BETA</strong>. Please contact us at support@houzezpropertyfeed.com if you experience issues.</p></div>'
+                ),
+            ),
+            'address_fields' => array( 'City', 'StateOrProvince' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'lettings_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Single Family Residence' => 'Single Family Residence',
+                )
+            ),
+            'contact_information_fields' => array(
+                'ListAgentFullName',
+                'ListAgentKey',
+                'ListAgentMlsId',
+                'ListOfficeName',
+                'ListOfficeKey',
+                'ListOfficeMlsId',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/spark/'
+        ),
         'street' => array(
             'name' => __( 'Street', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -2494,6 +2638,76 @@ function houzez_property_feed_get_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/thinkspain/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
+        ),
+        'trestle' => array(
+            'name' => __( 'Trestle (MLS API Provider)', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'client_id',
+                    'label' => __( 'Client ID', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'client_secret',
+                    'label' => __( 'Client Secret', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'statuses',
+                    'label' => __( 'Status(es) To Import', 'houzezpropertyfeed' ),
+                    'type' => 'multiselect',
+                    'options' => array(
+                        'Active' => 'Active',
+                        'Active Under Contract' => 'Active Under Contract',
+                        'Canceled' => 'Canceled',
+                        'Closed' => 'Closed',
+                        'Coming Soon' => 'Coming Soon',
+                        'Delete' => 'Delete',
+                        'Expired' => 'Expired',
+                        'Hold' => 'Hold',
+                        'Incomplete' => 'Incomplete',
+                        'Pending' => 'Pending',
+                        'Withdrawn' => 'Withdrawn'
+                    ),
+                    'default' => array( 'Active', 'Coming Soon' ),
+                    'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
+                ),
+                /*array(
+                    'id' => 'only_updated',
+                    'label' => __( 'Only Import Updated Properties', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'default' => 'yes',
+                ),*/
+                array(
+                    'type' => 'html',
+                    'label' => '',
+                    'html' => '<div class="notice notice-info inline"><p>Please note: <strong>This format is in BETA</strong>. Please contact us at support@houzezpropertyfeed.com if you experience issues.</p></div>'
+                ),
+            ),
+            'address_fields' => array( 'City', 'StateOrProvince' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'lettings_status' => array(
+                    'Active' => 'Active',
+                    'Coming Soon' => 'Coming Soon',
+                ),
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Single Family Residence' => 'Single Family Residence',
+                )
+            ),
+            'contact_information_fields' => array(
+                'ListAgentFullName',
+                'ListAgentKey',
+                'ListAgentMlsId',
+                'ListOfficeName',
+                'ListOfficeKey',
+                'ListOfficeMlsId',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/trestle/'
         ),
         'vaultea' => array(
             'name' => __( 'VaultEA / VaultRE', 'houzezpropertyfeed' ),
