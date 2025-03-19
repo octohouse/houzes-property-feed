@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.7
-Version: 2.5.7
+Stable tag: 2.5.8
+Version: 2.5.8
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,6 +28,7 @@ We can import properties from the following estate agency CRMs/formats:
 * BDP
 * BLM
 * Bridge - RESO MLS API Provider (beta)
+* CASAFARI
 * CSV (any CSV file hosted on a public URL)
 * Dezrez Rezi
 * Domus
@@ -139,6 +140,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.8 - 2025-03-19 =
+* Added support for importing properties from CASAFARI
 
 = 2.5.7 - 2025-03-18 =
 * Added preliminary support for Bridge RESO MLS API provider. Releasing in beta until we get to test it with real client data

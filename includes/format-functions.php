@@ -657,6 +657,67 @@ function houzez_property_feed_get_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/mls-grid/'
         ),
+        'casafari' => array(
+            'name' => __( 'CASAFARI', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_token',
+                    'label' => __( 'API Token', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( 'Locality', 'City', 'Region', 'zone' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For sale' => 'For sale',
+                ),
+                'lettings_status' => array(
+                    'For rent' => 'For rent',
+                ),
+                'property_type' => array(
+                    "Apartment" => "Apartment",
+                    "Building" => "Building",
+                    "Castle" => "Castle",
+                    "Chalet" => "Chalet",
+                    "CommercialProperty" => "CommercialProperty",
+                    "Complex" => "Complex",
+                    "DuplexApartment" => "DuplexApartment",
+                    "Farmhouse" => "Farmhouse",
+                    "Garage" => "Garage",
+                    "Hotel" => "Hotel",
+                    "Land" => "Land",
+                    "Office" => "Office",
+                    "ParkingPlace" => "ParkingPlace",
+                    "Plot" => "Plot",
+                    "Ruin" => "Ruin",
+                    "StorageRoom" => "StorageRoom",
+                    "Townhouse" => "Townhouse",
+                    "Villa" => "Villa",
+                    "Warehouse" => "Warehouse",
+                    "Farm" => "Farm",
+                    "Studio" => "Studio",
+                    "UrbanLand" => "UrbanLand",
+                    "RestaurantsBarsShops" => "RestaurantsBarsShops",
+                    "ComercialShop" => "ComercialShop",
+                    "SemiDetached" => "SemiDetached",
+                    "RuralLand" => "RuralLand",
+                    "ManorHouse" => "ManorHouse",
+                    "LandWithProject" => "LandWithProject",
+                    "RestaurantSnack" => "RestaurantSnack",
+                    "CountryHouse" => "CountryHouse",
+                    "VillaFloor" => "VillaFloor",
+                    "VilaToBeRenovated" => "VilaToBeRenovated",
+                    "Room" => "Room",
+                    "Loft" => "Loft",
+                    "Business" => "Business"
+                )
+            ),
+            'contact_information_fields' => array(
+                'Listing Agent ID',
+                'Listing Agent Name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/casafari/'
+        ),
         'csv' => array(
             'name' => __( 'CSV', 'houzezpropertyfeed' ),
             'fields' => array(
