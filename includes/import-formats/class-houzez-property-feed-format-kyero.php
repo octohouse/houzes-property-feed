@@ -355,10 +355,12 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		            				case "Agent ID":
 		            				{
 		            					$value_in_feed_to_check = isset($this->agent_xml->id) ? (string)$this->agent_xml->id : '';
+		            					break;
 		            				}
 		            				case "Agent Name":
 		            				{
 		            					$value_in_feed_to_check = isset($this->agent_xml->name) ? (string)$this->agent_xml->name : '';
+		            					break;
 		            				}
 		            			}
 
@@ -388,10 +390,12 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		            				case "Agent ID":
 		            				{
 		            					$value_in_feed_to_check = isset($this->agent_xml->id) ? (string)$this->agent_xml->id : '';
+		            					break;
 		            				}
 		            				case "Agent Name":
 		            				{
 		            					$value_in_feed_to_check = isset($this->agent_xml->name) ? (string)$this->agent_xml->name : '';
+		            					break;
 		            				}
 		            			}
 
@@ -413,10 +417,12 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 		            				case "Agent ID":
 		            				{
 		            					$value_in_feed_to_check = isset($this->agent_xml->id) ? (string)$this->agent_xml->id : '';
+		            					break;
 		            				}
 		            				case "Agent Name":
 		            				{
 		            					$value_in_feed_to_check = isset($this->agent_xml->name) ? (string)$this->agent_xml->name : '';
+		            					break;
 		            				}
 		            			}
 

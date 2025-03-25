@@ -612,8 +612,7 @@ class Houzez_Property_Feed_Format_Inmoweb extends Houzez_Property_Feed_Process {
 
 										$description = '';
 
-										$media_attributes = $image->attributes();
-										$modified = (string)$media_attributes['modified'];
+										$modified = (string)$image_attributes['modified'];
 
 										$filename = basename( $url );
 

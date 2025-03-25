@@ -279,6 +279,12 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
                     update_post_meta( $post_id, 'fave_property_price_prefix', '' );
                     update_post_meta( $post_id, 'fave_property_price', $price );
                     update_post_meta( $post_id, 'fave_property_price_postfix', '' );
+
+                    if ( $department == 'residential-lettings' )
+                    {
+                   		$rent_frequency = 'pcm';
+                   		update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
+                	}
                 }
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property->camere) ) ? (string)$property->camere : '' ) );

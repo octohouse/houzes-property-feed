@@ -29,8 +29,6 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
-		//$statuses = ( isset($import_settings['statuses']) && !empty($import_settings['statuses']) && is_array($import_settings['statuses']) ) ? $import_settings['statuses'] : array( 'in progress' );
-
 		$current_page = 1;
 		$per_page = 1000;
 		$more_properties = true;
