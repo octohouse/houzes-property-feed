@@ -475,7 +475,6 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             }
         }
 
-        $price_qualifier = '';
         $currency = 'GBP';
         if ( get_post_meta( $post_id, 'fave_currency', TRUE ) != '' && strlen(get_post_meta( $post_id, 'fave_currency', TRUE )) == 3 )
         {
@@ -489,6 +488,69 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             'price' => (int)$price,
         );
         if ( $rent_frequency != '' ) { $request_data['pricing']['rent_frequency'] = $rent_frequency; }
+
+        $price_qualifier = '';
+
+        $best_match = null;
+        $highest_similarity = 0;
+
+        $valid_qualifiers = [
+            'coming_soon',
+            'fixed_price',
+            'from',
+            'guide_price',
+            'non_quoting',
+            'offers_in_the_region_of',
+            'offers_over',
+            'sale_by_tender'
+        ];
+
+        $input = strtolower(trim(get_post_meta( $post_id, 'fave_property_price_prefix', TRUE )));
+        $input_normalized = preg_replace('/\s+/', '_', $input);
+        if ( $input_normalized == 'oiro' ) { $input_normalized = 'offers_in_the_region_of'; }
+
+        if ( !empty($input_normalized) )
+        {
+            foreach ( $valid_qualifiers as $qualifier ) 
+            {
+                similar_text( $input_normalized, $qualifier, $percent );
+
+                if ( $percent > $highest_similarity ) 
+                {
+                    $highest_similarity = $percent;
+                    $best_match = $qualifier;
+                }
+            }
+
+            if ( $highest_similarity > 50 ) 
+            {
+                $price_qualifier = $best_match;
+            }
+        }
+
+        $input = strtolower(trim(get_post_meta( $post_id, 'fave_property_price_postfix', TRUE )));
+        $input_normalized = preg_replace('/\s+/', '_', $input);
+        if ( $input_normalized == 'oiro' ) { $input_normalized = 'offers_in_the_region_of'; }
+
+        if ( !empty($input_normalized) )
+        {
+            foreach ( $valid_qualifiers as $qualifier ) 
+            {
+                similar_text( $input_normalized, $qualifier, $percent );
+
+                if ( $percent > $highest_similarity ) 
+                {
+                    $highest_similarity = $percent;
+                    $best_match = $qualifier;
+                }
+            }
+
+            if ( $highest_similarity > 50 ) 
+            {
+                $price_qualifier = $best_match;
+            }
+        }
+
         if ( $price_qualifier != '' ) { $request_data['pricing']['price_qualifier'] = $price_qualifier; }
 
         if ( $property_type != '' ) { $request_data['property_type'] = $property_type; }

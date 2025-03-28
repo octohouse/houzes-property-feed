@@ -661,6 +661,16 @@ function houzez_property_feed_get_import_formats()
             'name' => __( 'CASAFARI', 'houzezpropertyfeed' ),
             'fields' => array(
                 array(
+                    'id' => 'environment',
+                    'label' => __( 'Environment', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'sandbox' => 'Sandbox',
+                        'production' => 'Production'
+                    ),
+                    'default' => 'production'
+                ),
+                array(
                     'id' => 'api_token',
                     'label' => __( 'API Token', 'houzezpropertyfeed' ),
                     'type' => 'text',

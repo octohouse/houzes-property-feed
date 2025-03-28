@@ -32,10 +32,14 @@ class Houzez_Property_Feed_Format_Casafari extends Houzez_Property_Feed_Process 
 		$current_page = 1;
 		$more_properties = true;
 
+		$url = 'https://crmapi.casafaricrm.com/api/Property/ListProperties';
+		if ( isset($import_settings['environment']) && $import_settings['environment'] == 'sandbox' )
+		{
+			$url = 'https://crmapi.proppydev.com/api/Property/ListProperties';
+		}
+
 		while ( $more_properties )
 		{
-			$url = 'https://crmapi.casafaricrm.com/api/Property/ListProperties';
-
 			$headers = array(
 				'Authorization' => 'Basic ' . $import_settings['api_token'],
 				'Content-Type' => 'application/json'

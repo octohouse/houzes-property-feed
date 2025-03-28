@@ -21,7 +21,7 @@
 					if ( isset($license_key_status['success']) && $license_key_status['success'] === true )
 					{
 						echo '<div class="notice notice-success inline"><p>' . __( 'License key active', 'houzezpropertyfeed' ) . '</p></div>';
-						$button = __( 'Dectivate License Key', 'houzezpropertyfeed' );
+						$button = __( 'Deactivate License Key', 'houzezpropertyfeed' );
 						$hidden_field = 'deactivate';
 					}
 					else
