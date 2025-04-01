@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.7.2
-Stable tag: 2.5.10
-Version: 2.5.10
+Stable tag: 2.5.11
+Version: 2.5.11
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -51,6 +51,7 @@ We can import properties from the following estate agency CRMs/formats:
 * OpenImmo
 * Pixxi
 * PropCtrl
+* Propstack
 * RE/MAX
 * Reapit Foundations
 * REAXML
@@ -140,6 +141,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.11 - 2025-04-01 =
+* Added support for importing properties from Propstack
+* Corrected the importing of area from Alto
 
 = 2.5.10 - 2025-03-28 =
 * Added support for price qualifier in Zoopla exports

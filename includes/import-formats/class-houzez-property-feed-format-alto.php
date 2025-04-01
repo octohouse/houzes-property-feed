@@ -616,11 +616,11 @@ class Houzez_Property_Feed_Format_Alto extends Houzez_Property_Feed_Process {
 	            $area = '';
 				$area_unit = '';
 
-				foreach ( $property->area as $area ) 
+				foreach ( $property->area as $area_node  ) 
 				{
-				    $unit = ( isset($area['unit']) && (string)$area['unit'] != '' ) ? strtolower((string)$area['unit']) : 'sqft';
-				    $min = (int)$area->min;
-				    $max = (int)$area->max;
+				    $unit = ( isset($area_node['unit']) && (string)$area_node['unit'] != '' ) ? strtolower((string)$area_node['unit']) : 'sqft';
+				    $min = (int)$area_node->min;
+				    $max = (int)$area_node->max;
 
 				    // Ignore if both min and max are 0
 				    if ( $min == 0 && $max == 0 ) 

@@ -1874,6 +1874,50 @@ function houzez_property_feed_get_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/property-finder/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'propstack' => array(
+            'name' => __( 'Propstack', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'statuses',
+                    'label' => __( 'Status(es) To Import', 'houzezpropertyfeed' ),
+                    'type' => 'multiselect',
+                    'options' => array( 
+                        'Vorbereitung' => 'Vorbereitung',
+                        'Vermarktung' => 'Vermarktung',
+                        'Akquise' => 'Akquise',
+                        'Abgeschlossen' => 'Abgeschlossen',
+                    ),
+                    'default' => array( 'Vermarktung' ),
+                    'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
+                ),
+            ),
+            'address_fields' => array( 'city', 'region' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Vorbereitung' => 'Vorbereitung',
+                    'Vermarktung' => 'Vermarktung',
+                    'Akquise' => 'Akquise',
+                    'Abgeschlossen' => 'Abgeschlossen',
+                ),
+                'lettings_status' => array(
+                    'Abgeschlossen' => 'Abgeschlossen',
+                ),
+                'property_type' => array(
+                    'APARTMENT' => 'APARTMENT',
+                    'HOUSE' => 'HOUSE',
+                )
+            ),
+            'contact_information_fields' => array(
+                'Broker ID',
+                'Broker Name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/propstack/',
+        ),
         'reapit_foundations' => array(
             'name' => __( 'Reapit Foundations', 'houzezpropertyfeed' ),
             'fields' => array(
