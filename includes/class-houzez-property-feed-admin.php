@@ -197,9 +197,9 @@ class Houzez_Property_Feed_Admin {
                 if ( 
                     isset($_GET['action']) && 
                     (
-                        sanitize_text_field($_GET['action']) == 'view' ||
+                        sanitize_text_field(wp_unslash($_GET['action'])) == 'view' ||
                         (
-                            sanitize_text_field($_GET['action']) == 'search' && isset($_POST['log_search']) && sanitize_text_field($_POST['log_search']) != ''
+                            sanitize_text_field(wp_unslash($_GET['action'])) == 'search' && isset($_POST['log_search']) && sanitize_text_field(wp_unslash($_POST['log_search'])) != ''
                         )
                     )
                 )
@@ -272,7 +272,7 @@ class Houzez_Property_Feed_Admin {
                             $log_tables = array();
 
                             $extra_sql = '';
-                            if ( is_numeric($_POST['log_search']) )
+                            if ( is_numeric(sanitize_text_field(wp_unslash($_POST['log_search']))) )
                             {
                                 $extra_sql = " post_id = '" . esc_sql($_POST['log_search']) . "'
                                         OR ";
@@ -297,7 +297,7 @@ class Houzez_Property_Feed_Admin {
                                     )
                                 GROUP BY " . $wpdb->prefix . "houzez_property_feed_logs_instance.id
                                 ORDER BY start_date ASC
-                            ", $_POST['log_search'], $like_log_search);
+                            ", sanitize_text_field(wp_unslash($_POST['log_search'])), $like_log_search);
 
                             $log_results = $wpdb->get_results( 
                                 $query
@@ -788,6 +788,7 @@ class Houzez_Property_Feed_Admin {
             // enqueue draggable/droppable for XML field mapping
             wp_enqueue_script( 'jquery-ui-draggable' );
             wp_enqueue_script( 'jquery-ui-droppable' );
+            wp_enqueue_script( 'jquery-ui-sortable' );
 
             wp_register_script( 'houzez_property_feed_admin_import_script', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/admin-import.js', array( 'jquery' ), HOUZEZ_PROPERTY_FEED_VERSION );
 

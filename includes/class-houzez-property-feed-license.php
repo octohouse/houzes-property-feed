@@ -53,7 +53,7 @@ class Houzez_Property_Feed_License {
             return;
         }
 
-        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( $_POST['_wpnonce'], 'save-license-key' ) ) ) 
+        if ( !isset($_POST['_wpnonce']) || ( isset($_POST['_wpnonce']) && !wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'save-license-key' ) ) ) 
         {
             die( __( "Failed security check", 'houzezpropertyfeed' ) );
         }
@@ -63,20 +63,20 @@ class Houzez_Property_Feed_License {
         // ready to save
         $options = get_option( 'houzez_property_feed' , array() );
         
-        $options['license_key'] = sanitize_text_field($_POST['license_key']);
+        $options['license_key'] = sanitize_text_field(wp_unslash($_POST['license_key']));
 
         update_option( 'houzez_property_feed', $options );
 
-        if ( isset($_POST['license_key_action']) && sanitize_text_field($_POST['license_key_action']) == 'deactivate' )
+        if ( isset($_POST['license_key_action']) && sanitize_text_field(wp_unslash($_POST['license_key_action'])) == 'deactivate' )
         {
-        	$this->deactivate_license_key( sanitize_text_field($_POST['current_license_key']) );
+        	$this->deactivate_license_key( sanitize_text_field(wp_unslash($_POST['current_license_key'])) );
         }
         elseif ( !empty($_POST['license_key']) )
         {
-        	$this->activate_license_key( sanitize_text_field($_POST['license_key']) );
+        	$this->activate_license_key( sanitize_text_field(wp_unslash($_POST['license_key'])) );
         }
 
-        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . __( 'License details saved', 'houzezpropertyfeed' ) ) );
+        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . __( 'License details saved', 'houzezpropertyfeed' ) ) );
         die();
     }
 

@@ -38,7 +38,7 @@ class Houzez_Property_Feed_Import {
 
     public function check_not_multiple_if_no_pro()
     {
-        if ( isset($_GET['action']) && ( $_GET['action'] == 'addimport' || $_GET['action'] == 'cloneimport' ) )
+        if ( isset($_GET['action']) && ( sanitize_text_field(wp_unslash($_GET['action'])) == 'addimport' || sanitize_text_field(wp_unslash($_GET['action'])) == 'cloneimport' ) )
         {
             if ( apply_filters( 'houzez_property_feed_pro_active', false ) !== true ) 
             {
@@ -64,14 +64,14 @@ class Houzez_Property_Feed_Import {
 
     public function check_clone()
     {
-        if ( isset($_GET['action']) && $_GET['action'] == 'cloneimport' )
+        if ( isset($_GET['action']) && sanitize_text_field(wp_unslash($_GET['action'])) == 'cloneimport' )
         {
-            $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
+            $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field(wp_unslash($_GET['import_id']))) ) ? (int)$_GET['import_id'] : false;
 
             $redirect_url = 'admin.php?page=houzez-property-feed-import';
             if ( isset($_REQUEST['orderby']) && !empty($_REQUEST['orderby']) && isset($_REQUEST['order']) && in_array(strtolower($_REQUEST['order']), array('asc', 'desc')) )
             {
-                $redirect_url .= '&orderby=' . sanitize_text_field($_REQUEST['orderby']) . '&order=' . sanitize_text_field($_REQUEST['order']);
+                $redirect_url .= '&orderby=' . sanitize_text_field(wp_unslash($_REQUEST['orderby'])) . '&order=' . sanitize_text_field(wp_unslash($_REQUEST['order']));
             }
 
             if ( !isset($_GET['_wpnonce']) || !check_admin_referer('clone-import') )
@@ -129,9 +129,9 @@ class Houzez_Property_Feed_Import {
         if ( !isset($options['imports'][$import_id]) ) { $options['imports'][$import_id] = array(); }
         if ( !is_array($options['imports'][$import_id]) ) { $options['imports'][$import_id] = array(); }
 
-        $format = sanitize_text_field($_POST['format']);
+        $format = sanitize_text_field(wp_unslash($_POST['format']));
 
-        if ( isset($_POST['previous_format']) && $format != sanitize_text_field($_POST['previous_format']) )
+        if ( isset($_POST['previous_format']) && $format != sanitize_text_field(wp_unslash($_POST['previous_format'])) )
         {
             // remove any options we stored about current status
             update_option( 'houzez_property_feed_property_' . $import_id, '', false );
@@ -142,15 +142,15 @@ class Houzez_Property_Feed_Import {
             $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}houzez_property_feed_property_queue WHERE import_id = %d", $import_id));
         }
 
-        $running = ( isset($_POST['running']) && sanitize_text_field($_POST['running']) == 'yes' ) ? true : false;
+        $running = ( isset($_POST['running']) && sanitize_text_field(wp_unslash($_POST['running'])) == 'yes' ) ? true : false;
 
-        $agent_display_option = ( isset($_POST['agent_display_option']) ) ? sanitize_text_field($_POST['agent_display_option']) : 'author_info';
+        $agent_display_option = ( isset($_POST['agent_display_option']) ) ? sanitize_text_field(wp_unslash($_POST['agent_display_option'])) : 'author_info';
 
         $sanitized_exact_hours = array();
 
-        if ( isset($_POST['exact_hours']) && !empty(sanitize_text_field($_POST['exact_hours'])) )
+        if ( isset($_POST['exact_hours']) && !empty(sanitize_text_field(wp_unslash($_POST['exact_hours']))) )
         {
-            $exact_hours = explode(",", sanitize_text_field($_POST['exact_hours']));
+            $exact_hours = explode(",", sanitize_text_field(wp_unslash($_POST['exact_hours'])));
             $exact_hours = array_map('trim', $exact_hours); // remove white spaces from around hours
             $exact_hours = array_filter($exact_hours); // remove empty array elements
             sort($exact_hours, SORT_NUMERIC);
@@ -173,19 +173,19 @@ class Houzez_Property_Feed_Import {
         $import_options = array(
             'running' => $running,
             'format' => $format,
-            'frequency' => sanitize_text_field($_POST['frequency']), // might want to validate this is not a pro frequency
+            'frequency' => sanitize_text_field(wp_unslash($_POST['frequency'])), // might want to validate this is not a pro frequency
             'exact_hours' => $sanitized_exact_hours,
-            'create_location_taxonomy_terms' => ( isset($_POST['create_location_taxonomy_terms']) && sanitize_text_field($_POST['create_location_taxonomy_terms']) == 'yes' ) ? true : false,
-            'property_city_address_field' => ( isset($_POST['property_city_address_field']) ) ? sanitize_text_field($_POST['property_city_address_field']) : true,
-            'property_area_address_field' => ( isset($_POST['property_area_address_field']) ) ? sanitize_text_field($_POST['property_area_address_field']) : true,
-            'property_state_address_field' => ( isset($_POST['property_state_address_field']) ) ? sanitize_text_field($_POST['property_state_address_field']) : true,
+            'create_location_taxonomy_terms' => ( isset($_POST['create_location_taxonomy_terms']) && sanitize_text_field(wp_unslash($_POST['create_location_taxonomy_terms'])) == 'yes' ) ? true : false,
+            'property_city_address_field' => ( isset($_POST['property_city_address_field']) ) ? sanitize_text_field(wp_unslash($_POST['property_city_address_field'])) : true,
+            'property_area_address_field' => ( isset($_POST['property_area_address_field']) ) ? sanitize_text_field(wp_unslash($_POST['property_area_address_field'])) : true,
+            'property_state_address_field' => ( isset($_POST['property_state_address_field']) ) ? sanitize_text_field(wp_unslash($_POST['property_state_address_field'])) : true,
             'agent_display_option' => $agent_display_option,
             'limit' => ( isset($_POST['limit']) && !empty((int)$_POST['limit']) ? (int)$_POST['limit'] : '' ),
             'limit_images' => ( isset($_POST['limit_images']) && !empty((int)$_POST['limit_images']) ? (int)$_POST['limit_images'] : '' ),
         );
 
         $background_mode = '';
-        if ( isset($_POST['background_mode']) && sanitize_text_field($_POST['background_mode']) == 'yes' )
+        if ( isset($_POST['background_mode']) && sanitize_text_field(wp_unslash($_POST['background_mode'])) == 'yes' )
         {
             $background_mode = 'yes';
         }
@@ -225,8 +225,8 @@ class Houzez_Property_Feed_Import {
                             {
                                 $rules[] = array(
                                     'field' => $field,
-                                    'equal' => sanitize_text_field($_POST[$agent_display_option . '_rules_equal'][$j]),
-                                    'result' => sanitize_text_field($_POST[$agent_display_option . '_rules_result'][$j]),
+                                    'equal' => sanitize_text_field(wp_unslash($_POST[$agent_display_option . '_rules_equal'][$j])),
+                                    'result' => sanitize_text_field(wp_unslash($_POST[$agent_display_option . '_rules_result'][$j])),
                                 );
                             }
                         }
@@ -247,11 +247,14 @@ class Houzez_Property_Feed_Import {
         )
         {
             $rule_i = 0;
-            foreach ( $_POST['field_mapping_rules'] as $j => $field )
+
+            $sanitized_field_mapping_rules = wp_unslash($_POST['field_mapping_rules']);
+
+            foreach ( $sanitized_field_mapping_rules as $j => $field )
             {
                 if ($j !== '{rule_count}') // ignore template
                 {
-                    $result = stripslashes(wp_kses($field['result'], array('br' => array(), 'strong' => array(), 'em' => array())));
+                    $result = wp_kses(wp_unslash($field['result']), array('br' => array(), 'span' => array(), 'strong' => array(), 'em' => array()));
                     if ( $field['result_type'] == 'dropdown' )
                     {
                         $result = sanitize_text_field($field['result_option']);
@@ -275,7 +278,7 @@ class Houzez_Property_Feed_Import {
                     {
                         foreach ( $rule_fields as $k => $rule_field )
                         {
-                            $rules[$rule_i]['rules'][$k][$i] = stripslashes(sanitize_text_field($rule_field));
+                            $rules[$rule_i]['rules'][$k][$i] = sanitize_text_field(wp_unslash($rule_field));
                         }
                     }
 
@@ -308,18 +311,18 @@ class Houzez_Property_Feed_Import {
                                 $field_value = array();
                                 foreach ( $_POST[$format . '_' . $field['id']] as $post_key => $post_value )
                                 {
-                                    $field_value[$post_key] = sanitize_text_field($post_value);
+                                    $field_value[$post_key] = sanitize_text_field(wp_unslash($post_value));
                                 }
                             }
                             else
                             {
                                 if ( strpos($field['id'], 'url') !== FALSE )
                                 {
-                                    $field_value = sanitize_url($_POST[$format . '_' . $field['id']]);
+                                    $field_value = sanitize_url(wp_unslash($_POST[$format . '_' . $field['id']]));
                                 }
                                 else
                                 {
-                                    $field_value = sanitize_text_field($_POST[$format . '_' . $field['id']]);
+                                    $field_value = sanitize_text_field(wp_unslash($_POST[$format . '_' . $field['id']]));
                                 }
                             }
                         }
@@ -337,7 +340,9 @@ class Houzez_Property_Feed_Import {
 
         if ( isset($_POST['taxonomy_mapping']) && is_array($_POST['taxonomy_mapping']) && !empty($_POST['taxonomy_mapping']) )
         {
-            foreach ( $_POST['taxonomy_mapping'] as $taxonomy => $mappings )
+            $sanitized_taxonomy_mapping = map_deep( wp_unslash($_POST['taxonomy_mapping']), 'sanitize_text_field' );
+
+            foreach ( $sanitized_taxonomy_mapping as $taxonomy => $mappings )
             {
                 $taxonomy = sanitize_text_field($taxonomy);
 
@@ -356,15 +361,17 @@ class Houzez_Property_Feed_Import {
 
                 if ( isset($_POST['custom_mapping'][$taxonomy]) )
                 {
-                    foreach ( $_POST['custom_mapping'][$taxonomy] as $key => $custom_mapping )
+                    $sanitized_custom_mapping = map_deep( wp_unslash($_POST['custom_mapping'][$taxonomy]), 'sanitize_text_field' );
+
+                    foreach ( $sanitized_custom_mapping as $key => $custom_mapping )
                     {
                         $custom_mapping = stripslashes($custom_mapping);
                         
                         if ( trim($custom_mapping) != '' )
                         {
-                            if ( isset($_POST['custom_mapping_value'][$taxonomy][$key]) && trim(sanitize_text_field($_POST['custom_mapping_value'][$taxonomy][$key])) != '' )
+                            if ( isset($_POST['custom_mapping_value'][$taxonomy][$key]) && trim(sanitize_text_field(wp_unslash($_POST['custom_mapping_value'][$taxonomy][$key]))) != '' )
                             {
-                                $import_mappings[$taxonomy][$custom_mapping] = sanitize_text_field($_POST['custom_mapping_value'][$taxonomy][$key]);
+                                $import_mappings[$taxonomy][$custom_mapping] = sanitize_text_field(wp_unslash($_POST['custom_mapping_value'][$taxonomy][$key]));
                             }
                         }
                     }
@@ -376,58 +383,58 @@ class Houzez_Property_Feed_Import {
 
         if ( isset($_POST['image_field_arrangement']) && in_array($_POST['image_field_arrangement'], array('', 'comma_delimited')) )
         {
-            $import_options['image_field_arrangement'] = sanitize_text_field($_POST['image_field_arrangement']);
+            $import_options['image_field_arrangement'] = sanitize_text_field(wp_unslash($_POST['image_field_arrangement']));
         }
         if ( isset($_POST['image_field']) )
         {
-            $import_options['image_field'] = sanitize_text_field($_POST['image_field']);
+            $import_options['image_field'] = sanitize_text_field(wp_unslash($_POST['image_field']));
         }
         if ( isset($_POST['image_field_delimiter']) )
         {
-            $import_options['image_field_delimiter'] = sanitize_text_field($_POST['image_field_delimiter']);
+            $import_options['image_field_delimiter'] = sanitize_text_field(wp_unslash($_POST['image_field_delimiter']));
         }
         if ( isset($_POST['image_fields']) )
         {
-            $import_options['image_fields'] = sanitize_textarea_field($_POST['image_fields']);
+            $import_options['image_fields'] = sanitize_textarea_field(wp_unslash($_POST['image_fields']));
         }
 
         if ( isset($_POST['floorplan_field_arrangement']) && in_array($_POST['floorplan_field_arrangement'], array('', 'comma_delimited')) )
         {
-            $import_options['floorplan_field_arrangement'] = sanitize_text_field($_POST['floorplan_field_arrangement']);
+            $import_options['floorplan_field_arrangement'] = sanitize_text_field(wp_unslash($_POST['floorplan_field_arrangement']));
         }
         if ( isset($_POST['floorplan_field']) )
         {
-            $import_options['floorplan_field'] = sanitize_text_field($_POST['floorplan_field']);
+            $import_options['floorplan_field'] = sanitize_text_field(wp_unslash($_POST['floorplan_field']));
         }
         if ( isset($_POST['floorplan_field_delimiter']) )
         {
-            $import_options['floorplan_field_delimiter'] = sanitize_text_field($_POST['floorplan_field_delimiter']);
+            $import_options['floorplan_field_delimiter'] = sanitize_text_field(wp_unslash($_POST['floorplan_field_delimiter']));
         }
         if ( isset($_POST['floorplan_fields']) )
         {
-            $import_options['floorplan_fields'] = sanitize_textarea_field($_POST['floorplan_fields']);
+            $import_options['floorplan_fields'] = sanitize_textarea_field(wp_unslash($_POST['floorplan_fields']));
         }
 
         if ( isset($_POST['document_field_arrangement']) && in_array($_POST['document_field_arrangement'], array('', 'comma_delimited')) )
         {
-            $import_options['document_field_arrangement'] = sanitize_text_field($_POST['document_field_arrangement']);
+            $import_options['document_field_arrangement'] = sanitize_text_field(wp_unslash($_POST['document_field_arrangement']));
         }
         if ( isset($_POST['document_field']) )
         {
-            $import_options['document_field'] = sanitize_text_field($_POST['document_field']);
+            $import_options['document_field'] = sanitize_text_field(wp_unslash($_POST['document_field']));
         }
         if ( isset($_POST['document_field_delimiter']) )
         {
-            $import_options['document_field_delimiter'] = sanitize_text_field($_POST['document_field_delimiter']);
+            $import_options['document_field_delimiter'] = sanitize_text_field(wp_unslash($_POST['document_field_delimiter']));
         }
         if ( isset($_POST['document_fields']) )
         {
-            $import_options['document_fields'] = sanitize_textarea_field($_POST['document_fields']);
+            $import_options['document_fields'] = sanitize_textarea_field(wp_unslash($_POST['document_fields']));
         }
-        $import_options['media_download_clause'] = ( isset($_POST['media_download_clause']) ? sanitize_text_field($_POST['media_download_clause']) : 'url_change' );
+        $import_options['media_download_clause'] = ( isset($_POST['media_download_clause']) ? sanitize_text_field(wp_unslash($_POST['media_download_clause'])) : 'url_change' );
 
         $export_enquiries_enabled = '';
-        if ( isset($_POST['export_enquiries_enabled']) && sanitize_text_field($_POST['export_enquiries_enabled']) == 'yes' )
+        if ( isset($_POST['export_enquiries_enabled']) && sanitize_text_field(wp_unslash($_POST['export_enquiries_enabled'])) == 'yes' )
         {
             $export_enquiries_enabled = 'yes';
         }
@@ -443,21 +450,21 @@ class Houzez_Property_Feed_Import {
 
     public function toggle_import_running_status()
     {
-        if ( isset($_GET['action']) && in_array($_GET['action'], array("startimport", "pauseimport")) && isset($_GET['import_id']) )
+        if ( isset($_GET['action']) && in_array(sanitize_text_field(wp_unslash($_GET['action'])), array("startimport", "pauseimport")) && isset($_GET['import_id']) )
         {
             $import_id = !empty($_GET['import_id']) ? (int)$_GET['import_id'] : '';
 
             $redirect_url = 'admin.php?page=houzez-property-feed-import';
             if ( isset($_REQUEST['orderby']) && !empty($_REQUEST['orderby']) && isset($_REQUEST['order']) && in_array(strtolower($_REQUEST['order']), array('asc', 'desc')) )
             {
-                $redirect_url .= '&orderby=' . sanitize_text_field($_REQUEST['orderby']) . '&order=' . sanitize_text_field($_REQUEST['order']);
+                $redirect_url .= '&orderby=' . sanitize_text_field(wp_unslash($_REQUEST['orderby'])) . '&order=' . sanitize_text_field(wp_unslash($_REQUEST['order']));
             }
             if ( isset($_REQUEST['hpf_filter']) && !empty($_REQUEST['hpf_filter']) )
             {
-                $redirect_url .= '&hpf_filter=' . sanitize_text_field($_REQUEST['hpf_filter']);
+                $redirect_url .= '&hpf_filter=' . sanitize_text_field(wp_unslash($_REQUEST['hpf_filter']));
                 if ( isset($_REQUEST['hpf_filter_format']) && !empty($_REQUEST['hpf_filter_format']) )
                 {
-                    $redirect_url .= '&hpf_filter_format=' . sanitize_text_field($_REQUEST['hpf_filter_format']);
+                    $redirect_url .= '&hpf_filter_format=' . sanitize_text_field(wp_unslash($_REQUEST['hpf_filter_format']));
                 }
             }
 
@@ -475,7 +482,7 @@ class Houzez_Property_Feed_Import {
                 die();
             }
 
-            switch ( sanitize_text_field($_GET['action']) )
+            switch ( sanitize_text_field(wp_unslash($_GET['action'])) )
             {
                 case "startimport":
                 {   
@@ -529,7 +536,7 @@ class Houzez_Property_Feed_Import {
 
     public function delete_import()
     {
-        if ( isset($_GET['action']) && $_GET['action'] == 'deleteimport' && isset($_GET['import_id']) )
+        if ( isset($_GET['action']) && sanitize_text_field(wp_unslash($_GET['action'])) == 'deleteimport' && isset($_GET['import_id']) )
         {
             $import_id = !empty($_GET['import_id']) ? (int)$_GET['import_id'] : '';
 
@@ -640,14 +647,23 @@ class Houzez_Property_Feed_Import {
                             $found = true;
                         }
                         elseif (
-                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && trim($value_to_check) == $rule['equal'] )
-                            ||
-                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && trim($value_to_check) != $rule['equal'] )
+                            ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && trim($value_to_check) == $rule['equal']
                         )
                         {
                             $found = true;
                         }
-                        
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == '!=' ) && trim($value_to_check) != $rule['equal']
+                        )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos(trim($value_to_check), $rule['equal']) !== false
+                        )
+                        {
+                            $found = true;
+                        }
                     }
                     if ( $found )
                     {
@@ -673,9 +689,19 @@ class Houzez_Property_Feed_Import {
                             $found = true;
                         }
                         elseif (
-                            ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && trim($value_to_check) == $rule['equal'] )
-                            ||
-                            ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && trim($value_to_check) != $rule['equal'] )
+                            ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && trim($value_to_check) == $rule['equal']
+                        )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == '!=' ) && trim($value_to_check) != $rule['equal']
+                        )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos(trim($value_to_check), $rule['equal']) !== false
                         )
                         {
                             $found = true;
@@ -1182,9 +1208,19 @@ class Houzez_Property_Feed_Import {
                                 $found = true;
                             }
                             elseif (
-                                ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
-                                ||
-                                ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
+                                ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal']
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal']
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos($value_to_check, $rule['equal']) !== false
                             )
                             {
                                 $found = true;
@@ -1274,9 +1310,19 @@ class Houzez_Property_Feed_Import {
                         $found = true;
                     }
                     elseif (
-                        ( ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal'] )
-                        ||
-                        ( ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal'] )
+                        ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && $value_to_check == $rule['equal']
+                    )
+                    {
+                        $found = true;
+                    }
+                    elseif (
+                        ( isset($rule['operator']) && $rule['operator'] == '!=' ) && $value_to_check != $rule['equal']
+                    )
+                    {
+                        $found = true;
+                    }
+                    elseif (
+                        ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos($value_to_check, $rule['equal']) !== false
                     )
                     {
                         $found = true;

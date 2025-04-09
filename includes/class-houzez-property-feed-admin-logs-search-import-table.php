@@ -74,26 +74,26 @@ class Houzez_Property_Feed_Admin_Logs_Search_Import_Table extends WP_List_Table 
                     $title = '(no title)';
                 }
 
-                if ( strpos(strtolower($title), strtolower(sanitize_text_field($_POST['log_search']))) !== false )
+                if ( strpos(strtolower($title), strtolower(sanitize_text_field(wp_unslash($_POST['log_search'])))) !== false )
                 {
-                    $pattern = '/' . preg_quote(sanitize_text_field($_POST['log_search']), '/') . '/i';
+                    $pattern = '/' . preg_quote(sanitize_text_field(wp_unslash($_POST['log_search'])), '/') . '/i';
 
                     $title = preg_replace($pattern, '<span style="background:yellow">$0</span>', $title);
                 }
-                else if ( is_numeric($_POST['log_search']) && (int)$_POST['log_search'] == $item->post_id )
+                else if ( is_numeric(sanitize_text_field(wp_unslash($_POST['log_search']))) && (int)$_POST['log_search'] == $item->post_id )
                 {
                     $title = '<span style="background:yellow">' . $title . '</span>';
                 }
 
-                return '<a href="' . get_edit_post_link($item->post_id) . '" target="_blank">' . $title . '</a>';
+                return '<a href="' . esc_url(get_edit_post_link($item->post_id)) . '" target="_blank">' . esc_html($title) . '</a>';
             }
             case 'col_log_crm_id':
             {
                 $crm_id = $item->crm_id;
 
-                if ( $_POST['log_search'] == $crm_id )
+                if ( sanitize_text_field(wp_unslash($_POST['log_search'])) == $crm_id )
                 {
-                    $crm_id = '<span style="background:yellow">' . $crm_id . '</span>';
+                    $crm_id = '<span style="background:yellow">' . esc_html($crm_id) . '</span>';
                 }
 
                 return $crm_id;

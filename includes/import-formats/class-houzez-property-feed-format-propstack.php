@@ -611,8 +611,13 @@ class Houzez_Property_Feed_Format_Propstack extends Houzez_Property_Feed_Process
 					        	}
 					        }
 
-							$url = $image['url'];
-
+					        $size = apply_filters( 'houzez_property_feed_propstack_image_size', 'big' ); // false, 'big', 'medium'
+					        $url = $image['url'];
+					        if ( $size !== false && isset($image[$size . '_url']) )
+					        {
+					        	$url = $image[$size . '_url'];
+					        }
+							
 							if ( 
 								(
 									substr( strtolower($url), 0, 2 ) == '//' || 
@@ -683,7 +688,12 @@ class Houzez_Property_Feed_Format_Propstack extends Houzez_Property_Feed_Process
 					        	}
 					        }
 				        
-							$url = $image['url'];
+							$size = apply_filters( 'houzez_property_feed_propstack_image_size', 'big' ); // false, 'big', 'medium'
+					        $url = $image['url'];
+					        if ( $size !== false && isset($image[$size . '_url']) )
+					        {
+					        	$url = $image[$size . '_url'];
+					        }
 
 							if ( 
 								(

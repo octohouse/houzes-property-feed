@@ -68,15 +68,15 @@ class Houzez_Property_Feed_Export {
         if ( !is_array($options['exports']) ) { $options['exports'] = array(); }
         if ( !is_array($options['exports'][$export_id]) ) { $options['exports'][$export_id] = array(); }
 
-        $format = sanitize_text_field($_POST['format']);
+        $format = sanitize_text_field(wp_unslash($_POST['format']));
 
-        $running = ( isset($_POST['running']) && sanitize_text_field($_POST['running']) == 'yes' ) ? true : false;
+        $running = ( isset($_POST['running']) && sanitize_text_field(wp_unslash($_POST['running'])) == 'yes' ) ? true : false;
 
         $export_options = array(
             'running' => $running,
             'format' => $format,
-            'name' => sanitize_text_field($_POST['export_name']),
-            'frequency' => sanitize_text_field($_POST['frequency']), // might want to validate this is not a pro frequency
+            'name' => sanitize_text_field(wp_unslash($_POST['export_name'])),
+            'frequency' => sanitize_text_field(wp_unslash($_POST['frequency'])), // might want to validate this is not a pro frequency
         );
 
         $rules = array();
@@ -87,7 +87,10 @@ class Houzez_Property_Feed_Export {
         )
         {
             $rule_i = 0;
-            foreach ( $_POST['field_mapping_rules'] as $j => $field )
+
+            $sanitized_field_mapping_rules = wp_unslash($_POST['field_mapping_rules']);
+
+            foreach ( $sanitized_field_mapping_rules as $j => $field )
             {
                 if ($j !== '{rule_count}') // ignore template
                 {
@@ -220,7 +223,7 @@ class Houzez_Property_Feed_Export {
                         $field_value = '';
                         if ( isset($_POST[$format . '_' . $field['id']]) && !empty($_POST[$format . '_' . $field['id']]) )
                         {
-                            $field_value = sanitize_text_field($_POST[$format . '_' . $field['id']]);
+                            $field_value = sanitize_text_field(wp_unslash($_POST[$format . '_' . $field['id']]));
                         }
                         if ( $field['id'] == 'property_node_options' || $field['id'] == 'property_field_options' )
                         {
@@ -232,8 +235,8 @@ class Houzez_Property_Feed_Export {
                         if ( 
                             $field['id'] == 'send_property_url' && 
                             isset($_POST[$format . '_previous_' . $field['id']]) && 
-                            !empty(sanitize_text_field($_POST[$format . '_previous_' . $field['id']])) &&
-                            sanitize_text_field($_POST[$format . '_' . $field['id']]) != sanitize_text_field($_POST[$format . '_previous_' . $field['id']])
+                            !empty(sanitize_text_field(wp_unslash($_POST[$format . '_previous_' . $field['id']]))) &&
+                            sanitize_text_field(wp_unslash($_POST[$format . '_' . $field['id']])) != sanitize_text_field(wp_unslash($_POST[$format . '_previous_' . $field['id']]))
                         )
                         {
                             // we got a different URL. Clear the SHA1s
@@ -249,7 +252,9 @@ class Houzez_Property_Feed_Export {
 
         if ( isset($_POST['taxonomy_mapping']) && is_array($_POST['taxonomy_mapping']) && !empty($_POST['taxonomy_mapping']) )
         {
-            foreach ( $_POST['taxonomy_mapping'] as $taxonomy => $mappings )
+            $sanitized_taxonomy_mapping = map_deep( wp_unslash($_POST['taxonomy_mapping']), 'sanitize_text_field' );
+            
+            foreach ( $sanitized_taxonomy_mapping as $taxonomy => $mappings )
             {
                 $taxonomy = sanitize_text_field($taxonomy);
 

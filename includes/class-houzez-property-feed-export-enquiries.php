@@ -16,7 +16,7 @@ class Houzez_Property_Feed_Export_Enquiries {
 
     public function export_enquiry( $activity_args = array() )
     {
-        $property_id = isset($_POST['listing_id']) ? sanitize_text_field( $_POST['listing_id'] ) : '';
+        $property_id = isset($_POST['listing_id']) ? sanitize_text_field( wp_unslash($_POST['listing_id']) ) : '';
         $activity_args['property_id'] = $property_id;
 
         // get all active imports where export enquiries is enabled

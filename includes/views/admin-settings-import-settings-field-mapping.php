@@ -47,6 +47,7 @@
 					</span>
 
 					<div class="icons">
+						<span class="reorder-rule dashicons dashicons-move" title="<?php echo esc_html(__( 'Reorder rule', 'houzezpropertyfeed' )); ?>"></span>
 						<span class="duplicate-rule dashicons dashicons-admin-page" title="<?php echo esc_html(__( 'Duplicate Rule', 'houzezpropertyfeed' )); ?>"></span>
 						<span class="delete-rule dashicons dashicons-trash" title="<?php echo esc_html(__( 'Delete Rule', 'houzezpropertyfeed' )); ?>"></span>
 					</div>
@@ -67,6 +68,7 @@
 									Is <select name="field_mapping_rules[<?php echo $i; ?>][operator][]">
 										<option value="="<?php if ( !isset($or_rule['operator']) || ( isset($or_rule['operator']) && $or_rule['operator'] == '=' ) ) { echo ' selected'; } ?>>equal to</option>
 										<option value="!="<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == '!=' ) { echo ' selected'; } ?>>not equal to</option>
+										<option value="like"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'like' ) { echo ' selected'; } ?>>contains</option>
 									</select>
 									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
 								</div>
@@ -170,6 +172,7 @@
 							Is <select name="field_mapping_rules[{rule_count}][operator][]">
 								<option value="=">equal to</option>
 								<option value="!=">not equal to</option>
+								<option value="like">contains</option>
 							</select>
 							<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
 						</div>

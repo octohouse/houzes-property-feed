@@ -144,6 +144,13 @@ function hpf_show_running_status()
 	}
 }
 
+function hpf_init_field_mapping_sortable()
+{
+	jQuery( "#field_mapping_rules" ).sortable({
+		handle: ".reorder-rule",
+    });
+}
+
 jQuery(document).ready(function()
 {
 	if ( jQuery('.automatic-imports-table').length > 0 )
@@ -270,6 +277,8 @@ jQuery(document).ready(function()
 				}
 			}
 		}
+
+		hpf_init_field_mapping_sortable();
 	});
 
 	jQuery('.hpf-admin-settings-import-settings .settings-panel #format').change(function()
@@ -353,6 +362,7 @@ jQuery(document).ready(function()
 
 		last_safe_scroll = 0;
 		build_field_mapping_rule_accordions();
+		hpf_init_field_mapping_sortable();
 		hpf_set_xml_fields_size_properties();
 		hpf_set_csv_fields_size_properties();
 	});
@@ -435,6 +445,7 @@ jQuery(document).ready(function()
 
 		last_safe_scroll = 0;
 		build_field_mapping_rule_accordions();
+		hpf_init_field_mapping_sortable();
 		hpf_set_xml_fields_size_properties();
 		hpf_set_csv_fields_size_properties();
 	});
@@ -470,6 +481,7 @@ jQuery(document).ready(function()
 
 		last_safe_scroll = 0;
 		build_field_mapping_rule_accordions();
+		hpf_init_field_mapping_sortable();
 		hpf_set_xml_fields_size_properties();
 		hpf_set_csv_fields_size_properties();
 	});
@@ -1203,7 +1215,7 @@ function add_field_mapping_or_rule()
 
 		hpf_rule_count = hpf_rule_count + 1;
 
-		jQuery('#field_mapping_rules').append('<div class="rule-accordion" style="display:none"><div class="rule-accordion-header"><span class="dashicons dashicons-arrow-down-alt2"></span>&nbsp; <span class="rule-description">Rule description here</span><div class="icons"><span class="duplicate-rule dashicons dashicons-admin-page" title="Duplicate Rule"></span><span class="delete-rule dashicons dashicons-trash" title="Delete Rule"></span></div></div><div class="rule-accordion-contents">' + template_html + '</div></div>');
+		jQuery('#field_mapping_rules').append('<div class="rule-accordion" style="display:none"><div class="rule-accordion-header"><span class="dashicons dashicons-arrow-down-alt2"></span>&nbsp; <span class="rule-description">Rule description here</span><div class="icons"><span class="reorder-rule dashicons dashicons-move" title="Reorder rule"></span> <span class="duplicate-rule dashicons dashicons-admin-page" title="Duplicate Rule"></span> <span class="delete-rule dashicons dashicons-trash" title="Delete Rule"></span></div></div><div class="rule-accordion-contents">' + template_html + '</div></div>');
 		jQuery('#field_mapping_rules .rule-accordion:last-child').slideDown();
 
 		// empty template fields

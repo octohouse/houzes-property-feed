@@ -34,9 +34,9 @@ class Houzez_Property_Feed_Settings {
         {
             $new_options = array(
                 'email_reports' => ( ( isset($_POST['email_reports']) && $_POST['email_reports'] == 'yes' ) ? true : false ),
-                'email_reports_to' => ( ( isset($_POST['email_reports_to']) && sanitize_email($_POST['email_reports_to']) ) ? sanitize_email($_POST['email_reports_to']) : '' ),
-                'remove_action' => ( ( isset($_POST['remove_action']) && in_array($_POST['remove_action'], array( '', 'nothing', 'remove_all_media', 'delete' )) ) ? sanitize_text_field($_POST['remove_action']) : '' ),
-                'media_processing' => ( ( isset($_POST['media_processing']) && in_array($_POST['media_processing'], array( '', 'background' )) ) ? sanitize_text_field($_POST['media_processing']) : '' ),
+                'email_reports_to' => ( ( isset($_POST['email_reports_to']) && sanitize_email($_POST['email_reports_to']) ) ? sanitize_email(wp_unslash($_POST['email_reports_to'])) : '' ),
+                'remove_action' => ( ( isset($_POST['remove_action']) && in_array($_POST['remove_action'], array( '', 'nothing', 'remove_all_media', 'delete' )) ) ? sanitize_text_field(wp_unslash($_POST['remove_action'])) : '' ),
+                'media_processing' => ( ( isset($_POST['media_processing']) && in_array($_POST['media_processing'], array( '', 'background' )) ) ? sanitize_text_field(wp_unslash($_POST['media_processing'])) : '' ),
             );
         }
 
@@ -45,7 +45,7 @@ class Houzez_Property_Feed_Settings {
             $new_options = array(
                 'sales_statuses' => ( ( isset($_POST['sales_statuses']) && !empty($_POST['sales_statuses']) ) ? hpf_clean( $_POST['sales_statuses'] ) : array() ),
                 'lettings_statuses' => ( ( isset($_POST['lettings_statuses']) && !empty($_POST['lettings_statuses']) ) ? hpf_clean( $_POST['lettings_statuses'] ) : array() ),
-                'property_selection' => ( ( isset($_POST['property_selection']) && in_array($_POST['property_selection'], array( '', 'individual', 'per_export' )) ) ? sanitize_text_field($_POST['property_selection']) : '' ),
+                'property_selection' => ( ( isset($_POST['property_selection']) && in_array($_POST['property_selection'], array( '', 'individual', 'per_export' )) ) ? sanitize_text_field(wp_unslash($_POST['property_selection'])) : '' ),
             );
         }
 
@@ -53,7 +53,7 @@ class Houzez_Property_Feed_Settings {
 
         update_option( 'houzez_property_feed', $options );
 
-        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=settings&hpfsuccessmessage=' . __( 'Settings saved', 'houzezpropertyfeed' ) ) );
+        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'houzez-property-feed-import' ) . '&tab=settings&hpfsuccessmessage=' . __( 'Settings saved', 'houzezpropertyfeed' ) ) );
         die();
     }
 }

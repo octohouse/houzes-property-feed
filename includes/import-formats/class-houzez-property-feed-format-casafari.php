@@ -99,6 +99,7 @@ class Houzez_Property_Feed_Format_Casafari extends Houzez_Property_Feed_Process 
 					{
 						$this->log_error( 'Error returned by CASAFARI: ' . print_r($error, TRUE) );
 					}
+					return false;
 				}
 
 				if ( isset($json['Count']) )
