@@ -33,13 +33,13 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 
 		if ( !isset($import_settings['property_node']) || ( isset($import_settings['property_node']) && empty($import_settings['property_node']) ) )
 		{
-			$this->log_error( 'Please ensure you have a field specified that we can use as the property record identifer in the import setting under the \'Import Format\' tab' );
+			$this->log_error( 'Please ensure you have a field specified that we can use as the property record identifier in the import setting under the \'Import Format\' tab' );
 			return false;
 		}
 
 		if ( !isset($import_settings['property_id_node']) || ( isset($import_settings['property_id_node']) && empty($import_settings['property_id_node']) ) )
 		{
-			$this->log_error( 'Please ensure you have a field specified that we can use as the unique property identifer in the import setting under the \'Import Format\' tab and that is has a value set in the XML' );
+			$this->log_error( 'Please ensure you have a field specified that we can use as the unique property identifier in the import setting under the \'Import Format\' tab and that is has a value set in the XML' );
 			return false;
 		}
 

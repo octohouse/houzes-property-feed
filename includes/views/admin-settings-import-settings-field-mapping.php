@@ -140,7 +140,7 @@
 							<div style="display:<?php if ( $houzez_field_delimited ) { echo 'block'; }else{ echo 'none'; } ?>" class="delimited">
 								<label><input type="checkbox" name="field_mapping_rules[<?php echo $i; ?>][delimited]" value="1"<?php if ( isset($and_rules['delimited']) && $and_rules['delimited'] === true ) { echo ' checked'; } ?>> Delimited?</label>
 								<span class="delimited-character" style="display:<?php if ( isset($and_rules['delimited']) && $and_rules['delimited'] === true ) { echo 'inline'; }else{ echo 'none'; } ?>;">By character <input type="text" name="field_mapping_rules[<?php echo $i; ?>][delimited_character]" style="max-width:50px;" value="<?php echo ( isset($and_rules['delimited_character']) ? esc_attr($and_rules['delimited_character']) : ',' ); ?>"></span>
-								<div style="font-style:italic; margin-top:6px; color:#AAA"><span class="dashicons dashicons-info"></span> Tick 'Delimited' if all features are provided in one single field separated by a specific character. If features are provided as individual fields in the third party data use the 'Property Feature [1-9]' field(s)</div>
+								<div style="font-style:italic; margin-top:6px; color:#AAA"><span class="dashicons dashicons-info"></span> Tick 'Delimited' if all values are provided in one single field separated by a specific character. If values are provided as individual fields in the third party data use the 'Property Feature [1-9]' or 'Label [1-9]' field(s)</div>
 							</div>
 						</div>
 					</div>
@@ -208,7 +208,7 @@
 					<div style="display:none" class="delimited">
 						<label><input type="checkbox" name="field_mapping_rules[{rule_count}][delimited]" value="1"> Delimited?</label>
 						<span class="delimited-character" style="display:none;">By character <input type="text" name="field_mapping_rules[{rule_count}][delimited_character]" style="max-width:50px;" value=","></span>
-						<div style="font-style:italic; margin-top:6px; color:#AAA"><span class="dashicons dashicons-info"></span> Tick 'Delimited' if all features are provided in one single field separated by a specific character. If features are provided as individual fields in the third party data use the 'Property Feature [1-9]' field(s)</div>
+						<div style="font-style:italic; margin-top:6px; color:#AAA"><span class="dashicons dashicons-info"></span> Tick 'Delimited' if all values are provided in one single field separated by a specific character. If values are provided as individual fields in the third party data use the 'Property Feature [1-9]' or 'Label [1-9]' field(s)</div>
 					</div>
 				</div>
 				

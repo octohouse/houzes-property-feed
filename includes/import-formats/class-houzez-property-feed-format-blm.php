@@ -21,6 +21,155 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 	    }
 	}
 
+	public function parse()
+	{
+		$this->properties = array(); // Reset properties in the event we're importing multiple files
+
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		if ( $import_settings['format'] == 'blm_remote' )
+		{
+			$wp_upload_dir = wp_upload_dir();
+		    $uploads_dir_ok = true;
+		    if ( $wp_upload_dir['error'] !== FALSE )
+		    {
+		        $this->log_error("Unable to create uploads folder. Please check permissions");
+		        return false;
+		    }
+
+	        $local_directory = $wp_upload_dir['basedir'] . '/houzez_property_feed_import/' . $import_id . '/';
+
+			$blm_file = $local_directory . 'blm_properties.blm';
+
+			$contents = '';
+			$unzipped_file = '';
+
+			$this->log_error( 'Retrieving URL contents' );
+
+			$response = wp_remote_get( $import_settings['url'], array( 'timeout' => 120 ) );
+
+			if ( !is_wp_error($response) && is_array( $response ) ) 
+			{
+				if ( ! @file_exists($local_directory) )
+				{
+					if ( ! @mkdir($local_directory) )
+					{
+						 $this->log_error("Unable to create directory " . $local_directory);
+						 return false;
+					}
+				}
+				else
+				{
+					if ( ! @is_writeable($local_directory) )
+					{
+						 $this->log_error("Directory " . $local_directory . " isn't writeable");
+						 return false;
+					}
+				}
+				
+				// Remote file is a zip file
+				if ( 
+					wp_remote_retrieve_header( $response, 'content-type' ) == 'application/zip' || 
+					wp_remote_retrieve_header( $response, 'content-type' ) == 'application/x-zip-compressed'
+				)
+				{
+					$zip_file = $local_directory . 'blm_properties.zip';
+
+					$handle = @fopen($zip_file, 'w+');
+					if ($handle)
+					{
+						$zip_contents = $response['body'];
+
+						// Write the remote zip file to a local zip file
+						fwrite($handle, $zip_contents);
+						fclose($handle);
+
+						if ( !class_exists('ZipArchive') ) 
+						{ 
+							$this->log_error('The ZipArchive class does not exist but is needed to extract the zip files provided'); 
+							return false;
+						}
+
+						$this->log_error( 'Extracting ZIP file contents' );
+
+						// Unzip local zip file, then remove it
+						$zip = new ZipArchive;
+						if ($zip->open($zip_file) === TRUE)
+						{
+							$zip->extractTo($local_directory);
+							$zip->close();
+						}
+
+						unlink($zip_file);
+
+						// Loop through files to find the BLM and save the contents to $contents
+						// If any media files are in the zip, they will get saved to the local directory
+						foreach (scandir($local_directory) as $unzipped_file)
+						{
+							if ( $unzipped_file != "." && $unzipped_file != ".." )
+							{
+								if ( substr(strtolower($unzipped_file), -3) == 'blm' )
+								{
+									$contents = file_get_contents($local_directory . $unzipped_file);
+									break;
+								}
+							}
+						}
+
+						if ( $contents == '' )
+						{
+							$this->log_error( 'No BLM file found in target ZIP' );
+							return false;
+						}
+
+						foreach (scandir( $local_directory ) as $file)
+						{
+							if ( substr(strtolower($file), -3) == 'blm' )
+							{
+								unlink($local_directory . $file);
+							}
+						}
+					}
+					else
+					{
+						$this->log_error( "Failed to write ZIP file locally. Please check file permissions" );
+						return false;
+					}
+				}
+				else
+				{
+					$contents = $response['body'];
+				}
+			}
+    		else
+    		{
+    			$this->log_error("Failed to obtain URL contents. Dump of response as follows: " . print_r($response, TRUE));
+    			return false;
+    		}
+
+    		$this->log_error( 'Parsing BLM' );
+
+			$parsed_header = $this->parse_header($contents);
+
+	        if ( !$parsed_header ) return false;
+
+	        $parsed_definitions = $this->parse_definitions($contents);
+
+	        if ( !$parsed_definitions ) return false;
+
+	        $parsed_data = $this->parse_data($contents);
+
+	        if ( !$parsed_data ) return false;
+		}
+
+		if ( empty($this->properties) )
+		{
+			$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
+
+			return false;
+		}
+	}
+
 	public function parse_and_import()
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
@@ -165,11 +314,6 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 			$this->clean_up_old_blms();
 		}
 
-		if ( $import_settings['format'] == 'blm_remote' )
-		{
-			$this->log( 'This is a BLM remote file' );
-		}
-
 		return true;
 	}
 
@@ -294,7 +438,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 	    return true;
 	}
 
-	private function import()
+	public function import()
 	{
 		global $wpdb;
 
@@ -2224,7 +2368,7 @@ class Houzez_Property_Feed_Format_Blm extends Houzez_Property_Feed_Process {
 		$this->import_end();
 	}
 
-	private function remove_old_properties()
+	public function remove_old_properties()
 	{
 		global $wpdb, $post;
 

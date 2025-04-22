@@ -33,7 +33,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 
 		if ( !isset($import_settings['property_id_field']) || ( isset($import_settings['property_id_field']) && empty($import_settings['property_id_field']) ) )
 		{
-			$this->log_error( 'Please ensure you have a field specified that we can use as the unique property identifer in the import setting under the \'Import Format\' tab and that is has a value set in the CSV' );
+			$this->log_error( 'Please ensure you have a field specified that we can use as the unique property identifier in the import setting under the \'Import Format\' tab and that it has a value set in the CSV' );
 			return false;
 		}
 
@@ -146,7 +146,7 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 
 			if ( empty($property_id) )
 			{
-				$this->log_error( 'Unique ID empty. Please ensure you have a field specified that we can use as the unique identifer in the import setting under the \'Import Format\' tab and that is has a value set in the CSV' );
+				$this->log_error( 'Unique ID empty. Please ensure you have a field specified that we can use as the unique identifier in the import setting under the \'Import Format\' tab and that is has a value set in the CSV' );
 				continue;
 			}
 

@@ -328,7 +328,7 @@ class Houzez_Property_Feed_Import {
                         }
                         if ( $field['id'] == 'property_node_options' || $field['id'] == 'property_field_options' )
                         {
-                            $field_value = stripslashes($field_value);
+                            $field_value = wp_unslash($field_value);
                         }
                         $import_options[$field['id']] = $field_value;
                     }
@@ -365,7 +365,7 @@ class Houzez_Property_Feed_Import {
 
                     foreach ( $sanitized_custom_mapping as $key => $custom_mapping )
                     {
-                        $custom_mapping = stripslashes($custom_mapping);
+                        $custom_mapping = wp_unslash($custom_mapping);
                         
                         if ( trim($custom_mapping) != '' )
                         {
@@ -772,7 +772,7 @@ class Houzez_Property_Feed_Import {
 
                             // check term exists and get termID as wp_set_object_terms() requires the ID
                             $term_id = '';
-                            if ( $taxonomy == 'property_feature' )
+                            if ( $taxonomy == 'property_feature' || $taxonomy == 'property_label' )
                             {
                                 // create if not exists
                                 $term = term_exists( $result, $taxonomy );

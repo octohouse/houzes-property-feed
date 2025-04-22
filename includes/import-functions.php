@@ -238,9 +238,14 @@ function houzez_property_feed_get_fields_for_field_mapping()
     $taxonomies = array(
         'property_type' => array( 'type' => 'taxonomy', 'label' => __( 'Property Type', 'houzez' ) ),
         'property_status' => array( 'type' => 'taxonomy', 'label' => __( 'Status', 'houzez' ) ),
-        'property_label' => array( 'type' => 'taxonomy', 'label' => __( 'Label', 'houzez' ) ),
+        'property_label' => array( 'type' => 'taxonomy', 'label' => __( 'Labels', 'houzez' ), 'delimited' => true ),
         'property_feature' => array( 'type' => 'taxonomy', 'label' => __( 'Property Features', 'houzez' ), 'delimited' => true ),
     );
+
+    for ( $i = 0; $i < apply_filters( 'houzez_property_feed_field_mapping_label_count', 10 ); ++$i )
+    {
+        $taxonomies['property_label[' . $i . ']'] = array( 'type' => 'taxonomy', 'label' => __( 'Label', 'houzez' ) . ' ' . ( $i + 1 ) );
+    }
 
     for ( $i = 0; $i < apply_filters( 'houzez_property_feed_field_mapping_feature_count', 10 ); ++$i )
     {
@@ -450,6 +455,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
             break;
         }
         case "blm_local":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-blm.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Blm( $instance_id, $import_id );
+
+            break;
+        }
+        case "blm_remote":
         {
             // includes
             require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-blm.php';

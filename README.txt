@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.7.2
-Stable tag: 2.5.12
-Version: 2.5.12
+Tested up to: 6.8
+Stable tag: 2.5.13
+Version: 2.5.13
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -141,6 +141,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.13 - 2025-04-22 =
+* Added support for importing BLMs from a remote URL, including those within a ZIP
+* Import locations in VaultEA format
+* Added support for mapping individual 'Property Labels' in 'Field Mapping' section of import settings
+* Correct typo
+* Declared compatibility with WordPress 6.8
 
 = 2.5.12 - 2025-04-09 =
 * Added ability to reorder the import field mappings

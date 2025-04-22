@@ -755,7 +755,7 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 				}
 
 				// Location taxonomies
-				/*$create_location_taxonomy_terms = isset( $import_settings['create_location_taxonomy_terms'] ) ? $import_settings['create_location_taxonomy_terms'] : false;
+				$create_location_taxonomy_terms = isset( $import_settings['create_location_taxonomy_terms'] ) ? $import_settings['create_location_taxonomy_terms'] : false;
 
 				$houzez_tax_settings = get_option('houzez_tax_settings', array() );
 				
@@ -778,10 +778,44 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 					$address_field_to_use = isset( $import_settings[$location_taxonomy . '_address_field'] ) ? $import_settings[$location_taxonomy . '_address_field'] : '';
 					if ( !empty($address_field_to_use) )
 					{
+						$property_address_field_value = '';
+						switch ($address_field_to_use)
+						{
+							case 'thoroughfare (UK only)':
+							{
+								$property_address_field_value = $property['address']['royalMail']['thoroughfare'];
+								break;
+							}
+							case 'thoroughfare2 (UK only)':
+							{
+								$property_address_field_value = $property['address']['royalMail']['thoroughfare2'];
+								break;
+							}
+							case 'posttown (UK only)':
+							{
+								$property_address_field_value = $property['address']['royalMail']['postTown'];
+								break;
+							}
+							case 'suburb_name (Non-UK only)':
+							{
+								$property_address_field_value = $property['address']['suburb']['name'];
+								break;
+							}
+							case 'suburb_district_name (Non-UK only)':
+							{
+								$property_address_field_value = $property['address']['suburb']['giDistrict']['name'];
+								break;
+							}
+							case 'state_name (Non-UK only)':
+							{
+								$property_address_field_value = $property['address']['state']['name'];
+								break;
+							}
+						}
 						$location_term_ids = array();
-						if ( isset($property['address'][$address_field_to_use]) && !empty($property['address'][$address_field_to_use]) )
+						if ( !empty($property_address_field_value) )
 		            	{
-		            		$term = term_exists( trim($property['address'][$address_field_to_use]), $location_taxonomy);
+		            		$term = term_exists( trim($property_address_field_value), $location_taxonomy);
 							if ( $term !== 0 && $term !== null && isset($term['term_id']) )
 							{
 								$location_term_ids[] = (int)$term['term_id'];
@@ -790,7 +824,7 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 							{
 								if ( $create_location_taxonomy_terms === true )
 								{
-									$term = wp_insert_term( trim($property['address'][$address_field_to_use]), $location_taxonomy );
+									$term = wp_insert_term( trim($property_address_field_value), $location_taxonomy );
 									if ( is_array($term) && isset($term['term_id']) )
 									{
 										$location_term_ids[] = (int)$term['term_id'];
@@ -807,7 +841,7 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 							wp_delete_object_term_relationships( $post_id, $location_taxonomy );
 						}
 					}
-				}*/
+				}
 
 				// Images
 				if ( 
