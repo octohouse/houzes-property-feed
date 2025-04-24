@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.13
-Version: 2.5.13
+Stable tag: 2.5.14
+Version: 2.5.14
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -141,6 +141,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.14 - 2025-04-24 =
+* New 'Hide properties with no images' setting (PRO feature)
+* Allow WP Post ID to be added as value when mapping fields using {wp_post_id}
+* Pass post ID to 'houzez_property_feed_xml_mapped_field_value' filter
 
 = 2.5.13 - 2025-04-22 =
 * Added support for importing BLMs from a remote URL, including those within a ZIP

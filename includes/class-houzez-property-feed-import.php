@@ -25,7 +25,7 @@ class Houzez_Property_Feed_Import {
         add_action( 'houzez_property_feed_property_imported', array( $this, 'set_generic_houzez_property_data'), 1, 3 );
         add_action( 'houzez_property_feed_property_imported', array( $this, 'clear_media_queue_when_images_stored_as_urls' ), 1, 3 );
 
-        add_filter( 'houzez_property_feed_xml_mapped_field_value', array( $this, 'get_xml_mapped_field_value' ), 1, 4 );
+        add_filter( 'houzez_property_feed_xml_mapped_field_value', array( $this, 'get_xml_mapped_field_value' ), 1, 5 );
         add_filter( 'houzez_property_feed_csv_mapped_field_value', array( $this, 'get_csv_mapped_field_value' ), 1, 4 );
 
         add_action( 'add_meta_boxes', array( $this, 'import_data_meta_box') );
@@ -746,6 +746,12 @@ class Houzez_Property_Feed_Import {
                             }
                         }
 
+                        // Cater for internal custom tags
+                        if ( empty($value_to_check) && $field_name == 'wp_post_id' )
+                        {
+                            $value_to_check = $post_id;
+                        }
+
                         $value_to_check = trim($value_to_check);
                         $result = str_replace($match, $value_to_check, $result);
                     }
@@ -1123,7 +1129,12 @@ class Houzez_Property_Feed_Import {
 
         if ( $update_post === true ) // Something about the post has changed
         {
-            wp_update_post($post_fields_to_update, TRUE);
+            $post_id = wp_update_post($post_fields_to_update, TRUE);
+
+            if ( is_wp_error( $post_id ) ) 
+            {
+                // should really do something here
+            }
         }
     }
 
@@ -1155,7 +1166,7 @@ class Houzez_Property_Feed_Import {
         }
     }
 
-    public function get_xml_mapped_field_value( $value, $property, $field_name, $import_id )
+    public function get_xml_mapped_field_value( $value, $property, $field_name, $import_id, $post_id = '' )
     {
         $import_settings = houzez_property_feed_get_import_settings_from_id( $import_id );
 

@@ -21,5 +21,12 @@
 
 			</td>
 		</tr>
+		<tr>
+			<th><label for="hide_properties_with_no_images"><?php echo __( 'Hide Properties With No Images From Frontend', 'houzezpropertyfeed' ); ?></label></th>
+			<td>
+				<input type="checkbox" name="hide_properties_with_no_images" id="hide_properties_with_no_images" value="yes"<?php if ( apply_filters( 'houzez_property_feed_pro_active', false ) === true && isset($options['hide_properties_with_no_images']) && $options['hide_properties_with_no_images'] === true ) { echo ' checked'; } ?><?php if ( apply_filters( 'houzez_property_feed_pro_active', false ) !== true ) { echo ' disabled'; } ?>>
+				<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/pro-label.php' ); ?>
+			</td>
+		</tr>
 	</tbody>
 </table>

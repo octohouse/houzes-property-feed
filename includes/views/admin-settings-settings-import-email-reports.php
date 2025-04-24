@@ -15,7 +15,7 @@
 		</tr>
 		<tr id="email_reports_to_row" style="display:none">
 			<th><label for="email_reports_to"><?php echo __( 'Email Reports To', 'houzezpropertyfeed' ); ?></label></th>
-			<td >
+			<td>
 				<input type="email" name="email_reports_to" id="email_reports_to" style="width:100%; max-width:400px;" value="<?php echo ( ( isset($options['email_reports_to']) && sanitize_email($options['email_reports_to']) != '' ) ? esc_attr(sanitize_email($options['email_reports_to'])) : get_option('admin_email') ) ?>">
 			</td>
 		</tr>
