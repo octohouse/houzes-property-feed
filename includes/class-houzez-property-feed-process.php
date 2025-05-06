@@ -261,6 +261,8 @@ class Houzez_Property_Feed_Process {
 
 		if ( !empty($import_refs) )
 		{
+			$this->ping(array('status' => 'removing'));
+
 			$imported_ref_key = ( ( $this->import_id != '' ) ? '_imported_ref_' . $this->import_id : '_imported_ref' );
 			$imported_ref_key = apply_filters( 'houzez_property_feed_property_imported_ref_key', $imported_ref_key, $this->import_id );
 

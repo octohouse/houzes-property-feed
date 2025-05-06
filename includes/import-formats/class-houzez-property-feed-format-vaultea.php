@@ -611,6 +611,16 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 		            					$value_in_feed_to_check = $property['branch']['name'];
 		            					break;
 		            				}
+		            				case "contact_staff_id":
+		            				{
+		            					$value_in_feed_to_check = isset($property['contactStaff'][0]['id']) ? $property['contactStaff'][0]['id'] : '';
+		            					break;
+		            				}
+		            				case "contact_staff_name":
+		            				{
+		            					$value_in_feed_to_check = isset($property['contactStaff'][0]['firstName']) ? trim($property['contactStaff'][0]['firstName'] . ' ' . $property['contactStaff'][0]['lastName']) : '';
+		            					break;
+		            				}
 		            			}
 
 		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
@@ -641,6 +651,16 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 		            					$value_in_feed_to_check = $property['branch']['name'];
 		            					break;
 		            				}
+		            				case "contact_staff_id":
+		            				{
+		            					$value_in_feed_to_check = isset($property['contactStaff'][0]['id']) ? $property['contactStaff'][0]['id'] : '';
+		            					break;
+		            				}
+		            				case "contact_staff_name":
+		            				{
+		            					$value_in_feed_to_check = isset($property['contactStaff'][0]['firstName']) ? trim($property['contactStaff'][0]['firstName'] . ' ' . $property['contactStaff'][0]['lastName']) : '';
+		            					break;
+		            				}
 		            			}
 
 		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
@@ -661,6 +681,16 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 		            				case "branch_name":
 		            				{
 		            					$value_in_feed_to_check = $property['branch']['name'];
+		            					break;
+		            				}
+		            				case "contact_staff_id":
+		            				{
+		            					$value_in_feed_to_check = isset($property['contactStaff'][0]['id']) ? $property['contactStaff'][0]['id'] : '';
+		            					break;
+		            				}
+		            				case "contact_staff_name":
+		            				{
+		            					$value_in_feed_to_check = isset($property['contactStaff'][0]['firstName']) ? trim($property['contactStaff'][0]['firstName'] . ' ' . $property['contactStaff'][0]['lastName']) : '';
 		            					break;
 		            				}
 		            			}

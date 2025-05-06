@@ -2990,6 +2990,8 @@ function houzez_property_feed_get_import_formats()
             ),
             'contact_information_fields' => array(
                 'branch_name',
+                'contact_staff_id',
+                'contact_staff_name',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/vaultea/'
         ),

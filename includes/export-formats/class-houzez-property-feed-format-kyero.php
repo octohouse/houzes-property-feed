@@ -105,7 +105,7 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
             {
                 $properties_query->the_post();
 
-                $post_id = $post;
+                $post_id = get_the_ID();
 
                 $this->log("Doing property", '', $post_id);
 

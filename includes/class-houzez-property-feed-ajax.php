@@ -314,6 +314,10 @@ class Houzez_Property_Feed_Ajax {
                             $failed = $import_id;
                         }
                     }
+                    elseif ( isset($decoded_status['status']) && $decoded_status['status'] == 'removing' )
+                    {
+                        $status = '<br>Removing properties';
+                    }
                     elseif ( isset($decoded_status['status']) && $decoded_status['status'] == 'finished' )
                     {
                         $status = 'finished';
