@@ -634,12 +634,31 @@ class Houzez_Property_Feed_Import {
                     $xpath = ( ( !empty($property_node) ) ? '/' : '' ) . $property_node . $rule['field'];
                     $values_to_check = $original_property->xpath( $xpath );
 
-                    if ( $values_to_check === FALSE || empty($values_to_check) )
+                    if ( $values_to_check === FALSE )
                     {
+                        // Will return false if invalid xpath syntax
                         continue;
                     }
 
                     $found = false;
+
+                    if ( empty($values_to_check) )
+                    {
+                        // xpath syntax ok but field doesn't exist
+                        if ( isset($rule['operator']) && $rule['operator'] == 'not_exists' )
+                        {
+                            $found = true;
+                        }
+                    }
+                    else
+                    {
+                        // xpath syntax ok but field doesn't exist
+                        if ( isset($rule['operator']) && $rule['operator'] == 'exists' )
+                        {
+                            $found = true;
+                        }
+                    }
+
                     foreach ( $values_to_check as $value_to_check )
                     {
                         if ( $rule['equal'] == '*' )
@@ -664,6 +683,18 @@ class Houzez_Property_Feed_Import {
                         {
                             $found = true;
                         }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'begins' ) && strncmp(trim($value_to_check), $rule['equal'], strlen($rule['equal'])) === 0
+                        )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'ends' ) && substr(trim($value_to_check), -strlen($rule['equal'])) === $rule['equal']
+                        )
+                        {
+                            $found = true;
+                        }
                     }
                     if ( $found )
                     {
@@ -677,13 +708,26 @@ class Houzez_Property_Feed_Import {
                     {
                         $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
 
+                        $found = false;
+
                         if ( $value_to_check === false )
                         {
-                            continue;
+                            // field not found
+                            if ( isset($rule['operator']) && $rule['operator'] == 'not_exists' )
+                            {
+                                $found = true;
+                            }
+                            else
+                            {
+                                continue;
+                            }
                         }
 
-                        $found = false;
-                    
+                        if ( isset($rule['operator']) && $rule['operator'] == 'exists' )
+                        {
+                            $found = true;
+                        }
+
                         if ( $rule['equal'] == '*' )
                         {
                             $found = true;
@@ -702,6 +746,18 @@ class Houzez_Property_Feed_Import {
                         }
                         elseif (
                             ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos(trim($value_to_check), $rule['equal']) !== false
+                        )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'begins' ) && strncmp(trim($value_to_check), $rule['equal'], strlen($rule['equal'])) === 0
+                        )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'ends' ) && substr(trim($value_to_check), -strlen($rule['equal'])) === $rule['equal']
                         )
                         {
                             $found = true;
@@ -1206,12 +1262,30 @@ class Houzez_Property_Feed_Import {
                         // Using XPATH syntax
                         $values_to_check = $property->xpath('/' . $property_node . $rule['field']);
 
-                        if ( $values_to_check === FALSE || empty($values_to_check) )
+                        if ( $values_to_check === FALSE )
                         {
                             continue;
                         }
 
                         $found = false;
+
+                        if ( empty($values_to_check) )
+                        {
+                            // xpath syntax ok but field doesn't exist
+                            if ( isset($rule['operator']) && $rule['operator'] == 'not_exists' )
+                            {
+                                $found = true;
+                            }
+                        }
+                        else
+                        {
+                            // xpath syntax ok but field doesn't exist
+                            if ( isset($rule['operator']) && $rule['operator'] == 'exists' )
+                            {
+                                $found = true;
+                            }
+                        }
+
                         foreach ( $values_to_check as $value_to_check )
                         {
                             if ( $rule['equal'] == '*' )
@@ -1232,6 +1306,18 @@ class Houzez_Property_Feed_Import {
                             }
                             elseif (
                                 ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos($value_to_check, $rule['equal']) !== false
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'begins' ) && strncmp(trim($value_to_check), $rule['equal'], strlen($rule['equal'])) === 0
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'ends' ) && substr(trim($value_to_check), -strlen($rule['equal'])) === $rule['equal']
                             )
                             {
                                 $found = true;
@@ -1308,13 +1394,25 @@ class Houzez_Property_Feed_Import {
                 $rules_met = 0;
                 foreach ( $and_rules['rules'] as $i => $rule )
                 {
+                    $found = false;
+
                     $value_to_check = '';
                     if ( isset($property[$rule['field']]) )
                     {
+                        if ( isset($rule['operator']) && $rule['operator'] == 'exists' )
+                        {
+                            $found = true;
+                        }
+
                         $value_to_check = $property[$rule['field']];
                     }
-
-                    $found = false;
+                    else
+                    {
+                        if ( isset($rule['operator']) && $rule['operator'] == 'not_exists' )
+                        {
+                            $found = true;
+                        }
+                    }
                     
                     if ( $rule['equal'] == '*' )
                     {
@@ -1334,6 +1432,18 @@ class Houzez_Property_Feed_Import {
                     }
                     elseif (
                         ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos($value_to_check, $rule['equal']) !== false
+                    )
+                    {
+                        $found = true;
+                    }
+                    elseif (
+                        ( isset($rule['operator']) && $rule['operator'] == 'begins' ) && strncmp(trim($value_to_check), $rule['equal'], strlen($rule['equal'])) === 0
+                    )
+                    {
+                        $found = true;
+                    }
+                    elseif (
+                        ( isset($rule['operator']) && $rule['operator'] == 'ends' ) && substr(trim($value_to_check), -strlen($rule['equal'])) === $rule['equal']
                     )
                     {
                         $found = true;

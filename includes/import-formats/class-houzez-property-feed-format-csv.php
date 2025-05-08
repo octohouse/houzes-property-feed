@@ -37,6 +37,27 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 			return false;
 		}
 
+		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            $pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+            
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
+        }
+
 		$contents = '';
 
 		$args = array( 'timeout' => 360, 'sslverify' => false );
@@ -66,13 +87,21 @@ class Houzez_Property_Feed_Format_Csv extends Houzez_Property_Feed_Process {
 		$fields = array(); 
 		$i = 0;
 
-		while ( ($row = fgetcsv($temp, 10000, ( isset($import_settings['csv_delimiter']) ? $import_settings['csv_delimiter'] : ',' ))) !== false ) 
+		$csv_row_length = apply_filters( 'houzez_property_feed_csv_row_length', 100000 );
+
+		while ( ($row = fgetcsv($temp, $csv_row_length, ( isset($import_settings['csv_delimiter']) ? $import_settings['csv_delimiter'] : ',' ))) !== false ) 
 		{
 	        if ( empty($fields) ) 
 	        {
 	            $fields = $row;
 	            continue;
 	        }
+
+	        if ( $limit !== FALSE && count($this->properties) >= $limit )
+            {
+                return true;
+            }
+
 	        foreach ( $row as $k => $value ) 
 	        {
 	        	if ( !isset($this->properties[$i]) ) { $this->properties[$i] = array(); }

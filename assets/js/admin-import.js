@@ -557,6 +557,20 @@ jQuery(document).ready(function()
 		hpf_show_already_mapped_warning();
 	});
 
+	jQuery('body').on('change', 'select[name*=\'[operator]\']', function()
+	{
+		if ( jQuery(this).val() == 'exists' || jQuery(this).val() == 'not_exists' )
+		{
+			jQuery(this).next('input').hide();
+		}
+		else
+		{
+			jQuery(this).next('input').show();
+		}
+
+		build_field_mapping_rule_accordions();
+	});
+
 	jQuery('body').on('change', 'input[name*=\'[delimited]\']', function()
 	{
 		if ( jQuery(this).is(':checked') )
@@ -854,14 +868,16 @@ function build_field_mapping_rule_accordions()
 
 				rule_description += '<span><code>' + field_in_feed + '</code></span>';
 
-				rule_description += '<span>is</span>';
-
 				var operator = jQuery(this).find('.and-rules .or-rule').eq(0).find('select[name*=\'field_mapping_rules\'][name*=\'[operator]\'] option:selected').text();
 				rule_description += '<span><code>' + operator + '</code></span>';
 
-				var value_in_feed = jQuery(this).find('.and-rules .or-rule').eq(0).find('input[name*=\'field_mapping_rules\'][name*=\'[equal]\']').val();
-				if ( value_in_feed == '' ) { value_in_feed = '<em>(no value specified)</em>'; }
-				rule_description += '<span><code>' + value_in_feed + '</code></span>';
+				var operator = jQuery(this).find('.and-rules .or-rule').eq(0).find('select[name*=\'field_mapping_rules\'][name*=\'[operator]\'] option:selected').val();
+				if ( operator != 'exists' && operator != 'not_exists' )
+				{
+					var value_in_feed = jQuery(this).find('.and-rules .or-rule').eq(0).find('input[name*=\'field_mapping_rules\'][name*=\'[equal]\']').val();
+					if ( value_in_feed == '' ) { value_in_feed = '<em>(no value specified)</em>'; }
+					rule_description += '<span><code>' + value_in_feed + '</code></span>';
+				}
 
 				var num_or_rules = jQuery(this).find('.and-rules .or-rule').length;
 				if ( num_or_rules > 1 )
@@ -1227,6 +1243,9 @@ function add_field_mapping_or_rule()
 		{ 
 			jQuery(this).val('');
 		});
+		jQuery("#field_mapping_rule_template select[name=\'field_mapping_rules[{rule_count}][operator][]\']").val('=');
+		jQuery("#field_mapping_rule_template input[name=\'field_mapping_rules[{rule_count}][equal][]\']").show();
+		jQuery("#field_mapping_rule_template .already-mapped-warning").hide();
 
 		jQuery('input[name*=\'field_mapping_rules\'][name*=\'[field]\']').droppable({
 		    drop: function (event, ui) {

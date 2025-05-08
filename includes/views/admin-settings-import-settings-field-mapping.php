@@ -65,12 +65,16 @@
 									field in <span class="hpf-import-format-name"></span> feed
 								</div>
 								<div>
-									Is <select name="field_mapping_rules[<?php echo $i; ?>][operator][]">
-										<option value="="<?php if ( !isset($or_rule['operator']) || ( isset($or_rule['operator']) && $or_rule['operator'] == '=' ) ) { echo ' selected'; } ?>>equal to</option>
-										<option value="!="<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == '!=' ) { echo ' selected'; } ?>>not equal to</option>
-										<option value="like"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'like' ) { echo ' selected'; } ?>>contains</option>
+									<select name="field_mapping_rules[<?php echo $i; ?>][operator][]">
+										<option value="="<?php if ( !isset($or_rule['operator']) || ( isset($or_rule['operator']) && $or_rule['operator'] == '=' ) ) { echo ' selected'; } ?>>Is equal to</option>
+										<option value="!="<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == '!=' ) { echo ' selected'; } ?>>Is not equal to</option>
+										<option value="like"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'like' ) { echo ' selected'; } ?>>Contains</option>
+										<option value="begins"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'begins' ) { echo ' selected'; } ?>>Begins with</option>
+										<option value="ends"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'ends' ) { echo ' selected'; } ?>>Ends with</option>
+										<option value="exists"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'exists' ) { echo ' selected'; } ?>>Exists</option>
+										<option value="not_exists"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'not_exists' ) { echo ' selected'; } ?>>Does not exist</option>
 									</select>
-									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard">
+									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard"<?php if ( isset($or_rule['operator']) && in_array($or_rule['operator'], array('exists', 'not_exists')) ) { echo ' style="display:none"'; } ?>>
 								</div>
 								<div class="rule-actions">
 									<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a><a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
@@ -169,10 +173,14 @@
 							field in <span class="hpf-import-format-name"></span> feed
 						</div>
 						<div>
-							Is <select name="field_mapping_rules[{rule_count}][operator][]">
-								<option value="=">equal to</option>
-								<option value="!=">not equal to</option>
-								<option value="like">contains</option>
+							<select name="field_mapping_rules[{rule_count}][operator][]">
+								<option value="=">Is equal to</option>
+								<option value="!=">Is not equal to</option>
+								<option value="like">Contains</option>
+								<option value="begins">Begins with</option>
+								<option value="ends">Ends with</option>
+								<option value="exists">Exists</option>
+								<option value="not_exists">Does not exist</option>
 							</select>
 							<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
 						</div>

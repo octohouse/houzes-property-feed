@@ -61,8 +61,8 @@ function houzez_property_feed_get_fields_for_field_mapping()
     $houzez_fields = array(
         // Post Fields
         'post_title' => array( 'type' => 'post_field', 'label' => __( 'Post Title', 'houzez' ) ),
-        'post_excerpt' => array( 'type' => 'post_field', 'label' => __( 'Post Excerpt', 'houzez' ) ),
-        'post_content' => array( 'type' => 'post_field', 'label' => __( 'Post Content', 'houzez' ) ),
+        'post_excerpt' => array( 'type' => 'post_field', 'label' => __( 'Post Excerpt / Summary Description', 'houzez' ) ),
+        'post_content' => array( 'type' => 'post_field', 'label' => __( 'Post Content / Full Description', 'houzez' ) ),
         'post_status' => array( 'type' => 'post_field', 'label' => __( 'Post Status', 'houzez' ), 'options' => array( 'publish' => __( 'Publish', 'houzezpropertyfeed' ), 'private' => __( 'Private', 'houzezpropertyfeed' ), 'draft' => __( 'Draft', 'houzezpropertyfeed' ) ) ),
         'post_name' => array( 'type' => 'post_field', 'label' => __( 'Post URL / Permalink', 'houzez' ) ),
         // Houzez Fields
