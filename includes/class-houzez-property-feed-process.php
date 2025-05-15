@@ -524,7 +524,7 @@ class Houzez_Property_Feed_Process {
 
 		foreach ( $metadata_after as $key => $value)
 		{
-			if ( in_array($key, array('fave_property_images', 'floor_plans', 'fave_attachments', 'fave_floor_plans_enable', '_property_import_data', '_property_import_data_time')) )
+			if ( in_array($key, array('has_images', 'fave_property_images', 'floor_plans', 'fave_attachments', 'fave_floor_plans_enable', '_property_import_data', '_property_import_data_time')) )
 			{
 				continue;
 			}

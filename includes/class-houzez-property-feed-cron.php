@@ -14,7 +14,7 @@ class Houzez_Property_Feed_Cron {
         add_action( 'admin_init', array( $this, 'check_for_manually_run_import') );
         add_action( 'admin_init', array( $this, 'check_for_manually_run_export') );
 
-        add_action( 'admin_init', array( $this, 'check_cron_is_scheduled'), 99 );
+        add_action( 'admin_init', array( $this, 'check_crons_are_scheduled'), 99 );
 
         add_filter( 'cron_schedules', array( $this, 'custom_cron_recurrence' ) );
 
@@ -177,7 +177,7 @@ class Houzez_Property_Feed_Cron {
         }
     }
 
-    public function check_cron_is_scheduled()
+    public function check_crons_are_scheduled()
     {
         $schedule = wp_get_schedule( 'houzezpropertyfeedcronhook' );
 
@@ -190,6 +190,32 @@ class Houzez_Property_Feed_Cron {
             
             $next_schedule = time() - 60;
             wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_cron_frequency', 'every_five_minutes' ), 'houzezpropertyfeedcronhook' );
+        }
+
+        $schedule = wp_get_schedule( 'houzezpropertyfeedreconcilecronhook' );
+
+        if ( $schedule === FALSE )
+        {
+            // Hmm... cron job not found. Let's set it up
+            $timestamp = wp_next_scheduled( 'houzezpropertyfeedreconcilecronhook' );
+            wp_unschedule_event($timestamp, 'houzezpropertyfeedreconcilecronhook' );
+            wp_clear_scheduled_hook('houzezpropertyfeedreconcilecronhook');
+            
+            $next_schedule = time() - 60;
+        wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_reconcile_cron_frequency', 'twicedaily' ), 'houzezpropertyfeedreconcilecronhook' );
+        }
+
+        $schedule = wp_get_schedule( 'houzezpropertyfeeddeleteoldattachments' );
+
+        if ( $schedule === FALSE )
+        {
+            // Hmm... cron job not found. Let's set it up
+            $timestamp = wp_next_scheduled( 'houzezpropertyfeeddeleteoldattachments' );
+            wp_unschedule_event($timestamp, 'houzezpropertyfeeddeleteoldattachments' );
+            wp_clear_scheduled_hook('houzezpropertyfeeddeleteoldattachments');
+            
+            $next_schedule = time() - 60;
+            wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_delete_attachments_cron_frequency', 'hourly' ), 'houzezpropertyfeeddeleteoldattachments' );
         }
     }
 

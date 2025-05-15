@@ -84,6 +84,10 @@ class Houzez_Property_Feed_Install {
 		wp_unschedule_event($timestamp, 'houzezpropertyfeedreconcilecronhook' );
 		wp_clear_scheduled_hook('houzezpropertyfeedreconcilecronhook');
 
+		$timestamp = wp_next_scheduled( 'houzezpropertyfeeddeleteoldattachments' );
+		wp_unschedule_event($timestamp, 'houzezpropertyfeeddeleteoldattachments' );
+		wp_clear_scheduled_hook('houzezpropertyfeeddeleteoldattachments');
+
 	}
 
 	/**
@@ -104,7 +108,8 @@ class Houzez_Property_Feed_Install {
 	 *
 	 * @access public
 	 */
-    public function create_cron() {
+    public function create_cron() 
+    {
         $timestamp = wp_next_scheduled( 'houzezpropertyfeedcronhook' );
         wp_unschedule_event($timestamp, 'houzezpropertyfeedcronhook' );
         wp_clear_scheduled_hook('houzezpropertyfeedcronhook');
@@ -118,6 +123,13 @@ class Houzez_Property_Feed_Install {
 
         $next_schedule = time() - 60;
         wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_reconcile_cron_frequency', 'twicedaily' ), 'houzezpropertyfeedreconcilecronhook' );
+
+        $timestamp = wp_next_scheduled( 'houzezpropertyfeeddeleteoldattachments' );
+        wp_unschedule_event($timestamp, 'houzezpropertyfeeddeleteoldattachments' );
+        wp_clear_scheduled_hook('houzezpropertyfeeddeleteoldattachments');
+
+        $next_schedule = time() - 60;
+        wp_schedule_event( $next_schedule, apply_filters( 'houzez_property_feed_delete_attachments_cron_frequency', 'hourly' ), 'houzezpropertyfeeddeleteoldattachments' );
     }
 
     /**
