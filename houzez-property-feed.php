@@ -3,7 +3,7 @@
  * Plugin Name: Houzez Property Feed
  * Plugin Uri: https://houzezpropertyfeed.com
  * Description: Automatically import properties to Houzez from estate agency CRMs and export to portals
- * Version: 2.5.18
+ * Version: 2.5.19
  * Author: PropertyHive
  * Author URI: https://wp-property-hive.com
  * License: GPLv3
@@ -19,7 +19,7 @@ final class Houzez_Property_Feed {
     /**
      * @var string
      */
-    public $version = '2.5.18';
+    public $version = '2.5.19';
 
     /**
      * @var Houzez Property Feed The single instance of the class
@@ -91,18 +91,21 @@ final class Houzez_Property_Feed {
         include_once( 'includes/export-formats/class-houzez-property-feed-format-rtdf.php' );
         include_once( 'includes/export-formats/class-houzez-property-feed-format-zoopla.php' );
 
-        include_once( 'lib/jsonpath/JSONPath.php' );
-        include_once( 'lib/jsonpath/JSONPathException.php' );
-        include_once( 'lib/jsonpath/JSONPathLexer.php' );
-        include_once( 'lib/jsonpath/JSONPathToken.php' );
-        include_once( 'lib/jsonpath/AccessHelper.php' );
-        include_once( 'lib/jsonpath/Filters/AbstractFilter.php' );
-        include_once( 'lib/jsonpath/Filters/IndexesFilter.php' );
-        include_once( 'lib/jsonpath/Filters/IndexFilter.php' );
-        include_once( 'lib/jsonpath/Filters/QueryMatchFilter.php' );
-        include_once( 'lib/jsonpath/Filters/QueryResultFilter.php' );
-        include_once( 'lib/jsonpath/Filters/RecursiveFilter.php' );
-        include_once( 'lib/jsonpath/Filters/SliceFilter.php' );
+        if ( version_compare(PHP_VERSION, '8.0', '>=') ) 
+        {
+            include_once( 'lib/jsonpath/JSONPath.php' );
+            include_once( 'lib/jsonpath/JSONPathException.php' );
+            include_once( 'lib/jsonpath/JSONPathLexer.php' );
+            include_once( 'lib/jsonpath/JSONPathToken.php' );
+            include_once( 'lib/jsonpath/AccessHelper.php' );
+            include_once( 'lib/jsonpath/Filters/AbstractFilter.php' );
+            include_once( 'lib/jsonpath/Filters/IndexesFilter.php' );
+            include_once( 'lib/jsonpath/Filters/IndexFilter.php' );
+            include_once( 'lib/jsonpath/Filters/QueryMatchFilter.php' );
+            include_once( 'lib/jsonpath/Filters/QueryResultFilter.php' );
+            include_once( 'lib/jsonpath/Filters/RecursiveFilter.php' );
+            include_once( 'lib/jsonpath/Filters/SliceFilter.php' );
+        }
 
         if ( is_admin() ) 
         {

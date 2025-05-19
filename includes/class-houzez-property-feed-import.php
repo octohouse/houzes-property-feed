@@ -708,7 +708,7 @@ class Houzez_Property_Feed_Import {
                     {
                         $found = false;
 
-                        if ( substr($rule['field'], 0, 2) == '$.' )
+                        if ( substr($rule['field'], 0, 2) == '$.' && version_compare(PHP_VERSION, '8.0', '>=') )
                         {
                             // JSONPath syntax
 
@@ -864,7 +864,7 @@ class Houzez_Property_Feed_Import {
                         }
                         else
                         {
-                            if ( substr($field_name, 0, 2) == '$.' )
+                            if ( substr($field_name, 0, 2) == '$.' && version_compare(PHP_VERSION, '8.0', '>=') )
                             {
                                 // JSONPath syntax
                                 $back_to_json = json_encode($property);
