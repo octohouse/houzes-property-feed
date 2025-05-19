@@ -23,10 +23,12 @@ function houzez_property_feed_import_fatal_handler() {
 			$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
 			$current_date = $current_date->format("Y-m-d H:i:s");
 
+			$instance_id = isset($instance_id) && !empty($instance_id) ? $instance_id : 0;
+
 			$wpdb->insert(
 				$wpdb->prefix . "houzez_property_feed_logs_instance_log",
 				array(
-					'instance_id' => ( !empty($instance_id) ? $instance_id : 0 ),
+					'instance_id' => $instance_id,
 					'post_id' => 0,
 					'crm_id' => '',
 					'severity' => 1,

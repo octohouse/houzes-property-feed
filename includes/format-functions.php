@@ -2956,7 +2956,7 @@ function houzez_property_feed_get_import_formats()
                 array(
                     'type' => 'html',
                     'label' => '',
-                    'html' => 'Please note: VaultEA have strict rate limiting on API calls. If you experience issues with imports timing out it\'s possible you\'ll need to increase the timeout limit on your server'
+                    'html' => 'Please note: VaultEA/VaultRE have strict rate limiting on API calls. If you experience issues with imports timing out it\'s possible you\'ll need to increase the timeout limit on your server'
                 ),
             ),
             'address_fields' => array( 'thoroughfare (UK only)', 'thoroughfare2 (UK only)', 'posttown (UK only)', 'suburb_name (Non-UK only)', 'suburb_district_name (Non-UK only)', 'state_name (Non-UK only)' ),

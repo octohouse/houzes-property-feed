@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.17
-Version: 2.5.17
+Stable tag: 2.5.18
+Version: 2.5.18
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -141,6 +141,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.18 - 2025-05-19 =
+* Support for JSONPath syntax when adding field mapping rules to feeds sent in JSON format (i.e. $.attributes.bedrooms)
 
 = 2.5.17 - 2025-05-15 =
 * Added new hourly cron to delete old attachments in batches of 100. Actual functionality in PRO
