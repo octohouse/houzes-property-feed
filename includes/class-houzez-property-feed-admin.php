@@ -962,7 +962,7 @@ class Houzez_Property_Feed_Admin {
                     {
                         $output .= ' selected';
                     }
-                    $output .= '>' . esc_html( isset($format['name']) ? $format['name'] : '-' );
+                    $output .= '>' . esc_html( isset($format['name']) ? $format['name'] : '-' ) . ( isset($import['custom_name']) && !empty($import['custom_name']) ? ' (' . $import['custom_name'] . ')' : '' );
                     $output .= ' (' . esc_html($key) . ')';
                     if ( isset($imports[$key]['deleted']) && $imports[$key]['deleted'] === true )
                     {

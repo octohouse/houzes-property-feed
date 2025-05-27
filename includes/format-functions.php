@@ -1130,7 +1130,7 @@ function houzez_property_feed_get_import_formats()
             'fields' => array(
                 array(
                     'id' => 'xml_url',
-                    'label' => __( 'XML URL', 'houzezpropertyfeed' ),
+                    'label' => __( 'XML/ZIP URL', 'houzezpropertyfeed' ),
                     'type' => 'text',
                     'placeholder' => 'https://',
                 )

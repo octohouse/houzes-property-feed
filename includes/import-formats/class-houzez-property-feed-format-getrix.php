@@ -36,14 +36,114 @@ class Houzez_Property_Feed_Format_Getrix extends Houzez_Property_Feed_Process {
 
 		$contents = '';
 
+		$wp_upload_dir = wp_upload_dir();
+	    $uploads_dir_ok = true;
+	    if ( $wp_upload_dir['error'] !== FALSE )
+	    {
+	        $this->log_error("Unable to create uploads folder. Please check permissions");
+	        return false;
+	    }
+
+		$local_directory = $wp_upload_dir['basedir'] . '/houzez_property_feed_import/' . $import_id . '/';
+
 		$response = wp_remote_get( $import_settings['xml_url'], array( 'timeout' => 360, 'sslverify' => false ) );
+
 		if ( !is_wp_error($response) && is_array( $response ) ) 
 		{
-			$contents = $response['body'];
+			if ( ! @file_exists($local_directory) )
+			{
+				if ( ! @mkdir($local_directory) )
+				{
+					 $this->log_error("Unable to create directory " . $local_directory);
+					 return false;
+				}
+			}
+			else
+			{
+				if ( ! @is_writeable($local_directory) )
+				{
+					 $this->log_error("Directory " . $local_directory . " isn't writeable");
+					 return false;
+				}
+			}
+
+			// Remote file is a zip file
+			if ( 
+				wp_remote_retrieve_header( $response, 'content-type' ) == 'application/zip' || 
+				wp_remote_retrieve_header( $response, 'content-type' ) == 'application/x-zip-compressed'
+			)
+			{
+				$zip_file = $local_directory . 'xml_properties.zip';
+
+				$handle = @fopen($zip_file, 'w+');
+				if ($handle)
+				{
+					$zip_contents = $response['body'];
+
+					// Write the remote zip file to a local zip file
+					fwrite($handle, $zip_contents);
+					fclose($handle);
+
+					if ( !class_exists('ZipArchive') ) 
+					{ 
+						$this->log_error('The ZipArchive class does not exist but is needed to extract the zip files provided'); 
+						return false;
+					}
+
+					$this->log_error( 'Extracting ZIP file contents' );
+
+					// Unzip local zip file, then remove it
+					$zip = new ZipArchive;
+					if ($zip->open($zip_file) === TRUE)
+					{
+						$zip->extractTo($local_directory);
+						$zip->close();
+					}
+
+					unlink($zip_file);
+
+					// Loop through files to find the XML and save the contents to $contents
+					// If any media files are in the zip, they will get saved to the local directory
+					foreach (scandir($local_directory) as $unzipped_file)
+					{
+						if ( $unzipped_file != "." && $unzipped_file != ".." )
+						{
+							if ( substr(strtolower($unzipped_file), -3) == 'xml' )
+							{
+								$contents = file_get_contents($local_directory . $unzipped_file);
+								break;
+							}
+						}
+					}
+
+					if ( $contents == '' )
+					{
+						$this->log_error( 'No XML file found in target ZIP' );
+						return false;
+					}
+
+					foreach (scandir( $local_directory ) as $file)
+					{
+						if ( substr(strtolower($file), -3) == 'xml' )
+						{
+							unlink($local_directory . $file);
+						}
+					}
+				}
+				else
+				{
+					$this->log_error( "Failed to write ZIP file locally. Please check file permissions" );
+					return false;
+				}
+			}
+			else
+			{
+				$contents = $response['body'];
+			}
 		}
 		else
 		{
-			$this->log_error( "Failed to obtain XML. Dump of response as follows: " . print_r($response, TRUE) );
+			$this->log_error( "Failed to obtain ZIP. Dump of response as follows: " . print_r($response, TRUE) );
 
         	return false;
 		}

@@ -7,18 +7,17 @@ var hpf_original_document_field = ''; // used for CSV format, comma-delimited do
 var hpf_draw_table_timeout;
 var hpf_status_timeout;
 
-function hpf_click_run_now(link)
+function hpf_click_run_now()
 {
-    if (!link.dataset.clicked) {
-        link.dataset.clicked = true;
-        link.style.pointerEvents = 'none';
-        link.style.opacity = '0.5';
-        link.textContent = 'Processing...';
+	// One of the 'Run now' links/buttons has been clicked
+	jQuery('a.link-manually-execute-import').text('Processing...');
+	jQuery('a.link-manually-execute-import').css('pointerEvents', 'none');
 
-        hpf_draw_table_timeout = setTimeout( function() { hpf_draw_automatic_imports_table(); }, 1000 );
-    } else {
-        return false;
-    }
+	jQuery('a.button-manually-execute').text('Processing...');
+	jQuery('a.button-manually-execute').css('pointerEvents', 'none');
+	jQuery('a.button-manually-execute').css('opacity', '0.5');
+
+	hpf_draw_table_timeout = setTimeout( function() { hpf_draw_automatic_imports_table(); }, 1000 );
 }
 
 function hpf_draw_automatic_imports_table()
@@ -95,8 +94,12 @@ function hpf_show_running_status()
 			    		{
 				    		jQuery('.running-now-status[data-import-id="' + key + '"]').html(status);
 
-				    		if ( status.indexOf('Importing') !== false || status.indexOf('Parsing') !== false )
+				    		if ( status.indexOf('Importing') !== false || status.indexOf('Parsing') !== false || status.indexOf('Removing') !== false )
 				    		{
+				    			jQuery('.link-manually-execute-import').css({
+				    				'pointerEvents': 'none',
+				    			}).text('Processing...');
+
 				    			jQuery('.button-manually-execute').css({
 				    				'pointerEvents': 'none',
 				    				'opacity': 0.5

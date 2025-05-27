@@ -180,6 +180,7 @@ class Houzez_Property_Feed_Import {
             'property_area_address_field' => ( isset($_POST['property_area_address_field']) ) ? sanitize_text_field(wp_unslash($_POST['property_area_address_field'])) : true,
             'property_state_address_field' => ( isset($_POST['property_state_address_field']) ) ? sanitize_text_field(wp_unslash($_POST['property_state_address_field'])) : true,
             'agent_display_option' => $agent_display_option,
+            'custom_name' => ( isset($_POST['custom_name']) ? sanitize_text_field(wp_unslash($_POST['custom_name'])) : '' ),
             'limit' => ( isset($_POST['limit']) && !empty((int)$_POST['limit']) ? (int)$_POST['limit'] : '' ),
             'limit_images' => ( isset($_POST['limit_images']) && !empty((int)$_POST['limit_images']) ? (int)$_POST['limit_images'] : '' ),
         );

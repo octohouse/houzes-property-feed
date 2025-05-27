@@ -102,7 +102,7 @@
 					
 					$nonce = wp_create_nonce('houzez_property_feed_import');
 
-					echo '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&custom_property_import_cron=houzezpropertyfeedcronhook&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format . '&_wpnonce=' . $nonce) . '" class="button button-manually-execute" onclick="hpf_click_run_now(this);" rel="nofollow noopener noreferrer">Manually Execute Import</a>';
+					echo '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&custom_property_import_cron=houzezpropertyfeedcronhook&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format . '&_wpnonce=' . $nonce) . '" class="button button-manually-execute" onclick="hpf_click_run_now();" rel="nofollow noopener noreferrer">Manually Execute Import</a>';
 				}
 			}
 			else
