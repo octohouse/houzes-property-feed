@@ -822,7 +822,8 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 								$url = $image['media_url'];
 								$description = '';
 							    
-								$filename = basename( $url );
+								$explode_url = explode('?', $url);
+								$filename = basename( $explode_url[0] );
 
 								// Check, based on the URL, whether we have previously imported this media
 								$imported_previously = false;
@@ -1130,7 +1131,6 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 
 				$this->log( 'Imported ' . count($media_ids) . ' brochures (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
 				
-
 				$virtual_tours = array();
 				if ( isset($property['media']) && is_array($property['media']) && !empty($property['media']) )
 				{

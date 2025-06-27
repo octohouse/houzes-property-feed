@@ -82,7 +82,7 @@ class Houzez_Property_Feed_Cron {
                     {
                         if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
                         {
-                            wp_redirect( admin_url( $redirect_url . '&hpferrormessage=' . __( "There has been activity within the past 5 minutes on an unfinished import. To prevent multiple imports running at the same time and possible duplicate properties being created we won't currently allow manual execution. Please try again in a few minutes or check the logs to see the status of the current import.", 'houzezpropertyfeed' ) ) );
+                            wp_redirect( admin_url( $redirect_url . '&hpferrormessage=' . base64_encode(__( "There has been activity within the past 5 minutes on an unfinished import. To prevent multiple imports running at the same time and possible duplicate properties being created we won't currently allow manual execution. Please try again in a few minutes or check the logs to see the status of the current import.", 'houzezpropertyfeed' ) ) ) );
                             die();
                         }
                     }
@@ -91,7 +91,7 @@ class Houzez_Property_Feed_Cron {
 
             do_action(sanitize_text_field($_GET['custom_property_import_cron']));
 
-            wp_redirect( admin_url( $redirect_url . '&hpfsuccessmessage=' . urlencode(__( 'Import executed successfully. You can check <a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-import&tab=logs') ) . '">the logs</a> to see what happened during the import.', 'houzezpropertyfeed' ) ) ) );
+            wp_redirect( admin_url( $redirect_url . '&hpfsuccessmessage=' . base64_encode(urlencode(__( 'Import executed successfully. You can check <a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-import&tab=logs') ) . '">the logs</a> to see what happened during the import.', 'houzezpropertyfeed' ) ) ) ) );
             die();
         }
     }
@@ -155,7 +155,7 @@ class Houzez_Property_Feed_Cron {
                     {
                         if ( ( ( time() - strtotime($row['log_date']) ) / 60 ) < 5 )
                         {
-                            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . __( "There has been activity within the past 5 minutes on an unfinished export. Please try again in a few minutes or check the logs to see the status of the current export.", 'houzezpropertyfeed' ) ) );
+                            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpferrormessage=' . base64_encode(__( "There has been activity within the past 5 minutes on an unfinished export. Please try again in a few minutes or check the logs to see the status of the current export.", 'houzezpropertyfeed' ) ) ) );
                             die();
                         }
                     }
@@ -164,7 +164,7 @@ class Houzez_Property_Feed_Cron {
 
             do_action(sanitize_text_field($_GET['custom_property_export_cron']));
 
-            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Export executed successfully. You can check the logs to see what happened during the export.', 'houzezpropertyfeed' ) ) );
+            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . base64_encode( urlencode(__( 'Export executed successfully. You can check <a href="' . esc_url( admin_url('admin.php?page=houzez-property-feed-export&tab=logs') ) . '">the logs</a> to see what happened during the export.', 'houzezpropertyfeed' ) ) ) ) );
             die();
         }
 
@@ -172,7 +172,7 @@ class Houzez_Property_Feed_Cron {
         {
             do_action(sanitize_text_field($_GET['custom_property_export_cron']));
 
-            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . __( 'Reconcilliation executed successfully. You can check the logs to see what happened during the reconcilliation.', 'houzezpropertyfeed' ) ) );
+            wp_redirect( admin_url( 'admin.php?page=houzez-property-feed-export&hpfsuccessmessage=' . base64_encode(__( 'Reconcilliation executed successfully. You can check the logs to see what happened during the reconcilliation.', 'houzezpropertyfeed' ) ) ) );
             die();
         }
     }

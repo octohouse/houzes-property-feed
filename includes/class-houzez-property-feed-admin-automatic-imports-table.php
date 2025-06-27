@@ -391,7 +391,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                 {
                     if ( isset($queued_media[$key]) && !empty($queued_media[$key]) )
                     {
-                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: <span class="queued-media-items" data-import-id="' . esc_attr($key) . '">' . esc_html($queued_media[$key]) . '<span><br>';
+                        $details .= '<strong>' . __( 'Queued Media Items', 'houzezpropertyfeed' ) . '</strong>: <a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=queuedmedia&import_id=' . (int)$key)) . '"><span class="queued-media-items" data-import-id="' . esc_attr($key) . '">' . esc_html($queued_media[$key]) . '<span></a><br>';
                     }
                 }
             }

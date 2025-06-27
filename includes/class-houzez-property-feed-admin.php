@@ -447,6 +447,19 @@ class Houzez_Property_Feed_Admin {
 
                     include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-import-settings.php' );
                 }
+                elseif ( $active_tab == 'queuedmedia' )
+                {
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav-import.php' );
+                    
+                    $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
+
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/class-houzez-property-feed-admin-queued-media-table.php' );
+
+                    $queued_media_table = new Houzez_Property_Feed_Admin_Queued_Media_Table();
+                    $queued_media_table->prepare_items();
+
+                    include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-queued-media.php' );
+                }
                 else
                 {
                     include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-primary-nav-import.php' );

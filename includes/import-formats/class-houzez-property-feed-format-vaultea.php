@@ -367,7 +367,17 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 
 	        $display_address = ( isset($property['address']['displayAddress']) && !empty($property['address']['displayAddress']) ) ? trim($property['address']['displayAddress']) : trim($property['displayAddress']);
 
-            $post_content = str_replace(array("\r\n", "\n"), "", $property['description']);
+	        $stripped_description = strip_tags($property['description']);
+	        if ( $stripped_description == $property['description'] )
+	        {
+	        	// No HTML provided
+	            $post_content = $property['description'];
+	        }
+	        else
+	        {
+	        	// HTML provided. Remove line breaks and leave formatting to HTML
+	            $post_content = str_replace(array("\r\n", "\n"), "", $property['description']);
+	        }
             if ( isset($property['rooms']) && is_array($property['rooms']) && !empty($property['rooms']) )
             {
             	foreach ( $property['rooms'] as $room )

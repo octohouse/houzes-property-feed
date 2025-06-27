@@ -3,6 +3,17 @@
 <?php
 	if ( isset($_GET['hpfsuccessmessage']) && !empty($_GET['hpfsuccessmessage']) )
 	{
+		$message = $_GET['hpfsuccessmessage'];
+		$message = base64_decode($message, true);
+		if ( $message === false ) 
+		{
+		    $message = $_GET['hpfsuccessmessage'];
+		}
+		else
+		{
+			$message = urldecode($message);
+		}
+
 		$allowed_html = array(
 	        'a' => array(
 	            'href' => array()
@@ -10,12 +21,23 @@
 	    );
 
 	    // Allow specific <a> tags through wp_kses
-	    $message = wp_kses( $_GET['hpfsuccessmessage'], $allowed_html );
+	    $message = wp_kses( $message, $allowed_html );
 
 		echo '<div class="notice notice-success inline"><p>' . $message . '</p></div>';
 	}
 	if ( isset($_GET['hpferrormessage']) && !empty($_GET['hpferrormessage']) )
 	{
+		$message = $_GET['hpferrormessage'];
+		$message = base64_decode($message, true);
+		if ( $message === false ) 
+		{
+		    $message = urldecode($_GET['hpferrormessage']);
+		}
+		else
+		{
+			$message = urldecode($message);
+		}
+
 		$allowed_html = array(
 	        'a' => array(
 	            'href' => array()
@@ -23,7 +45,7 @@
 	    );
 
 	    // Allow specific <a> tags through wp_kses
-	    $message = wp_kses( $_GET['hpferrormessage'], $allowed_html );
+	    $message = wp_kses( $message, $allowed_html );
 	    
 		echo '<div class="notice notice-error inline"><p>' . $message . '</p></div>';
 	}

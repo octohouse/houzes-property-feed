@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.20
-Version: 2.5.20
+Stable tag: 2.5.21
+Version: 2.5.21
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -141,6 +141,15 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.21 - 2025-06-27 =
+* Add ability to use SEARCHABLE_AREA field in 10ninety as location taxonomy
+* Cater for SME Professional images having query string
+* Correct line breaks in descriptions imported from VaultEA/VaultRE
+* Add ability to view what's in the media queue if opting to process media separately
+* Ensure media queue takes effect for properties imported from CSV
+* base64 encode messages passed between pages
+* Remove commented code in Getrix to prevent warning about field being mapped
 
 = 2.5.20 - 2025-05-27 =
 * Added ability to give each import a unique name used internally. Useful to distinguish between them when lots of imports setup using the same format

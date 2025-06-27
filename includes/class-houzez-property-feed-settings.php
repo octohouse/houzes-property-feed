@@ -54,7 +54,7 @@ class Houzez_Property_Feed_Settings {
 
         update_option( 'houzez_property_feed', $options );
 
-        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'houzez-property-feed-import' ) . '&tab=settings&hpfsuccessmessage=' . __( 'Settings saved', 'houzezpropertyfeed' ) ) );
+        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'houzez-property-feed-import' ) . '&tab=settings&hpfsuccessmessage=' . base64_encode(__( 'Settings saved', 'houzezpropertyfeed' ) ) ) );
         die();
     }
 }

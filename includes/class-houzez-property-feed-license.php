@@ -76,7 +76,7 @@ class Houzez_Property_Feed_License {
         	$this->activate_license_key( sanitize_text_field(wp_unslash($_POST['license_key'])) );
         }
 
-        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . __( 'License details saved', 'houzezpropertyfeed' ) ) );
+        wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . base64_encode(__( 'License details saved', 'houzezpropertyfeed' ) ) ) );
         die();
     }
 
@@ -293,13 +293,13 @@ class Houzez_Property_Feed_License {
     	
     	if ( is_wp_error($response) )
     	{
-  			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Failed to request license activation', 'houzezpropertyfeed' ) . ': ' . $response->get_error_message() ) );
+  			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Failed to request license activation', 'houzezpropertyfeed' ) . ': ' . $response->get_error_message() ) ) );
         	die();
 		}
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) )
 		{
-			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Received response code when trying to activate license key', 'houzezpropertyfeed' ) . ': ' . wp_remote_retrieve_response_code( $response ) ) );
+			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Received response code when trying to activate license key', 'houzezpropertyfeed' ) . ': ' . wp_remote_retrieve_response_code( $response ) ) ) );
         	die();
 		}
 
@@ -309,7 +309,7 @@ class Houzez_Property_Feed_License {
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) 
 		{
-			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Failed to decode response when trying to activate license key. Please try again', 'houzezpropertyfeed' ) . ': ' . print_r( $result, true ) ) );
+			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Failed to decode response when trying to activate license key. Please try again', 'houzezpropertyfeed' ) . ': ' . print_r( $result, true ) ) ) );
         	die();
 		}
 
@@ -317,18 +317,18 @@ class Houzez_Property_Feed_License {
 		{
 			if ( $body['success'] === true )
 			{
-				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . __( 'License key activated', 'houzezpropertyfeed' ) ) );
+				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . base64_encode(__( 'License key activated', 'houzezpropertyfeed' ) ) ) );
 	        	die();
 			}
 			else
 			{
-				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Error when activating license key', 'houzezpropertyfeed' ) . ': ' . $body['error'] ) );
+				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Error when activating license key', 'houzezpropertyfeed' ) . ': ' . $body['error'] ) ) );
 	        	die();
 			}
 		}
 		else
 		{
-			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Something went wrong when trying to activate license key', 'houzezpropertyfeed' ) . ': ' . print_r($body, true) ) );
+			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Something went wrong when trying to activate license key', 'houzezpropertyfeed' ) . ': ' . print_r($body, true) ) ) );
 	        die();
 		}
     }
@@ -355,13 +355,13 @@ class Houzez_Property_Feed_License {
     	
     	if ( is_wp_error($response) )
     	{
-  			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Failed to request license deactivation', 'houzezpropertyfeed' ) . ': ' . $response->get_error_message() ) );
+  			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Failed to request license deactivation', 'houzezpropertyfeed' ) . ': ' . $response->get_error_message() ) ) );
         	die();
 		}
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) )
 		{
-			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Received response code when trying to deactivate license key', 'houzezpropertyfeed' ) . ': ' . wp_remote_retrieve_response_code( $response ) ) );
+			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Received response code when trying to deactivate license key', 'houzezpropertyfeed' ) . ': ' . wp_remote_retrieve_response_code( $response ) ) ) );
         	die();
 		}
 
@@ -371,7 +371,7 @@ class Houzez_Property_Feed_License {
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) 
 		{
-			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Failed to decode response when trying to deactivate license key. Please try again', 'houzezpropertyfeed' ) . ': ' . print_r( $result, true ) ) );
+			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Failed to decode response when trying to deactivate license key. Please try again', 'houzezpropertyfeed' ) . ': ' . print_r( $result, true ) ) ) );
         	die();
 		}
 
@@ -379,18 +379,18 @@ class Houzez_Property_Feed_License {
 		{
 			if ( $body['success'] === true )
 			{
-				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . __( 'License key deactivated', 'houzezpropertyfeed' ) ) );
+				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . base64_encode(__( 'License key deactivated', 'houzezpropertyfeed' ) ) ) );
 	        	die();
 			}
 			else
 			{
-				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Error when deactivating license key', 'houzezpropertyfeed' ) . ': ' . $body['error'] ) );
+				wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Error when deactivating license key', 'houzezpropertyfeed' ) . ': ' . $body['error'] ) ) );
 	        	die();
 			}
 		}
 		else
 		{
-			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . __( 'Something went wrong when trying to deactivate license key', 'houzezpropertyfeed' ) . ': ' . print_r($body, true) ) );
+			wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode(__( 'Something went wrong when trying to deactivate license key', 'houzezpropertyfeed' ) . ': ' . print_r($body, true) ) ) );
 	        die();
 		}
     }

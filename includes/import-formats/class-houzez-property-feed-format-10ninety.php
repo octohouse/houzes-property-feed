@@ -577,10 +577,33 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 					$address_field_to_use = isset( $import_settings[$location_taxonomy . '_address_field'] ) ? $import_settings[$location_taxonomy . '_address_field'] : '';
 					if ( !empty($address_field_to_use) )
 					{
-						$location_term_ids = array();
+						$value_of_address_field = '';
 						if ( isset($property->{$address_field_to_use}) && !empty((string)$property->{$address_field_to_use}) )
 		            	{
-		            		$term = term_exists( trim((string)$property->{$address_field_to_use}), $location_taxonomy);
+		            		$value_of_address_field = (string)$property->{$address_field_to_use};
+		            	}
+		            	elseif ( $address_field_to_use == 'SEARCHABLE_AREA' )
+		            	{
+		            		if ( isset($property->SEARCHABLE_AREAS) )
+			            	{
+			            		foreach ( $property->SEARCHABLE_AREAS as $searchable_areas )
+			            		{
+			            			if ( isset($searchable_areas->SEARCHABLE_AREA) )
+			            			{
+			            				foreach ( $searchable_areas->SEARCHABLE_AREA as $searchable_area )
+			            				{
+			            					$value_of_address_field = (string)$searchable_area;
+			            					break;
+			            				}
+			            			}
+			            		}
+			            	}
+		            	}
+
+						$location_term_ids = array();
+						if ( !empty($value_of_address_field) )
+		            	{
+		            		$term = term_exists( trim($value_of_address_field), $location_taxonomy);
 							if ( $term !== 0 && $term !== null && isset($term['term_id']) )
 							{
 								$location_term_ids[] = (int)$term['term_id'];
@@ -589,7 +612,7 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 							{
 								if ( $create_location_taxonomy_terms === true )
 								{
-									$term = wp_insert_term( trim((string)$property->{$address_field_to_use}), $location_taxonomy );
+									$term = wp_insert_term( trim($value_of_address_field), $location_taxonomy );
 									if ( is_array($term) && isset($term['term_id']) )
 									{
 										$location_term_ids[] = (int)$term['term_id'];

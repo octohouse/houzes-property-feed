@@ -24,7 +24,7 @@ function houzez_property_feed_get_import_formats()
                     'placeholder' => 'https://',
                 )
             ),
-            'address_fields' => array( 'ADDRESS_2', 'ADDRESS_3', 'TOWN', 'ADDRESS_4', 'COUNTY' ),
+            'address_fields' => array( 'ADDRESS_2', 'ADDRESS_3', 'TOWN', 'ADDRESS_4', 'COUNTY', 'SEARCHABLE_AREA' ),
             'taxonomy_values' => array(
                 'sales_status' => array(
                     '0' => 'Available',
