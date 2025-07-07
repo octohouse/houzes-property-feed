@@ -21,6 +21,8 @@ class Houzez_Property_Feed_Ajax {
 
         add_action( "wp_ajax_houzez_property_feed_import_properties_batch", array( $this, "import_properties_batch" ) );
         add_action( "wp_ajax_nopriv_houzez_property_feed_import_properties_batch", array( $this, "import_properties_batch" ) );
+
+        add_action( "wp_ajax_houzez_property_feed_import_import", array( $this, "import_import" ) );
 	}
 
     public function fetch_xml_nodes()
@@ -625,6 +627,102 @@ class Houzez_Property_Feed_Ajax {
         }
 
         return $data;
+    }
+
+    public function import_import()
+    {
+        if ( !wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['ajax_nonce'])), "hpf_ajax_nonce" ) ) 
+        {
+            $return = array(
+                'success' => false,
+                'error' => __( 'Invalid nonce provided', 'houzezpropertyfeed' )
+            );
+            echo wp_json_encode($return);
+            die();
+        }
+
+        if (
+            !isset($_FILES['import_file']) ||
+            $_FILES['import_file']['error'] !== UPLOAD_ERR_OK
+        ) {
+            wp_send_json_error('File upload failed');
+        }
+
+        $file_tmp = $_FILES['import_file']['tmp_name'];
+        $file_contents = file_get_contents($file_tmp);
+        $import = json_decode($file_contents, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) 
+        {
+            wp_send_json_error('Invalid JSON');
+        }
+        
+        $import['running'] = false;
+
+        // sort out any taxonomy mappings turning back to ids
+        if ( !empty($import['mappings']) )
+        {
+            foreach ( $import['mappings'] as $field => $mappings )
+            {
+                if ( !empty($mappings) )
+                {
+                    $taxonomy_name = '';
+                    switch ( $field )
+                    {
+                        case "sales_status":
+                        case "lettings_status": { $taxonomy_name = 'property_status'; break; }
+                        case "property_type": { $taxonomy_name = 'property_type'; break; }
+                    }
+
+                    if ( !empty($taxonomy_name) )
+                    {
+                        foreach ( $mappings as $crm_id => $hid )
+                        {
+                            $term = get_term_by( 'name', $hid, $taxonomy_name );
+                            if ( !empty($term) )
+                            {
+                                $import['mappings'][$field][$crm_id] = $term->term_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // sort out any agent/agency turning back to ids
+        if ( !empty($import['agent_display_option_rules']) )
+        {
+            foreach ( $import['agent_display_option_rules'] as $i => $rule )
+            {
+                if ( isset($rule['result']) && !empty($rule['result']) )
+                {
+                    $query = new WP_Query(array(
+                        'post_type'      => array('houzez_agent', 'houzez_agency'),
+                        'title'          => $rule['result'],
+                        'posts_per_page' => 1,
+                        'post_status'    => 'any',
+                        'fields'         => 'ids'
+                    ));
+
+                    if ( $query->have_posts() ) {
+                        $import['agent_display_option_rules'][$i]['result'] = $query->posts[0];
+                    }
+
+                    
+                }
+            }
+        }
+
+        $options = get_option( 'houzez_property_feed', array() );
+        $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+
+        $imports[time()] = $import;
+
+        $options['imports'] = $imports;
+
+        update_option( 'houzez_property_feed', $options );
+
+        wp_send_json_success(array('url' => admin_url('admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . base64_encode('Import completed successfully.'))));
     }
 }
 

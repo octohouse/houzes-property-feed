@@ -156,6 +156,72 @@ function hpf_init_field_mapping_sortable()
 
 jQuery(document).ready(function()
 {
+	// Import / Export
+	jQuery('#hpf-import-import').click(function(e)
+	{
+		e.preventDefault();
+
+		jQuery(this).text('Importing...');
+		jQuery(this).attr('disabled', 'disabled');
+
+		const fileInput = document.getElementById('import_file');
+	    const file = fileInput.files[0];
+
+	    if (!file) {
+	        alert('Please choose a JSON file first.');
+	        return;
+	    }
+
+	    if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+	        alert('Only .json files are accepted.');
+	        return;
+	    }
+
+	    const formData = new FormData();
+	    formData.append('action', 'houzez_property_feed_import_import');
+	    formData.append('import_file', file);
+	    formData.append('ajax_nonce', hpf_admin_object.ajax_nonce); // Add nonce for security
+
+	    fetch(ajaxurl, {
+	        method: 'POST',
+	        body: formData,
+	    })
+	    .then(response => response.json())
+	    .then(result => {
+	        if (result.success) 
+	        {
+	        	window.location.href = result.data.url;
+	        } 
+	        else 
+	        {
+	            alert('Import failed: ' + (result.data || 'Unknown error'));
+
+	            jQuery(this).text('Import');
+				jQuery(this).prop('disabled', false);
+	        }
+	    })
+	    .catch(error => {
+	        console.error(error);
+	        alert('Something went wrong.');
+
+	        jQuery(this).text('Import');
+			jQuery(this).prop('disabled', false);
+	    });
+	});
+
+	jQuery('#hpf-export-import').click(function(e)
+	{
+		e.preventDefault();
+
+		var import_id = jQuery('#export_import_id').val();
+
+		if ( import_id != '' )
+		{
+			location.href = jQuery(this).attr('href') + '&export=' + encodeURIComponent(import_id);
+		}
+	});
+	//
+
 	if ( jQuery('.automatic-imports-table').length > 0 )
 	{
 		hpf_draw_automatic_imports_table();

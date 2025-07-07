@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.21
-Version: 2.5.21
+Stable tag: 2.5.22
+Version: 2.5.22
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -141,6 +141,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.22 - 2025-07-07 =
+* Added ability to export and import property imports. Useful for migrating them between sites or simply backing them up
+* Import floor area in 10ninety format
+* Cater for image URLs with no extension in Property Finder imports
+* Corrected PHP errors with Property Finder imports that arose when no price or text-only price was provided
 
 = 2.5.21 - 2025-06-27 =
 * Add ability to use SEARCHABLE_AREA field in 10ninety as location taxonomy

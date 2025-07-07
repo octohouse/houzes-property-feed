@@ -13,6 +13,8 @@ class Houzez_Property_Feed_Settings {
 
         add_action( 'admin_init', array( $this, 'save_settings') );
 
+        add_action( 'admin_init', array( $this, 'check_for_export') );
+
 	}
 
     public function save_settings()
@@ -57,6 +59,83 @@ class Houzez_Property_Feed_Settings {
         wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'houzez-property-feed-import' ) . '&tab=settings&hpfsuccessmessage=' . base64_encode(__( 'Settings saved', 'houzezpropertyfeed' ) ) ) );
         die();
     }
+
+    public function check_for_export()
+    {
+        if ( !isset($_GET['export']) || empty($_GET['export']) )
+        {
+            return;
+        }
+
+        if ( !isset($_GET['_wpnonce']) || ( isset($_GET['_wpnonce']) && !wp_verify_nonce( sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'export-import' ) ) ) 
+        {
+            die( esc_html(__( "Failed security check", 'houzezpropertyfeed' ) ) );
+        }
+
+        $options = get_option( 'houzez_property_feed', array() );
+        $imports = ( isset($options['imports']) && is_array($options['imports']) && !empty($options['imports']) ) ? $options['imports'] : array();
+
+        // Remove deleted imports
+        foreach ( $imports as $key => $import ) {
+            if ( isset($import['deleted']) && $import['deleted'] === true ) {
+                unset( $imports[$key] );
+            }
+        }
+
+        if ( !isset($imports[(int)$_GET['export']]) )
+        {
+            die( esc_html(__( "Import not found", 'houzezpropertyfeed' ) ) );
+        }
+
+        $import = $imports[(int)$_GET['export']];
+
+        if ( !empty($import['mappings']) )
+        {
+            foreach ( $import['mappings'] as $field => $mappings )
+            {
+                if ( !empty($mappings) )
+                {
+                    $taxonomy_name = '';
+                    switch ( $field )
+                    {
+                        case "sales_status":
+                        case "lettings_status": { $taxonomy_name = 'property_status'; break; }
+                        case "property_type": { $taxonomy_name = 'property_type'; break; }
+                    }
+
+                    if ( !empty($taxonomy_name) )
+                    {
+                        foreach ( $mappings as $crm_id => $hid )
+                        {
+                            $term = get_term_by( 'id', $hid, $taxonomy_name );
+                            if ( !empty($term) )
+                            {
+                                $import['mappings'][$field][$crm_id] = $term->name;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( !empty($import['agent_display_option_rules']) )
+        {
+            foreach ( $import['agent_display_option_rules'] as $i => $rule )
+            {
+                if ( isset($rule['result']) && !empty($rule['result']) )
+                {
+                    $import['agent_display_option_rules'][$i]['result'] = get_the_title((int)$rule['result']);
+                }
+            }
+        }
+
+        unset($import['running']);
+
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="hpf-import.json"');
+        echo json_encode($import);
+        exit;
+    }    
 }
 
 new Houzez_Property_Feed_Settings();

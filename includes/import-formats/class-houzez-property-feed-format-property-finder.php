@@ -267,7 +267,11 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
                 }
                 else
                 {
-                	$price = round(preg_replace("/[^0-9.]/", '', (string)$property->price));
+                	$price = preg_replace("/[^0-9.]/", '', (string)$property->price);
+                	if ( is_numeric($price) )
+                	{
+	                	$price = round($price);
+	                }
 
                     update_post_meta( $post_id, 'fave_property_price_prefix', '' );
                     update_post_meta( $post_id, 'fave_property_price', $price );
@@ -311,7 +315,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
-	            $geopoints = isset($property->geopoints) ? explode(",", (string)$property->geopoints) : '';
+	            $geopoints = isset($property->geopoints) ? explode(",", (string)$property->geopoints) : array();
 				$lat = '';
 				$lng = '';
 				if ( count($geopoints) == 2 )
@@ -638,6 +642,19 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 								$modified = (string)$media_attributes['last_update'];
 
 								$filename = basename( $url );
+								$explode_url = explode('?', $url);
+								$filename = basename( $explode_url[0] );
+								if ( 
+									strpos(strtolower($filename), '.jpg') === false &&
+									strpos(strtolower($filename), '.jpeg') === false &&
+									strpos(strtolower($filename), '.png') === false &&
+									strpos(strtolower($filename), '.gif') === false &&
+									strpos(strtolower($filename), '.bmp') === false &&
+									strpos(strtolower($filename), '.webp') === false
+								)
+								{
+									$filename .= '.jpg';
+								}
 
 								// Check, based on the URL, whether we have previously imported this media
 								$imported_previously = false;

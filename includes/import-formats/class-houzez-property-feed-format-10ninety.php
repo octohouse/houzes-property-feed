@@ -336,6 +336,17 @@ class Houzez_Property_Feed_Format_10ninety extends Houzez_Property_Feed_Process 
 	            update_post_meta( $post_id, 'fave_property_garage', '' ); // need to look at parking
 	            update_post_meta( $post_id, 'fave_property_id', (string)$property->AGENT_REF );
 
+	            $floor_area = '';
+	            $floor_area_prefix = '';
+	            if ( isset($property->FLOOR_AREA) && strpos((string)$property->FLOOR_AREA, 'm2') !== false )
+	            {
+	            	$floor_area = str_replace('m2', '', (string)$property->FLOOR_AREA);
+	            	$floor_area_prefix = 'm2';
+	            }
+
+	            update_post_meta( $post_id, 'fave_property_size', $floor_area );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', $floor_area_prefix );
+
 	            $address_parts = array();
 	            if ( isset($property->ADDRESS_2) && (string)$property->ADDRESS_2 != '' )
 	            {
