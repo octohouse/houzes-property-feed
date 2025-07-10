@@ -1197,6 +1197,35 @@ function houzez_property_feed_get_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/gnomen/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
+        'idealista' => array(
+            'name' => __( 'Idealista', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'url',
+                    'label' => __( 'JSON URL', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'https://',
+                )
+            ),
+            'address_fields' => array( 'addressUrbanization', 'addressTown' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Sales' => 'Sales',
+                ),
+                'lettings_status' => array(
+                    'Lettings' => 'Lettings',
+                ),
+                'property_type' => array(
+                    'flat' => 'flat',
+                    'house' => 'house',
+                    'land' => 'land',
+                )
+            ),
+            'contact_information_fields' => array(
+                'contactName',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/idealista/',
+        ),
         'infocasa' => array(
             'name' => __( 'InfoCasa', 'houzezpropertyfeed' ),
             'fields' => array(

@@ -73,8 +73,10 @@
 										<option value="ends"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'ends' ) { echo ' selected'; } ?>>Ends with</option>
 										<option value="exists"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'exists' ) { echo ' selected'; } ?>>Exists</option>
 										<option value="not_exists"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'not_exists' ) { echo ' selected'; } ?>>Does not exist</option>
+										<option value="null"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'null' ) { echo ' selected'; } ?>>Is null</option>
+										<option value="not_null"<?php if ( isset($or_rule['operator']) && $or_rule['operator'] == 'not_null' ) { echo ' selected'; } ?>>Is not null</option>
 									</select>
-									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard"<?php if ( isset($or_rule['operator']) && in_array($or_rule['operator'], array('exists', 'not_exists')) ) { echo ' style="display:none"'; } ?>>
+									<input type="text" name="field_mapping_rules[<?php echo $i; ?>][equal][]" value="<?php echo esc_attr($or_rule['equal']); ?>" placeholder="Value in feed, or use * wildcard"<?php if ( isset($or_rule['operator']) && in_array($or_rule['operator'], array('exists', 'not_exists', 'null', 'not_null')) ) { echo ' style="display:none"'; } ?>>
 								</div>
 								<div class="rule-actions">
 									<a href="" class="add-and-rule-action"><span class="dashicons dashicons-plus-alt2"></span> Add AND Rule</a><a href="" class="delete-action"><span class="dashicons dashicons-trash"></span> Delete Rule</a>
@@ -181,6 +183,8 @@
 								<option value="ends">Ends with</option>
 								<option value="exists">Exists</option>
 								<option value="not_exists">Does not exist</option>
+								<option value="null">Is null</option>
+								<option value="not_null">Is not null</option>
 							</select>
 							<input type="text" name="field_mapping_rules[{rule_count}][equal][]" placeholder="Value in feed, or use * wildcard">
 						</div>

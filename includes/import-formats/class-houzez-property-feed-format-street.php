@@ -230,7 +230,7 @@ class Houzez_Property_Feed_Format_Street extends Houzez_Property_Feed_Process {
 				}
 				else
 				{
-					// Failed to parse XML
+					// Failed to parse JSON
 					$this->log_error( 'Failed to parse JSON.' );
 
 					return false;

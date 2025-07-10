@@ -696,6 +696,18 @@ class Houzez_Property_Feed_Import {
                         {
                             $found = true;
                         }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'null' ) && is_null($value_to_check)
+                        )
+                        {
+                            $found = true;
+                        }
+                        elseif (
+                            ( isset($rule['operator']) && $rule['operator'] == 'not_null' ) && !is_null($value_to_check)
+                        )
+                        {
+                            $found = true;
+                        }
                     }
                     if ( $found )
                     {
@@ -773,6 +785,18 @@ class Houzez_Property_Feed_Import {
                             {
                                 $found = true;
                             }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'null' ) && is_null($value_to_check)
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'not_null' ) && !is_null($value_to_check)
+                            )
+                            {
+                                $found = true;
+                            }
                         }
                         else
                         {
@@ -828,6 +852,18 @@ class Houzez_Property_Feed_Import {
                             }
                             elseif (
                                 ( isset($rule['operator']) && $rule['operator'] == 'ends' ) && substr(trim($value_to_check), -strlen($rule['equal'])) === $rule['equal']
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'null' ) && is_null($value_to_check)
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'not_null' ) && !is_null($value_to_check)
                             )
                             {
                                 $found = true;
@@ -1412,6 +1448,18 @@ class Houzez_Property_Feed_Import {
                             {
                                 $found = true;
                             }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'null' ) && is_null($value_to_check)
+                            )
+                            {
+                                $found = true;
+                            }
+                            elseif (
+                                ( isset($rule['operator']) && $rule['operator'] == 'not_null' ) && !is_null($value_to_check)
+                            )
+                            {
+                                $found = true;
+                            }
                         }
 
                         if ( $found )
@@ -1534,6 +1582,18 @@ class Houzez_Property_Feed_Import {
                     }
                     elseif (
                         ( isset($rule['operator']) && $rule['operator'] == 'ends' ) && substr(trim($value_to_check), -strlen($rule['equal'])) === $rule['equal']
+                    )
+                    {
+                        $found = true;
+                    }
+                    elseif (
+                        ( isset($rule['operator']) && $rule['operator'] == 'null' ) && is_null($value_to_check)
+                    )
+                    {
+                        $found = true;
+                    }
+                    elseif (
+                        ( isset($rule['operator']) && $rule['operator'] == 'not_null' ) && !is_null($value_to_check)
                     )
                     {
                         $found = true;

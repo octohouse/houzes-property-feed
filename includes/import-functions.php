@@ -553,6 +553,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "idealista":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-idealista.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Idealista( $instance_id, $import_id );
+
+            break;
+        }
         case "infocasa":
         {
             // includes

@@ -628,7 +628,7 @@ jQuery(document).ready(function()
 
 	jQuery('body').on('change', 'select[name*=\'[operator]\']', function()
 	{
-		if ( jQuery(this).val() == 'exists' || jQuery(this).val() == 'not_exists' )
+		if ( jQuery(this).val() == 'exists' || jQuery(this).val() == 'not_exists' || jQuery(this).val() == 'null' || jQuery(this).val() == 'not_null' )
 		{
 			jQuery(this).next('input').hide();
 		}
@@ -941,7 +941,7 @@ function build_field_mapping_rule_accordions()
 				rule_description += '<span><code>' + operator + '</code></span>';
 
 				var operator = jQuery(this).find('.and-rules .or-rule').eq(0).find('select[name*=\'field_mapping_rules\'][name*=\'[operator]\'] option:selected').val();
-				if ( operator != 'exists' && operator != 'not_exists' )
+				if ( operator != 'exists' && operator != 'not_exists' && operator != 'null' && operator != 'not_null' )
 				{
 					var value_in_feed = jQuery(this).find('.and-rules .or-rule').eq(0).find('input[name*=\'field_mapping_rules\'][name*=\'[equal]\']').val();
 					if ( value_in_feed == '' ) { value_in_feed = '<em>(no value specified)</em>'; }
