@@ -620,6 +620,10 @@ class Houzez_Property_Feed_Import {
 
         $houzez_fields = houzez_property_feed_get_fields_for_field_mapping();
 
+        $auto_matched_agent = false;
+        $auto_matched_agency = false;
+        $set_agent_display_option = false;
+
         foreach ( $import_settings['field_mapping_rules'] as $and_rules )
         {
             // field
@@ -1081,11 +1085,14 @@ class Houzez_Property_Feed_Import {
 
                                 foreach ( $values_to_check as $value_to_check )
                                 {
+                                    $value_to_check = trim((string)$value_to_check);
+                                    $value_to_check = preg_replace('/(?<=\s)-(?=\w)/', '- ', $value_to_check);
+
                                     // see if an agent exists with this name
                                     $args = array(
                                         'post_type' => 'houzez_agent',
                                         'posts_per_page' => 1,
-                                        's' => (string)$value_to_check
+                                        's' => $value_to_check
                                     );
 
                                     $agent_query = new WP_Query( $args );
@@ -1097,6 +1104,8 @@ class Houzez_Property_Feed_Import {
                                             $agent_query->the_post();
 
                                             $result = get_the_ID();
+
+                                            $auto_matched_agent = true;
                                         }
                                     }
                                     wp_reset_postdata();
@@ -1114,11 +1123,14 @@ class Houzez_Property_Feed_Import {
                                         continue;
                                     }
 
+                                    $value_to_check = trim((string)$value_to_check);
+                                    $value_to_check = preg_replace('/(?<=\s)-(?=\w)/', '- ', $value_to_check);
+
                                     // see if an agent exists with this name
                                     $args = array(
                                         'post_type' => 'houzez_agent',
                                         'posts_per_page' => 1,
-                                        's' => (string)$value_to_check
+                                        's' => $value_to_check
                                     );
 
                                     $agent_query = new WP_Query( $args );
@@ -1130,6 +1142,8 @@ class Houzez_Property_Feed_Import {
                                             $agent_query->the_post();
 
                                             $result = get_the_ID();
+
+                                            $auto_matched_agent = true;
                                         }
                                     }
                                     wp_reset_postdata();
@@ -1152,11 +1166,14 @@ class Houzez_Property_Feed_Import {
 
                                 foreach ( $values_to_check as $value_to_check )
                                 {
+                                    $value_to_check = trim((string)$value_to_check);
+                                    $value_to_check = preg_replace('/(?<=\s)-(?=\w)/', '- ', $value_to_check);
+
                                     // see if an agent exists with this name
                                     $args = array(
                                         'post_type' => 'houzez_agency',
                                         'posts_per_page' => 1,
-                                        's' => (string)$value_to_check
+                                        's' => $value_to_check
                                     );
 
                                     $agent_query = new WP_Query( $args );
@@ -1168,6 +1185,8 @@ class Houzez_Property_Feed_Import {
                                             $agent_query->the_post();
 
                                             $result = get_the_ID();
+
+                                            $auto_matched_agency = true;
                                         }
                                     }
                                     wp_reset_postdata();
@@ -1185,11 +1204,14 @@ class Houzez_Property_Feed_Import {
                                         continue;
                                     }
 
+                                    $value_to_check = trim((string)$value_to_check);
+                                    $value_to_check = preg_replace('/(?<=\s)-(?=\w)/', '- ', $value_to_check);
+
                                     // see if an agent exists with this name
                                     $args = array(
                                         'post_type' => 'houzez_agent',
                                         'posts_per_page' => 1,
-                                        's' => (string)$value_to_check
+                                        's' => $value_to_check
                                     );
 
                                     $agent_query = new WP_Query( $args );
@@ -1201,12 +1223,18 @@ class Houzez_Property_Feed_Import {
                                             $agent_query->the_post();
 
                                             $result = get_the_ID();
+
+                                            $auto_matched_agency = true;
                                         }
                                     }
                                     wp_reset_postdata();
                                 }
                             }
                         }
+                    }
+                    elseif ( $and_rules['houzez_field'] == 'fave_agent_display_option' && ( $result == 'agent_info' || $result == 'agency_info' ) )
+                    {
+                        $set_agent_display_option = true;
                     }
                     elseif ( $and_rules['houzez_field'] == 'fave_property_price' && $result != '' )
                     {
@@ -1280,6 +1308,17 @@ class Houzez_Property_Feed_Import {
                     wp_set_object_terms( $post_id, $taxonomy_values, $taxonomy );
                 }
             }
+        }
+
+        if ( $set_agent_display_option === false && $auto_matched_agent === true && $auto_matched_agency === false )
+        {
+            // Need to set agent
+            update_post_meta( $post_id, 'fave_agent_display_option', 'agent_info' );
+        }
+        if ( $set_agent_display_option === false && $auto_matched_agent === false && $auto_matched_agency === true )
+        {
+            // Need to set agency
+            update_post_meta( $post_id, 'fave_agent_display_option', 'agency_info' );
         }
 
         // remove fields that are handled in the main XML/CSV import class

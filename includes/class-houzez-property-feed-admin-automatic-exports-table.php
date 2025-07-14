@@ -278,6 +278,12 @@ class Houzez_Property_Feed_Admin_Automatic_Exports_Table extends WP_List_Table {
                     if ( isset($field['type']) && $field['type'] != 'hidden' && $field['type'] != 'html' )
                     {
                         $value = ( ( isset($export[$field['id']]) && !empty($export[$field['id']]) ) ? $export[$field['id']] : '' );
+                        
+                        if ( substr($field['id'], 0, 12) == 'branch_code_' && $value == '' )
+                        {
+                            continue;
+                        }
+
                         $details .= '<strong>' . $field['label'] . '</strong>: ' . ( $value != '' ? $value : '-' ) .  '<br>';
                     }
                 }
