@@ -207,7 +207,7 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                         {
                             $row = $wpdb->get_row( $wpdb->prepare("
                                 SELECT 
-                                    start_date, end_date
+                                    start_date, end_date, status_date
                                 FROM 
                                     " .$wpdb->prefix . "houzez_property_feed_logs_instance
                                 WHERE 
@@ -222,7 +222,10 @@ class Houzez_Property_Feed_Admin_Automatic_Imports_Table extends WP_List_Table {
                                 }
                                 elseif ($row['end_date'] == '0000-00-00 00:00:00')
                                 {
-                                    $running_now = true;
+                                    if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
+                                    {
+                                        $running_now = true;
+                                    }
                                 }
                             }
                         }

@@ -666,6 +666,8 @@ class Houzez_Property_Feed_Import {
 
                     foreach ( $values_to_check as $value_to_check )
                     {
+                        $value_to_check = (string)$value_to_check;
+
                         if ( $rule['equal'] == '*' )
                         {
                             $found = true;

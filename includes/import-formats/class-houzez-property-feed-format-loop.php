@@ -294,7 +294,18 @@ class Houzez_Property_Feed_Format_Loop extends Houzez_Property_Feed_Process {
                 }
                 else
                 {
-                    update_post_meta( $post_id, 'fave_property_price_prefix', ( ( $department == 'residential-sales' && isset($property['priceQualifier']) && !in_array(strtolower($property['priceQualifier']), array('none')) ) ? $property['priceQualifier'] : '' ) );
+                	$price_prefix = '';
+                	if ( 
+                		$department == 'residential-sales' && 
+                		isset($property['priceQualifier']) && 
+                		!in_array(strtolower($property['priceQualifier']), array('none')) 
+                	)
+                	{
+                		$price_prefix = $property['priceQualifier'];
+                		$price_prefix = preg_replace('/(?<!^)([A-Z])/', ' $1', $price_prefix);
+                		$price_prefix = ucwords($price_prefix);
+                	}
+                    update_post_meta( $post_id, 'fave_property_price_prefix', $price_prefix );
                     update_post_meta( $post_id, 'fave_property_price', ( $department == 'residential-sales' ? $property['price'] : $property['rent'] ) );
                     update_post_meta( $post_id, 'fave_property_price_postfix', ( $department == 'residential-lettings' ? 'pcm' : '' ) );
                 }

@@ -35,7 +35,7 @@
 
 		        	$row = $wpdb->get_row( $wpdb->prepare("
 		                SELECT 
-		                    start_date, end_date
+		                    start_date, end_date, status_date
 		                FROM 
 		                    " .$wpdb->prefix . "houzez_property_feed_logs_instance
 		                WHERE 
@@ -50,7 +50,10 @@
 		                }
 		                elseif ($row['end_date'] == '0000-00-00 00:00:00')
 		                {
-		                    ++$all_imports_running;
+		                	if ( ( ( time() - strtotime($row['status_date']) ) / 60 ) < 5 )
+    						{
+			                    ++$all_imports_running;
+			                }
 		                }
 		            }
 	        	}
