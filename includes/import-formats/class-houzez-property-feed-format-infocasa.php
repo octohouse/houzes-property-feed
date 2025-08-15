@@ -594,36 +594,6 @@ XML;
 		            	}
 		            }
 	        	}
-	        	
-	            // Turn bullets into property features
-	            /*$feature_term_ids = array();
-	            if ( isset($property['features']) && is_array($property['features']) && !empty($property['features']) )
-				{
-					foreach ( $property['features'] as $feature )
-					{
-						$term = term_exists( trim($feature['name']), 'property_feature');
-						if ( $term !== 0 && $term !== null && isset($term['term_id']) )
-						{
-							$feature_term_ids[] = (int)$term['term_id'];
-						}
-						else
-						{
-							$term = wp_insert_term( trim($feature['name']), 'property_feature' );
-							if ( is_array($term) && isset($term['term_id']) )
-							{
-								$feature_term_ids[] = (int)$term['term_id'];
-							}
-						}
-					}
-					if ( !empty($feature_term_ids) )
-					{
-						wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
-					}
-					else
-					{
-						wp_delete_object_term_relationships( $post_id, "property_feature" );
-					}
-				}*/
 
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 

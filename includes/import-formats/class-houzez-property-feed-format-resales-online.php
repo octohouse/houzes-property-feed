@@ -84,6 +84,32 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
+		// Get array of existing features so we don't need to on every property
+	    $property_features_parents = array();
+	    $property_features = array();
+
+	    $existing_parent_terms = get_terms([
+	        'taxonomy'   => 'property_feature',
+	        'parent'   => 0,
+	        'hide_empty' => false,
+	    ]);
+
+	    foreach ( $existing_parent_terms as $existing_parent_term )
+	    {
+	    	$property_features_parents[strtolower($existing_parent_term->name)] = $existing_parent_term->term_id;
+
+	    	$existing_child_terms = get_terms([
+		        'taxonomy'   => 'property_feature',
+		        'parent'   => (int)$existing_parent_term->term_id,
+		        'hide_empty' => false,
+		    ]);
+
+			foreach ( $existing_child_terms as $existing_child_term )
+		    {
+		    	$property_features[strtolower($existing_parent_term->name)][strtolower($existing_child_term->name)] = $existing_child_term->term_id;
+		    }
+	    }
+
 		$this->import_start();
 
 		do_action( "houzez_property_feed_pre_import_properties", $this->properties, $this->import_id );
@@ -342,6 +368,7 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 
 	            //turn bullets into property features
 	            $feature_term_ids = array();
+
 	            if ( isset($property->characteristics->category) )
 	            {
 	            	foreach ( $property->characteristics->category as $category )
@@ -351,30 +378,135 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 	            			isset($category->value) 
 	            		)
 	            		{
-	            			foreach ( $category->value as $feature )
-            				{
-            					if ( isset($feature->uk) )
-            					{
-            						$feature = $feature = trim(ucwords((string)$category->name->uk), 's') . ': ' . trim((string)$feature->uk);
+	            			$parent_term_id = false;
 
-            						$term = term_exists( $feature, 'property_feature');
-									if ( $term !== 0 && $term !== null && isset($term['term_id']) )
-									{
-										$feature_term_ids[] = (int)$term['term_id'];
-									}
-									else
-									{
-										$term = wp_insert_term( $feature, 'property_feature' );
-										if ( is_array($term) && isset($term['term_id']) )
+	            			if ( isset($property_features_parents[strtolower((string)$category->name->uk)]) )
+	            			{
+	            				// already exists
+	            				$parent_term_id = $property_features_parents[strtolower((string)$category->name->uk)];
+							}
+	            			elseif ( apply_filters( 'houzez_property_feed_auto_create_new_features', true ) === true )
+	            			{
+	            				// doesn't exist
+								$parent_term = wp_insert_term( (string)$category->name->uk, 'property_feature' );
+								if ( is_array($parent_term) && isset($parent_term['term_id']) )
+								{
+									$parent_term_id = (int)$parent_term['term_id'];
+
+									$property_features_parents[strtolower((string)$category->name->uk)] = $parent_term_id;
+								}
+	            			}
+
+	            			if ( $parent_term_id !== false )
+							{
+								$feature_term_ids[] = (int)$parent_term_id;
+
+								foreach ( $category->value as $feature )
+            					{
+            						$new_feature = trim((string)$feature->uk);
+
+            						if ( isset($property_features[strtolower((string)$category->name->uk)][strtolower($new_feature)]) )
+            						{
+            							// already exists
+	            						$feature_term_ids[] = (int)$property_features[strtolower((string)$category->name->uk)][strtolower($new_feature)];
+
+	            					}
+            						else
+            						{
+            							$child_term = wp_insert_term( $new_feature, 'property_feature', array('parent' => $parent_term_id) );
+										if ( is_array($child_term) && isset($child_term['term_id']) )
 										{
-											$feature_term_ids[] = (int)$term['term_id'];
+											$feature_term_ids[] = (int)$child_term['term_id'];
+
+											$property_features[strtolower((string)$category->name->uk)][strtolower($new_feature)] = (int)$child_term['term_id'];
 										}
-									}
+            						}
             					}
-            				}
+							}
 	            		}
 	            	}
 	            }
+
+	            /*if ( isset($property->characteristics->category) )
+	            {
+	            	foreach ( $property->characteristics->category as $category )
+	            	{
+	            		if ( 
+	            			isset($category->name->uk) && 
+	            			isset($category->value) 
+	            		)
+	            		{
+	            			// Set top level features category as it's own feature or get existing
+	            			$parent_term_id = false;
+	            			$parent_term = term_exists( (string)$category->name->uk, 'property_feature');
+							if ( $parent_term !== 0 && $parent_term !== null && isset($parent_term['term_id']) )
+							{
+								// already exists
+								$parent_term_id = (int)$parent_term['term_id'];
+
+								$this->log( 'Found existing parent feature ' . (string)$category->name->uk . ' with term ID ' . $parent_term_id, (string)$property->id, $post_id );
+							}
+							else
+							{
+								// doesn't exist
+								$parent_term = wp_insert_term( (string)$category->name->uk, 'property_feature' );
+								if ( is_array($parent_term) && isset($parent_term['term_id']) )
+								{
+									$parent_term_id = (int)$parent_term['term_id'];
+
+									$this->log( 'Created new parent feature ' . (string)$category->name->uk . ' with term ID ' . $parent_term_id, (string)$property->id, $post_id );
+								}
+							}
+
+							if ( $parent_term_id !== false )
+							{
+								$feature_term_ids[] = $parent_term_id;
+
+								// Get all child terms of the parent
+							    $existing_child_terms = get_terms([
+							        'taxonomy'   => 'property_feature',
+							        'parent'     => $parent_term_id,
+							        'hide_empty' => false,
+							    ]);
+
+							    foreach ( $category->value as $feature )
+            					{
+            						$new_feature = trim((string)$feature->uk);
+
+            						if ( !empty($existing_child_terms) )
+            						{
+									    foreach ( $existing_child_terms as $existing_child_term ) 
+									    {
+									        if ( strcasecmp($existing_child_term->name, $new_feature) === 0 ) 
+									        {
+									            // Child term exists already
+									        	$feature_term_ids[] = $existing_child_term->term_id;
+									        }
+									        else
+									        {
+									        	// Nope doesn't exitst
+									        	$child_term = wp_insert_term( $new_feature, 'property_feature', array('parent' => $parent_term_id) );
+												if ( is_array($child_term) && isset($child_term['term_id']) )
+												{
+													$feature_term_ids[] = (int)$child_term['term_id'];
+												}
+									        }
+									    }
+									}
+									else
+									{
+										// no existing child terms
+										$child_term = wp_insert_term( $new_feature, 'property_feature', array('parent' => $parent_term_id) );
+										if ( is_array($child_term) && isset($child_term['term_id']) )
+										{
+											$feature_term_ids[] = (int)$child_term['term_id'];
+										}
+									}
+								}
+							}
+	            		}
+	            	}
+	            }*/
 	            if ( !empty($feature_term_ids) )
 				{
 					wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
@@ -777,6 +909,8 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 			++$property_row;
 
 		} // end foreach property
+
+		delete_option("property_feature_children");
 
 		do_action( "houzez_property_feed_post_import_properties_resales_online", $this->import_id );
 

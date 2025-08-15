@@ -56,7 +56,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 			$url,
 			array(
 				'method' => 'POST',
-				'timeout' => 120,
+				'timeout' => 360,
 				'headers' => $headers,
 				'body' => $json
 			)
@@ -77,7 +77,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		    if ( !isset($json['data']) )
 		    {
 		    	// Failed to parse JSON
-				$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
+				$this->log_error( 'Data missing from JSON when getting agents: ' . print_r($json, true) );
 				return false;
 		    }
 
@@ -158,7 +158,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					$url,
 					array(
 						'method' => 'POST',
-						'timeout' => 120,
+						'timeout' => 360,
 						'headers' => $headers,
 						'body' => $json
 					)
@@ -179,7 +179,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 				    if ( !isset($json['data']) )
 				    {
 				    	// Failed to parse JSON
-						$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
+						$this->log_error( 'Data missing from JSON when getting agents from office ID: ' . print_r($json, true) );
 						return array();
 				    }
 
@@ -329,7 +329,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 						$url,
 						array(
 							'method' => 'POST',
-							'timeout' => 120,
+							'timeout' => 360,
 							'headers' => $headers,
 							'body' => $json
 						)
@@ -350,7 +350,7 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 					    if ( !isset($json['data']) )
 					    {
 					    	// Failed to parse JSON
-							$this->log_error( 'Data missing from JSON: ' . print_r($json, true) );
+							$this->log_error( 'Data missing from JSON when getting properties for agent ' . $agent_id . ': ' . print_r($json, true) );
 							return false;
 					    }
 
@@ -798,40 +798,6 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 		            }
 	        	}
 	        	
-	            // Turn bullets into property features
-	            /*$feature_term_ids = array();
-	            if ( isset($property['featuresForPortals']) && is_array($property['featuresForPortals']) )
-				{
-					foreach ( $property['featuresForPortals'] as $feature )
-					{
-						$term = term_exists( trim($feature['name']), 'property_feature');
-						if ( $term !== 0 && $term !== null && isset($term['term_id']) )
-						{
-							$feature_term_ids[] = (int)$term['term_id'];
-						}
-						else
-						{
-							$term = wp_insert_term( trim($feature['name']), 'property_feature' );
-							if ( is_array($term) && isset($term['term_id']) )
-							{
-								$feature_term_ids[] = (int)$term['term_id'];
-							}
-						}
-					}
-					if ( !empty($feature_term_ids) )
-					{
-						wp_set_object_terms( $post_id, $feature_term_ids, "property_feature" );
-					}
-					else
-					{
-						wp_delete_object_term_relationships( $post_id, "property_feature" );
-					}
-				}
-
-				update_post_meta( $post_id, 'fave_energy_class', ( ( isset($property['epc']['rating']) ) ? $property['epc']['rating'] : '' ) );
-				update_post_meta( $post_id, 'fave_epc_current_rating', ( ( isset($property['epc']['energy_efficiency_current']) ) ? $property['epc']['energy_efficiency_current'] : '' ) );
-				update_post_meta( $post_id, 'fave_epc_potential_rating', ( ( isset($property['epc']['energy_efficiency_potential']) ) ? $property['epc']['energy_efficiency_potential'] : '' ) );*/
-
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
 				// status taxonomies

@@ -974,7 +974,7 @@ class Houzez_Property_Feed_Import {
                                 {
                                     $term_id = (int)$term['term_id'];
                                 }
-                                else
+                                elseif ( apply_filters( 'houzez_property_feed_auto_create_new_features', true ) === true )
                                 {
                                     $term = wp_insert_term( $result, $taxonomy );
                                     if ( is_array($term) && isset($term['term_id']) )
@@ -1118,9 +1118,35 @@ class Houzez_Property_Feed_Import {
                                 // loop through all fields in data and see if $rule['field'] is found
                                 if ( is_array($property) )
                                 {
-                                    $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
+                                    $value_to_check = '';
 
-                                    if ( $value_to_check === false )
+                                    if ( substr($rule['field'], 0, 2) == '$.' && version_compare(PHP_VERSION, '8.0', '>=') )
+                                    {
+                                        // JSONPath syntax
+                                        $back_to_json = json_encode($property);
+                                        $json = json_decode($back_to_json, false);
+                                        $path = new Flow\JSONPath\JSONPath($json);
+
+                                        $values_to_check = $path->find($rule['field']);
+
+                                        if ( $values_to_check !== false && !empty($values_to_check) )
+                                        {
+                                            $value_to_check = $values_to_check[0];
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Not JSONPath syntax
+
+                                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
+
+                                        if ( $value_to_check === false )
+                                        {
+                                            $value_to_check = '';
+                                        }
+                                    }
+
+                                    if ( empty($value_to_check) )
                                     {
                                         continue;
                                     }
@@ -1199,9 +1225,35 @@ class Houzez_Property_Feed_Import {
                                 // loop through all fields in data and see if $rule['field'] is found
                                 if ( is_array($property) )
                                 {
-                                    $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
+                                    $value_to_check = '';
 
-                                    if ( $value_to_check === false )
+                                    if ( substr($rule['field'], 0, 2) == '$.' && version_compare(PHP_VERSION, '8.0', '>=') )
+                                    {
+                                        // JSONPath syntax
+                                        $back_to_json = json_encode($property);
+                                        $json = json_decode($back_to_json, false);
+                                        $path = new Flow\JSONPath\JSONPath($json);
+
+                                        $values_to_check = $path->find($rule['field']);
+
+                                        if ( $values_to_check !== false && !empty($values_to_check) )
+                                        {
+                                            $value_to_check = $values_to_check[0];
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Not JSONPath syntax
+
+                                        $value_to_check = houzez_property_feed_check_array_for_matching_key( $property, $rule['field'] );
+
+                                        if ( $value_to_check === false )
+                                        {
+                                            $value_to_check = '';
+                                        }
+                                    }
+
+                                    if ( empty($value_to_check) )
                                     {
                                         continue;
                                     }

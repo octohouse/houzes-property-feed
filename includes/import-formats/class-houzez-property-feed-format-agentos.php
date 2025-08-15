@@ -977,7 +977,7 @@ class Houzez_Property_Feed_Format_Agentos extends Houzez_Property_Feed_Process {
 						{
 							$feature_term_ids[] = (int)$term['term_id'];
 						}
-						else
+						elseif ( apply_filters( 'houzez_property_feed_auto_create_new_features', true ) === true )
 						{
 							$term = wp_insert_term( trim($feature), 'property_feature' );
 							if ( is_array($term) && isset($term['term_id']) )

@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.25
-Version: 2.5.25
+Stable tag: 2.5.26
+Version: 2.5.26
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -141,6 +141,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.26 - 2025-08-15 =
+* Added new filter 'houzez_property_feed_auto_create_new_features' to turn off auto creation of non-existant features
+* Features imported from ReSales Online XML to have heirarchy
+* Cater for JSONPath syntax when auto-matching agents/agencies
+* Added more details to error logs in RE/MAX
 
 = 2.5.25 - 2025-07-28 =
 * Use status_date when determining whether to put in 'Running Now' list as opposed to just listing any that don't have an end date
