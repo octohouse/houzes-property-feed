@@ -1480,7 +1480,6 @@ class Houzez_Property_Feed_Import {
                     {
                         // Using XPATH syntax
                         $values_to_check = $property->xpath('/' . $property_node . $rule['field']);
-
                         if ( $values_to_check === FALSE )
                         {
                             continue;
@@ -1582,6 +1581,7 @@ class Houzez_Property_Feed_Import {
                                 if ( $values_to_check !== false && is_array($values_to_check) && !empty($values_to_check) )
                                 {
                                     $value_to_check = (string)$values_to_check[0];
+                                    $value_to_check = preg_replace('/^\s*<!\[CDATA\[(.*)\]\]>\s*$/s', '$1', $value_to_check);
                                 }
                             }
 

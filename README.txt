@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.26
-Version: 2.5.26
+Stable tag: 2.5.27
+Version: 2.5.27
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -141,6 +141,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.27 - 2025-08-28 =
+* Send price qualifier in RTDF exports
+* Ensure main image is imported first in REAXML imports
+* Import build and land area from REAXML
+* Remove any CDATA wrapper tags when doing XML field mapping
 
 = 2.5.26 - 2025-08-15 =
 * Added new filter 'houzez_property_feed_auto_create_new_features' to turn off auto creation of non-existant features

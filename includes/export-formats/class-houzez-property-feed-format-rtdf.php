@@ -403,6 +403,33 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             $request_data['property']['address']['display_address'] = get_the_title( $post_id );
 
             $price_qualifier = 0;
+
+            $valid_qualifiers = [
+                'coming' => 16,
+                'fixed' => 3,
+                'from' => 7,
+                'guide' => 2,
+                'region' => 5,
+                'oiro' => 5,
+                'over' => 10,
+                'excess' => 4,
+                'invited' => 15,
+                'shared owner' => 9,
+                'tender' => 6,
+            ];
+
+            $input = strtolower(trim(get_post_meta( $post_id, 'fave_property_price_prefix', TRUE )));
+
+            foreach ( $valid_qualifiers as $qualifier_key => $qualifier ) 
+            {
+                if ( strpos($input, $qualifier_key) !== FALSE )
+                {
+                    // input contains this qualifier
+                    $price_qualifier = $qualifier;
+                    break;
+                }
+            }
+
             $request_data['property']['price_information']['price_qualifier'] = (int)$price_qualifier;
 
             $request_data['property']['price_information']['deposit'] = null;
