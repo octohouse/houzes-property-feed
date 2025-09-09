@@ -1292,17 +1292,21 @@ class Houzez_Property_Feed_Import {
                     }
                     elseif ( $and_rules['houzez_field'] == 'fave_property_price' && $result != '' )
                     {
-                        $explode_result = explode(" ", $result);
-                        $new_result = array();
-                        foreach ( $explode_result as $word )
+                        if ( apply_filters( 'houzez_property_feed_clean_price_on_import', true ) === true )
                         {
-                            $price_separators = hpf_determine_number_separators($word);
-                            $word = str_replace($price_separators['thousand'], '', $word);
-                            $word = str_replace($price_separators['decimal'], '.', $word);
+                            $explode_result = explode(" ", $result);
+                            $new_result = array();
+                            foreach ( $explode_result as $word )
+                            {
+                                $price_separators = hpf_determine_number_separators($word);
+                                $word = str_replace($price_separators['thousand'], '', $word);
+                                $word = str_replace($price_separators['decimal'], '.', $word);
 
-                            $new_result[] = $word;
+                                $new_result[] = $word;
+                            }
+
+                            $result = implode(" ", $new_result);
                         }
-                        $result = implode(" ", $new_result);
                     }
 
                     if ( isset($houzez_fields[$and_rules['houzez_field']]) && isset($houzez_fields[$and_rules['houzez_field']]['field_type']) && $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'multiselect' )

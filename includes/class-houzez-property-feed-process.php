@@ -565,44 +565,58 @@ class Houzez_Property_Feed_Process {
 
 		$request_url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=" . strtolower($country) . "&addressdetails=1&q=" . urlencode(implode(", ", $address));
 
-		$response = wp_remote_get($request_url);
+		$response = wp_remote_get(
+			$request_url,
+			array(
+		        'headers' => array(
+		            'Referer' => home_url(),
+		        ),
+		    )
+		);
 
-		if ( !is_wp_error( $response ))
+		if ( is_wp_error( $response ))
 		{
-			if ( is_array( $response ) )
+			$this->log_error( 'Error returned from geocoding service: ' . $response->get_error_message(), $agent_ref, $post_id );
+			sleep(2); // Sleep due to throttling limits
+			return false;
+		}
+
+		if ( wp_remote_retrieve_response_code($response) !== 200 )
+        {
+            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when geocoding address ' . implode(", ", $address) . '. Error message: ' . wp_remote_retrieve_response_message($response) );
+            sleep(2); // Sleep due to throttling limits
+            return false;
+        }
+
+		if ( is_array( $response ) )
+		{
+			$body = wp_remote_retrieve_body( $response );
+			$json = json_decode($body, true);
+
+			if ( !empty($json) && isset($json[0]['lat']) && isset($json[0]['lon']) )
 			{
-				$body = wp_remote_retrieve_body( $response );
-				$json = json_decode($body, true);
+				$lat = $json[0]['lat'];
+				$lng = $json[0]['lon'];
 
-				if ( !empty($json) && isset($json[0]['lat']) && isset($json[0]['lon']) )
+				if ($lat != '' && $lng != '')
 				{
-					$lat = $json[0]['lat'];
-					$lng = $json[0]['lon'];
+					update_post_meta( $post_id, 'houzez_geolocation_lat', $lat );
+					update_post_meta( $post_id, 'houzez_geolocation_long', $lng );
 
-					if ($lat != '' && $lng != '')
-					{
-						update_post_meta( $post_id, 'houzez_geolocation_lat', $lat );
-						update_post_meta( $post_id, 'houzez_geolocation_long', $lng );
-
-						return array( $lat, $lng );
-					}
-				}
-				else
-				{
-					$this->log_error( 'No co-ordinates returned for the address provided: ' . implode( ", ", $address ), $agent_ref, $post_id );
+					return array( $lat, $lng );
 				}
 			}
 			else
 			{
-				$this->log_error( 'Failed to parse JSON response from OSM Geocoding service.', $agent_ref, $post_id );
+				$this->log_error( 'No co-ordinates returned for the address provided: ' . implode( ", ", $address ), $agent_ref, $post_id );
 			}
 		}
 		else
 		{
-			$this->log_error( 'Error returned from geocoding service: ' . $response->get_error_message(), $agent_ref, $post_id );
+			$this->log_error( 'Failed to parse JSON response from OSM Geocoding service.', $agent_ref, $post_id );
 		}
 
-		sleep(1); // Sleep due to throttling limits
+		sleep(2); // Sleep due to throttling limits
 
 		return false;
 	}
@@ -663,6 +677,8 @@ class Houzez_Property_Feed_Process {
 				{
 					$this->log_error( 'Invalid response when trying to obtain co-ordinates', $agent_ref, $post_id );
 				}
+
+				sleep(2); // Sleep due to throttling limits
 			}
 			else
 			{
@@ -673,8 +689,6 @@ class Houzez_Property_Feed_Process {
 		{
 			$this->log( 'Not performing Google Geocoding request as no API key present in settings', $agent_ref, $post_id  );
 		}
-
-		sleep(1); // Sleep due to throttling limits
 
 		return false;
 	}
@@ -790,7 +804,7 @@ class Houzez_Property_Feed_Process {
         {
         	// check lat and lng set, and use that instead of doing geocoding
         	$lat = get_post_meta($post_id, 'houzez_geolocation_lat', true);
-        	$lng = get_post_meta($post_id, 'houzez_geolocation_lng', true);
+        	$lng = get_post_meta($post_id, 'houzez_geolocation_long', true);
         	if ( !empty($lat) && !empty($lng) )
         	{
         		update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );

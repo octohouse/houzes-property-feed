@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.27
-Version: 2.5.27
+Stable tag: 2.5.28
+Version: 2.5.28
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,6 +26,7 @@ We can import properties from the following estate agency CRMs/formats:
 * Apex27
 * Apimo
 * BDP
+* Behomes
 * BLM
 * Bridge - RESO MLS API Provider (beta)
 * CASAFARI
@@ -141,6 +142,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.28 - 2025-09-09 =
+* Added support for importing properties from Behomes
+* Added support for land property to ReaXML imports
+* Added a 'Referer' header to OSM geocoding requests to prevent getting blocked
+* Added filter 'houzez_property_feed_clean_price_on_import' to disable price cleansing when importing price using custom field mappings
 
 = 2.5.27 - 2025-08-28 =
 * Send price qualifier in RTDF exports

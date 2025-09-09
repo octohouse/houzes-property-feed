@@ -481,6 +481,95 @@ function houzez_property_feed_get_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/bdp/',
             'warnings' => array_filter( array( $curl_warning ) ),
         ),
+        'behomes' => array(
+            'name' => __( 'Behomes', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => __( 'Your API key can be found in your Behomes account under "My Integrations"', 'houzezpropertyfeed' )
+                ),
+                array(
+                    'id' => 'property_type',
+                    'label' => __( 'Properties To Import', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        '' => __( 'All Properties', 'houzezpropertyfeed' ),
+                        'Off-plan' => __( 'Off-Plan Properties', 'houzezpropertyfeed' ),
+                        'Secondary' => __( 'Secondary Properties', 'houzezpropertyfeed' )
+                    ),
+                    'default' => 'offplan'
+                ),
+               /* array(
+                    'id' => 'language',
+                    'label' => __( 'Language', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'en' => __( 'English', 'houzezpropertyfeed' ),
+                        'ru' => __( 'Russian', 'houzezpropertyfeed' ),
+                        'de' => __( 'German', 'houzezpropertyfeed' ),
+                        'fr' => __( 'French', 'houzezpropertyfeed' ),
+                        'hi' => __( 'Hindi', 'houzezpropertyfeed' ),
+                        'ar' => __( 'Arabic', 'houzezpropertyfeed' ),
+                        'tr' => __( 'Turkish', 'houzezpropertyfeed' ),
+                        'ch' => __( 'Chinese', 'houzezpropertyfeed' ),
+                        'it' => __( 'Italian', 'houzezpropertyfeed' ),
+                        'pl' => __( 'Polish', 'houzezpropertyfeed' )
+                    ),
+                    'default' => 'en'
+                ),*/
+                array(
+                    'id' => 'unit',
+                    'label' => __( 'Unit System', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'meter' => __( 'Meters', 'houzezpropertyfeed' ),
+                        'foot' => __( 'Feet', 'houzezpropertyfeed' )
+                    ),
+                    'default' => 'meter'
+                ),
+                /*array(
+                    'id' => 'launch_type',
+                    'label' => __( 'Launch Type (Off-Plan Only)', 'houzezpropertyfeed' ),
+                    'type' => 'radio',
+                    'options' => array(
+                        'all' => __( 'All Launch Types', 'houzezpropertyfeed' ),
+                        'Launch_soon' => __( 'Launch Soon', 'houzezpropertyfeed' ),
+                        'New_launch' => __( 'New Launch', 'houzezpropertyfeed' ),
+                        'Popular' => __( 'Popular', 'houzezpropertyfeed' ),
+                        'Assignment' => __( 'Assignment', 'houzezpropertyfeed' ),
+                        'Sold_out' => __( 'Sold Out', 'houzezpropertyfeed' )
+                    ),
+                    'default' => 'all'
+                ),*/
+                array(
+                    'id' => 'developer',
+                    'label' => __( 'Developer(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'placeholder' => 'e.g., Damac, Azizi, Sobha',
+                    'tooltip' => __( 'Filter properties by developer name. Leave empty to import all developers', 'houzezpropertyfeed' )
+                )
+            ),
+            'address_fields' => array( 'district' ),
+            'taxonomy_values' => array(
+                /*'sales_status' => array(
+
+                ),
+                'lettings_status' => array(
+
+                ),*/
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Villa' => 'Villa',
+                    'Townhouse' => 'Townhouse',
+                ),
+            ),
+            'contact_information_fields' => array(
+                'organizationName',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/behomes/',
+        ),
         'blm_local' => array(
             'name' => __( 'BLM - Local Directory', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -2247,6 +2336,7 @@ function houzez_property_feed_get_import_formats()
                     'Terrace' => 'Terrace',
                     'Retirement' => 'Retirement',
                     'ServicedApartment' => 'ServicedApartment',
+                    'Land' => 'Land',
                     'Other' => 'Other',
                 )
             ),
@@ -2292,6 +2382,7 @@ function houzez_property_feed_get_import_formats()
                     'Terrace' => 'Terrace',
                     'Retirement' => 'Retirement',
                     'ServicedApartment' => 'ServicedApartment',
+                    'Land' => 'Land',
                     'Other' => 'Other',
                 )
             ),
