@@ -267,20 +267,29 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
                 }
                 else
                 {
+                	$rent_frequency = '';
+
                 	$price = preg_replace("/[^0-9.]/", '', (string)$property->price);
                 	if ( is_numeric($price) )
                 	{
-	                	$price = round($price);
+	                	$price = round((float)$price);
 	                }
 
-                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
-                    update_post_meta( $post_id, 'fave_property_price', $price );
-                    
-                    $rent_frequency = '';
-                    if ( $department == 'residential-lettings' )
+	                if ( $department == 'residential-lettings' )
                     {
-	                    $rent_frequency = 'pcm';
-						if ( isset($property->rental_period) )
+                    	$rent_frequency = 'pcm';
+
+                    	if ( isset($property->price->yearly) )
+                    	{
+                    		$price = preg_replace("/[^0-9.]/", '', (string)$property->price->yearly);
+		                	if ( is_numeric($price) )
+		                	{
+			                	$price = round((float)$price);
+			                	$rent_frequency = 'pa';
+			                }
+                    	}
+
+                    	if ( isset($property->rental_period) )
 						{
 							switch ((string)$property->rental_period)
 							{
@@ -289,13 +298,18 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 								case "D": { $rent_frequency = 'pd'; break; }
 							}
 						}
-					}
-					update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
+	                }
+
+                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
+                    update_post_meta( $post_id, 'fave_property_price', $price );
+                    update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );					
                 }
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property->bedroom) ) ? (string)$property->bedroom : '' ) );
 	            update_post_meta( $post_id, 'fave_property_bathrooms', ( ( isset($property->bathroom) ) ? (string)$property->bathroom : '' ) );
 	            update_post_meta( $post_id, 'fave_property_rooms', '' );
+	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property->size) && !empty((string)$property->size) ) ? (string)$property->size : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( isset($property->size) && !empty((string)$property->size) ) ? 'Sq Ft' : '' ) );
 	            update_post_meta( $post_id, 'fave_property_garage', '' );
 	            update_post_meta( $post_id, 'fave_property_id', (string)$property->reference_number );
 

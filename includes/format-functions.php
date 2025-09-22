@@ -3596,7 +3596,18 @@ function houzez_property_feed_get_export_formats()
         'facebook' => apply_filters( 'houzez_property_feed_export_format_options_facebook', array(
             'name' => __( 'Facebook', 'houzezpropertyfeed' ),
             'method' => 'url', // cron / realtime / url
-            'fields' => array(),
+            'fields' => array(
+                array(
+                    'id' => 'home_listing_id_field',
+                    'label' => __( 'Unique Property ID Field', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'post_id' => 'WordPress Post ID',
+                        'fave_property_id' => 'Property Reference Entered in Houzez',
+                    ),
+                    'tooltip' => 'If using the Houzez Property Reference this must be completely unique'
+                ),
+            ),
             'field_mapping_fields' => array(
                 'name' => 'name',
                 'availability' => 'availability',

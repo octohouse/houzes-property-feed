@@ -244,6 +244,22 @@ class Houzez_Property_Feed_Format_REAXML extends Houzez_Property_Feed_Process {
 						            }
 					            } // end foreach property
 					        }
+
+					        if (isset($xml->land))
+				            {
+								foreach ($xml->land as $property)
+								{
+									$property_attributes = $property->attributes();
+
+									if ( $property_attributes['status'] == 'current' )
+									{
+										$property->addChild('department', 'residential-sales');
+										$category = $property->addChild('category');
+										$category->addAttribute('name', 'Land');
+						                $this->properties[] = $property;
+						            }
+					            } // end foreach property
+					        }
 				        }
 				        else
 				        {

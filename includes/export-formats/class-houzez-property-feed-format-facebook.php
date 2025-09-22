@@ -97,6 +97,8 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
 
         $countries = houzez_property_feed_get_countries();
 
+        $home_listing_id_field = isset($export_settings['home_listing_id_field']) && $export_settings['home_listing_id_field'] == 'fave_property_id' ? $export_settings['home_listing_id_field'] : '';
+
         if ( $properties_query->have_posts() )
         {
             $this->log( "Beginning to iterate through properties" );
@@ -111,7 +113,15 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
 
                 $listing_xml = $xml->addChild('listing');
 
-                $listing_xml->addChild('home_listing_id', $post->ID);
+                $home_listing_id = $post->ID;
+                if ( $home_listing_id_field == 'fave_property_id' )
+                {
+                    if ( trim(get_post_meta( $post->ID, 'fave_property_id', TRUE )) != '' )
+                    {
+                        $home_listing_id = get_post_meta( $post->ID, 'fave_property_id', TRUE );
+                    }
+                }
+                $listing_xml->addChild('home_listing_id', $home_listing_id);
 
                 $listing_xml->addChild('name', get_the_title());
 
@@ -260,6 +270,7 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
                     {
                         case "£": { $currency = 'GBP'; break; }
                         case "$": { $currency = 'USD'; break; }
+                        case "฿": { $currency = 'THB'; break; }
                     }
                 }
                 $price = get_post_meta( $post->ID, 'fave_property_price', true ) . ' ' . $currency;

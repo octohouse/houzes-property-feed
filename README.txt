@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.28
-Version: 2.5.28
+Stable tag: 2.5.29
+Version: 2.5.29
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -142,6 +142,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.29 - 2025-09-22 =
+* Added the ability to choose which field to use in Facebook exports as unique ID; post ID or reference number entered into Houzez
+* Added support for THB currency in Facebook exports
+* Added support for 'land' properties in REAXML feeds
+* Updated PropertyFinder import format to import yearly price and size
 
 = 2.5.28 - 2025-09-09 =
 * Added support for importing properties from Behomes
