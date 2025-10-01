@@ -228,6 +228,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 				    	'post_status'    => apply_filters( 'houzez_property_feed_xml_mapped_field_value', 'publish', $property, 'post_status', $this->import_id, $post_id ),
 				  	);
 
+				  	$my_post = apply_filters( 'houzez_property_feed_update_postarr', $my_post, $property, $this->import_id, $post_id );
+
 				 	// Update the post into the database
 				    $post_id = wp_update_post( $my_post, true );
 
@@ -254,6 +256,8 @@ class Houzez_Property_Feed_Format_Xml extends Houzez_Property_Feed_Process {
 					'post_type'      => 'property',
 					'comment_status' => 'closed',
 				);
+
+				$postdata = apply_filters( 'houzez_property_feed_insert_postarr', $postdata, $property, $this->import_id );
 
 				$post_id = wp_insert_post( $postdata, true );
 

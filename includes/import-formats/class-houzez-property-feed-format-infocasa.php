@@ -332,6 +332,8 @@ XML;
 				    	'post_status'    => 'publish',
 				  	);
 
+				  	$my_post = apply_filters( 'houzez_property_feed_update_postarr', $my_post, $property, $this->import_id, $post_id );
+
 				 	// Update the post into the database
 				    $post_id = wp_update_post( $my_post, true );
 
@@ -366,6 +368,8 @@ XML;
 					'comment_status' => 'closed',
 					'post_date'      => $create_date,
 				);
+
+				$postdata = apply_filters( 'houzez_property_feed_insert_postarr', $postdata, $property, $this->import_id );
 
 				$post_id = wp_insert_post( $postdata, true );
 

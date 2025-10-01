@@ -181,6 +181,8 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 				    	'post_status'    => 'publish',
 				  	);
 
+				  	$my_post = apply_filters( 'houzez_property_feed_update_postarr', $my_post, $property, $this->import_id, $post_id );
+
 				 	// Update the post into the database
 				    $post_id = wp_update_post( $my_post, true );
 
@@ -207,6 +209,8 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 					'post_type'      => 'property',
 					'comment_status' => 'closed',
 				);
+
+				$postdata = apply_filters( 'houzez_property_feed_insert_postarr', $postdata, $property, $this->import_id );
 
 				$post_id = wp_insert_post( $postdata, true );
 
@@ -326,6 +330,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 	            {
 	                $address_parts[] = (string)$property->city;
 	            }
+	            $address_parts = array_unique($address_parts);
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
@@ -349,6 +354,7 @@ class Houzez_Property_Feed_Format_Property_Finder extends Houzez_Property_Feed_P
 	            {
 	                $address_parts[] = (string)$property->street;
 	            }
+	            $address_parts = array_unique($address_parts);
 	            update_post_meta( $post_id, 'fave_property_address', implode(", ", $address_parts) );
 	            update_post_meta( $post_id, 'fave_property_zip', '' );
 

@@ -867,6 +867,8 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 						$my_post['post_modified_gmt'] = $property['post_modified_gmt'];
 					}
 
+					$my_post = apply_filters( 'houzez_property_feed_update_postarr', $my_post, $property, $this->import_id, $post_id );
+
 				 	// Update the post into the database
 				    $post_id = wp_update_post( $my_post, true );
 
@@ -901,6 +903,8 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 				{
 					$postdata['post_modified_gmt'] = $property['post_modified_gmt'];
 				}
+
+				$postdata = apply_filters( 'houzez_property_feed_insert_postarr', $postdata, $property, $this->import_id );
 
 				$post_id = wp_insert_post( $postdata, true );
 

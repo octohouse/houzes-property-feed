@@ -315,6 +315,8 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 				    	'post_status'    => 'publish',
 				  	);
 
+				  	$my_post = apply_filters( 'houzez_property_feed_update_postarr', $my_post, $property, $this->import_id, $post_id );
+
 				 	// Update the post into the database
 				    $post_id = wp_update_post( $my_post, true );
 
@@ -341,6 +343,8 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 					'post_type'      => 'property',
 					'comment_status' => 'closed',
 				);
+
+				$postdata = apply_filters( 'houzez_property_feed_insert_postarr', $postdata, $property, $this->import_id );
 
 				$post_id = wp_insert_post( $postdata, true );
 
@@ -455,6 +459,7 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
 	            {
 	                $address_parts[] = trim( $property['address']['postcode_1'] . ' ' . $property['address']['postcode_2'] );
 	            }
+	            $address_parts = array_unique($address_parts);
 
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
