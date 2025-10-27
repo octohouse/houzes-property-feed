@@ -2111,6 +2111,7 @@ function houzez_property_feed_get_import_formats()
                         'Vermarktung' => 'Vermarktung',
                         'Akquise' => 'Akquise',
                         'Abgeschlossen' => 'Abgeschlossen',
+                        'Verkauft' => 'Verkauft',
                     ),
                     'default' => array( 'Vermarktung' ),
                     'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
@@ -2123,6 +2124,7 @@ function houzez_property_feed_get_import_formats()
                     'Vermarktung' => 'Vermarktung',
                     'Akquise' => 'Akquise',
                     'Abgeschlossen' => 'Abgeschlossen',
+                    'Verkauft' => 'Verkauft',
                 ),
                 'lettings_status' => array(
                     'Abgeschlossen' => 'Abgeschlossen',

@@ -99,7 +99,7 @@ class Houzez_Property_Feed_Format_Behomes extends Houzez_Property_Feed_Process {
 
 			if ($json !== FALSE)
 			{
-				$this->log("Parsing " . $department . " properties on page " . $current_page);
+				$this->log("Parsing properties on page " . $current_page);
 
 				if ( isset($json['filter_params']['max_pages']) )
 				{

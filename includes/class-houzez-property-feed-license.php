@@ -101,22 +101,6 @@ class Houzez_Property_Feed_License {
         	return $return;
         }
 
-        // only do once per day
-        /*if ( $force !== true )
-        {
-	        $last_checked = get_option( 'houzez_property_feed_license_key_last_checked', '' );
-	        if ( ( time() - $last_checked) <= 86400 )
-	        {
-	        	$license_key_status = get_option( 'houzez_property_feed_license_key_status', array() );
-	        	if ( is_array($license_key_status) && !empty($license_key_status) )
-	        	{
-	        		$return = $license_key_status;
-	        		$this->license_status = $return;
-        			return $return;
-	        	}
-	        }
-	    }*/
-
 	    if ( $force !== true )
     	{
     		// Not forcing. Get from transient if possible
@@ -189,6 +173,15 @@ class Houzez_Property_Feed_License {
     	
     	if ( is_wp_error($response) )
     	{
+    		// error for some reason. Return last known status
+    		$previous_license_key_status = get_option( 'houzez_property_feed_license_key_status', '' );
+    		if ( !empty($previous_license_key_status) )
+    		{
+    			set_transient( 'houzez_property_feed_license_status', $previous_license_key_status, HOUR_IN_SECONDS );
+    			$this->license_status = $previous_license_key_status;
+    			return $previous_license_key_status;
+    		}
+
         	$return = array(
         		'success' => false,
         		'error' => __( 'Failed to request license status', 'houzezpropertyfeed' ) . ': ' . $response->get_error_message()
@@ -199,6 +192,15 @@ class Houzez_Property_Feed_License {
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) )
 		{
+			// error for some reason. Return last known status
+    		$previous_license_key_status = get_option( 'houzez_property_feed_license_key_status', '' );
+    		if ( !empty($previous_license_key_status) )
+    		{
+    			set_transient( 'houzez_property_feed_license_status', $previous_license_key_status, HOUR_IN_SECONDS );
+    			$this->license_status = $previous_license_key_status;
+    			return $previous_license_key_status;
+    		}
+
         	$return = array(
         		'success' => false,
         		'error' => __( 'Received response code when requesting license key status', 'houzezpropertyfeed' ) . ': ' . wp_remote_retrieve_response_code( $response )
@@ -213,6 +215,15 @@ class Houzez_Property_Feed_License {
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) 
 		{
+			// error for some reason. Return last known status
+    		$previous_license_key_status = get_option( 'houzez_property_feed_license_key_status', '' );
+    		if ( !empty($previous_license_key_status) )
+    		{
+    			set_transient( 'houzez_property_feed_license_status', $previous_license_key_status, HOUR_IN_SECONDS );
+    			$this->license_status = $previous_license_key_status;
+    			return $previous_license_key_status;
+    		}
+
         	$return = array(
         		'success' => false,
         		'error' => __( 'Failed to decode response when requesting license key status. Please try again', 'houzezpropertyfeed' ) . ': ' . print_r( $result, true )
@@ -251,11 +262,20 @@ class Houzez_Property_Feed_License {
 			update_option( 'houzez_property_feed_license_key_status', $return );
 
 			$this->license_status = $return;
-			set_transient( 'houzez_property_feed_license_status', $return, HOUR_IN_SECONDS );
+			set_transient( 'houzez_property_feed_license_status', $return, HOUR_IN_SECONDS * 3 );
 			return $return;
 		}
 		else
 		{
+			// error for some reason. Return last known status
+    		$previous_license_key_status = get_option( 'houzez_property_feed_license_key_status', '' );
+    		if ( !empty($previous_license_key_status) )
+    		{
+    			set_transient( 'houzez_property_feed_license_status', $previous_license_key_status, HOUR_IN_SECONDS );
+    			$this->license_status = $previous_license_key_status;
+    			return $previous_license_key_status;
+    		}
+    		
 			$return = array(
         		'success' => false,
         		'error' => __( 'Something went wrong when requesting license key status', 'houzezpropertyfeed' ) . ': ' . print_r($body, true)

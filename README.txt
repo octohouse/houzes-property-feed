@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.30
-Version: 2.5.30
+Stable tag: 2.5.31
+Version: 2.5.31
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -142,6 +142,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.31 - 2025-10-27 =
+* Added 'Verkauft' status to Propstack settings and mappings
+* Handle license checking service being unavailable
+* Extended license checks to every 3 hours instead of every hour
+* Corrected log in Behomes format
 
 = 2.5.30 - 2025-10-01 =
 * Added filter 'houzez_property_feed_insert_postarr' to override core post data when inserting new property
