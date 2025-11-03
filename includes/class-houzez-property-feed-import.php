@@ -833,19 +833,46 @@ class Houzez_Property_Feed_Import {
                                 $found = true;
                             }
                             elseif (
-                                ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) ) && trim($value_to_check) == $rule['equal']
+                                ( !isset($rule['operator']) || ( isset($rule['operator']) && $rule['operator'] == '=' ) )
+                                && (
+                                    ( is_array($value_to_check) && (function() use ($value_to_check, $rule) {
+                                        foreach ($value_to_check as $v) {
+                                            if (trim((string)$v) == $rule['equal']) return true;
+                                        }
+                                        return false;
+                                    })() )
+                                    || ( !is_array($value_to_check) && trim((string)$value_to_check) == $rule['equal'] )
+                                )
                             )
                             {
                                 $found = true;
                             }
                             elseif (
-                                ( isset($rule['operator']) && $rule['operator'] == '!=' ) && trim($value_to_check) != $rule['equal']
+                                ( isset($rule['operator']) && $rule['operator'] == '!=' )
+                                && (
+                                    ( is_array($value_to_check) && (function() use ($value_to_check, $rule) {
+                                        foreach ($value_to_check as $v) {
+                                            if (trim((string)$v) == $rule['equal']) return false; // any equal ⇒ fail
+                                        }
+                                        return true; // none equal ⇒ pass
+                                    })() )
+                                    || ( !is_array($value_to_check) && trim((string)$value_to_check) != $rule['equal'] )
+                                )
                             )
                             {
                                 $found = true;
                             }
                             elseif (
-                                ( isset($rule['operator']) && $rule['operator'] == 'like' ) && strpos(trim($value_to_check), $rule['equal']) !== false
+                                ( isset($rule['operator']) && $rule['operator'] == 'like' )
+                                && (
+                                    ( is_array($value_to_check) && (function() use ($value_to_check, $rule) {
+                                        foreach ($value_to_check as $v) {
+                                            if (is_scalar($v) && strpos(trim((string)$v), $rule['equal']) !== false) return true;
+                                        }
+                                        return false;
+                                    })() )
+                                    || ( !is_array($value_to_check) && strpos(trim((string)$value_to_check), $rule['equal']) !== false )
+                                )
                             )
                             {
                                 $found = true;

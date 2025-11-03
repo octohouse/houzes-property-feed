@@ -1425,7 +1425,7 @@ function houzez_property_feed_get_import_formats()
                     'placeholder' => 'https://',
                 )
             ),
-            'address_fields' => array( 'ciudad', 'zona' ),
+            'address_fields' => array( 'provincia', 'ciudad', 'zona' ),
             'taxonomy_values' => array(
                 'sales_status' => array(
                     'Vender' => 'Vender',

@@ -272,7 +272,7 @@ class Houzez_Property_Feed_Format_Inmovilla extends Houzez_Property_Feed_Process
 				update_post_meta( $post_id, '_property_import_data', $property->asXML() );
 
 				$department = 'residential-sales';
-				if ( (string)$property->accion == 'Alquilar' )
+				if ( strpos((string)$property->accion, 'Alquilar') !== false )
 				{
 					$department = 'residential-lettings';
 				}
