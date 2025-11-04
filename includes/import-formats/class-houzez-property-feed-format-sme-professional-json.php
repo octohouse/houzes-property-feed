@@ -232,7 +232,7 @@ class Houzez_Property_Feed_Format_SME_Professional_JSON extends Houzez_Property_
         if ( $limit !== false )
         {
         	$this->properties = array_slice( $this->properties, 0, $limit );
-        	$additional_message = '. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
+        	$additional_message = '. <a href="https://houzezpropertyfeed.com/pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
         }
         else
         {

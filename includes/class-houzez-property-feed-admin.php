@@ -156,7 +156,7 @@ class Houzez_Property_Feed_Admin {
 
         if ( !class_exists( 'Houzez_Property_Feed_Pro' ) )
         {
-            $pro_link = '<a href="https://houzezpropertyfeed.com/#pricing" target="_blank" style="font-weight:700; color:#93003c">' . __( 'Upgrade to PRO', 'houzezpropertyfeed' ) . '</a>';
+            $pro_link = '<a href="https://houzezpropertyfeed.com/pricing" target="_blank" style="font-weight:700; color:#93003c">' . __( 'Upgrade to PRO', 'houzezpropertyfeed' ) . '</a>';
             array_push( $links, $pro_link );
         }
 

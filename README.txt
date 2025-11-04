@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.32
-Version: 2.5.31
+Stable tag: 2.5.33
+Version: 2.5.33
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -107,7 +107,7 @@ Here's just a couple of reasons why you should choose the Houzez Property Feed p
 * Limit the number of properties imported
 * Limit the number of images imported per property
 
-[Update to PRO here](https://houzezpropertyfeed.com/#pricing)
+[Update to PRO here](https://houzezpropertyfeed.com/pricing)
 
 == Installation ==
 
@@ -142,6 +142,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.33 - 2025-11-04 =
+* Updated license functionality to also consider upcoming annual pricing model
+* Corrected pricing link across entire plugin
 
 = 2.5.32 - 2025-11-03 =
 * Field rules to cater for fields that are arrays

@@ -8,7 +8,7 @@
 
 		<h1><?php echo __( 'Upgrade to PRO', 'houzezpropertyfeed' ); ?></h1>
 
-		<p>Unlock more functionality by upgrading to <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Houzez Property Feed PRO</a>. Some of the added benefits of using PRO can be seen below:</p>
+		<p>Unlock more functionality by upgrading to <a href="https://houzezpropertyfeed.com/pricing" target="_blank">Houzez Property Feed PRO</a>. Some of the added benefits of using PRO can be seen below:</p>
 
 		<div class="features">
 
@@ -33,7 +33,7 @@
 
 		</div>
 
-		<div class="cta"><a href="https://houzezpropertyfeed.com/#pricing" target="_blank" class="button button-primary button-hero"><?php echo __( 'Upgrade to PRO', 'houzezpropertyfeed' ); ?></a></div>
+		<div class="cta"><a href="https://houzezpropertyfeed.com/pricing" target="_blank" class="button button-primary button-hero"><?php echo __( 'Upgrade to PRO', 'houzezpropertyfeed' ); ?></a></div>
 
 	</div>
 

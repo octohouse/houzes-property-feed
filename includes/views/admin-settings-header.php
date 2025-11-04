@@ -17,7 +17,7 @@
 	</div>
 
 	<div class="buttons">
-		<?php if ( !class_exists('Houzez_Property_Feed_Pro') ) { ?><a href="https://houzezpropertyfeed.com/#pricing" class="button button-primary" target="_blank"><?php echo esc_html(__( 'Upgrade To PRO', 'houzezpropertyfeed' )); ?></a> &nbsp;<?php } ?>
+		<?php if ( !class_exists('Houzez_Property_Feed_Pro') ) { ?><a href="https://houzezpropertyfeed.com/pricing" class="button button-primary" target="_blank"><?php echo esc_html(__( 'Upgrade To PRO', 'houzezpropertyfeed' )); ?></a> &nbsp;<?php } ?>
 		<a href="https://houzezpropertyfeed.com/documentation/" class="button" target="_blank"><?php echo esc_html(__( 'Documentation', 'houzezpropertyfeed' )); ?></a>
 	</div>
 

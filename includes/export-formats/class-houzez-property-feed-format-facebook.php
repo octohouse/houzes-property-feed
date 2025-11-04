@@ -73,7 +73,7 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
         $additional_message = '';
         if ( $limit !== false )
         {
-            $additional_message = '. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
+            $additional_message = '. <a href="https://houzezpropertyfeed.com/pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
             $this->log( 'Exporting up to ' . $limit . ' properties' . $additional_message );
             $args['posts_per_page'] = $limit;
         }

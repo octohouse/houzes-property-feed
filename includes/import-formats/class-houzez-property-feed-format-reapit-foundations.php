@@ -552,7 +552,7 @@ class Houzez_Property_Feed_Format_Reapit_Foundations extends Houzez_Property_Fee
         if ( $limit !== false )
         {
         	$this->properties = array_slice( $this->properties, 0, $limit );
-        	$additional_message = '. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
+        	$additional_message = '. <a href="https://houzezpropertyfeed.com/pricing" target="_blank">Upgrade to PRO</a> to import unlimited properties';
         }
         else
         {

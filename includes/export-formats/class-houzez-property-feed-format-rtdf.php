@@ -220,7 +220,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                             {
                                 if ( count($response['property']) >= $limit )
                                 {
-                                    $this->log_error($limit . ' or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
+                                    $this->log_error($limit . ' or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
                                     $ok_to_send = false;
                                 }
                             }
@@ -1209,7 +1209,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                         {
                             if ( count($response['property']) >= $limit )
                             {
-                                $this->log_error($limit . ' or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/#pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
+                                $this->log_error($limit . ' or more properties already found to be active. You\'ll need to remove properties first before being able to send this one. <a href="https://houzezpropertyfeed.com/pricing" target="_blank">Upgrade to PRO</a> to export more', '', $post->ID);
                                 $ok_to_send = false;
                             }
                         }
