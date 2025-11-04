@@ -140,7 +140,7 @@ class Houzez_Property_Feed_License {
 
 	    $instance_id = get_option( 'houzez_property_feed_instance_id', '' );
 
-	    $product_ids_to_try = array(17, 3943);
+	    $product_ids_to_try = array(17, 3944, 3945);
 	    $last_error_message = '';
 	    $last_body_dump     = '';
 
@@ -237,7 +237,7 @@ class Houzez_Property_Feed_License {
 	        update_option('houzez_property_feed_instance_id', $instance_id );
 	    }
 
-	    $product_ids_to_try = array(17, 3943);
+	    $product_ids_to_try = array(17, 3944, 3945);
 	    $last_error = '';
 
 	    foreach ( $product_ids_to_try as $pid ) {
@@ -277,6 +277,7 @@ class Houzez_Property_Feed_License {
 	                wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpfsuccessmessage=' . base64_encode(__( 'License key activated', 'houzezpropertyfeed' ) ) ) );
 	                die();
 	            } else {
+	            	
 	                $last_error = __( 'Error when activating license key', 'houzezpropertyfeed' ) . ': ' . $body['error'];
 	                continue;
 	            }
@@ -287,7 +288,7 @@ class Houzez_Property_Feed_License {
 	    }
 
 	    // If we reach here, all attempts failed
-	    wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode( $last_error ) ) );
+	    wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode( urlencode($last_error) ) ) );
 	    die();
 	}
 
@@ -298,7 +299,7 @@ class Houzez_Property_Feed_License {
 
 	    $instance_id = get_option( 'houzez_property_feed_instance_id', '' );
 
-	    $product_ids_to_try = array(17, 3943);
+	    $product_ids_to_try = array(17, 3944, 3945);
 	    $last_error = '';
 
 	    foreach ( $product_ids_to_try as $pid ) {
@@ -348,7 +349,7 @@ class Houzez_Property_Feed_License {
 	    }
 
 	    // If we reach here, all attempts failed
-	    wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode( $last_error ) ) );
+	    wp_redirect( admin_url( 'admin.php?page=' . ( isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'houzez-property-feed-import' ) . '&tab=license&hpferrormessage=' . base64_encode( urlencode($last_error) ) ) );
 	    die();
 	}
 

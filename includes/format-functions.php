@@ -104,6 +104,7 @@ function houzez_property_feed_get_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/10ninety/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
+            'test_button' => true,
             'background_mode' => true,
         ),
         'acquaint' => array(
@@ -148,6 +149,7 @@ function houzez_property_feed_get_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/acquaint/',
             'warnings' => array_filter( array( $simplexml_warning ) ),
+            'test_button' => true,
             'background_mode' => true,
         ),
         'agentos' => array(
@@ -266,6 +268,7 @@ function houzez_property_feed_get_import_formats()
                 'id_agenzia', 'id_sede_agenzia',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/agestanet/',
+            'test_button' => true,
             'warnings' => array_filter( array( $simplexml_warning ) ),
         ),
         'alto' => array(

@@ -238,6 +238,17 @@
 			</tr>
 		<?php
 			}
+			if ( isset($format['test_button']) && $format['test_button'] === true )
+			{
+				echo '<tr>
+					<th>&nbsp;</th>
+					<td>
+						<a href="" data-format="' . $key . '" class="test-import-details button">Test Details</a>
+						<div class="test-results-success notice notice-success inline" style="display:none; margin-top:20px"></div>
+                        <div class="test-results-error notice notice-error inline" style="display:none; margin-top:20px"></div>
+					</td>
+				</tr>';
+			}
 		?>
 	</tbody>
 </table>

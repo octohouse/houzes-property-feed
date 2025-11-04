@@ -39,6 +39,12 @@ class Houzez_Property_Feed_Process {
 	 */
 	public $background_mode = false;
 
+	/**
+     * @var array
+     * Used in testing
+     */
+    public $errors = array();
+
     public function __construct() 
     {
 
@@ -391,6 +397,8 @@ class Houzez_Property_Feed_Process {
 
 	        if ( $this->is_import ) { $this->ping(); }
 		}
+
+		$this->errors[] = $message;
 	}
 
 	public function log( $message, $agent_ref = '', $post_id = 0, $received_data = '', $ping = true )

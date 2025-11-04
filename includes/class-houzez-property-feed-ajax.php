@@ -23,6 +23,8 @@ class Houzez_Property_Feed_Ajax {
         add_action( "wp_ajax_nopriv_houzez_property_feed_import_properties_batch", array( $this, "import_properties_batch" ) );
 
         add_action( "wp_ajax_houzez_property_feed_import_import", array( $this, "import_import" ) );
+
+        add_action( 'wp_ajax_houzez_property_feed_test_property_import_details', array( $this, 'test_property_import_details' ) );
 	}
 
     public function fetch_xml_nodes()
@@ -723,6 +725,70 @@ class Houzez_Property_Feed_Ajax {
         update_option( 'houzez_property_feed', $options );
 
         wp_send_json_success(array('url' => admin_url('admin.php?page=houzez-property-feed-import&hpfsuccessmessage=' . base64_encode('Import completed successfully.'))));
+    }
+
+    public function test_property_import_details()
+    {
+        header( 'Content-Type: application/json; charset=utf-8' );
+
+        $format = isset($_POST['format']) ? sanitize_text_field(wp_unslash($_POST['format'])) : '';
+
+        if ( empty($format) )
+        {
+            $return = array(
+                'success' => false,
+                'error' => __( 'No format passed', 'houzezpropertyfeed' )
+            );
+            echo json_encode($return);
+            die();
+        }
+
+        $import_object = hpf_get_import_object_from_format( $format, '', '' );
+
+        if ( $import_object === false || empty($import_object) )
+        {
+            $return = array(
+                'success' => false,
+                'error' => __( 'Couldn\'t create import object', 'houzezpropertyfeed' )
+            );
+            echo json_encode($return);
+            die();
+        }
+
+        $parsed = $import_object->parse(true);
+
+        if ( !$parsed )
+        {
+            $errors = ( isset($import_object->errors) ? $import_object->errors : array() );
+            $error = 'Please check they are correct.';
+            if ( !empty($errors) )
+            {
+                $error = $errors[array_key_last($errors)];
+                $explode_error = explode(" - ", $error, 2);
+                if ( count($explode_error) == 2 )
+                {
+                    $error = $explode_error[1];
+                }
+            }
+
+            $return = array(
+                'success' => false,
+                'error' => 'An error occurred whilst obtaining the properties using the details provided:<br><br>' . nl2br(esc_html($error))
+            );
+            echo json_encode($return);
+            die();
+        }
+        else
+        {
+            $return = array(
+                'success' => true,
+                'properties' => count($import_object->properties)
+            );
+            echo json_encode($return);
+            die();
+        }
+
+        wp_die();
     }
 }
 

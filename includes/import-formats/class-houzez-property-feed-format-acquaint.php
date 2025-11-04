@@ -21,13 +21,25 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 	    }
 	}
 
-	public function parse()
+	public function parse( $test = false )
 	{
-		$this->properties = array(); // Reset properties in the event we're importing multiple files
+		$this->properties = array();
+
+		if ( $test === false || $troubleshooting === true )
+		{
+			$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+			$test = true;
+		}
+		else
+		{
+			$import_settings = map_deep( wp_unslash($_POST), 'sanitize_text_field' );
+			if ( isset( $_POST['xml_url'] ) ) 
+			{
+			    $import_settings['xml_url'] = sanitize_url( wp_unslash( $_POST['xml_url'] ) );
+			}
+		}
 
 		$this->log("Parsing properties", '', 0, '', false);
-
-		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
@@ -84,14 +96,14 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
 		{
 			foreach ( $xml->properties->property as $property )
 			{
-                if ( $limit !== FALSE && count($this->properties) >= $limit )
+                if ( $test === false && $limit !== FALSE && count($this->properties) >= $limit )
                 {
                     return true;
                 }
 
                 $this->properties[] = $property;
 
-                if ( $background_mode === true )
+                if ( $test === false && $background_mode === true )
                 {
                 	$this->write_to_queue( (string)$property->id, $property );
                 }
@@ -105,7 +117,7 @@ class Houzez_Property_Feed_Format_Acquaint extends Houzez_Property_Feed_Process 
         	return false;
         }
 
-		if ( empty($this->properties) )
+		if ( $test === false && empty($this->properties) )
 		{
 			$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
 

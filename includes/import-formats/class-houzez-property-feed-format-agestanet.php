@@ -26,27 +26,63 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
 	    }
 	}
 
-	public function parse()
+	public function parse( $test = false )
 	{
-		$this->properties = array(); // Reset properties in the event we're importing multiple files
+		$this->properties = array();
+
+		if ( $test === false || $troubleshooting === true )
+		{
+			$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+			$test = true;
+		}
+		else
+		{
+			$import_settings = map_deep( wp_unslash($_POST), 'sanitize_text_field' );
+			if ( isset( $_POST['xml_url'] ) ) 
+			{
+			    $import_settings['xml_url'] = sanitize_url( wp_unslash( $_POST['xml_url'] ) );
+			}
+		}
 
 		$this->log("Parsing properties", '', 0, '', false);
 
-		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+		$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
+        }
 
 		$contents = '';
 
 		$response = wp_remote_get( $import_settings['xml_url'], array( 'timeout' => 360, 'sslverify' => false ) );
-		if ( !is_wp_error($response) && is_array( $response ) ) 
-		{
-			$contents = $response['body'];
-		}
-		else
-		{
-			$this->log_error( "Failed to obtain XML. Dump of response as follows: " . print_r($response, TRUE) );
 
-        	return false;
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Response: ' . $response->get_error_message() );
+
+			return false;
 		}
+
+		if ( wp_remote_retrieve_response_code($response) !== 200 )
+        {
+            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when requesting properties. Error message: ' . wp_remote_retrieve_response_message($response) );
+            return false;
+        }
+
+		$contents = $response['body'];
 
 		$xml = simplexml_load_string($contents);
 
@@ -54,6 +90,11 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
 		{
 			foreach ( $xml->immobili->immobile as $property )
 			{
+				if ( $test === false && $limit !== FALSE && count($this->properties) >= $limit )
+                {
+                    return true;
+                }
+
                 $this->properties[] = $property;
             }
         }
@@ -65,7 +106,7 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
         	return false;
         }
 
-		if ( empty($this->properties) )
+		if ( $test === false && empty($this->properties) )
 		{
 			$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
 

@@ -222,6 +222,71 @@ jQuery(document).ready(function()
 	});
 	//
 
+	jQuery('a.test-import-details').click(function(e)
+	{
+		e.preventDefault();
+
+		var test_button = jQuery(this);
+
+		test_button.parent().find('.test-results-success').hide();
+		test_button.parent().find('.test-results-error').hide();
+
+		jQuery(this).html('Testing...');
+		jQuery(this).attr('disabled', 'disabled');
+
+		var format = jQuery(this).data('format');
+
+		var parentTd = jQuery('#import_settings_' + format);
+
+		var data = {
+			'action': 'houzez_property_feed_test_property_import_details',
+			'format': format
+		};
+
+		// Find all input fields within that 'td'
+        var inputs = parentTd.find('input, select');
+
+        parentTd.find('input, select').each(function() 
+        {
+		    var element = jQuery(this);
+		    var element_name = element.attr('name').replace(format + "_", "");
+
+		    // Handle checkboxes
+		    if (element.attr('type') === 'checkbox') {
+		        data[element_name] = element.is(':checked') ? element.val() : 'no';
+		    // Handle select fields
+		    } else if (element.is('select')) {
+		        // Handle multi-select
+		        if (element.prop('multiple')) {
+		            data[element_name] = element.val() || [];
+		        } else {
+		            // Handle single select
+		            data[element_name] = element.val();
+		        }
+		    // Handle other input fields (e.g., text, number, etc.)
+		    } else {
+		        data[element_name] = element.val();
+		    }
+		});
+
+		jQuery.post( ajaxurl, data, function(response) 
+		{
+			if ( response.success == true )
+			{
+				test_button.parent().find('.test-results-success').html('<p>Details appear valid. ' + response.properties + ' properties found for importing.</p>');
+				test_button.parent().find('.test-results-success').show();
+			}
+			else
+			{
+				test_button.parent().find('.test-results-error').html('<p>' + response.error + '</p>');
+				test_button.parent().find('.test-results-error').show();
+			}
+
+			test_button.html('Test Details');
+			test_button.attr('disabled', false);
+		});
+	});
+
 	if ( jQuery('.automatic-imports-table').length > 0 )
 	{
 		hpf_draw_automatic_imports_table();

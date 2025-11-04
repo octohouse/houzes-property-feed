@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.33
-Version: 2.5.33
+Stable tag: 2.5.34
+Version: 2.5.34
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -142,6 +142,9 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.34 - 2025-11-04 =
+* Started to roll out new 'Test Details' feature to some formats. This allows the user to test the details are valid when entering them before continuing any further.
 
 = 2.5.33 - 2025-11-04 =
 * Updated license functionality to also consider upcoming annual pricing model
