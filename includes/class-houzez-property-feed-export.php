@@ -65,8 +65,8 @@ class Houzez_Property_Feed_Export {
 
         $options = get_option( 'houzez_property_feed' , array() );
         if ( !is_array($options) ) { $options = array(); }
-        if ( !is_array($options['exports']) ) { $options['exports'] = array(); }
-        if ( !is_array($options['exports'][$export_id]) ) { $options['exports'][$export_id] = array(); }
+        if ( !isset($options['exports']) || !is_array($options['exports']) ) { $options['exports'] = array(); }
+        if ( !isset($options['exports'][$export_id]) || !is_array($options['exports'][$export_id]) ) { $options['exports'][$export_id] = array(); }
 
         $format = sanitize_text_field(wp_unslash($_POST['format']));
 

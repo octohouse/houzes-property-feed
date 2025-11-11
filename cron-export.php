@@ -313,6 +313,17 @@ if ( is_array($exports) && !empty($exports) )
 
                     break;
                 }
+                case "thinkspain":
+                {
+                    // includes
+                    require_once dirname( __FILE__ ) . '/includes/export-formats/class-houzez-property-feed-format-thinkspain.php';
+
+                    $export_object = new Houzez_Property_Feed_Format_Thinkspain( $instance_id, $export_id );
+
+                    $exported = $export_object->export();
+
+                    break;
+                }
                 case "thribee":
                 {
                     // includes

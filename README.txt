@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.8
-Stable tag: 2.5.34
-Version: 2.5.34
+Stable tag: 2.5.35
+Version: 2.5.35
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -75,6 +75,7 @@ We can export and upload feeds from Houzez to third party portals in the followi
 * Idealista
 * Kyero v3 (including WPML support)
 * Rightmove and OnTheMarket Real-Time Format (RTDF)
+* thinkSPAIN
 * Thribee / LIFULL Connect ( Trovit / Mitula / Nestoria / Nuroa )
 * Zoopla Real-Time Format
 
@@ -142,6 +143,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.35 - 2025-11-11 =
+* Added support for exporting in the thinkSPAIN XML format
+* Import land area and year from vaultEA feeds when present
 
 = 2.5.34 - 2025-11-04 =
 * Started to roll out new 'Test Details' feature to some formats. This allows the user to test the details are valid when entering them before continuing any further.

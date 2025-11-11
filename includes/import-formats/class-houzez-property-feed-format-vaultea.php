@@ -530,6 +530,11 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_garage', '' );
 	            update_post_meta( $post_id, 'fave_property_id', ( ( isset($property['referenceID']) ) ? $property['referenceID'] : '' ) );
 
+	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property['landArea']['value']) && !empty($property['landArea']['value']) ) ? $property['landArea']['value'] : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property['landArea']['value']) && !empty($property['landArea']['value']) && isset($property['landArea']['units']) && !empty($property['landArea']['units']) ) ? $property['landArea']['units'] : '' ) );
+
+	            update_post_meta( $post_id, 'fave_property_year', ( ( isset($property['yearBuilt']) && !empty($property['yearBuilt']) ) ? $property['yearBuilt'] : '' ) );
+
 	            // Name number
 				$address_parts = array();
 				if ( isset($property['address']['royalMail']['buildingName']) ) { $address_parts[] = trim($property['address']['royalMail']['buildingName']); }
