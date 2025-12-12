@@ -157,6 +157,12 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 
 		$start_at_property = get_option( 'houzez_property_feed_property_' . $this->import_id );
 
+		$language = 'en';
+		if ( isset($import_settings['language']) && !empty($import_settings['language']) )
+		{
+			$language = strtolower(trim($import_settings['language']));
+		}
+
 		$property_row = 1;
 		foreach ( $this->properties as $property )
 		{
@@ -204,11 +210,28 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 			{
 				foreach ( $property['comments'] as $comment )
 				{
-					if ( isset($comment['language']) && $comment['language'] == 'en' )
+					if ( isset($comment['language']) && strtolower(trim($comment['language'])) == $language )
 					{
 						if ( isset($comment['title']) && !empty($comment['title']) ) { $display_address = $comment['title']; }
 						if ( isset($comment['comment']) && !empty($comment['comment']) ) { $post_content = $comment['comment']; }
 						break;
+					}
+				}
+			}
+
+			if ( $language != 'en' && empty($display_address) && empty($post_content) )
+			{
+				// No title/desc found in language specified. Fallback to en
+				if ( isset($property['comments']) && !empty($property['comments']) )
+				{
+					foreach ( $property['comments'] as $comment )
+					{
+						if ( isset($comment['language']) && strtolower(trim($comment['language'])) == 'en' )
+						{
+							if ( isset($comment['title']) && !empty($comment['title']) ) { $display_address = $comment['title']; }
+							if ( isset($comment['comment']) && !empty($comment['comment']) ) { $post_content = $comment['comment']; }
+							break;
+						}
 					}
 				}
 			}

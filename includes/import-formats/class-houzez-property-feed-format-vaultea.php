@@ -79,15 +79,15 @@ class Houzez_Property_Feed_Format_Vaultea extends Houzez_Property_Feed_Process {
 				'uri' => 'properties/residential/lease',
 				'department' => 'residential-lettings'
 			),
-			/*array(
+			array(
 				'uri' => 'properties/commercial/sale',
-				'department' => 'commercial',
+				'department' => 'residential-sales',
 				'portalStatus' => array( 'listing', 'conditional' )
 			),
 			array(
 				'uri' => 'properties/commercial/lease',
-				'department' => 'commercial'
-			),*/
+				'department' => 'residential-lettings'
+			),
 			array(
 				'uri' => 'properties/land/sale',
 				'department' => 'residential-sales',

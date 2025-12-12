@@ -50,7 +50,7 @@
 					continue;
 				}
 		?>
-			<tr>
+			<tr id="row_<?php echo esc_attr($key . '_' . $field['id']); ?>">
 				<th><?php echo isset($field['label']) ? esc_html($field['label']) : ''; ?></th>
 				<td><?php
 					switch ($field['type'])

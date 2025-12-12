@@ -390,7 +390,14 @@ function houzez_property_feed_get_import_formats()
                     'id' => 'agency_id',
                     'label' => __( 'Agency ID', 'houzezpropertyfeed' ),
                     'type' => 'text',
-                )
+                ),
+                array(
+                    'id' => 'language',
+                    'label' => __( 'Language', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'default' => 'en',
+                    'tooltip' => __( 'A two letter country code (e.g. en, es, fr)', 'houzezpropertyfeed' )
+                ),
             ),
             'address_fields' => array( 'district', 'city', 'region' ),
             'taxonomy_values' => array(
@@ -1978,6 +1985,15 @@ function houzez_property_feed_get_import_formats()
         'propctrl' => array(
             'name' => __( 'PropCtrl', 'houzezpropertyfeed' ),
             'fields' => array(
+                array(
+                    'id' => 'api_version',
+                    'label' => __( 'API Version', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        '' => 'Listing Service v1 (if you\'re a portal importing from multiple agents)',
+                        'v6' => 'Agency Integration Service v6 (if you\'re a single agency)',
+                    )
+                ),
                 array(
                     'id' => 'base_url',
                     'label' => __( 'API Base URL', 'houzezpropertyfeed' ),

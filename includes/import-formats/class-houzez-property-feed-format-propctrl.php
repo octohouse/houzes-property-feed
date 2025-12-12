@@ -54,7 +54,14 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 		$crm_id = get_post_meta($property_post_id, $imported_ref_key, TRUE);
 
 		// Send request back to PropCtrl containing post ID and URL etc
-		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/' . $crm_id;
+		if ( isset($import_settings['api_version']) && $import_settings['api_version'] == 'v6' )
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/properties/' . $crm_id;
+		}
+		else
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/' . $crm_id;
+		}
 
 		$headers = array(
 			'Content-Type' => 'application/json',
@@ -94,13 +101,38 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 	public function parse()
 	{
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		if ( isset($import_settings['api_version']) && $import_settings['api_version'] == 'v6' )
+		{
+			$parsed = $this->parse_v6();
+
+			if ( !$parsed )
+			{
+				return false;
+			}
+		}
+		else
+		{
+			$parsed = $this->parse_v1();
+			if ( !$parsed )
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public function parse_v1()
+	{
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
 
 		$this->log("Parsing properties", '', 0, '', false);
 
 		$this->time_at_start = time();
-
-		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
 		$from_date = '2020-01-01 00:00:00';
 		if ( ( isset($import_settings['only_updated']) && $import_settings['only_updated'] == 'yes' ) || !isset($import_settings['only_updated']) )
@@ -386,6 +418,270 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 			return false;
 		}
+
+		return true;
+	}
+
+	public function parse_v6()
+	{
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		$this->properties = array(); // Reset properties in the event we're importing multiple files
+
+		$this->log("Parsing properties", '', 0, '', false);
+
+		$this->time_at_start = time();
+
+		$from_date = '2020-01-01 00:00:00';
+		if ( ( isset($import_settings['only_updated']) && $import_settings['only_updated'] == 'yes' ) || !isset($import_settings['only_updated']) )
+        {
+        	// get last ran date
+        	$last_ran_date = get_option( 'houzez_property_feed_last_ran_' . $this->import_id, '' );
+        	if ( !empty($last_ran_date) )
+        	{
+        		$date = new DateTime();
+			    $date->setTimestamp($last_ran_date);
+			    $date->setTimezone(new DateTimeZone('Africa/Johannesburg'));
+			    $from_date = $date->format('Y-m-d H:i:s');
+
+        		$this->only_updated = true;
+        	}
+        }
+		$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/properties/changes?fromDate=' . $from_date;
+
+		$this->log("Making request to " . $url);
+
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		if ( wp_remote_retrieve_response_code($response) === 401 )
+        {
+            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when requesting properties. Error message: ' . wp_remote_retrieve_response_message($response) );
+            return false;
+        }
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			if ( isset($json['items']) )
+			{
+				if ( !empty($json['items']) )
+				{
+					$this->log("Found " . number_format(count($json['items'])) . " properties to import. Getting further details by getting properties in " . number_format(ceil( count($json['items']) / 10 )) . " batches of 10");
+
+					$property_ids_in_batch = array();
+
+					foreach ( $json['items'] as $property )
+					{
+						if ( count($property_ids_in_batch) == 10 )
+						{
+							$done = $this->get_properties_in_batch_v6( $property_ids_in_batch );
+
+							if ( $done === false )
+							{
+								return false;
+							}
+
+							$property_ids_in_batch = array();
+						}
+
+						$property_ids_in_batch[] = $property['id'];
+					}
+
+					$done = $this->get_properties_in_batch_v6( $property_ids_in_batch );
+
+					if ( $done === false )
+					{
+						return false;
+					}
+				}
+			}
+			else
+			{
+				$this->log_error( 'Parsed JSON but no properties found: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse JSON: ' . $response['body'] );
+
+			return false;
+		}
+
+		if ( empty($this->properties) )
+		{
+			if ( $this->only_updated === true )
+			{
+				update_option( 'houzez_property_feed_last_ran_' . $this->import_id, $this->time_at_start );
+				$this->log_error( 'No properties modified since the last time an import ran.' );
+			}
+			else
+			{
+				$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
+			}
+			return false;
+		}
+
+		return true;
+	}
+
+	private function get_properties_in_batch_v6( $property_ids = array() )
+	{
+		if ( empty($property_ids) )
+		{
+			return false;
+		}
+
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/properties?';
+
+		// Use array_map to prepend "listingIds=" to each ID
+		$listing_ids = array_map(function($id) {
+		    return "propertyIds=" . $id;
+		}, $property_ids);
+
+		// Use implode to concatenate them with "&"
+		$url .= implode("&", $listing_ids);
+
+		$headers = array(
+			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+		);
+
+		$this->log("Making request to " . $url);
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+				'headers' => $headers
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		$off_market_listing_statuses = apply_filters( 'houzez_property_feed_propctrl_off_market_statuses', array('cancelled', 'withdrawn', 'expired', 'rented', 'sold') );
+
+		if ($json !== FALSE)
+		{
+			if ( is_array($json) )
+			{
+				if ( !empty($json) )
+				{
+					foreach ( $json as $property )
+					{
+						if ( 
+							isset($property['listingStatus']) &&
+							in_array(strtolower($property['listingStatus']), $off_market_listing_statuses)
+						)
+						{
+							$this->remove_property( $property['propertyId'], '' );
+							continue;
+						}
+
+						$property['listingId'] = $property['propertyId'];
+
+						list($suburb, $city, $province, $postcode, $country) = $this->get_suburb_info($property['suburbId']);
+
+						$property['suburb'] = $suburb;
+						$property['city'] = $city;
+						$property['province'] = $province;
+						$property['postcode'] = $postcode;
+						$property['country'] = $country;
+
+						$property['agencyDetails'] = array();
+						$property['branchDetails'] = array();
+						$property['agentDetails'] = array();
+
+						if ( isset($property['agencyId']) && !empty($property['agencyId']) )
+						{
+							$agency = $this->get_agency_details($property['agencyId']);
+
+							if ( $agency !== FALSE )
+							{
+								$property['agencyDetails'] = $agency;
+							}
+						}
+
+						if ( isset($property['branchId']) && !empty($property['branchId']) )
+						{
+							$branch = $this->get_branch_details($property['branchId']);
+
+							if ( $branch !== FALSE )
+							{
+								$property['branchDetails'] = $branch;
+							}
+						}
+
+						if ( isset($property['agents']) && !empty($property['agents']) && is_array($property['agents']) )
+						{
+							foreach ( $property['agents'] as $agent_id )
+							{
+								$agent = $this->get_agent_details($agent_id);
+
+								if ( $agent !== FALSE )
+								{
+									$property['agentDetails'][] = $agent;
+								}
+							}
+						}
+
+						$this->properties[] = $property;
+						
+					}
+				}
+				else
+				{
+					$this->log_error( 'Parsed property JSON but it\'s empty: ' . $response['body'] );
+
+					//return false;
+				}
+			}
+			else
+			{
+				$this->log_error( 'Parsed property JSON but it\'s not an array: ' . $response['body'] );
+
+				return false;
+			}
+		}
+		else
+		{
+			// Failed to parse JSON
+			$this->log_error( 'Failed to parse property JSON: ' . $response['body'] );
+
+			return false;
+		}
+
+		return true;
 	}
 
 	private function get_agency_details( $agency_id )
@@ -397,7 +693,14 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
-		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agencies?agencyIds=' . $agency_id;
+		if ( isset($import_settings['api_version']) && $import_settings['api_version'] == 'v6' )
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/agencies?agencyIds=' . $agency_id;
+		}
+		else
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agencies?agencyIds=' . $agency_id;
+		}
 
 		$headers = array(
 			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
@@ -455,7 +758,14 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
-		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/branches?branchIds=' . $branch_id;
+		if ( isset($import_settings['api_version']) && $import_settings['api_version'] == 'v6' )
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/branches?branchIds=' . $branch_id;
+		}
+		else
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/branches?branchIds=' . $branch_id;
+		}
 
 		$headers = array(
 			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
@@ -513,7 +823,15 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
-		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agents?agentIds=' . $agent_id;
+		if ( isset($import_settings['api_version']) && $import_settings['api_version'] == 'v6' )
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/agents?agentIds=' . $agent_id;
+		}
+		else
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/agents?agentIds=' . $agent_id;
+		}
+		
 
 		$headers = array(
 			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
@@ -573,7 +891,14 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
-		$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/suburbs?suburbIds=' . $suburb_id;
+		if ( isset($import_settings['api_version']) && $import_settings['api_version'] == 'v6' )
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/suburbs?suburbIds=' . $suburb_id;
+		}
+		else
+		{
+			$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/suburbs?suburbIds=' . $suburb_id;
+		}
 
 		$headers = array(
 			'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),

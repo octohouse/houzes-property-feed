@@ -245,7 +245,7 @@ class Houzez_Property_Feed_Format_Thinkspain extends Houzez_Property_Feed_Proces
                 $description = preg_replace('/<!--\s*wp:.*?-->/s', '', $description);
                 $description = preg_replace('/<!--\s*\/wp:.*?-->/s', '', $description);
 
-                $desc_xml = $property_xml->addChild('desc');
+                $desc_xml = $property_xml->addChild('description');
                 $desc_xml->addChild('en', htmlspecialchars($description, ENT_QUOTES | ENT_XML1, 'UTF-8'));
 
                 $attachment_ids = get_post_meta($post_id, 'fave_property_images');

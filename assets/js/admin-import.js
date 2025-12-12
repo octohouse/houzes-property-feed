@@ -420,6 +420,11 @@ jQuery(document).ready(function()
 		hpf_show_format_settings();
 	});
 
+	jQuery('select[name=\'propctrl_api_version\']').change(function()
+	{
+		hpf_show_format_settings();
+	});
+
 	jQuery('select[name=\'xml_property_node\']').change(function()
 	{
 		hpf_create_xml_property_id_node_options();
@@ -1565,6 +1570,21 @@ function hpf_show_format_settings()
 			jQuery('#import_setting_tab_contactinfo').hide();
 			jQuery('#import_setting_tab_media').show();
 			jQuery('.hpf-admin-settings-import-settings .csv-rules-available-fields').show();
+		}
+
+		if ( selected_format == 'propctrl' )
+		{
+			var selected_api_version = jQuery('select[name=\'propctrl_api_version\']').val();
+			if ( selected_api_version == 'v6' )
+			{
+				jQuery('#row_propctrl_agency_id').hide();
+				jQuery('#row_propctrl_branch_id').hide();
+			}
+			else
+			{
+				jQuery('#row_propctrl_agency_id').show();
+				jQuery('#row_propctrl_branch_id').show();
+			}
 		}
 
 		var has_taxonomy_values_sales_status = false;
