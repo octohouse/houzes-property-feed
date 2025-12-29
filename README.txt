@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.36
-Version: 2.5.36
+Stable tag: 2.5.37
+Version: 2.5.37
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -51,6 +51,7 @@ We can import properties from the following estate agency CRMs/formats:
 * myCRM / PF Expert from Property Finder
 * OpenImmo
 * Pixxi
+* PropConnect
 * PropCtrl
 * Propstack
 * RE/MAX
@@ -143,6 +144,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.37 - 2025-12-29 =
+* Added support for importing properties from PropConnect
+* Added support for propctrl image URLs being sent with query string
+* Added new types garage and office to Idealista export property type mapping
 
 = 2.5.36 - 2025-12-12 =
 * Added support for v6 of the propCtrl API used for agency integrations as opposed to importing from portals

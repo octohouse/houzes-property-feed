@@ -1982,6 +1982,35 @@ function houzez_property_feed_get_import_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/pixxi/',
             'warnings' => array(),
         ),
+        'propconnect' => array(
+            'name' => __( 'PropConnect', 'houzezpropertyfeed' ),
+            'fields' => array(
+                array(
+                    'id' => 'token',
+                    'label' => __( 'Token', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( 'sub_community', 'community', 'city', 'emirate' ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'For Sale' => 'For Sale',
+                ),
+                'lettings_status' => array(
+                    'To Let' => 'To Let',
+                ),
+                'property_type' => array(
+                    'Apartment' => 'Apartment',
+                    'Villa' => 'Villa',
+                )
+            ),
+            'contact_information_fields' => array(
+                'agent_id',
+                'agent_name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/propconnect/',
+            'warnings' => array(),
+        ),
         'propctrl' => array(
             'name' => __( 'PropCtrl', 'houzezpropertyfeed' ),
             'fields' => array(
@@ -3754,12 +3783,14 @@ function houzez_property_feed_get_export_formats()
             'taxonomy_values' => array(
                 'property_type' => array(
                     "flat" => "flat",
+                    "garage" => "garage",
                     "house" => "house",
                     "house_andar_moradia" => "house_andar_moradia (Portugal only)",
                     "house_independent" => "house_independent",
                     "house_semidetached" => "house_semidetached",
                     "house_terraced" => "house_terraced",
                     "house_villa" => "house_villa (Italy only)",
+                    "office" => "office",
                     "rustic" => "rustic",
                     "rustic_house" => "rustic_house",
                     "rustic_village" => "rustic_village",

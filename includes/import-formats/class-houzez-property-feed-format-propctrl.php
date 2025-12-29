@@ -1686,9 +1686,11 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 								}
 
 								// This is a URL
+
 								$description = ( (isset($image['title'])) ? $image['title'] : '' );
 							    
-								$filename = basename( $url );
+							    $explode_url = explode('?', $url);
+								$filename = basename( $explode_url[0] );
 
 								// Check, based on the URL, whether we have previously imported this media
 								$imported_previously = false;

@@ -679,6 +679,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "propconnect":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-propconnect.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Propconnect( $instance_id, $import_id );
+
+            break;
+        }
         case "propctrl":
         {
             // includes

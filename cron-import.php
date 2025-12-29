@@ -9,7 +9,7 @@ function houzez_property_feed_import_fatal_handler() {
 
     if ($error !== NULL) 
     {
-    	if ( ($error['type'] === E_ERROR) || ($error['type'] === E_USER_ERROR)|| ($error['type'] === E_USER_NOTICE) ) 
+    	if ( ($error['type'] === E_ERROR) || ($error['type'] === E_USER_ERROR) || ($error['type'] === E_USER_NOTICE) ) 
     	{
 	        $errno   = $error["type"];
 	        $errfile = $error["file"];
@@ -237,7 +237,7 @@ if ( is_array($imports) && !empty($imports) )
 	                FROM 
 	                    " . $wpdb->prefix . "houzez_property_feed_logs_instance
 	                WHERE
-	                    " . ( ( apply_filters( 'houzez_property_feed_one_import_at_a_time', false ) === false ) ? " import_id = '" . $import_id . "' AND " : "" ) . "
+	                    " . ( ( apply_filters( 'houzez_property_feed_one_import_at_a_time', false ) === false ) ? " import_id = '" . (int)$import_id . "' AND " : "" ) . "
 	                	end_date = '0000-00-00 00:00:00'
 	                ORDER BY status_date DESC
 	                LIMIT 1
@@ -435,6 +435,12 @@ if ( is_array($imports) && !empty($imports) )
 	                    'start_date' => $current_date,
 	                    'status' => json_encode(array('status' => 'starting')),
 	                    'status_date' => $current_date,
+	                ),
+	                array(
+	                	'%d',
+	                	'%s',
+	                	'%s',
+	                	'%s'
 	                )
 	            );
 	            $instance_id = $wpdb->insert_id;
