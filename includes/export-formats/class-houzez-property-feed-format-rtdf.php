@@ -265,8 +265,6 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
                     add_filter( 'redirect_post_location', array( $this, 'add_notice_query_var' ), 99, 2 );
                 }*/
             }
-
-            
         }
     }
 
@@ -596,63 +594,60 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
         }
         $request_data['property']['details']['features'] = $features;
 
-        if ( $overseas )
+        if ( 
+            get_post_meta( $post_id, 'fave_property_size', TRUE ) != '' &&
+            is_numeric(get_post_meta( $post_id, 'fave_property_size', TRUE )) &&
+            get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ) != ''
+        )
         {
-            if ( 
-                get_post_meta( $post_id, 'fave_property_size', TRUE ) != '' &&
-                is_numeric(get_post_meta( $post_id, 'fave_property_size', TRUE )) &&
-                get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ) != ''
-            )
+            $request_data['property']['details']['internal_area'] = get_post_meta( $post_id, 'fave_property_size', TRUE );
+
+            $unit = null;
+            if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'ft') !== false )
             {
-                $request_data['property']['details']['internal_area'] = get_post_meta( $post_id, 'fave_property_size', TRUE );
-
-                $unit = null;
-                if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'ft') !== false )
-                {
-                    $unit = 1;
-                }
-                if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'm') !== false )
-                {
-                    $unit = 2;
-                }
-                if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'acre') !== false )
-                {
-                    $unit = 3;
-                }
-                if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'hectares') !== false )
-                {
-                    $unit = 4;
-                }
-                $request_data['property']['details']['internal_area_unit'] = $unit;
+                $unit = 1;
             }
-
-            if ( 
-                get_post_meta( $post_id, 'fave_property_land', TRUE ) != '' &&
-                is_numeric(get_post_meta( $post_id, 'fave_property_land', TRUE )) &&
-                get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ) != ''
-            )
+            if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'm') !== false )
             {
-                $request_data['property']['details']['land_area'] = get_post_meta( $post_id, 'fave_property_land', TRUE );
-
-                $unit = null;
-                if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'ft') !== false )
-                {
-                    $unit = 1;
-                }
-                if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'm') !== false )
-                {
-                    $unit = 2;
-                }
-                if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'acre') !== false )
-                {
-                    $unit = 3;
-                }
-                if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'hectares') !== false )
-                {
-                    $unit = 4;
-                }
-                $request_data['property']['details']['land_area_unit'] = $unit;
+                $unit = 2;
             }
+            if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'acre') !== false )
+            {
+                $unit = 3;
+            }
+            if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'hectares') !== false )
+            {
+                $unit = 4;
+            }
+            $request_data['property']['details']['internal_area_unit'] = $unit;
+        }
+
+        if ( 
+            get_post_meta( $post_id, 'fave_property_land', TRUE ) != '' &&
+            is_numeric(get_post_meta( $post_id, 'fave_property_land', TRUE )) &&
+            get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ) != ''
+        )
+        {
+            $request_data['property']['details']['land_area'] = get_post_meta( $post_id, 'fave_property_land', TRUE );
+
+            $unit = null;
+            if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'ft') !== false )
+            {
+                $unit = 1;
+            }
+            if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'm') !== false )
+            {
+                $unit = 2;
+            }
+            if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'acre') !== false )
+            {
+                $unit = 3;
+            }
+            if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'hectares') !== false )
+            {
+                $unit = 4;
+            }
+            $request_data['property']['details']['land_area_unit'] = $unit;
         }
 
         $request_data['property']['media'] = array();

@@ -3177,7 +3177,10 @@ function houzez_property_feed_get_import_formats()
             'address_fields' => array( /*'property_country', 'property_city', 'property_area'*/ ),
             'taxonomy_values' => array(),
             'contact_information_fields' => array(
-                //'fave_agents',
+                'agent_id',
+                'agent_name',
+                'agency_id',
+                'agency_name',
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/wp-rest-api-houzez/',
             'background_mode' => true,

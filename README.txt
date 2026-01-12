@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.37
-Version: 2.5.37
+Stable tag: 2.5.38
+Version: 2.5.38
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -144,6 +144,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.38 - 2026-01-12 =
+* Added area/size to RTDF (Used in feeds to Rightmove and OnTheMarket) requests for UK properties
+* Added ability to map agents and agencies under 'Contact Information' settings tab when importing from another Houzez site
 
 = 2.5.37 - 2025-12-29 =
 * Added support for importing properties from PropConnect

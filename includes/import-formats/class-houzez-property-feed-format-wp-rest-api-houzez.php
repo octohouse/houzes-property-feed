@@ -48,6 +48,16 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 	 */
 	private $property_label;
 
+	/**
+	 * @var array
+	 */
+	private $agent;
+
+	/**
+	 * @var array
+	 */
+	private $agency;
+
 	public function __construct( $instance_id = '', $import_id = '' )
 	{
 		$this->instance_id = $instance_id;
@@ -505,6 +515,114 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 		}
 	}
 
+	private function get_other_site_property_agents()
+	{
+		$this->log("Obtaining agents");
+
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		$url = ( isset($import_settings['url']) && !empty($import_settings['url']) ) ? rtrim($import_settings['url'], '/') : '';
+		$url .= '/wp-json/wp/v2/agents?per_page=100';
+
+		$url = apply_filters( 'houzez_property_feed_wp_rest_api_houzez_agents_url', $url, $this->import_id );
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		if ( wp_remote_retrieve_response_code( $response ) != 200 )
+		{
+			$this->log_error( 'Received an invalid response when requesting agents. ' . print_r($response, true) );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			foreach ( $json as $agent )
+			{
+				$this->agent[] = array(
+					'id' => $agent['id'],
+					'name' => $agent['title']['rendered'],
+				);
+			}
+		}
+		else
+		{
+			// Failed to parse XML
+			$this->log_error( 'Failed to parse agents JSON.' );
+
+			return false;
+		}
+	}
+
+	private function get_other_site_property_agencies()
+	{
+		$this->log("Obtaining agencies");
+
+		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+
+		$url = ( isset($import_settings['url']) && !empty($import_settings['url']) ) ? rtrim($import_settings['url'], '/') : '';
+		$url .= '/wp-json/wp/v2/agencies?per_page=100';
+
+		$url = apply_filters( 'houzez_property_feed_wp_rest_api_houzez_agencies_url', $url, $this->import_id );
+
+		$response = wp_remote_request(
+			$url,
+			array(
+				'method' => 'GET',
+				'timeout' => 120,
+			)
+		);
+
+		if ( is_wp_error( $response ) )
+		{
+			$this->log_error( 'Response: ' . $response->get_error_message() );
+
+			return false;
+		}
+
+		if ( wp_remote_retrieve_response_code( $response ) != 200 )
+		{
+			$this->log_error( 'Received an invalid response when requesting agencies. ' . print_r($response, true) );
+
+			return false;
+		}
+
+		$json = json_decode( $response['body'], TRUE );
+
+		if ($json !== FALSE)
+		{
+			foreach ( $json as $agency )
+			{
+				$this->agency[] = array(
+					'id' => $agency['id'],
+					'name' => $agency['title']['rendered'],
+				);
+			}
+		}
+		else
+		{
+			// Failed to parse XML
+			$this->log_error( 'Failed to parse agencies JSON.' );
+
+			return false;
+		}
+	}
+
 	public function parse()
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
@@ -516,6 +634,9 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
 		$format = $import_settings['format'];
+
+		$this->get_other_site_property_agents();
+		$this->get_other_site_property_agencies();
 
     	$format_details = houzez_property_feed_get_import_format($format);
     	$background_mode = false;
@@ -718,6 +839,54 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 						}
 
 						$property['attachment_urls'] = $attachment_urls;
+
+						if (isset($property['property_meta']['fave_agent_display_option']) && !empty($property['property_meta']['fave_agent_display_option']))
+						{
+							switch ( $property['property_meta']['fave_agent_display_option'][0] )
+							{
+								case "agent_info":
+								{
+									if ( isset($property['property_meta']['fave_agents'][0]) && !empty($property['property_meta']['fave_agents'][0]) )
+									{
+										$third_party_agent_id = (int)$property['property_meta']['fave_agents'][0];
+
+										// get agent name
+										if ( !empty($this->agent) )
+										{
+											foreach ( $this->agent as $agent )
+											{
+												if ( $third_party_agent_id == $agent['id'] )
+												{
+													$property['property_meta']['agent_name'] = array($agent['name']);
+												}
+											}
+										}
+									}
+									break;
+								}
+								case "agency_info":
+								{
+									if ( isset($property['property_meta']['fave_property_agency'][0]) && !empty($property['property_meta']['fave_property_agency'][0]) )
+									{
+										$third_party_agency_id = (int)$property['property_meta']['fave_property_agency'][0];
+
+										// get agency name
+										if ( !empty($this->agency) )
+										{
+											foreach ( $this->agency as $agency )
+											{
+												if ( $third_party_agency_id == $agency['id'] )
+												{
+													$property['property_meta']['agency_name'] = array($agency['name']);
+												}
+											}
+										}
+									}
+									break;
+								}
+								
+							}
+						}
 
 						$this->properties[] = $property;
 
@@ -952,7 +1121,9 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 					'_edit_last',
 					'fave_agent_display_option',
 					'fave_agents',
+					'agent_name',
 					'fave_property_agency',
+					'agency_name',
 					'fave_attachments',
 					'fave_property_images',
 					'_thumbnail_id',
@@ -995,7 +1166,7 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 					}
 				}
 
-	            /*update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
+	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
 	            if ( 
 	            	isset($import_settings['agent_display_option']) && 
@@ -1008,32 +1179,7 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 		            {
 		            	case "author_info":
 		            	{
-		            		foreach ( $import_settings['agent_display_option_rules'] as $rule )
-		            		{
-		            			$value_in_feed_to_check = '';
-		            			switch ( $rule['field'] )
-		            			{
-		            				case "branch_uuid":
-		            				{
-		            					$value_in_feed_to_check = $property['attributes']['branch_uuid'];
-		            					break;
-		            				}
-		            			}
-
-		            			if ( $value_in_feed_to_check == $rule['equal'] || $rule['equal'] == '*' )
-		            			{
-		            				// set post author
-		            				$my_post = array(
-								    	'ID'          	 => $post_id,
-								    	'post_author'    => $rule['result'],
-								  	);
-
-								 	// Update the post into the database
-								    wp_update_post( $my_post, true );
-
-		            				break; // Rule matched. Lets not do anymore
-		            			}
-		            		}
+		            		
 		            		break;
 		            	}
 		            	case "agent_info":
@@ -1043,9 +1189,14 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "branch_uuid":
+		            				case "agent_id":
 		            				{
-		            					$value_in_feed_to_check = $property['attributes']['branch_uuid'];
+		            					$value_in_feed_to_check = isset($property['property_meta']['fave_agents'][0]) ? $property['property_meta']['fave_agents'][0] : '';
+		            					break;
+		            				}
+		            				case "agent_name":
+		            				{
+		            					$value_in_feed_to_check = isset($property['property_meta']['agent_name'][0]) ? $property['property_meta']['agent_name'][0] : '';
 		            					break;
 		            				}
 		            			}
@@ -1065,9 +1216,14 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 		            			$value_in_feed_to_check = '';
 		            			switch ( $rule['field'] )
 		            			{
-		            				case "branch_uuid":
+		            				case "agency_id":
 		            				{
-		            					$value_in_feed_to_check = $property['attributes']['branch_uuid'];
+		            					$value_in_feed_to_check = isset($property['property_meta']['fave_property_agency'][0]) ? $property['property_meta']['fave_property_agency'][0] : '';
+		            					break;
+		            				}
+		            				case "agency_name":
+		            				{
+		            					$value_in_feed_to_check = isset($property['property_meta']['agency_name'][0]) ? $property['property_meta']['agency_name'][0] : '';
 		            					break;
 		            				}
 		            			}
@@ -1081,7 +1237,7 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 		            		break;
 		            	}
 		            }
-	        	}*/
+	        	}
 	        	
 				$taxonomies = array(
 					'property_status',
@@ -1459,7 +1615,6 @@ class Houzez_Property_Feed_Format_Wp_Rest_Api_Houzez extends Houzez_Property_Fee
 
 				$this->log( 'Imported ' . count($media_ids) . ' attachments (' . $new . ' new, ' . $existing . ' existing, ' . $deleted . ' deleted)', $property['id'], $post_id );
 				
-
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );
 				do_action( "houzez_property_feed_property_imported_wp_rest_api_houzez", $post_id, $property, $this->import_id, $this->instance_id );
 
