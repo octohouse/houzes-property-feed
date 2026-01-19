@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.38
-Version: 2.5.38
+Stable tag: 2.5.39
+Version: 2.5.39
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -22,6 +22,7 @@ We can import properties from the following estate agency CRMs/formats:
 * agentOS
 * AgestaNET
 * Alto by Vebra
+* Amplify Syndication - RESO MLS API Provider (beta)
 * Another Houzez site (using the WordPress REST API)
 * Apex27
 * Apimo
@@ -144,6 +145,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.39 - 2026-01-19 =
+* Added support for the Amplify Syndication RESO API
+* Added support for commercial_type field in ExpertAgent imports
+* Added more logging to Resales Online API imports
+* Updated Resales Online API imports to take limit into account when parsing properties if one has been entered
+* Updated brochures sent in RTDF exports to use caption and/or title entered againsy media item if present
 
 = 2.5.38 - 2026-01-12 =
 * Added area/size to RTDF (Used in feeds to Rightmove and OnTheMarket) requests for UK properties

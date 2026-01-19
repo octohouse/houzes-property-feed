@@ -427,6 +427,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "amplify_syndication":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-amplify-syndication.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Amplify_Syndication( $instance_id, $import_id );
+
+            break;
+        }
         case "apex27":
         {
             // includes

@@ -709,12 +709,26 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             $url = wp_get_attachment_url( $attachment_id );
             if ($url !== FALSE)
             {
-                $attachment_data = wp_prepare_attachment_for_js( $attachment_id );
+                $attachment = get_post( $attachment_id );
+
+                $caption = '';
+
+                if ( $attachment ) 
+                {
+                    if ( ! empty( $attachment->post_excerpt ) ) 
+                    {
+                        $caption = $attachment->post_excerpt;
+                    }
+                    elseif ( ! empty( $attachment->post_title ) ) 
+                    {
+                        $caption = $attachment->post_title;
+                    }
+                }
 
                 $media = array(
                     'media_type' => 3,
                     'media_url' => $url,
-                    'caption' => ( ( isset($attachment_data['alt']) && is_string($attachment_data['alt']) && substr($attachment_data['alt'], 0, 50) !== FALSE ) ? substr($attachment_data['alt'], 0, 50) : '' ),
+                    'caption' => substr( $caption, 0, 50 ),
                     'sort_order' => $i,
                 );
 

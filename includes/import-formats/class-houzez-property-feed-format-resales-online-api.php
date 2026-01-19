@@ -29,6 +29,27 @@ class Houzez_Property_Feed_Format_Resales_Online_API extends Houzez_Property_Fee
 
 		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
 
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
+
+        $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+        if ( $limit !== false )
+        {
+        
+        }
+        else
+        {
+            // using pro, but check for limit setting
+            if ( 
+                $pro_active === true &&
+                isset($import_settings['limit']) && 
+                !empty((int)$import_settings['limit']) && 
+                is_numeric($import_settings['limit'])
+            )
+            {
+                $limit = (int)$import_settings['limit'];
+            }
+        }
+
 		$filter_ids = explode(",", $import_settings['filter_ids']);
 		$filter_ids = array_filter(array_map('trim', $filter_ids));
 
@@ -51,6 +72,8 @@ class Houzez_Property_Feed_Format_Resales_Online_API extends Houzez_Property_Fee
 
 			while ( $more_properties )
 			{
+				$this->log_error( 'Obtaining properties on page ' . $current_page );
+
 				$response = wp_remote_request(
 					$url . '&P_PageNo=' . $current_page,
 					array(
@@ -66,6 +89,13 @@ class Houzez_Property_Feed_Format_Resales_Online_API extends Houzez_Property_Fee
 
 					return false;
 				}
+
+				if ( wp_remote_retrieve_response_code($response) !== 200 )
+	        	{
+	            	$this->log_error( wp_remote_retrieve_response_code($response) . ' response received when requesting properties. Error message: ' . wp_remote_retrieve_response_message($response) );
+	            
+					return false;
+	        	}
 
 				$json = json_decode( $response['body'], TRUE );
 
@@ -102,6 +132,11 @@ class Houzez_Property_Feed_Format_Resales_Online_API extends Houzez_Property_Fee
 					{
 						foreach ($json['Property'] as $property)
 						{
+							if ( $limit !== FALSE && count($this->properties) >= $limit )
+			                {
+			                    return true;
+			                }
+
 							$property['department'] = 'residential-sales';
 							if ( strpos(strtolower($json['QueryInfo']['SearchType']), 'rental') !== false )
 							{

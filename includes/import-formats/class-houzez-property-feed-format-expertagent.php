@@ -597,10 +597,21 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 
 				// property type taxonomies
 				$taxonomy_mappings = ( isset($mappings['property_type']) && is_array($mappings['property_type']) && !empty($mappings['property_type']) ) ? $mappings['property_type'] : array();
-
-				if ( isset($property->property_type) && isset($property->property_style) )
+				
+				$expert_agent_type = '';
+				
+				if ( isset($property->property_type) && isset($property->property_style) && ( (string)$property->property_type != '' || (string)$property->property_style != '' ) )
 				{
 					$expert_agent_type = (string)$property->property_type . ' - ' . (string)$property->property_style;
+				}
+
+				if ( isset($property->commercial_type) && (string)$property->commercial_type != '' )
+				{
+					$expert_agent_type = (string)$property->commercial_type;
+				}
+
+				if ( !empty($expert_agent_type) )
+				{
 					if ( isset($taxonomy_mappings[$expert_agent_type]) && !empty($taxonomy_mappings[$expert_agent_type]) )
 					{
 						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$expert_agent_type], "property_type" );
