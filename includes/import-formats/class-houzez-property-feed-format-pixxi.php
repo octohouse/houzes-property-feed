@@ -773,6 +773,12 @@ class Houzez_Property_Feed_Format_Pixxi extends Houzez_Property_Feed_Process {
 							    
 								$filename = basename( $url );
 
+								$extension = pathinfo($filename, PATHINFO_EXTENSION);
+								if ( $extension === '' ) 
+								{
+								    $filename .= '.jpg';
+								}
+
 								// Check, based on the URL, whether we have previously imported this media
 								$imported_previously = false;
 								$imported_previously_id = '';

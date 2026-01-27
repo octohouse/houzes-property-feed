@@ -49,21 +49,38 @@ class Houzez_Property_Feed_Format_Amplify_Syndication extends Houzez_Property_Fe
         $office_names = array_map('trim', $office_names);
         $office_names = array_filter($office_names);
 
-        if ( empty($office_names) ) 
+        $locations = isset($import_settings['location']) ? explode(",", $import_settings['location']) : array();
+        $locations = array_map('trim', $locations);
+        $locations = array_filter($locations);
+
+        if ( empty($office_names) && empty($locations) ) 
         {
-        	$this->log("At least one office name must be entered into the import settings");
+        	$this->log("At least one office name or location must be entered into the import settings");
         	return false;
         }
 
-        
-        $office_additional_url = '';
-        foreach ( $office_names as $i => $office_name )
+        if ( !empty($office_names) )
         {
-        	if ( !empty($office_additional_url) ) { $office_additional_url .= ' or '; }
-        	$office_additional_url .= ' ListOfficeName eq %27' . $office_name . '%27 ';
-        }
-        $additional_url .= ' and (' . $office_additional_url . ')';
-
+        	$office_additional_url = '';
+	        foreach ( $office_names as $i => $office_name )
+	        {
+	        	if ( !empty($office_additional_url) ) { $office_additional_url .= ' or '; }
+	        	$office_additional_url .= ' ListOfficeName eq %27' . $office_name . '%27 ';
+	        }
+	        $additional_url .= ' and (' . $office_additional_url . ')';
+	    }
+        
+        if ( !empty($locations) )
+        {
+        	$location_additional_url = '';
+	        foreach ( $locations as $i => $location )
+	        {
+	        	if ( !empty($location_additional_url) ) { $location_additional_url .= ' or '; }
+	        	$location_additional_url .= ' City eq %27' . $location . '%27 or CityRegion eq %27' . $location . '%27 or StateOrProvince eq %27' . $location . '%27 ';
+	        }
+	        $additional_url .= ' and (' . $location_additional_url . ')';
+	    }
+        
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
 		if ( $limit !== false )
         {
@@ -146,6 +163,50 @@ class Houzez_Property_Feed_Format_Amplify_Syndication extends Houzez_Property_Fe
 				                	{
 				                		return true;
 				                	}
+								}
+
+								$media_url = 'https://query.ampre.ca/odata/Media?$top=1000&$filter=ResourceRecordKey eq %27' . $property['ListingKey'] . '%27 and ResourceName eq %27Property%27';
+
+								$media_response = wp_remote_get( 
+									$media_url, 
+									array( 
+										'timeout' => 360, 
+										'headers' => array(
+											'Content-Type' => 'application/json',
+											'Authorization' => 'Bearer ' . $import_settings['access_token'],
+										) 
+									) 
+								);
+
+								if ( is_wp_error( $media_response ) )
+								{
+									$this->log_error( 'Response: ' . $media_response->get_error_message() );
+
+									return false;
+								}
+
+								if ( wp_remote_retrieve_response_code($media_response) !== 200 )
+						        {
+						            $this->log_error( wp_remote_retrieve_response_code($media_response) . ' response received when requesting properties. Error message: ' . wp_remote_retrieve_response_message($response) );
+						            return false;
+						        }
+
+								if ( is_array( $media_response ) )
+								{
+									$media_contents = $media_response['body'];
+
+									$media_json = json_decode( $media_contents, TRUE );
+
+									if ( $media_json !== FALSE && is_array($media_json) )
+									{
+										if ( isset($media_json['error']) && !empty($media_json['error']) )
+										{
+											$this->log_error( 'Error received from Amplify API: ' . print_r($media_json['error'], true) );
+											return false;
+										}
+
+										$property['Media'] = isset($media_json['value']) && is_array($media_json['value']) ? $media_json['value'] : array();
+									}
 								}
 
 								$this->properties[] = $property;
@@ -701,6 +762,8 @@ class Houzez_Property_Feed_Format_Amplify_Syndication extends Houzez_Property_Fe
 								)
 								&&
 								isset($image['MediaCategory']) && in_array(strtolower($image['MediaCategory']), array('photo', 'image'))
+								&& 
+								isset($image['MediaStatus']) && strtolower($image['MediaStatus']) == 'active'
 							)
 							{
 								$urls[] = array(
@@ -771,6 +834,8 @@ class Houzez_Property_Feed_Format_Amplify_Syndication extends Houzez_Property_Fe
 								)
 								&&
 								isset($image['MediaCategory']) && in_array(strtolower($image['MediaCategory']), array('photo', 'image'))
+								&& 
+								isset($image['MediaStatus']) && strtolower($image['MediaStatus']) == 'active'
 							)
 							{
 								if ( $start_at_image_i !== false )

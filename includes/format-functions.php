@@ -370,7 +370,13 @@ function houzez_property_feed_get_import_formats()
                     'id' => 'office_name',
                     'label' => __( 'Office Name(s)', 'houzezpropertyfeed' ),
                     'type' => 'text',
-                    'tooltip' => 'Case-sensitive. Comma-delimited list of office names to import. Taken from the ListOfficeName field in the data. One or more must be entered',
+                    'tooltip' => 'Case-sensitive. Comma-delimited list of office names to import. Taken from the ListOfficeName field in the data',
+                ),
+                array(
+                    'id' => 'location',
+                    'label' => __( 'Location(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => 'Case-sensitive. Comma-delimited list of cities, states or provinces to import',
                 ),
                 /*array(
                     'id' => 'only_updated',
@@ -862,10 +868,7 @@ function houzez_property_feed_get_import_formats()
                 array(
                     'id' => 'dataset_id',
                     'label' => __( 'Datafeed ID', 'houzezpropertyfeed' ),
-                    'type' => 'select',
-                    'options' => array(
-                        'test' => 'Test Data',
-                    )
+                    'type' => 'text',
                 ),
                 array(
                     'id' => 'statuses',

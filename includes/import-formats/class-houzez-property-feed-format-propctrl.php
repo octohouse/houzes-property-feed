@@ -1208,20 +1208,67 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 					}
 				}
 
-                update_post_meta( $post_id, 'fave_property_bedrooms', $bedrooms );
-	            update_post_meta( $post_id, 'fave_property_bathrooms', '' );
+				$bathrooms = 0;
+                if ( isset($property['features']) && !empty($property['features']) )
+				{
+					foreach ( $property['features'] as $feature )
+					{
+						if ( isset($feature['type']) && strpos(strtolower($feature['type']), 'bathroom') !== FALSE )
+						{
+							++$bathrooms;
+						}
+					}
+				}
+
+                update_post_meta( $post_id, 'fave_property_bedrooms', !empty($bedrooms) ? $bedrooms : '' );
+	            update_post_meta( $post_id, 'fave_property_bathrooms', !empty($bathrooms) ? $bathrooms : '' );
 	            update_post_meta( $post_id, 'fave_property_rooms', '' );
 
+	            $size = ( isset($property['floorArea']['size']) && !empty($property['floorArea']['size']) ) ? $property['floorArea']['size'] : '';
+	            update_post_meta( $post_id, 'fave_property_size', $size );
+	            $unit = '';
+	            if ( !empty($size) && isset($property['floorArea']['measurementUnit']) )
+	            {
+	            	switch ( $property['floorArea']['measurementUnit'] )
+	            	{
+	            		//case "": { $unit = ''; break; }
+	            		default: { $unit = 'sq m'; }
+	            	}
+	            }
+	            update_post_meta( $post_id, 'fave_property_size_prefix', $unit );
+
+	            $size = ( isset($property['erfSize']['size']) && !empty($property['erfSize']['size']) ) ? $property['erfSize']['size'] : '';
+	            update_post_meta( $post_id, 'fave_property_land', $size );
+	            $unit = '';
+	            if ( !empty($size) && isset($property['erfSize']['measurementUnit']) )
+	            {
+	            	switch ( $property['erfSize']['measurementUnit'] )
+	            	{
+	            		//case "": { $unit = ''; break; }
+	            		default: { $unit = 'sq m'; }
+	            	}
+	            }
+	            update_post_meta( $post_id, 'fave_property_land_postfix', $unit );
+
 	            $parking = array();
+	            $garages = 0;
 	            if ( isset($property['features']) && !empty($property['features']) )
 				{
 					foreach ( $property['features'] as $feature )
 					{
-						if ( isset($feature['type']) && $feature['type'] == 'Parking' )
+						if ( isset($feature['type']) && $feature['type'] == 'Parking' && isset($feature['description']) && !empty($feature['description']) )
 						{
 							$parking[] = $feature['description'];
 						}
+						if ( isset($feature['type']) && $feature['type'] == 'Garage' )
+						{
+							++$garages;
+						}
 					}
+				}
+				if ( empty($parking) && $garages > 0 )
+				{
+					$parking[] = $garages . ' garages';
 				}
 	            update_post_meta( $post_id, 'fave_property_garage', implode(", ", $parking) );
 	            update_post_meta( $post_id, 'fave_property_id', isset($property['listingNumber']) ? $property['listingNumber'] : $property['listingId'] );
@@ -1742,7 +1789,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 										$tmp = download_url( $url );
 
 									    $file_array = array(
-									        'name' => $filename,
+									        'name' => str_replace(".ashx", ".jpg", $filename),
 									        'tmp_name' => $tmp
 									    );
 
@@ -1967,7 +2014,7 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 						)
 						{
 							// This is a URL
-							$url = $property['brochure']['url'];
+							$url = $brochure['url'];
 							$description = ( (isset($brochure['title'])) ? $brochure['title'] : '' );
 						    
 							$explode_url = explode("?", $url);
@@ -2146,33 +2193,67 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 				do_action( "save_post_property", $post_id, $post, false );
 				do_action( "save_post", $post_id, $post, false );
 
-				// Send request back to PropCtrl containing post ID and URL etc
-				$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/' . $property['listingId'];
-
-				$headers = array(
-					'Content-Type' => 'application/json',
-					'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
-				);
-
-				$body = array(
-				    "listingNumber" => (string)$post_id,
-				    "status" => "Active",
-				    "listingUrl" => get_permalink($post_id)
-				);
-
-				$response = wp_remote_request(
-					$url,
-					array(
-						'method' => 'PUT',
-						'timeout' => 120,
-						'headers' => $headers,
-						'body'    => json_encode($body),
-					)
-				);
-
-				if ( is_wp_error( $response ) )
+				if ( isset($import_settings['api_version']) && $import_settings['api_version'] == 'v6' )
 				{
-					$this->log_error( 'Response when updating status in PropCtrl: ' . $response->get_error_message(), $property['listingId'], $post_id );
+					// Send request back to PropCtrl containing post ID and URL etc
+					$url = rtrim($import_settings['base_url'], '/') . '/agency-integration/v6/properties/' . $property['listingId'];
+
+					$headers = array(
+						'Content-Type' => 'application/json',
+						'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+					);
+
+					$body = array(
+					    "listingNumber" => (string)$post_id,
+					    "status" => "Active",
+					    "listingUrl" => get_permalink($post_id)
+					);
+
+					$response = wp_remote_request(
+						$url,
+						array(
+							'method' => 'PUT',
+							'timeout' => 120,
+							'headers' => $headers,
+							'body'    => json_encode($body),
+						)
+					);
+
+					if ( is_wp_error( $response ) )
+					{
+						$this->log_error( 'Response when updating status in PropCtrl: ' . $response->get_error_message(), $property['listingId'], $post_id );
+					}
+				}
+				else
+				{
+					// Send request back to PropCtrl containing post ID and URL etc
+					$url = rtrim($import_settings['base_url'], '/') . '/listing/v1/listings/' . $property['listingId'];
+
+					$headers = array(
+						'Content-Type' => 'application/json',
+						'Authorization' => 'Basic ' . base64_encode($import_settings['api_username'] . ':' . $import_settings['api_password']),
+					);
+
+					$body = array(
+					    "listingNumber" => (string)$post_id,
+					    "status" => "Active",
+					    "listingUrl" => get_permalink($post_id)
+					);
+
+					$response = wp_remote_request(
+						$url,
+						array(
+							'method' => 'PUT',
+							'timeout' => 120,
+							'headers' => $headers,
+							'body'    => json_encode($body),
+						)
+					);
+
+					if ( is_wp_error( $response ) )
+					{
+						$this->log_error( 'Response when updating status in PropCtrl: ' . $response->get_error_message(), $property['listingId'], $post_id );
+					}
 				}
 
 				if ( $inserted_updated == 'updated' )

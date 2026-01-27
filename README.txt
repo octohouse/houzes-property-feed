@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.39
-Version: 2.5.39
+Stable tag: 2.5.40
+Version: 2.5.40
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -145,6 +145,13 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.40 - 2026-01-27 =
+* Added 'Location' filter to Amplify Syndication import settings to specify only properties in a certain city/state are imported
+* Added support for importing floorplans from Kyero XML feeds
+* Added support for bathrooms, area, garages and more in PropCtrl imports
+* Added support for images having no extension in Pixxi imports
+* Updated Bridge settings so that datafeed ID is a text field instead of a fixed dropdown
 
 = 2.5.39 - 2026-01-19 =
 * Added support for the Amplify Syndication RESO API

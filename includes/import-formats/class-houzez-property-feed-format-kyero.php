@@ -613,6 +613,9 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 							        	}
 							        }
 
+							        if ( isset($image->tags->tag) && (string)$image->tags->tag == 'floorplan' )
+										continue;
+
 									$url = trim((string)$image->url);
 									if ( 
 										substr( strtolower($url), 0, 2 ) == '//' ||
@@ -683,6 +686,9 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 							        		break 2;
 							        	}
 							        }
+
+							        if ( isset($image->tags->tag) && (string)$image->tags->tag == 'floorplan' )
+										continue;
 
 									$url = trim((string)$image->url);
 									if ( 
@@ -849,6 +855,47 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
 					
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
 				}
+
+				// Floorplans
+				$floorplans = array();
+
+				if (isset($property->images) && !empty($property->images))
+                {
+                    foreach ($property->images as $images)
+                    {
+                        if (!empty($images->image))
+                        {
+                            foreach ($images->image as $image)
+                            {
+                            	if ( isset($image->tags->tag) && (string)$image->tags->tag == 'floorplan' )
+                            	{
+									if ( 
+										substr( strtolower((string)$image->url), 0, 2 ) == '//' || 
+										substr( strtolower((string)$image->url), 0, 4 ) == 'http'
+									)
+									{
+										$floorplans[] = array( 
+											"fave_plan_title" => __( 'Floorplan', 'houzezpropertyfeed' ), 
+											"fave_plan_image" => trim((string)$image->url)
+										);
+									}
+								}
+							}
+						}
+					}
+				}
+
+				if ( !empty($floorplans) )
+				{
+	                update_post_meta( $post_id, 'floor_plans', $floorplans );
+	                update_post_meta( $post_id, 'fave_floor_plans_enable', 'enable' );
+	            }
+	            else
+	            {
+	            	update_post_meta( $post_id, 'fave_floor_plans_enable', 'disable' );
+	            }
+
+				$this->log( 'Imported ' . count($floorplans) . ' floorplans', (string)$property->propertyID, $post_id );
 
 				update_post_meta( $post_id, 'fave_video_url', '' );
 				update_post_meta( $post_id, 'fave_virtual_tour', '' );
