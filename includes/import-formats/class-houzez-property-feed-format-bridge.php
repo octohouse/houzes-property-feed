@@ -57,6 +57,41 @@ class Houzez_Property_Feed_Format_Bridge extends Houzez_Property_Feed_Process {
         		$this->only_updated = true;
         	}
         }*/
+        $office_names = isset($import_settings['office_name']) ? explode(",", $import_settings['office_name']) : array();
+        $office_names = array_map('trim', $office_names);
+        $office_names = array_filter($office_names);
+
+        $locations = isset($import_settings['location']) ? explode(",", $import_settings['location']) : array();
+        $locations = array_map('trim', $locations);
+        $locations = array_filter($locations);
+
+        if ( empty($office_names) && empty($locations) ) 
+        {
+        	//$this->log("At least one office name or location must be entered into the import settings");
+        	//return false;
+        }
+
+        if ( !empty($office_names) )
+        {
+        	$office_additional_url = '';
+	        foreach ( $office_names as $i => $office_name )
+	        {
+	        	if ( !empty($office_additional_url) ) { $office_additional_url .= ' or '; }
+	        	$office_additional_url .= ' ListOfficeName eq %27' . $office_name . '%27 ';
+	        }
+	        $additional_url .= ' and (' . $office_additional_url . ')';
+	    }
+        
+        if ( !empty($locations) )
+        {
+        	$location_additional_url = '';
+	        foreach ( $locations as $i => $location )
+	        {
+	        	if ( !empty($location_additional_url) ) { $location_additional_url .= ' or '; }
+	        	$location_additional_url .= ' City eq %27' . $location . '%27 or StateOrProvince eq %27' . $location . '%27 ';
+	        }
+	        $additional_url .= ' and (' . $location_additional_url . ')';
+	    }
 
         $limit = apply_filters( "houzez_property_feed_property_limit", 25 );
 		if ( $limit !== false )

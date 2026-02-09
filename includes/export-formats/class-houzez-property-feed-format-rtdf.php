@@ -600,7 +600,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ) != ''
         )
         {
-            $request_data['property']['details']['internal_area'] = get_post_meta( $post_id, 'fave_property_size', TRUE );
+            $request_data['property']['details']['internal_area'] = (int)get_post_meta( $post_id, 'fave_property_size', TRUE );
 
             $unit = null;
             if ( stripos(get_post_meta( $post_id, 'fave_property_size_prefix', TRUE ), 'ft') !== false )
@@ -628,7 +628,7 @@ class Houzez_Property_Feed_Format_RTDF extends Houzez_Property_Feed_Process {
             get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ) != ''
         )
         {
-            $request_data['property']['details']['land_area'] = get_post_meta( $post_id, 'fave_property_land', TRUE );
+            $request_data['property']['details']['land_area'] = (int)get_post_meta( $post_id, 'fave_property_land', TRUE );
 
             $unit = null;
             if ( stripos(get_post_meta( $post_id, 'fave_property_land_postfix', TRUE ), 'ft') !== false )

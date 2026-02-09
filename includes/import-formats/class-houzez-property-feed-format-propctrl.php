@@ -1505,64 +1505,34 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 
 				$taxonomy_mappings = ( isset($mappings[$mapping_name]) && is_array($mappings[$mapping_name]) && !empty($mappings[$mapping_name]) ) ? $mappings[$mapping_name] : array();
 
-				$status_field = str_replace('residential-', '', str_replace('sales', 'sale', $department));
-
-				if ( isset($property[$status_field . '_status']) && !empty($property[$status_field . '_status']) )
+				if ( isset($property['listingStatus']) && !empty($property['listingStatus']) )
 				{
-					if ( isset($taxonomy_mappings[$property[$status_field . '_status']]) && !empty($taxonomy_mappings[$property[$status_field . '_status']]) )
+					if ( isset($taxonomy_mappings[$property['listingStatus']]) && !empty($taxonomy_mappings[$property['listingStatus']]) )
 					{
-						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property[$status_field . '_status']], "property_status" );
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['listingStatus']], "property_status" );
 					}
 					else
 					{
-						$this->log( 'Received status of ' . $property[$status_field . '_status'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
+						$this->log( 'Received status of ' . $property['listingStatus'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
 
-						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property[$status_field . '_status'], $this->import_id );
+						$import_settings = $this->add_missing_mapping( $mappings, $mapping_name, $property['listingStatus'], $this->import_id );
 					}
 				}
 
 				// property type taxonomies
 				$taxonomy_mappings = ( isset($mappings['property_type']) && is_array($mappings['property_type']) && !empty($mappings['property_type']) ) ? $mappings['property_type'] : array();
 
-				if ( isset($property['property_type']) && !empty($property['property_type']) )
+				if ( isset($property['propertyType']) && !empty($property['propertyType']) )
 				{
-					$type_mapped = false;
-
-					if ( 
-						isset($property['property_type']) && 
-						$property['property_type'] != '' &&
-						isset($property['property_style']) && 
-						$property['property_style'] != ''
-					)
+					if ( isset($taxonomy_mappings[$property['propertyType']]) && !empty($taxonomy_mappings[$property['propertyType']]) )
 					{
-						if ( 
-							isset($taxonomy_mappings[$property['property_type'] . ' - ' . $property['property_style']]) && 
-							!empty($taxonomy_mappings[$property['property_type'] . ' - ' . $property['property_style']]) 
-						)
-						{
-							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['property_type'] . ' - ' . $property['property_style']], "property_type" );
-							$type_mapped = true;
-						}
-						else
-						{
-							$this->log( 'Received property type of ' . $property['property_type'] . ' - ' . $property['property_style'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
-
-							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['property_type'] . ' - ' . $property['property_style'], $this->import_id );
-						}
+						wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['propertyType']], "property_type" );
 					}
-
-					if ( !$type_mapped )
+					else
 					{
-						if ( isset($taxonomy_mappings[$property['property_type']]) && !empty($taxonomy_mappings[$property['property_type']]) )
-						{
-							wp_set_object_terms( $post_id, (int)$taxonomy_mappings[$property['property_type']], "property_type" );
-						}
-						else
-						{
-							$this->log( 'Received property type of ' . $property['property_type'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
+						$this->log( 'Received property type of ' . $property['propertyType'] . ' that isn\'t mapped in the import settings', $property['listingId'], $post_id );
 
-							$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['property_type'], $this->import_id );
-						}
+						$import_settings = $this->add_missing_mapping( $mappings, 'property_type', $property['propertyType'], $this->import_id );
 					}
 				}
 

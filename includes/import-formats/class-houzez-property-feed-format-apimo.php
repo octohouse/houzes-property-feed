@@ -59,6 +59,12 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 				return false;
 			}
 
+			if ( wp_remote_retrieve_response_code($response) !== 200 )
+	        {
+	            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when requesting properties. Error message: ' . wp_remote_retrieve_response_message($response) );
+	            return false;
+	        }
+
 			$json = json_decode( $response['body'], TRUE );
 
 			if ($json !== FALSE)
@@ -392,14 +398,14 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	                    {
 	                    	switch ( $property['price']['period'] )
 	                    	{
-	                    		case "1": { $rent_frequency = 'per day'; }
-	                    		case "2": { $rent_frequency = 'per week'; }
-	                    		case "3": { $rent_frequency = 'per fortnight'; }
-	                    		case "4": { $rent_frequency = 'per month'; }
-	                    		case "5": { $rent_frequency = 'quarterly'; }
-	                    		case "6": { $rent_frequency = 'bimonthly'; }
-	                    		case "7": { $rent_frequency = 'half-yearly'; }
-	                    		case "8": { $rent_frequency = 'yearly'; }
+	                    		case "1": { $rent_frequency = 'per day'; break; }
+	                    		case "2": { $rent_frequency = 'per week';  break;}
+	                    		case "3": { $rent_frequency = 'per fortnight'; break; }
+	                    		case "4": { $rent_frequency = 'per month'; break; }
+	                    		case "5": { $rent_frequency = 'quarterly'; break; }
+	                    		case "6": { $rent_frequency = 'bimonthly'; break; }
+	                    		case "7": { $rent_frequency = 'half-yearly'; break; }
+	                    		case "8": { $rent_frequency = 'yearly'; break; }
 	                    	}
 	                    }
 	                    update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
@@ -407,10 +413,33 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
                 }
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property['bedrooms']) ) ? $property['bedrooms'] : '' ) );
-	            update_post_meta( $post_id, 'fave_property_bathrooms', '' );
+	            
+                $bathrooms = '';
+                if ( isset($property['areas']) && is_array($property['areas']) )
+                {
+                	foreach ( $property['areas'] as $area )
+                	{
+                		if ( isset($area['type']) && $area['type'] == 8 && isset($area['number']) && !empty($area['number']) )
+                		{
+                			$bathrooms = $area['number'];
+                		}
+                	}
+                }
+	            update_post_meta( $post_id, 'fave_property_bathrooms', $bathrooms );
 	            update_post_meta( $post_id, 'fave_property_rooms', '' );
 	            
-	            update_post_meta( $post_id, 'fave_property_garage', '' );
+	            $garages = '';
+                if ( isset($property['areas']) && is_array($property['areas']) )
+                {
+                	foreach ( $property['areas'] as $area )
+                	{
+                		if ( isset($area['type']) && $area['type'] == 4 && isset($area['number']) && !empty($area['number']) )
+                		{
+                			$garages = $area['number'];
+                		}
+                	}
+                }
+	            update_post_meta( $post_id, 'fave_property_garage', $garages );
 	            update_post_meta( $post_id, 'fave_property_id', $property['reference'] );
 
 	            $address_parts = array();
@@ -432,6 +461,47 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	            }
 	            $address_parts = array_unique($address_parts);
 
+	            $floor_area = '';
+	            $land_area = '';
+	            $area_prefix = '';
+	            if ( isset($property['area']['value']) && !empty($property['area']['value']) )
+	            {
+	            	$floor_area = $property['area']['value'];
+	            }
+	            if ( isset($property['area']['total']) && !empty($property['area']['total']) )
+	            {
+	            	$land_area = $property['area']['total'];
+	            }
+	            if ( !empty($floor_area) || !empty($land_area) )
+	            {
+	            	$area_prefix = 'm2';
+	            	if ( isset($property['area']['unit']) )
+	            	{
+	            		switch ( (int)$property['area']['unit'] ) 
+	            		{
+						    case 1:  $area_prefix = 'm²'; break;
+						    case 2:  $area_prefix = 'sq ft'; break;
+						    case 3:  $area_prefix = 'kanal'; break;
+						    case 4:  $area_prefix = 'marla'; break;
+						    case 5:  $area_prefix = 'sq yd'; break;
+						    case 6:  $area_prefix = 'acre'; break;
+						    case 7:  $area_prefix = 'ha'; break;
+						    case 8:  $area_prefix = 'ares'; break;
+						    case 9:  $area_prefix = 'toises'; break;
+						    case 10: $area_prefix = 'perches'; break;
+						    case 11: $area_prefix = 'arpents'; break;
+						    case 12: $area_prefix = 'centiare'; break;
+						}
+
+	            	}
+	            }
+	            update_post_meta( $post_id, 'fave_property_size', $floor_area );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', $area_prefix );
+	            update_post_meta( $post_id, 'fave_property_land', $land_area );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', $area_prefix );
+
+	            update_post_meta( $post_id, 'fave_property_year', ( ( isset($property['construction']['construction_year']) && !empty($property['construction']['construction_year']) ) ? $property['construction']['construction_year']: '' ) );
+
 	            update_post_meta( $post_id, 'fave_property_map', '1' );
 	            update_post_meta( $post_id, 'fave_property_map_address', implode(", ", $address_parts) );
 	            $lat = '';
@@ -450,10 +520,6 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_country', $property['country'] );
 	            
 	            $address_parts = array();
-	            if ( $address_street != '' )
-	            {
-	                $address_parts[] = $address_street;
-	            }
 	            update_post_meta( $post_id, 'fave_property_address', implode(", ", $address_parts) );
 	            update_post_meta( $post_id, 'fave_property_zip', ( ( isset($property['city']['zipcode']) ) ? $property['city']['zipcode'] : '' ) );
 

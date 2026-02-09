@@ -890,6 +890,18 @@ function houzez_property_feed_get_import_formats()
                     'default' => array( 'Active', 'Coming Soon' ),
                     'tooltip' => 'One or more must be selected. Ctrl/Cmd + Click to select multiple',
                 ),
+                array(
+                    'id' => 'office_name',
+                    'label' => __( 'Office Name(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => 'Case-sensitive. Comma-delimited list of office names to import. Taken from the ListOfficeName field in the data',
+                ),
+                array(
+                    'id' => 'location',
+                    'label' => __( 'Location(s)', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                    'tooltip' => 'Case-sensitive. Comma-delimited list of cities, states or provinces to import',
+                ),
                 /*array(
                     'id' => 'only_updated',
                     'label' => __( 'Only Import Updated Properties', 'houzezpropertyfeed' ),
@@ -2130,17 +2142,15 @@ function houzez_property_feed_get_import_formats()
             'address_fields' => array( 'suburb', 'city', 'province' ),
             'taxonomy_values' => array(
                 'sales_status' => array(
-                    'For Sale' => 'For Sale',
-                    'Under Offer' => 'Under Offer',
-                    'Sold STC' => 'Sold STC',
-                    'For Sale and To Let' => 'For Sale and To Let',
+                    'Active' => 'Active',
+                    'Pending' => 'Pending',
                 ),
                 'lettings_status' => array(
-                    'To Let' => 'To Let',
-                    'Let Agreed' => 'Let Agreed',
-                    'For Sale and To Let' => 'For Sale and To Let',
+                    'Active' => 'Active',
+                    'Pending' => 'Pending',
                 ),
                 'property_type' => array(
+                    'House' => 'House',
                     'Detached House' => 'Detached House',
                     'Semi-Detached House' => 'Semi-Detached House',
                     'Terraced House' => 'Terraced House',
@@ -4169,6 +4179,9 @@ function houzez_property_feed_get_export_formats()
                 'url'               => 'url',
                 'bedrooms'          => 'bedrooms',
                 'bathrooms'         => 'bathrooms',
+                'new_build'         => 'new_build',
+                'year_built'        => 'year_built',
+                'levels'            => 'levels',
             ),
             'taxonomy_values' => array(
                 'property_type' => array(

@@ -2,48 +2,54 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-register_shutdown_function( "houzez_property_feed_export_fatal_handler" );
-function houzez_property_feed_export_fatal_handler() {
+if ( !function_exists('houzez_property_feed_export_fatal_handler') )
+{
+    function houzez_property_feed_export_fatal_handler() {
 
-    $error = error_get_last();
+        $error = error_get_last();
 
-    if ($error !== NULL) 
-    {
-    	if ( ($error['type'] === E_ERROR) || ($error['type'] === E_USER_ERROR)|| ($error['type'] === E_USER_NOTICE) ) 
-    	{
-	        $errno   = $error["type"];
-	        $errfile = $error["file"];
-	        $errline = $error["line"];
-	        $errstr  = $error["message"];
+        if ($error !== NULL) 
+        {
+        	if ( ($error['type'] === E_ERROR) || ($error['type'] === E_USER_ERROR)|| ($error['type'] === E_USER_NOTICE) ) 
+        	{
+    	        $errno   = $error["type"];
+    	        $errfile = $error["file"];
+    	        $errline = $error["line"];
+    	        $errstr  = $error["message"];
 
-			$error_text = houzez_property_feed_export_format_error( $errno, $errstr, $errfile, $errline );
+    			$error_text = houzez_property_feed_export_format_error( $errno, $errstr, $errfile, $errline );
 
-			global $wpdb, $instance_id;
+    			global $wpdb, $instance_id;
 
-			$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
-			$current_date = $current_date->format("Y-m-d H:i:s");
+    			$current_date = new DateTimeImmutable( 'now', new DateTimeZone('UTC') );
+    			$current_date = $current_date->format("Y-m-d H:i:s");
 
-			$wpdb->insert(
-				$wpdb->prefix . "houzez_property_feed_export_logs_instance_log",
-				array(
-					'instance_id' => $instance_id,
-					'post_id' => 0,
-					'severity' => 1,
-					'entry' => $error_text,
-					'log_date' => $current_date
-				)
-			);
-		}
+    			$wpdb->insert(
+    				$wpdb->prefix . "houzez_property_feed_export_logs_instance_log",
+    				array(
+    					'instance_id' => $instance_id,
+    					'post_id' => 0,
+    					'severity' => 1,
+    					'entry' => $error_text,
+    					'log_date' => $current_date
+    				)
+    			);
+    		}
+        }
     }
+    register_shutdown_function( "houzez_property_feed_export_fatal_handler" );
 }
 
-// Returns a formatted version of the fatal error, showing the error message and number, filename and line number
-function houzez_property_feed_export_format_error( $errno, $errstr, $errfile, $errline ) {
-	$trace = print_r( debug_backtrace( false ), true );
-	$file_split = explode('/', $errfile);
-	$trimmed_filename = implode('/', array_slice($file_split, -2));
-	$content = 'Error:' . $errstr . '|' . $errno . '|' . $trimmed_filename . '|' . $errline . '|' . $trace;
-	return $content;
+if ( !function_exists('houzez_property_feed_export_format_error') )
+{
+    // Returns a formatted version of the fatal error, showing the error message and number, filename and line number
+    function houzez_property_feed_export_format_error( $errno, $errstr, $errfile, $errline ) {
+    	$trace = print_r( debug_backtrace( false ), true );
+    	$file_split = explode('/', $errfile);
+    	$trimmed_filename = implode('/', array_slice($file_split, -2));
+    	$content = 'Error:' . $errstr . '|' . $errno . '|' . $trimmed_filename . '|' . $errline . '|' . $trace;
+    	return $content;
+    }
 }
 
 error_reporting( 0 );

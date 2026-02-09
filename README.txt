@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.40
-Version: 2.5.40
+Stable tag: 2.5.41
+Version: 2.5.41
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -145,6 +145,14 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.41 - 2026-02-09 =
+* Added office and location filters to Bridge MLS import settings
+* Added extra fields to thinkSPAIN mapping fields
+* Updated ExpertAgent imports to include a filter so the number of features imported can be customised
+* Updated area/size values sent in RTDF exports, casting them to integers to ensure they pass OTM validation
+* Updated various elements of the Apimo import, including importing size, bathrooms, correcting rent frequencies and more
+* Corrected default PropCtrl status and type mapping options
 
 = 2.5.40 - 2026-01-27 =
 * Added 'Location' filter to Amplify Syndication import settings to specify only properties in a certain city/state are imported

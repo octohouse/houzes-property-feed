@@ -540,7 +540,8 @@ class Houzez_Property_Feed_Format_Expertagent extends Houzez_Property_Feed_Proce
 	        	
 	            //turn bullets into property features
 	            $feature_term_ids = array();
-	            for ( $i = 1; $i <= 20; ++$i )
+	            $num_features = (int)apply_filters( 'houzez_property_feed_expertagent_feature_count', 20 );
+	            for ( $i = 1; $i <= $num_features; ++$i )
 				{
 					if ( isset($property->{'bullet' . $i}) && trim((string)$property->{'bullet' . $i}) != '' )
 					{
