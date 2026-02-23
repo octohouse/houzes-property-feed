@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.41
-Version: 2.5.41
+Stable tag: 2.5.42
+Version: 2.5.42
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -145,6 +145,17 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.42 - 2026-02-23 =
+* Added EPC ratings to Zoopla exports
+* Added support for youTube videos in Apimo imports
+* Added support for energy fields from Apimo
+* Updated ReSales Online XML imports to respect any limits set during the parsing phase
+* Updated ReSales Online XML imports to cater for differing lat/lng field structure
+* Updated Zoopla exports by passing through brochure captions
+* Updated field rules using JSONPath to cater for field being arrays
+* Corrected issue with currency being wrong in thinkSPAIN exports
+* Corrected wrong variable name in Facebook export filters
 
 = 2.5.41 - 2026-02-09 =
 * Added office and location filters to Bridge MLS import settings

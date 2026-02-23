@@ -627,6 +627,45 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 		            	}
 		            }
 	        	}
+
+	        	$fave_energy_class = '';
+				if ( isset($property['regulations']) && is_array($property['regulations']) )
+                {
+                	foreach ( $property['regulations'] as $regulation )
+                	{
+                		if ( isset($regulation['type']) && $regulation['type'] == 79 && isset($regulation['value']) && !empty($regulation['value']) )
+                		{
+                			$fave_energy_class = $regulation['value'];
+                		}
+                	}
+                }
+	        	update_post_meta( $post_id, 'fave_energy_class', $fave_energy_class );
+				
+	        	$fave_epc_current_rating = '';
+	        	if ( isset($property['regulations']) && is_array($property['regulations']) )
+                {
+                	foreach ( $property['regulations'] as $regulation )
+                	{
+                		if ( isset($regulation['type']) && $regulation['type'] == 89 && isset($regulation['value']) && !empty($regulation['value']) )
+                		{
+                			$fave_epc_current_rating = $regulation['value'];
+                		}
+                	}
+                }
+				update_post_meta( $post_id, 'fave_epc_current_rating', $fave_epc_current_rating );
+				
+				$fave_epc_potential_rating = '';
+				if ( isset($property['regulations']) && is_array($property['regulations']) )
+                {
+                	foreach ( $property['regulations'] as $regulation )
+                	{
+                		if ( isset($regulation['type']) && $regulation['type'] == 90 && isset($regulation['value']) && !empty($regulation['value']) )
+                		{
+                			$fave_epc_potential_rating = $regulation['value'];
+                		}
+                	}
+                }
+				update_post_meta( $post_id, 'fave_epc_potential_rating', $fave_epc_potential_rating );
 	        	
 				$mappings = ( isset($import_settings['mappings']) && is_array($import_settings['mappings']) && !empty($import_settings['mappings']) ) ? $import_settings['mappings'] : array();
 
@@ -995,6 +1034,25 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 					}
 					
 					update_option( 'houzez_property_feed_property_image_media_ids_' . $this->import_id, '', false );
+				}
+
+				update_post_meta( $post_id, 'fave_video_url', '' );
+				update_post_meta( $post_id, 'fave_virtual_tour', '' );
+
+				if ( isset($property['medias']) && !empty($property['medias']) )
+                {
+                    foreach ( $property['medias'] as $media )
+                    {
+                        if ( 
+                        	isset($media['internet']) && $media['internet'] === "1" &&
+                        	isset($media['value']) &&
+                        	preg_match('~^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/~i', $media['value'])
+                        )
+                        {
+                            update_post_meta( $post_id, 'fave_video_url', $media['value'] );
+                            break;
+						}
+					}
 				}
 
 				do_action( "houzez_property_feed_property_imported", $post_id, $property, $this->import_id, $this->instance_id );

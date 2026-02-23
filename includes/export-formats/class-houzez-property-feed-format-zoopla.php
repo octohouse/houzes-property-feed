@@ -311,6 +311,22 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         );
         $request_data['display_address'] = get_the_title($post_id);
 
+        $epc_ratings = array();
+        $eer_current_rating = (int)get_post_meta( $post_id, 'fave_epc_current_rating', TRUE );
+        if ( !empty($eer_current_rating) )
+        {
+            $epc_ratings['eer_current_rating'] = $eer_current_rating;
+        }
+        $eer_potential_rating = (int)get_post_meta( $post_id, 'fave_epc_potential_rating', TRUE );
+        if ( !empty($eer_potential_rating) )
+        {
+            $epc_ratings['eer_potential_rating'] = $eer_potential_rating;
+        }
+        if ( !empty($epc_ratings) )
+        {
+            $request_data['epc_ratings'] = $epc_ratings;
+        }
+
         $features = array();
         $term_list = wp_get_post_terms($post_id, 'property_feature', array("fields" => "all"));
         if ( !is_wp_error($term_list) && is_array($term_list) && !empty($term_list) )
@@ -613,15 +629,29 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             $url = wp_get_attachment_url( $attachment_id );
             if ($url !== FALSE)
             {
-                $attachment_data = wp_prepare_attachment_for_js( $attachment_id );
+                $attachment = get_post( $attachment_id );
+
+                $caption = '';
+
+                if ( $attachment ) 
+                {
+                    if ( ! empty( $attachment->post_excerpt ) ) 
+                    {
+                        $caption = $attachment->post_excerpt;
+                    }
+                    elseif ( ! empty( $attachment->post_title ) ) 
+                    {
+                        $caption = $attachment->post_title;
+                    }
+                }
 
                 $media = array(
                     'url' => $url,
                     'type' => 'brochure',
                 );
-                if ( isset( $attachment_data['alt'] ) && $attachment_data['alt'] != '' )
+                if ( !empty($caption) )
                 {
-                    $media['caption'] = trim($attachment_data['alt']);
+                    $media['caption'] = trim($caption);
                 }
 
                 $request_data['content'][] = $media;

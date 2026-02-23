@@ -331,8 +331,8 @@ class Houzez_Property_Feed_Format_Facebook extends Houzez_Property_Feed_Process 
                 //$parking = $this->get_mapped_value($post->ID, 'parking');
                 //$listing_xml->addChild('parking_type', $parking);
 
-                $property_xml = apply_filters( 'houzez_property_feed_export_property_data', $property_xml, $post->ID, $this->export_id );
-                $property_xml = apply_filters( 'houzez_property_feed_export_facebook_property_data', $property_xml, $post->ID, $this->export_id );
+                $listing_xml = apply_filters( 'houzez_property_feed_export_property_data', $listing_xml, $post->ID, $this->export_id );
+                $listing_xml = apply_filters( 'houzez_property_feed_export_facebook_property_data', $listing_xml, $post->ID, $this->export_id );
                 $this->log("Property written to Facebook XML file", '', $post->ID);
 
                 ++$i;

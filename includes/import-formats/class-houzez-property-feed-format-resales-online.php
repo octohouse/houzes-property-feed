@@ -47,10 +47,34 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 
 		if ( $xml !== FALSE )
 		{
+			$limit = apply_filters( "houzez_property_feed_property_limit", 25 );
+	        if ( $limit !== false )
+	        {
+	        
+	        }
+	        else
+	        {
+	            // using pro, but check for limit setting
+	            if ( 
+	                $pro_active === true &&
+	                isset($import_settings['limit']) && 
+	                !empty((int)$import_settings['limit']) && 
+	                is_numeric($import_settings['limit'])
+	            )
+	            {
+	                $limit = (int)$import_settings['limit'];
+	            }
+	        }
+
 			foreach ( $xml->property as $property )
 			{
 				if ( !isset($property->status) || ( isset($property->status) && (string)$property->status != 'Off Market' ) )
 				{
+					if ( $test === false && $limit !== FALSE && count($this->properties) >= $limit )
+	                {
+	                    return true;
+	                }
+
                 	$this->properties[] = $property;
                 }
             } // end foreach property
@@ -354,6 +378,11 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 	            {
 	            	$lat = (string)$property->location->latitude;
 	            	$lng = (string)$property->location->longitude;
+	            }
+	            if ( isset($property->latitude) && !empty((string)$property->latitude) && isset($property->longitude) && !empty((string)$property->longitude) )
+	            {
+	            	$lat = (string)$property->latitude;
+	            	$lng = (string)$property->longitude;
 	            }
 	            update_post_meta( $post_id, 'fave_property_location', $lat . "," . $lng . ",14" );
 	            $country = 'ES';

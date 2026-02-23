@@ -139,9 +139,9 @@ class Houzez_Property_Feed_Format_Thinkspain extends Houzez_Property_Feed_Proces
                 $raw_price = get_post_meta($post_id, 'fave_property_price', true);
                 $currency = 'EUR';
 
-                if ( houzez_option('multi_currency') == '1' )
+                if ( fave_option('multi_currency') == '1' )
                 {
-                    $default_multi_currency = houzez_option('default_multi_currency');
+                    $default_multi_currency = fave_option('default_multi_currency');
                     if ( !empty($default_multi_currency) && strlen($default_multi_currency) == 3 )
                     {
                         $currency = strtoupper($default_multi_currency);
@@ -154,7 +154,7 @@ class Houzez_Property_Feed_Format_Thinkspain extends Houzez_Property_Feed_Proces
                 }
                 else
                 {
-                    $symbol = houzez_option('currency_symbol');
+                    $symbol = fave_option('currency_symbol');
                     switch ($symbol)
                     {
                         case "£": $currency = 'GBP'; break;
