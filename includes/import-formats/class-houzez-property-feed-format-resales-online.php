@@ -21,13 +21,24 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 	    }
 	}
 
-	public function parse()
+	public function parse( $test = false )
 	{
 		$this->properties = array(); // Reset properties in the event we're importing multiple files
 
-		$this->log("Parsing properties", '', 0, '', false);
+		if ( $test === false )
+		{
+			$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+		}
+		else
+		{
+			$import_settings = map_deep( wp_unslash($_POST), 'sanitize_text_field' );
+			if ( isset( $_POST['xml_url'] ) ) 
+			{
+			    $import_settings['xml_url'] = sanitize_url( wp_unslash( $_POST['xml_url'] ) );
+			}
+		}
 
-		$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
+		$this->log("Parsing properties", '', 0, '', false);
 
 		$contents = '';
 
@@ -42,6 +53,8 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
 
         	return false;
 		}
+
+		$pro_active = apply_filters( 'houzez_property_feed_pro_active', false );
 
 		$xml = simplexml_load_string($contents);
 
@@ -87,7 +100,7 @@ class Houzez_Property_Feed_Format_Resales_Online extends Houzez_Property_Feed_Pr
         	return false;
         }
 
-		if ( empty($this->properties) )
+		if ( $test === false && empty($this->properties) )
 		{
 			$this->log_error( 'No properties found. We\'re not going to continue as this could likely be wrong and all properties will get removed if we continue.' );
 

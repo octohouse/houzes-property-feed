@@ -706,6 +706,15 @@ function hpf_get_import_object_from_format($format, $instance_id, $import_id)
 
             break;
         }
+        case "property_finder_api":
+        {
+            // includes
+            require_once dirname( __FILE__ ) . '/import-formats/class-houzez-property-feed-format-property-finder-api.php';
+
+            $import_object = new Houzez_Property_Feed_Format_Property_Finder_API( $instance_id, $import_id );
+
+            break;
+        }
         case "property_finder":
         {
             // includes

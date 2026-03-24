@@ -2193,6 +2193,14 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 					{
 						$this->log_error( 'Response when updating status in PropCtrl: ' . $response->get_error_message(), $property['listingId'], $post_id );
 					}
+					elseif ( wp_remote_retrieve_response_code($response) !== 200 )
+			        {
+			            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when changing property state. Error message: ' . wp_remote_retrieve_response_message($response) );
+			        }
+			        else
+			        {
+			        	$this->log( 'State of property in PropCtrl updated successfully', $property['listingId'], $post_id );
+			        }
 				}
 				else
 				{
@@ -2224,6 +2232,14 @@ class Houzez_Property_Feed_Format_Propctrl extends Houzez_Property_Feed_Process 
 					{
 						$this->log_error( 'Response when updating status in PropCtrl: ' . $response->get_error_message(), $property['listingId'], $post_id );
 					}
+					elseif ( wp_remote_retrieve_response_code($response) !== 200 )
+			        {
+			            $this->log_error( wp_remote_retrieve_response_code($response) . ' response received when changing property state. Error message: ' . wp_remote_retrieve_response_message($response) );
+			        }
+			        else
+			        {
+			        	$this->log( 'State of property in PropCtrl updated successfully', $property['listingId'], $post_id );
+			        }
 				}
 
 				if ( $inserted_updated == 'updated' )

@@ -2169,8 +2169,76 @@ function houzez_property_feed_get_import_formats()
             ),
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/propctrl/'
         ),
+        'property_finder_api' => array(
+            'name' => __( 'Property Finder / PF Expert / myCRM API', 'houzezpropertyfeed' ),
+            'fields' => array(
+                 array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'propertyhive' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'api_secret',
+                    'label' => __( 'API Secret', 'propertyhive' ),
+                    'type' => 'text',
+                ),
+            ),
+            'address_fields' => array( /*'city', 'community', 'sub_community'*/ ),
+            'taxonomy_values' => array(
+                'sales_status' => array(
+                    'Sales' => 'Sales',
+                ),
+                'lettings_status' => array(
+                    'Lettings' => 'Lettings',
+                ),
+                'property_type' => array(
+                    'bulk-sale-unit' => 'bulk-sale-unit',
+                    'warehouse' => 'warehouse',
+                    'restaurant' => 'restaurant',
+                    'roof' => 'roof',
+                    'factory' => 'factory',
+                    'half-floor' => 'half-floor',
+                    'twin-house' => 'twin-house',
+                    'cabin' => 'cabin',
+                    'land' => 'land',
+                    'bulk-rent-unit' => 'bulk-rent-unit',
+                    'ivilla' => 'ivilla',
+                    'show-room' => 'show-room',
+                    'villa' => 'villa',
+                    'co-working-space' => 'co-working-space',
+                    'apartment' => 'apartment',
+                    'whole-building' => 'whole-building',
+                    'full-floor' => 'full-floor',
+                    'hotel-apartment' => 'hotel-apartment',
+                    'office-space' => 'office-space',
+                    'retail' => 'retail',
+                    'shop' => 'shop',
+                    'duplex' => 'duplex',
+                    'townhouse' => 'townhouse',
+                    'chalet' => 'chalet',
+                    'staff-accommodation' => 'staff-accommodation',
+                    'farm' => 'farm',
+                    'medical-facility' => 'medical-facility',
+                    'palace' => 'palace',
+                    'penthouse' => 'penthouse',
+                    'clinic' => 'clinic',
+                    'cafeteria' => 'cafeteria',
+                    'bungalow' => 'bungalow',
+                    'compound' => 'compound',
+                    'rest-house' => 'rest-house',
+                    'labor-camp' => 'labor-camp',
+                    'business-center' => 'business-center',
+                )
+            ),
+            'contact_information_fields' => array(
+                //'agent_name',
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-imports/formats/property-finder/',
+            //'warnings' => array_filter( array( $simplexml_warning ) ),
+            'test_button' => true,
+        ),
         'property_finder' => array(
-            'name' => __( 'Property Finder / PF Expert / myCRM', 'houzezpropertyfeed' ),
+            'name' => __( 'Property Finder / PF Expert / myCRM XML', 'houzezpropertyfeed' ),
             'fields' => array(
                 array(
                     'id' => 'xml_url',

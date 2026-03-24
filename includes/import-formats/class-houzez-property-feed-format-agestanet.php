@@ -30,10 +30,9 @@ class Houzez_Property_Feed_Format_Agestanet extends Houzez_Property_Feed_Process
 	{
 		$this->properties = array();
 
-		if ( $test === false || $troubleshooting === true )
+		if ( $test === false )
 		{
 			$import_settings = houzez_property_feed_get_import_settings_from_id( $this->import_id );
-			$test = true;
 		}
 		else
 		{

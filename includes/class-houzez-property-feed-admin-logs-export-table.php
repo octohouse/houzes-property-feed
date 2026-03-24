@@ -107,7 +107,7 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
             {
                 if ( $item->property_ids != '' )
                 {
-                    $explode_property_ids = explode(",", $item->property_ids);
+                    $explode_property_ids = $item->property_ids;
                     if ( count($explode_property_ids) == 1 )
                     {
                         $title = get_the_title($explode_property_ids[0]);
@@ -167,8 +167,8 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
 
         $export_id = !empty($_GET['export_id']) ? (int)$_GET['export_id'] : '';
 
-        /*$extra_query = "";
-        if ( !empty($export_id) )
+        $extra_query = "";
+        /*if ( !empty($export_id) )
         {
             $export_settings = houzez_property_feed_get_export_settings_from_id( $export_id );
 
@@ -178,7 +178,7 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
 
                 if ($format['method'] == 'realtime')
                 {*/
-                    $extra_query = ", (
+                    /*$extra_query = ", (
                     SELECT GROUP_CONCAT(DISTINCT post_id SEPARATOR ',')
                         FROM 
                             " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log
@@ -186,7 +186,7 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
                             " . $wpdb->prefix . "houzez_property_feed_export_logs_instance_log.instance_id = " . $wpdb->prefix . "houzez_property_feed_export_logs_instance.id
                         AND
                             post_id != 0
-                    ) AS property_ids";
+                    ) AS property_ids";*/
                 /*}
             }
         }*/
@@ -220,6 +220,22 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
         $query .= $wpdb->prepare(" LIMIT %d OFFSET %d", $per_page, ($current_page - 1) * $per_page);
 
         $this->items = $wpdb->get_results($query);
+
+        if ( is_array($this->items) ) 
+        {
+            foreach ($this->items as $item)
+            {
+                $item->property_ids = $wpdb->get_col($wpdb->prepare(
+                    "
+                    SELECT DISTINCT post_id
+                    FROM {$wpdb->prefix}houzez_property_feed_export_logs_instance_log
+                    WHERE instance_id = %d
+                      AND post_id != 0
+                    ",
+                    $item->id
+                ));
+            }
+        }
 
         $this->set_pagination_args(
             array(

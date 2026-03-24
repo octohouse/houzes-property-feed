@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.42
-Version: 2.5.42
+Stable tag: 2.5.43
+Version: 2.5.43
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -49,7 +49,7 @@ We can import properties from the following estate agency CRMs/formats:
 * MRI
 * MLS/IDX (assuming XML URL can be provided)
 * MLS Grid
-* myCRM / PF Expert from Property Finder
+* myCRM / PF Expert from Property Finder UAE (XML and API)
 * OpenImmo
 * Pixxi
 * PropConnect
@@ -145,6 +145,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.43 - 2026-03-24 =
+* Added preliminary support for importing from Property Finder UAE using their API
+* Added more logging to PropCtrl state change PUT request
+* Updated which field is used for Apimo land area
+* Corrected wrong property count showing in export logs being wrong due to hitting MySQL 'group_concat_max_len' setting
 
 = 2.5.42 - 2026-02-23 =
 * Added EPC ratings to Zoopla exports

@@ -462,19 +462,14 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	            $address_parts = array_unique($address_parts);
 
 	            $floor_area = '';
-	            $land_area = '';
 	            $area_prefix = '';
 	            if ( isset($property['area']['value']) && !empty($property['area']['value']) )
 	            {
 	            	$floor_area = $property['area']['value'];
 	            }
-	            if ( isset($property['area']['total']) && !empty($property['area']['total']) )
+	            if ( !empty($floor_area) )
 	            {
-	            	$land_area = $property['area']['total'];
-	            }
-	            if ( !empty($floor_area) || !empty($land_area) )
-	            {
-	            	$area_prefix = 'm2';
+	            	$area_prefix = 'm²';
 	            	if ( isset($property['area']['unit']) )
 	            	{
 	            		switch ( (int)$property['area']['unit'] ) 
@@ -497,6 +492,47 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	            }
 	            update_post_meta( $post_id, 'fave_property_size', $floor_area );
 	            update_post_meta( $post_id, 'fave_property_size_prefix', $area_prefix );
+
+	            $land_area = '';
+	            $area_prefix = '';
+                if ( isset($property['areas']) && is_array($property['areas']) )
+                {
+                	foreach ( $property['areas'] as $area )
+                	{
+                		if ( isset($area['type']) && $area['type'] == 101 && isset($area['area']) && !empty($area['area']) )
+                		{
+                			$land_area = $area['area'];
+                			$area_prefix = 'm²';
+                		}
+                	}
+                }
+                if ( empty($land_area) )
+                {
+                	if ( isset($property['area']['total']) && !empty($property['area']['total']) )
+		            {
+		            	$land_area = $property['area']['total'];
+		            	$area_prefix = 'm²';
+		            	if ( isset($property['area']['unit']) )
+		            	{
+		            		switch ( (int)$property['area']['unit'] ) 
+		            		{
+							    case 1:  $area_prefix = 'm²'; break;
+							    case 2:  $area_prefix = 'sq ft'; break;
+							    case 3:  $area_prefix = 'kanal'; break;
+							    case 4:  $area_prefix = 'marla'; break;
+							    case 5:  $area_prefix = 'sq yd'; break;
+							    case 6:  $area_prefix = 'acre'; break;
+							    case 7:  $area_prefix = 'ha'; break;
+							    case 8:  $area_prefix = 'ares'; break;
+							    case 9:  $area_prefix = 'toises'; break;
+							    case 10: $area_prefix = 'perches'; break;
+							    case 11: $area_prefix = 'arpents'; break;
+							    case 12: $area_prefix = 'centiare'; break;
+							}
+
+		            	}
+		            }
+                }
 	            update_post_meta( $post_id, 'fave_property_land', $land_area );
 	            update_post_meta( $post_id, 'fave_property_land_postfix', $area_prefix );
 
@@ -524,7 +560,7 @@ class Houzez_Property_Feed_Format_Apimo extends Houzez_Property_Feed_Process {
 	            update_post_meta( $post_id, 'fave_property_zip', ( ( isset($property['city']['zipcode']) ) ? $property['city']['zipcode'] : '' ) );
 
 	            $featured = '0';
-	            update_post_meta( $post_id, 'fave_featured', $featured );
+	            add_post_meta( $post_id, 'fave_featured', $featured, true );
 	            update_post_meta( $post_id, 'fave_agent_display_option', ( isset($import_settings['agent_display_option']) ? $import_settings['agent_display_option'] : 'none' ) );
 
 	            if ( 
