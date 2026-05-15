@@ -4227,6 +4227,64 @@ function houzez_property_feed_get_export_formats()
             'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/rtdf/',
             'warnings' => array_filter( array( $curl_warning ) ),
         ) ),
+        'sharetobuy' => apply_filters( 'houzez_property_feed_export_format_options_sharetobuy', array(
+            'name' => __( 'ShareToBuy', 'houzezpropertyfeed' ),
+            'method' => 'realtime', // cron / realtime / url
+            'fields' => array_merge(array(
+                array(
+                    'id' => 'environment',
+                    'label' => __( 'Environment', 'houzezpropertyfeed' ),
+                    'type' => 'select',
+                    'options' => array(
+                        'sandbox' => 'Sandbox',
+                        'live' => 'Live',
+                    )
+                ),
+                array(
+                    'id' => 'api_key',
+                    'label' => __( 'API Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                array(
+                    'id' => 'private_key',
+                    'label' => __( 'Private Key', 'houzezpropertyfeed' ),
+                    'type' => 'text',
+                ),
+                /*array(
+                    'id' => 'only_send_if_different',
+                    'label' => __( 'Only Send When Data Has Changed', 'houzezpropertyfeed' ),
+                    'type' => 'checkbox',
+                    'tooltip' => __( 'To reduce the number of requests tick this option to ensure we only send data if it\'s different to the last time we sent it', 'houzezpropertyfeed' )
+                ),*/
+            )),
+            'taxonomy_values' => array(
+                'status' => array(
+                    '1' => 'Available',
+                    '2' => 'Under offer',
+                    '3' => 'Coming soon',
+                    '4' => 'SSTC',
+                    '5' => 'Sold',
+                ),
+                'property_type' => array(
+                    '1-1' => 'Terraced house',
+                    '1-2' => 'Semi-detached house',
+                    '1-3' => 'Detached house',
+                    '2-4' => 'Flat',
+                    '2-5' => 'Duplex',
+                    '2-6' => 'Penthouse',
+                    '1-7' => 'Bungalow',
+                    '1-8' => 'End of terrace',
+                    '1-9' => 'Town house',
+                    '1-10' => 'Coach house',
+                    '1-11' => 'Link house',
+                    '2-12' => 'Ground floor maisonette',
+                    '2-13' => 'Maisonette',
+                    '2-14' => 'Ground floor flat',
+                )
+            ),
+            'help_url' => 'https://houzezpropertyfeed.com/documentation/managing-exports/formats/sharetobuy/',
+            //'warnings' => array_filter( array( $curl_warning ) ),
+        ) ),
         'thinkspain' => apply_filters( 'houzez_property_feed_export_format_options_thinkspain', array(
             'name' => __( 'thinkSPAIN', 'houzezpropertyfeed' ),
             'method' => 'url', // cron / realtime / url
@@ -4423,7 +4481,7 @@ function houzez_property_feed_get_export_formats()
                     'finca' => 'Finca',
                     'flat' => 'Flat',
                     'houseboat' => 'Houseboat',
-                    'land' => 'Land',
+                    'land' => 'Land (Residential)',
                     'link_detached' => 'Link-detached house',
                     'lodge' => 'Lodge',
                     'longere' => 'Longère',
@@ -4444,6 +4502,7 @@ function houzez_property_feed_get_export_formats()
                     'business_park' => 'Business park',
                     'hotel' => 'Hotel/guest house',
                     'industrial' => 'Industrial',
+                    'land_commercial' => 'Land (Commercial)',
                     'leisure' => 'Leisure/hospitality',
                     'light_industrial' => 'Light industrial',
                     'office' => 'Office',

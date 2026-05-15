@@ -290,6 +290,7 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
                 'business_park',
                 'hotel',
                 'industrial',
+                'land_commercial',
                 'leisure',
                 'light_industrial',
                 'office',
@@ -497,11 +498,11 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             $currency = strtoupper(get_post_meta( $post_id, 'fave_currency', TRUE ));
         }
         $price = get_post_meta( $post_id, 'fave_property_price', TRUE );
-        $price = str_replace(",", "", $price);
+        $price = (int)str_replace(",", "", $price);
         $request_data['pricing'] = array(
             'transaction_type' => ( $department == "lettings" ? 'rent' : 'sale' ),
             'currency_code' => $currency,
-            'price' => (int)$price,
+            'price' => $price,
         );
         if ( $rent_frequency != '' ) { $request_data['pricing']['rent_frequency'] = $rent_frequency; }
 
@@ -567,9 +568,15 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
             }
         }
 
+        if ( $category == 'commercial' && empty($price) && empty($price_qualifier) )
+        {
+            $price_qualifier = 'non_quoting';
+            unset($request_data['pricing']['price']);
+        }
+
         if ( $price_qualifier != '' ) { $request_data['pricing']['price_qualifier'] = $price_qualifier; }
 
-        if ( $property_type != '' ) { $request_data['property_type'] = $property_type; }
+        if ( $property_type != '' ) { $request_data['property_type'] = str_replace("land_commercial", "land", $property_type); }
         $request_data['summary_description'] = trim(get_the_excerpt($post_id));
 
         $request_data['total_bedrooms'] = (int)get_post_meta( $post_id, 'fave_property_bedrooms', TRUE );

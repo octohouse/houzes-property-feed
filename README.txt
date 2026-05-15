@@ -3,7 +3,7 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 6.9
-Stable tag: 2.5.43
+Stable tag: 2.5.44
 Version: 2.5.43
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
@@ -79,6 +79,7 @@ We can export and upload feeds from Houzez to third party portals in the followi
 * Rightmove and OnTheMarket Real-Time Format (RTDF)
 * thinkSPAIN
 * Thribee / LIFULL Connect ( Trovit / Mitula / Nestoria / Nuroa )
+* Share to Buy
 * Zoopla Real-Time Format
 
 Here's just a couple of reasons why you should choose the Houzez Property Feed plugin to import and export your property stock:
@@ -145,6 +146,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.44 - 2026-05-15 =
+* Added support for exporting properties to Share To Buy
+* Added Yoast fields to list of fields available in field rules when Yoast is enabled
+* Added support for commercial land in Zoopla exports
+* Added support for commercial non-quoting properties in Zoopla exports
 
 = 2.5.43 - 2026-03-24 =
 * Added preliminary support for importing from Property Finder UAE using their API

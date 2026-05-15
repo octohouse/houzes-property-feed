@@ -308,6 +308,70 @@ function houzez_property_feed_get_fields_for_field_mapping()
         }
     }
 
+    // Yoast
+    if ( defined( 'WPSEO_VERSION' ) )
+    {
+        $houzez_fields['_yoast_wpseo_title'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast SEO Title', 'houzezpropertyfeed' )
+        );
+
+        $houzez_fields['_yoast_wpseo_metadesc'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast Meta Description', 'houzezpropertyfeed' )
+        );
+
+        $houzez_fields['_yoast_wpseo_focuskw'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast Focus Keyphrase', 'houzezpropertyfeed' )
+        );
+
+        $houzez_fields['_yoast_wpseo_canonical'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast Canonical URL', 'houzezpropertyfeed' )
+        );
+
+        $houzez_fields['_yoast_wpseo_meta-robots-noindex'] = array(
+            'type'    => 'meta',
+            'label'   => __( 'Yoast Allow Search Engines To Show This Property?', 'houzezpropertyfeed' ),
+            'options' => array(
+                ''  => __( 'Default', 'houzezpropertyfeed' ),
+                '1' => __( 'No', 'houzezpropertyfeed' ),
+                '2' => __( 'Yes', 'houzezpropertyfeed' ),
+            )
+        );
+
+        $houzez_fields['_yoast_wpseo_meta-robots-nofollow'] = array(
+            'type'    => 'meta',
+            'label'   => __( 'Yoast Should Search Engines Follow Links?', 'houzezpropertyfeed' ),
+            'options' => array(
+                ''  => __( 'Default', 'houzezpropertyfeed' ),
+                '1' => __( 'No', 'houzezpropertyfeed' ),
+                '2' => __( 'Yes', 'houzezpropertyfeed' ),
+            )
+        );
+
+        $houzez_fields['_yoast_wpseo_opengraph-title'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast Social Title', 'houzezpropertyfeed' )
+        );
+
+        $houzez_fields['_yoast_wpseo_opengraph-description'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast Social Description', 'houzezpropertyfeed' )
+        );
+
+        $houzez_fields['_yoast_wpseo_twitter-title'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast X Title', 'houzezpropertyfeed' )
+        );
+
+        $houzez_fields['_yoast_wpseo_twitter-description'] = array(
+            'type'  => 'meta',
+            'label' => __( 'Yoast X Description', 'houzezpropertyfeed' )
+        );
+    }
+
     $houzez_fields = apply_filters( 'houzez_property_feed_field_mapping_houzez_fields', $houzez_fields );
 
     $houzez_fields = houzez_property_feed_array_msort( $houzez_fields, array( 'label' => SORT_ASC ) );
