@@ -2,9 +2,9 @@
 Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
-Tested up to: 6.9
-Stable tag: 2.5.44
-Version: 2.5.43
+Tested up to: 7.0
+Stable tag: 2.5.45
+Version: 2.5.45
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -146,6 +146,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.45 - 2026-05-21 =
+* Updated UI to support new WP 7.0 UI changes
+* Corrected issues with Kyero feeds not passing their validation, such as sending empty beds field and sending more than 50 features
+* Declared compatibility with WordPress 7.0
 
 = 2.5.44 - 2026-05-15 =
 * Added support for exporting properties to Share To Buy

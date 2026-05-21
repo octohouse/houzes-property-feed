@@ -30,7 +30,7 @@
 
 			<p>You don't have any exports running at the moment. Why not go ahead and try creating one now?</p>
 
-			<p><a href="<?php echo admin_url('admin.php?page=houzez-property-feed-export&action=addexport'); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2"></span> <?php echo __( 'Create New Export', 'houzezpropertyfeed' ); ?></a></p>
+			<p><a href="<?php echo admin_url('admin.php?page=houzez-property-feed-export&action=addexport'); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2" style="color:inherit;"></span> <?php echo __( 'Create New Export', 'houzezpropertyfeed' ); ?></a></p>
 
 			<p><strong>Need help?</strong> Our <a href="https://houzezpropertyfeed.com/documentation/" target="_blank">in-depth documentation</a> will guide you through the process.</p>
 

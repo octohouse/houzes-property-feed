@@ -73,7 +73,26 @@ class Houzez_Property_Feed_WPML {
                         $description = get_the_excerpt($language_post_id);
                     }
                     $description = str_replace("&nbsp;", " ", $description);
-                    $desc_xml->addCData( $isocode, $description );
+
+                    $description = trim($description);
+
+                    // Replace Gutenberg block comments (start & end tags)
+                    $description = preg_replace('/<!--\s*wp:.*?-->/s', '', $description);
+                    $description = preg_replace('/<!--\s*\/wp:.*?-->/s', '', $description);
+
+                    // Convert <p> tags to new lines
+                    $description = str_replace(array('<p>', '</p>'), "\n", $description);
+
+                    // Convert <br> tags to new lines
+                    $description = str_replace(array('<br>', '<br/>', '<br />'), "\n", $description);
+
+                    // Strip remaining HTML tags but keep newlines
+                    $description = strip_tags($description);
+
+                    // Trim excess spaces and normalize multiple new lines
+                    $description = preg_replace("/\n+/", "\n", trim($description));
+
+                    $desc_xml->addChild( $isocode, htmlspecialchars($description, ENT_QUOTES | ENT_XML1, 'UTF-8') );
                 }
             }
         }

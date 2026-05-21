@@ -4,11 +4,11 @@
 
 	<?php if ( isset($_GET['page']) && sanitize_text_field($_GET['page']) == 'houzez-property-feed-export' ) { ?>
 	<div class="add-import-export-button">
-		<a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-export&action=addexport')); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2"></span> <?php echo esc_html(__( 'Create New Export', 'houzezpropertyfeed' )); ?></a>
+		<a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-export&action=addexport')); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2" style="color:inherit;"></span> <?php echo esc_html(__( 'Create New Export', 'houzezpropertyfeed' )); ?></a>
 	</div>
 	<?php }else{ ?>
 	<div class="add-import-export-button">
-		<a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=addimport')); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2"></span> <?php echo esc_html(__( 'Create New Import', 'houzezpropertyfeed' )); ?></a>
+		<a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=addimport')); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2" style="color:inherit;"></span> <?php echo esc_html(__( 'Create New Import', 'houzezpropertyfeed' )); ?></a>
 	</div>
 	<?php } ?>
 

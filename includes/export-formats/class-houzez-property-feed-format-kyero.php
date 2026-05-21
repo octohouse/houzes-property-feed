@@ -242,7 +242,10 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                     $location_xml->addChild('longitude', $lng);
                 }
 
-                $property_xml->addChild('beds', get_post_meta($post_id, 'fave_property_bedrooms', true));
+                if ( get_post_meta($post_id, 'fave_property_bedrooms', true) != '' )
+                {
+                    $property_xml->addChild('beds', get_post_meta($post_id, 'fave_property_bedrooms', true));
+                }
 
                 if ( get_post_meta($post_id, 'fave_property_bathrooms', true) != '' )
                 {
@@ -376,12 +379,18 @@ class Houzez_Property_Feed_Format_Kyero extends Houzez_Property_Feed_Process {
                 $desc_xml->addChild('en', htmlspecialchars($description, ENT_QUOTES | ENT_XML1, 'UTF-8'));
 
                 $term_list = wp_get_post_terms($post_id, 'property_feature', array("fields" => "all"));
+                $feature_i = 1;
                 if ( !is_wp_error($term_list) && is_array($term_list) && !empty($term_list) )
                 {
                     $features_xml = $property_xml->addChild('features');
                     foreach ( $term_list as $term )
                     {
+                        if ( $feature_i > 50 )
+                        {
+                            continue;
+                        }
                         $features_xml->addChild('feature', htmlspecialchars($term->name, ENT_QUOTES | ENT_XML1, 'UTF-8'));
+                        ++$feature_i;
                     }
                 }
 
