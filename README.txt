@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 7.0
-Stable tag: 2.5.45
-Version: 2.5.45
+Stable tag: 2.5.46
+Version: 2.5.46
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -146,6 +146,12 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.46 - 2026-06-25 =
+* Updated Zoopla exports to support multi-currency
+* Updated Inmovilla imports to provide additional checking for rental properties
+* Updated field rules surrounding core post fields to ensure title, excerpt and content is always retained
+* Updated field rules surrounding auto-matching of agent and agency based on name
 
 = 2.5.45 - 2026-05-21 =
 * Updated UI to support new WP 7.0 UI changes

@@ -493,10 +493,34 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         }
 
         $currency = 'GBP';
-        if ( get_post_meta( $post_id, 'fave_currency', TRUE ) != '' && strlen(get_post_meta( $post_id, 'fave_currency', TRUE )) == 3 )
+        // check if multi-currency enabled
+        if ( fave_option('multi_currency') == 1 )
         {
-            $currency = strtoupper(get_post_meta( $post_id, 'fave_currency', TRUE ));
+            $default_multi_currency = fave_option('default_multi_currency');
+            if ( !empty( $default_multi_currency ) && strlen($default_multi_currency) == 3 )
+            {
+                $currency = strtoupper($default_multi_currency);
+            }
+
+            $property_currency = get_post_meta( $post->ID, 'fave_currency', true );
+            if ( !empty( $property_currency ) && strlen($property_currency) == 3 )
+            {
+                $currency = strtoupper($property_currency);
+            }
         }
+        else
+        {
+            // look at symbol set in settings
+            $symbol = fave_option('currency_symbol', '£');
+            switch ( $symbol )
+            {
+                case "£": { $currency = 'GBP'; break; }
+                case "$": { $currency = 'USD'; break; }
+                case "€": { $currency = 'EUR'; break; }
+                case "฿": { $currency = 'THB'; break; }
+            }
+        }
+
         $price = get_post_meta( $post_id, 'fave_property_price', TRUE );
         $price = (int)str_replace(",", "", $price);
         $request_data['pricing'] = array(

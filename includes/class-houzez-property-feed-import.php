@@ -1140,10 +1140,13 @@ class Houzez_Property_Feed_Import {
                                     $args = array(
                                         'post_type' => 'houzez_agent',
                                         'posts_per_page' => 1,
-                                        's' => $value_to_check
+                                        'post_status'    => 'any',
+                                        'exact_title'    => $value_to_check,
                                     );
 
+                                    add_filter( 'posts_where', array( $this, 'exact_title_search' ), 10, 2 );
                                     $agent_query = new WP_Query( $args );
+                                    remove_filter( 'posts_where', array( $this, 'exact_title_search' ), 10 );
 
                                     if ( $agent_query->have_posts() )
                                     {
@@ -1204,10 +1207,13 @@ class Houzez_Property_Feed_Import {
                                     $args = array(
                                         'post_type' => 'houzez_agent',
                                         'posts_per_page' => 1,
-                                        's' => $value_to_check
+                                        'post_status'    => 'any',
+                                        'exact_title'    => $value_to_check,
                                     );
 
+                                    add_filter( 'posts_where', array( $this, 'exact_title_search' ), 10, 2 );
                                     $agent_query = new WP_Query( $args );
+                                    remove_filter( 'posts_where', array( $this, 'exact_title_search' ), 10 );
 
                                     if ( $agent_query->have_posts() )
                                     {
@@ -1247,10 +1253,13 @@ class Houzez_Property_Feed_Import {
                                     $args = array(
                                         'post_type' => 'houzez_agency',
                                         'posts_per_page' => 1,
-                                        's' => $value_to_check
+                                        'post_status'    => 'any',
+                                        'exact_title'    => $value_to_check,
                                     );
 
+                                    add_filter( 'posts_where', array( $this, 'exact_title_search' ), 10, 2 );
                                     $agent_query = new WP_Query( $args );
+                                    remove_filter( 'posts_where', array( $this, 'exact_title_search' ), 10 );
 
                                     if ( $agent_query->have_posts() )
                                     {
@@ -1309,12 +1318,15 @@ class Houzez_Property_Feed_Import {
 
                                     // see if an agent exists with this name
                                     $args = array(
-                                        'post_type' => 'houzez_agent',
+                                        'post_type' => 'houzez_agency',
                                         'posts_per_page' => 1,
-                                        's' => $value_to_check
+                                        'post_status'    => 'any',
+                                        'exact_title'    => $value_to_check,
                                     );
 
+                                    add_filter( 'posts_where', array( $this, 'exact_title_search' ), 10, 2 );
                                     $agent_query = new WP_Query( $args );
+                                    remove_filter( 'posts_where', array( $this, 'exact_title_search' ), 10 );
 
                                     if ( $agent_query->have_posts() )
                                     {
@@ -1443,6 +1455,25 @@ class Houzez_Property_Feed_Import {
         {
             if ( $post_fields_to_update != $original_post_fields_to_update ) // Something about the post has changed
             {
+                global $wpdb;
+
+                $original_post = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT post_title, post_excerpt, post_content FROM {$wpdb->posts} WHERE ID = %d",
+                        $post_id
+                    )
+                );
+                
+                if ( $original_post )
+                {
+                    foreach ( array( 'post_title', 'post_excerpt', 'post_content' ) as $field ) 
+                    {
+                        if ( ! isset( $post_fields_to_update[$field] ) ) 
+                        {
+                            $post_fields_to_update[$field] = $original_post->{$field};
+                        }
+                    }
+                }
                 $update_post = true;
             }
         }
@@ -1983,6 +2014,25 @@ class Houzez_Property_Feed_Import {
     public function set_property_data_date($post_id, $property, $import_id, $instance_id = null)
     {
         update_post_meta( $post_id, '_property_import_data_time', time() );
+    }
+
+    public function exact_title_search( $where, $wp_query ) 
+    {
+        global $wpdb;
+
+        $search_term = $wp_query->get( 'exact_title' );
+
+        if ( $search_term !== '' && $search_term !== null ) 
+        {
+            $search_term = trim( $search_term );
+            
+            $where .= $wpdb->prepare(
+                " AND TRIM({$wpdb->posts}.post_title) = %s",
+                $search_term
+            );
+        }
+
+        return $where;
     }
 }
 
