@@ -73,10 +73,26 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
         {
             case 'col_log_date':
             {
-                $return = '<strong><a href="' . admin_url('admin.php?page=houzez-property-feed-export&tab=logs&action=view&log_id=' . $item->id . ( ( isset($_GET['export_id']) && !empty((int)$_GET['export_id']) ) ? '&export_id=' . (int)$_GET['export_id'] : '' ) . '&paged=' . ( isset($_GET['paged']) ? (int)$_GET['paged'] : '' ) . '&orderby=' . ( isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '' ) . '&order=' . ( isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '' ) ) . '">' . get_date_from_gmt( $item->start_date, "H:i:s jS F Y" ) . '</a></strong>';
+                $args = array(
+                    'page'    => 'houzez-property-feed-export',
+                    'tab'     => 'logs',
+                    'action'  => 'view',
+                    'log_id'  => absint($item->id),
+                    'paged'   => isset($_GET['paged']) ? absint($_GET['paged']) : 1,
+                    'orderby' => isset($_GET['orderby']) ? sanitize_key($_GET['orderby']) : '',
+                    'order'   => isset($_GET['order']) ? sanitize_key($_GET['order']) : '',
+                );
+
+                if (isset($_GET['export_id'])) {
+                    $args['export_id'] = absint($_GET['export_id']);
+                }
+
+                $url = add_query_arg($args, admin_url('admin.php'));
+
+                $return = '<strong><a href="' . esc_url($url) . '">' . esc_html(get_date_from_gmt( $item->start_date, "H:i:s jS F Y" )) . '</a></strong>';
 
                 $return .= '<div class="row-actions">
-                        <span class="edit"><a href="' . admin_url('admin.php?page=houzez-property-feed-export&tab=logs&action=view&log_id=' . $item->id . ( ( isset($_GET['export_id']) && !empty((int)$_GET['export_id']) ) ? '&export_id=' . (int)$_GET['export_id'] : '' ) . '&paged=' . ( isset($_GET['paged']) ? (int)$_GET['paged'] : '' ) . '&orderby=' . ( isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '' ) . '&order=' . ( isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '' ) ) . '" aria-label="' . __( 'View Log', 'houzezpropertyfeed' ) . '">' . __( 'View Log', 'houzezpropertyfeed' ) . '</a></span>
+                        <span class="edit"><a href="' . esc_url($url) . '" aria-label="' . esc_attr( __( 'View Log', 'houzezpropertyfeed' ) ) . '">' .esc_html( __( 'View Log', 'houzezpropertyfeed' )) . '</a></span>
                     </div>';
 
                 return $return;
@@ -116,11 +132,11 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
                             $title = '(no title)';
                         }
 
-                        return '<a href="' . get_edit_post_link($explode_property_ids[0]) . '" target="_blank">' . $title . '</a>';
+                        return '<a href="' . esc_url(get_edit_post_link($explode_property_ids[0])) . '" target="_blank">' . esc_html($title) . '</a>';
                     }
                     else
                     {
-                        return count($explode_property_ids) . ' ' . __( 'properties', 'houzezpropertyfeed' );
+                        return esc_html(count($explode_property_ids) . ' ' . __( 'properties', 'houzezpropertyfeed' ));
                     }
                 }
                 return '-';
@@ -202,8 +218,14 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
 
         $totalitems = $wpdb->get_var($query);
 
-        $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'start_date'; // default order
-        $order = (!empty($_GET['order'])) ? sanitize_text_field($_GET['order']) : 'asc'; // default order direction
+        $allowed_orderby = array(
+            'start_date' => 'start_date',
+        );
+        $orderby = (!empty($_GET['orderby'])) ? sanitize_text_field($_GET['orderby']) : 'start_date';
+        $orderby = isset($allowed_orderby[$orderby]) ? $allowed_orderby[$orderby] : 'start_date';
+        
+        $order = !empty($_GET['order']) ? strtoupper(sanitize_key(wp_unslash($_GET['order']))) : 'ASC';
+        $order = in_array($order, array('ASC', 'DESC'), true) ? $order : 'ASC';
 
         $query = "SELECT
             id, 
@@ -217,7 +239,7 @@ class Houzez_Property_Feed_Admin_Logs_Export_Table extends WP_List_Table {
             $query .= " WHERE export_id = '" . $export_id . "' ";
         }
         $query .= " ORDER BY $orderby $order";
-        $query .= $wpdb->prepare(" LIMIT %d OFFSET %d", $per_page, ($current_page - 1) * $per_page);
+        $query .= $wpdb->prepare( " LIMIT %d OFFSET %d", absint($per_page), absint(($current_page - 1) * $per_page) );
 
         $this->items = $wpdb->get_results($query);
 
