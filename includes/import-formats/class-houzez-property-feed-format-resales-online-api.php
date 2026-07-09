@@ -370,11 +370,23 @@ class Houzez_Property_Feed_Format_Resales_Online_API extends Houzez_Property_Fee
                 	if ( $department == 'residential-sales' )
                 	{
                 		$price = '';
-                		if ( isset($property['Price']) )
-                		{
-	                		$price = round(preg_replace("/[^0-9.]/", '', $property['Price']));
-	                	}
-	                    update_post_meta( $post_id, 'fave_property_price_prefix', '' );
+						$price_prefix = '';
+
+						if (isset($property['Price']) && $property['Price'] !== '')
+						{
+	                		$raw_price = trim($property['Price']);
+
+						    if (strpos($raw_price, '-') !== false)
+						    {
+						        $explode_price = explode('-', $raw_price, 2);
+						        $raw_price = trim($explode_price[0]);
+						        $price_prefix = 'From';
+						    }
+
+						    $price = round((float)preg_replace('/[^0-9.]/', '', $raw_price));
+						}
+
+	                    update_post_meta( $post_id, 'fave_property_price_prefix', $price_prefix );
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
 	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
 	                }

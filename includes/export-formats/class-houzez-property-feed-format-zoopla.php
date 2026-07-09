@@ -436,18 +436,27 @@ class Houzez_Property_Feed_Format_Zoopla extends Houzez_Property_Feed_Process {
         
         $fave_property_location = get_post_meta($post_id, 'fave_property_location', true);
         $explode_fave_property_location = explode(",", $fave_property_location);
+
         $lat = '';
         $lng = '';
-        if ( count($explode_fave_property_location) >= 2 )
+
+        if (count($explode_fave_property_location) >= 2)
         {
-            $lat = $explode_fave_property_location[0];
-            $lng = $explode_fave_property_location[1];
+            $lat = trim($explode_fave_property_location[0]);
+            $lng = trim($explode_fave_property_location[1]);
         }
-        if ( floatval($lat) != '' && floatval($lng) != '' )
+
+        if (
+            is_numeric($lat) &&
+            is_numeric($lng) &&
+            $lat >= -90 && $lat <= 90 &&
+            $lng >= -180 && $lng <= 180
+        )
         {
-            $request_data['location']['coordinates'] = array();
-            if ( floatval($lat) != '' ) { $request_data['location']['coordinates']['latitude'] = floatval($lat); }
-            if ( floatval($lng) != '' ) { $request_data['location']['coordinates']['longitude'] = floatval($lng); }
+            $request_data['location']['coordinates'] = array(
+                'latitude' => (float)$lat,
+                'longitude' => (float)$lng,
+            );
         }
 
         $rent_frequency = '';

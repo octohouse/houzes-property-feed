@@ -132,72 +132,87 @@ class Houzez_Property_Feed_Format_Remax extends Houzez_Property_Feed_Process {
 	        {
 		        $this->log("Obtaining agents for office ID " . $office_id);
 
-		        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
-				$url = 'https://' . $host;
-				$url .= '/feeds_default/office';
-		        $region = 'eu-west-1';
+		        $more_offices = true;
+		        $page = 0;
 
-		        $event = array( "token" => $import_settings['api_key'], "office_id" => $office_id );
-		        $json = json_encode($event);
+		        while ( $more_offices )
+		        {
+		        	$this->log("Page " . ( $page + 1 ));
 
-		        $aws = new AWSV4(
-		        	$import_settings['access_key'],
-		        	$import_settings['secret_key']
-		        );
-		        $aws->setRegionName( $region );
-				$aws->setServiceName( 'execute-api' );
-				$aws->setPath( '/feeds_default/office' );
-				$aws->setPayload( $json );
-				$aws->setRequestMethod( 'POST' );
-				$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
-				$aws->addHeader( 'host', $host );
+			        $host = 'ahcjbl9nbb.execute-api.eu-west-1.amazonaws.com';
+					$url = 'https://' . $host;
+					$url .= '/feeds_default/office-pagenate';
+			        $region = 'eu-west-1';
 
-		        $headers = $aws->getHeaders();
+			        $event = array( "token" => $import_settings['api_key'], "office_id" => $office_id, "page" => $page );
+			        $json = json_encode($event);
 
-		        $response = wp_remote_request(
-					$url,
-					array(
-						'method' => 'POST',
-						'timeout' => 360,
-						'headers' => $headers,
-						'body' => $json
-					)
-				);
+			        $aws = new AWSV4(
+			        	$import_settings['access_key'],
+			        	$import_settings['secret_key']
+			        );
+			        $aws->setRegionName( $region );
+					$aws->setServiceName( 'execute-api' );
+					$aws->setPath( '/feeds_default/office-pagenate' );
+					$aws->setPayload( $json );
+					$aws->setRequestMethod( 'POST' );
+					$aws->addHeader( 'x-api-key', $import_settings['api_key'] );
+					$aws->addHeader( 'host', $host );
 
-		        if ( !is_wp_error($response) && is_array( $response ) ) 
-				{
-		        	$body = $response['body'];
-		        	$json = json_decode( $body, TRUE );
+			        $headers = $aws->getHeaders();
 
-				    if ( $json === FALSE )
-				    {
-				    	// Failed to parse JSON
-						$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
+			        $response = wp_remote_request(
+						$url,
+						array(
+							'method' => 'POST',
+							'timeout' => 360,
+							'headers' => $headers,
+							'body' => $json
+						)
+					);
+
+			        if ( !is_wp_error($response) && is_array( $response ) ) 
+					{
+			        	$body = $response['body'];
+			        	$json = json_decode( $body, TRUE );
+
+					    if ( $json === FALSE )
+					    {
+					    	// Failed to parse JSON
+							$this->log_error( 'Failed to parse JSON body: ' . print_r($body, true) );
+							return array();
+					    }
+
+					    if ( !isset($json['data']) )
+					    {
+					    	// Failed to parse JSON
+							$this->log_error( 'Data missing from JSON when getting agents from office ID: ' . print_r($json, true) );
+							return array();
+					    }
+
+					    $data_json = json_decode( $json['data'], TRUE );
+
+					    if (!empty($data_json['agents']['agent']))
+					    {
+					    	$this->log( 'Found ' . count($data_json['agents']['agent']) . ' agents belonging to office ID ' . $office_id );
+					    	foreach ( $data_json['agents']['agent'] as $agent )
+					    	{
+					    		$agent_ids_to_import[] = $agent['agent_id'];
+					    	}
+					    }
+
+					    if ( $data_json['agents']['hasNextPage'] == false )
+						{
+							$more_offices = false;
+						}
+					}
+					else
+					{
+						$this->log_error( 'Failed to obtain offices JSON. Dump of response as follows:' . print_r($response, TRUE) );
 						return array();
-				    }
+					}
 
-				    if ( !isset($json['data']) )
-				    {
-				    	// Failed to parse JSON
-						$this->log_error( 'Data missing from JSON when getting agents from office ID: ' . print_r($json, true) );
-						return array();
-				    }
-
-				    $data_json = json_decode( $json['data'], TRUE );
-
-				    if (!empty($data_json['agents']['agent']))
-				    {
-				    	$this->log( 'Found ' . count($data_json['agents']['agent']) . ' agents belonging to office ID ' . $office_id );
-				    	foreach ( $data_json['agents']['agent'] as $agent )
-				    	{
-				    		$agent_ids_to_import[] = $agent['agent_id'];
-				    	}
-				    }
-				}
-				else
-				{
-					$this->log_error( 'Failed to obtain offices JSON. Dump of response as follows:' . print_r($response, TRUE) );
-					return array();
+					++$page;
 				}
 			}
 		}

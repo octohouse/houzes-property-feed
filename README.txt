@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 7.0
-Stable tag: 2.5.47
-Version: 2.5.47
+Stable tag: 2.5.48
+Version: 2.5.48
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -146,6 +146,11 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.48 - 2026-07-09 =
+* Updated office request in RE/MAX imports to be paginated
+* Updated Zoopla exports to ensure only valid lat/lngs are sent
+* Updated imports from ReSales Online API catering for price being a range. IN this case use the first price and set 'Price Prefix' to 'From'
 
 = 2.5.47 - 2026-07-01 =
 * Security enhancements to import and export logs tables
