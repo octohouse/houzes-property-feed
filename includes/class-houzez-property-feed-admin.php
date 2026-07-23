@@ -145,10 +145,10 @@ class Houzez_Property_Feed_Admin {
 
     public function plugin_add_settings_link( $links )
     {
-        $settings_link = '<a href="' . admin_url('admin.php?page=houzez-property-feed-import') . '">' . __( 'Manage Imports', 'houzezpropertyfeed' ) . '</a>';
+        $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import')) . '">' . __( 'Manage Imports', 'houzezpropertyfeed' ) . '</a>';
         array_push( $links, $settings_link );
 
-        $settings_link = '<a href="' . admin_url('admin.php?page=houzez-property-feed-export') . '">' . __( 'Manage Exports', 'houzezpropertyfeed' ) . '</a>';
+        $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-export')) . '">' . __( 'Manage Exports', 'houzezpropertyfeed' ) . '</a>';
         array_push( $links, $settings_link );
 
         $docs_link = '<a href="https://houzezpropertyfeed.com/documentation/" target="_blank">' . __( 'Docs', 'houzezpropertyfeed' ) . '</a>';
@@ -762,6 +762,7 @@ class Houzez_Property_Feed_Admin {
 
         $statuses = array();
         $property_types = array();
+        $property_features = array();
 
         if ( isset($_GET['page']) && ( sanitize_text_field($_GET['page']) == 'houzez-property-feed-import' || sanitize_text_field($_GET['page']) == 'houzez-property-feed-export' ) ) 
         {
@@ -772,6 +773,8 @@ class Houzez_Property_Feed_Admin {
 
         if ( isset($_GET['page']) && sanitize_text_field($_GET['page']) == 'houzez-property-feed-import' ) 
         {
+            $formats = houzez_property_feed_get_import_formats();
+
             $terms = get_terms( array(
                 'taxonomy'   => 'property_status',
                 'hide_empty' => false,
@@ -788,6 +791,8 @@ class Houzez_Property_Feed_Admin {
             $terms = get_terms( array(
                 'taxonomy'   => 'property_type',
                 'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
             ) );
 
             if ( is_array($terms) && !empty($terms) )
@@ -798,14 +803,40 @@ class Houzez_Property_Feed_Admin {
                 }
             }
 
+            // Only if there is an import that supports features to save loading them every time
+            foreach ( $formats as $key => $format )
+            {
+                if ( 
+                    isset($format['taxonomy_values']['property_feature']) && 
+                    !empty($format['taxonomy_values']['property_feature']) 
+                )
+                {
+                    $terms = get_terms( array(
+                        'taxonomy'   => 'property_feature',
+                        'hide_empty' => false,
+                        'orderby'    => 'name',
+                        'order'      => 'ASC',
+                        'number'     => 1000,
+                    ) );
+
+                    if ( is_array($terms) && !empty($terms) )
+                    {
+                        foreach ( $terms as $term )
+                        {
+                            $property_features[$term->term_id] = $term->name;
+                        }
+                    }
+
+                    break;
+                }
+            }
+
             // enqueue draggable/droppable for XML field mapping
             wp_enqueue_script( 'jquery-ui-draggable' );
             wp_enqueue_script( 'jquery-ui-droppable' );
             wp_enqueue_script( 'jquery-ui-sortable' );
 
             wp_register_script( 'houzez_property_feed_admin_import_script', untrailingslashit( plugins_url( '/', HOUZEZ_PROPERTY_FEED_PLUGIN_FILE ) ) . '/assets/js/admin-import.js', array( 'jquery' ), HOUZEZ_PROPERTY_FEED_VERSION );
-
-            $formats = houzez_property_feed_get_import_formats();
 
             $import_id = ( isset($_GET['import_id']) && !empty(sanitize_text_field($_GET['import_id'])) ) ? (int)$_GET['import_id'] : false;
 
@@ -892,6 +923,7 @@ class Houzez_Property_Feed_Admin {
                 'import_settings' => $import_settings,
                 'statuses' => $statuses,
                 'property_types' => $property_types,
+                'property_features' => $property_features,
                 'houzez_fields_for_field_mapping' => houzez_property_feed_get_fields_for_field_mapping(),
                 'ajax_nonce' => wp_create_nonce("hpf_ajax_nonce"),
                 'table_order' => ( isset($_GET['order']) ? sanitize_text_field($_GET['order']) : '' ),

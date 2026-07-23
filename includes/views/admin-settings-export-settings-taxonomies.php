@@ -11,12 +11,12 @@
 
 <div id="taxonomy_mapping_status">
 
-	<h3><?php echo __( 'Status Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+	<h3><?php echo esc_html(__( 'Status Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 	<table class="form-table" id="taxonomy_mapping_table_status">
 		<tbody>
 			<tr>
-				<th>Value In Houzez <a href="<?php echo admin_url( 'edit-tags.php?taxonomy=property_status&post_type=property'); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></th>
+				<th>Value In Houzez <a href="<?php echo esc_url(admin_url( 'edit-tags.php?taxonomy=property_status&post_type=property')); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></th>
 				<td style="padding-left:0; font-weight:600">Value Sent In <span class="hpf-export-format-name"></span> Feed</td>
 			</tr>
 			<?php
@@ -31,7 +31,7 @@
 	                {
 	        ?>
 	        <tr>
-				<td style="padding-left:0"><?php echo __( $term->name, 'houzezpropertyfeed' ); ?></td>
+				<td style="padding-left:0"><?php echo esc_html(__( $term->name, 'houzezpropertyfeed' )); ?></td>
 				<td style="padding-left:0">
 					<select name="taxonomy_mapping[property_status][<?php echo $term->term_id; ?>]">
 						<option value=""></option>
@@ -51,12 +51,12 @@
 
 <div id="taxonomy_mapping_property_type">
 
-	<h3><?php echo __( 'Property Type Taxomomy', 'houzezpropertyfeed' ); ?></h3>
+	<h3><?php echo esc_html(__( 'Property Type Taxomomy', 'houzezpropertyfeed' )); ?></h3>
 
 	<table class="form-table" id="taxonomy_mapping_table_property_type">
 		<tbody>
 			<tr>
-				<th>Value In Houzez <a href="<?php echo admin_url( 'edit-tags.php?taxonomy=property_type&post_type=property'); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></th>
+				<th>Value In Houzez <a href="<?php echo esc_url(admin_url( 'edit-tags.php?taxonomy=property_type&post_type=property')); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></th>
 				<td style="padding-left:0; font-weight:600">Value Sent In <span class="hpf-export-format-name"></span> Feed</td>
 			</tr>
 			<?php
@@ -71,7 +71,7 @@
 	                {
 	        ?>
 	        <tr>
-				<td style="padding-left:0"><?php echo __( $term->name, 'houzezpropertyfeed' ); ?></td>
+				<td style="padding-left:0"><?php echo esc_html(__( $term->name, 'houzezpropertyfeed' )); ?></td>
 				<td style="padding-left:0">
 					<select name="taxonomy_mapping[property_type][<?php echo $term->term_id; ?>]">
 						<option value=""></option>
@@ -89,7 +89,7 @@
 
 <div id="taxonomy_mapping_price_qualifier">
 
-	<h3><?php echo __( 'Price Qualifier', 'houzezpropertyfeed' ); ?></h3>
+	<h3><?php echo esc_html(__( 'Price Qualifier', 'houzezpropertyfeed' )); ?></h3>
 
 	<table class="form-table" id="taxonomy_mapping_table_price_qualifier">
 		<tbody>

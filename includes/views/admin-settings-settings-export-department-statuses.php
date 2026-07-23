@@ -1,15 +1,15 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 
-<h3><?php echo __( 'Department Statuses', 'houzezpropertyfeed' ); ?></h3>
+<h3><?php echo esc_html(__( 'Department Statuses', 'houzezpropertyfeed' )); ?></h3>
 
-<p>Here you can select which statuses determine whether a property should be sent in exports as a sales or lettings property. Statuses can be <a href="<?php echo admin_url('edit-tags.php?taxonomy=property_status&post_type=property'); ?>" target="_blank">configured here</a>.</p>
+<p>Here you can select which statuses determine whether a property should be sent in exports as a sales or lettings property. Statuses can be <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=property_status&post_type=property')); ?>" target="_blank">configured here</a>.</p>
 
 <div class="notice notice-info inline" id="duplicate_department_statuses" style="display:none"><p><?php echo __( 'You have the same status ticked in both Sales Statuses and Lettings Statuses. These should be unique so we know which department a property belongs to when exporting it.', 'houzezpropertyfeed' ); ?></p></div>
 
 <table class="form-table">
 	<tbody>
 		<tr>
-			<th><label for="sales_statuses"><?php echo __( 'Sales Statuses', 'houzezpropertyfeed' ); ?></label></th>
+			<th><label for="sales_statuses"><?php echo esc_html(__( 'Sales Statuses', 'houzezpropertyfeed' )); ?></label></th>
 			<td>
 
 				<select name="sales_statuses[]" id="sales_statuses" multiple style="width:100%; max-width:250px; height:130px;">
@@ -39,7 +39,7 @@
 			</td>
 		</tr>
 		<tr>
-			<th><label for="lettings_statuses"><?php echo __( 'Lettings Statuses', 'houzezpropertyfeed' ); ?></label></th>
+			<th><label for="lettings_statuses"><?php echo esc_html(__( 'Lettings Statuses', 'houzezpropertyfeed' )); ?></label></th>
 			<td>
 
 				<select name="lettings_statuses[]" id="lettings_statuses" multiple style="width:100%; max-width:250px; height:130px;">

@@ -7,7 +7,7 @@
 			<?php
 				foreach ( $tabs as $key => $value )
 				{
-					echo '<li' . ( $key == $active_tab ? ' class="active"' : '' ) . '><a href="' . admin_url('admin.php?page=houzez-property-feed-import&tab=' . esc_attr($key)) . '">' . esc_html($value) . '</a></li>';
+					echo '<li' . ( $key == $active_tab ? ' class="active"' : '' ) . '><a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-import&tab=' . esc_attr($key))) . '">' . esc_html($value) . '</a></li>';
 				}
 			?>
 		</ul>

@@ -63,7 +63,7 @@
 			( !isset($options['lettings_statuses']) || ( isset($options['lettings_statuses']) && empty($options['lettings_statuses']) ) )
 		)
 		{
-			echo '<div class="notice notice-info inline"><p>' . __( 'Please ensure that <a href="' . admin_url('admin.php?page=houzez-property-feed-export&tab=settings') . '">you have specified</a> which statuses determine whether a property is sales or lettings', 'houzezpropertyfeed' ) . '</p></div>';
+			echo '<div class="notice notice-info inline"><p>' . __( 'Please ensure that <a href="' . esc_url(admin_url('admin.php?page=houzez-property-feed-export&tab=settings')) . '">you have specified</a> which statuses determine whether a property is sales or lettings', 'houzezpropertyfeed' ) . '</p></div>';
 		}
 	}
 ?>

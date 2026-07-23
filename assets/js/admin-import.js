@@ -799,6 +799,11 @@ jQuery(document).ready(function()
 				taxonomy_options = hpf_admin_object.property_types;
 				break;
 			}
+		case "property_feature":
+			{
+				taxonomy_options = hpf_admin_object.property_features;
+				break;
+			}
 		}
 
 		var row_html_dropdown = '';
@@ -1519,6 +1524,7 @@ function hpf_show_format_settings()
 	jQuery('.no-format-notice').hide();
 	jQuery('.hpf-import-format-name').html('');
 
+	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_property_feature').hide();
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_property_type').hide();
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_sales_status').hide();
 	jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_lettings_status').hide();
@@ -1596,6 +1602,9 @@ function hpf_show_format_settings()
 		var has_taxonomy_values_property_type = false;
 		var taxonomy_values_property_type = new Array();
 
+		var has_taxonomy_values_property_feature = false;
+		var taxonomy_values_property_feature = new Array();
+
 		var address_fields = new Array();
 		var contact_information_fields = new Array();
 
@@ -1627,8 +1636,17 @@ function hpf_show_format_settings()
 					if (Object.keys(hpf_admin_object.formats[i].taxonomy_values.property_type).length > 0 ) 
 					{ 
 						taxonomy_values_property_type = hpf_admin_object.formats[i].taxonomy_values.property_type; 
-					}	
-				} 
+					}
+				}
+
+				if ( hpf_admin_object.formats[i].taxonomy_values.hasOwnProperty('property_feature') )
+				{
+					has_taxonomy_values_property_feature = true;
+					if (Object.keys(hpf_admin_object.formats[i].taxonomy_values.property_feature).length > 0 ) 
+					{ 
+						taxonomy_values_property_feature = hpf_admin_object.formats[i].taxonomy_values.property_feature; 
+					}
+				}
 				
 				address_fields = hpf_admin_object.formats[i].address_fields;
 				if ( hpf_admin_object.formats[i].hasOwnProperty('contact_information_fields') && Object.keys(hpf_admin_object.formats[i].contact_information_fields).length > 0 ) { contact_information_fields = hpf_admin_object.formats[i].contact_information_fields; }
@@ -1995,6 +2013,149 @@ function hpf_show_format_settings()
 						row_html += '</tr>';
 
 						jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_property_type').append(row_html);
+					}
+				}
+			}
+		}
+
+		// Property feature taxonomy mapping
+		if ( has_taxonomy_values_property_feature )
+		{
+			jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_property_feature').show();
+
+			if ( Object.keys(taxonomy_values_property_feature).length > 0 )
+			{
+				for ( var i in taxonomy_values_property_feature )
+				{
+					var row_html_dropdown = '';
+					row_html_dropdown += '<select name="taxonomy_mapping[property_feature][' + i + ']">';
+					row_html_dropdown += '<option value=""></option>';
+					if ( Object.keys(hpf_admin_object.property_features).length > 0 )
+					{	
+						var property_features = Object.entries(
+						    hpf_admin_object.property_features
+						).sort(function(a, b) {
+						    return a[1].localeCompare(b[1], undefined, {
+						        sensitivity: 'base',
+						        numeric: true
+						    });
+						});
+
+						for ( var feature_index = 0; feature_index < property_features.length; feature_index++ )
+						{
+						    var j = property_features[feature_index][0];
+						    var property_feature_name = property_features[feature_index][1];
+
+							var selected_status = false;
+
+							if ( 
+								hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+								hpf_admin_object.import_settings.mappings.hasOwnProperty('property_feature') &&
+								hpf_admin_object.import_settings.mappings.property_feature.hasOwnProperty(i)
+							)
+							{
+								if ( hpf_admin_object.import_settings.mappings.property_feature[i] == j )
+								{
+									selected_status = true;
+								}
+							}
+							if ( !selected_status && hpf_admin_object.action == 'addimport' )
+							{
+								// Set by default if match found
+								if ( 
+									(
+										taxonomy_values_property_feature[i] == i &&
+										i.toLowerCase().replace(/ /g, '') == property_feature_name.toLowerCase().replace(/ /g, '') 
+									)
+									||
+									(
+										taxonomy_values_property_feature[i] != i &&
+										taxonomy_values_property_feature[i].toLowerCase().replace(/ /g, '') == property_feature_name.toLowerCase().replace(/ /g, '')
+									)
+								)
+								{
+									selected_status = true;
+								}
+							}
+							row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + property_feature_name + '</option>';
+						}
+					}
+					row_html_dropdown += '</select>';
+
+					var row_html = '';
+					row_html += '<tr>';
+					row_html += '<td style="padding-left:0">' + i + ( taxonomy_values_property_feature[i] != i ? ' - <span style="color:#999">' + taxonomy_values_property_feature[i] + '</span>' : '' )  + '</td>';
+					row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+					row_html += '</tr>';
+
+					jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_property_feature').append(row_html);
+				}
+			}
+
+			// add any custom mappings
+			if ( hpf_admin_object.import_settings.hasOwnProperty('mappings') && hpf_admin_object.import_settings.mappings.hasOwnProperty('property_feature') && Object.keys(hpf_admin_object.import_settings.mappings.property_feature).length > 0 )
+			{
+				for ( var i in hpf_admin_object.import_settings.mappings.property_feature )
+				{
+					var found_in_standard_list = false;
+					for ( var j in taxonomy_values_property_feature )
+					{
+						if ( i == j )
+						{
+							found_in_standard_list = true;
+							break;
+						}
+					}
+					if ( !found_in_standard_list )
+					{
+						var row_html_dropdown = '';
+						row_html_dropdown += '<select name="custom_mapping_value[property_feature][' + i + ']">';
+						row_html_dropdown += '<option value=""></option>';
+						if ( Object.keys(hpf_admin_object.property_features).length > 0 )
+						{	
+							var property_features = Object.entries(
+							    hpf_admin_object.property_features
+							).sort(function(a, b) {
+							    return a[1].localeCompare(b[1], undefined, {
+							        sensitivity: 'base',
+							        numeric: true
+							    });
+							});
+
+							for ( var feature_index = 0; feature_index < property_features.length; feature_index++ )
+							{
+							    var j = property_features[feature_index][0];
+							    var property_feature_name = property_features[feature_index][1];
+
+								var selected_status = false;
+
+								if ( 
+									hpf_admin_object.import_settings.hasOwnProperty('mappings') && 
+									hpf_admin_object.import_settings.mappings.hasOwnProperty('property_feature') &&
+									hpf_admin_object.import_settings.mappings.property_feature.hasOwnProperty(i)
+								)
+								{
+									if ( hpf_admin_object.import_settings.mappings.property_feature[i] == j )
+									{
+										selected_status = true;
+									}
+								}
+								if ( !selected_status )
+								{
+									// TO DO: set by default if match found
+								}
+								row_html_dropdown += '<option value="' + j + '"' + ( selected_status ? ' selected' : '' ) + '>' + property_feature_name  + '</option>';
+							}
+						}
+						row_html_dropdown += '</select>';
+
+						var row_html = '';
+						row_html += '<tr>';
+						row_html += '<td style="padding-left:0"><input type="text" name="custom_mapping[property_feature][' + i + ']" value="' + i + '"></td>';
+						row_html += '<td style="padding-left:0">' + row_html_dropdown + '</td>';
+						row_html += '</tr>';
+
+						jQuery('.hpf-admin-settings-import-settings #taxonomy_mapping_table_property_feature').append(row_html);
 					}
 				}
 			}

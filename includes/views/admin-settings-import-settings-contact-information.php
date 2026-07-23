@@ -110,7 +110,7 @@
 	<?php
 		if ( empty($details['items']) )
 		{
-			echo '<div class="notice notice-info inline"><p>No <a href="' . esc_attr($details['manage_link']) . '" target="_blank">' . esc_html($details['plural']) . '</a> exist. You\'ll need to add some to use this option.</p></div>';
+			echo '<div class="notice notice-info inline"><p>No <a href="' . esc_url($details['manage_link']) . '" target="_blank">' . esc_html($details['plural']) . '</a> exist. You\'ll need to add some to use this option.</p></div>';
 		}
 	?>
 
@@ -119,7 +119,7 @@
 			<tr>
 				<th>Rules</th>
 				<td>
-	 				<div id="agent_display_option_rule_template_<?php echo $agent_display_option; ?>" style="display:none">
+	 				<div id="agent_display_option_rule_template_<?php echo esc_attr($agent_display_option); ?>" style="display:none">
 						<div class="agent-display-option-rule">
 							<div>
 								If 

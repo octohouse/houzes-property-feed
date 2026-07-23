@@ -3,8 +3,8 @@ Contributors: PropertyHive
 Tags: property import, property export, houzez, houzez import property, real estate
 Requires at least: 3.8
 Tested up to: 7.0
-Stable tag: 2.5.48
-Version: 2.5.48
+Stable tag: 2.5.49
+Version: 2.5.49
 Homepage: https://houzezpropertyfeed.com
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -146,6 +146,10 @@ Updating should work like a charm; as always though, ensure you backup your site
 4. Each time an import runs we'll store in-depth logs so you can see exactly what was imported and when, plus any errors that arose
 
 == Changelog ==
+
+= 2.5.49 - 2026-07-23 =
+* Added support for mapping of property features for formats that support it
+* Security enhancements throughout
 
 = 2.5.48 - 2026-07-09 =
 * Updated office request in RE/MAX imports to be paginated

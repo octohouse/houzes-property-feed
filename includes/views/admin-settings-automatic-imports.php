@@ -6,7 +6,7 @@
 
 		<?php include( dirname(HOUZEZ_PROPERTY_FEED_PLUGIN_FILE) . '/includes/views/admin-settings-notice.php' ); ?>
 
-		<h1><?php echo __( 'Automatic Imports', 'houzezpropertyfeed' ); ?></h1>
+		<h1><?php echo esc_html( __( 'Automatic Imports', 'houzezpropertyfeed' ) ); ?></h1>
 
 		<?php
 			$all_imports_count = 0;
@@ -105,7 +105,7 @@
 					
 					$nonce = wp_create_nonce('houzez_property_feed_import');
 
-					echo '<a href="' . admin_url('admin.php?page=houzez-property-feed-import&custom_property_import_cron=houzezpropertyfeedcronhook&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format . '&_wpnonce=' . $nonce) . '" class="button button-manually-execute" onclick="hpf_click_run_now();" rel="nofollow noopener noreferrer">Manually Execute Import</a>';
+					echo '<a href="' . esc_html( admin_url('admin.php?page=houzez-property-feed-import&custom_property_import_cron=houzezpropertyfeedcronhook&orderby=' . $orderby . '&order=' . $order . '&hpf_filter=' . $hpf_filter . '&hpf_filter_format=' . $hpf_filter_format . '&_wpnonce=' . $nonce) ) . '" class="button button-manually-execute" onclick="hpf_click_run_now();" rel="nofollow noopener noreferrer">Manually Execute Import</a>';
 				}
 			}
 			else
@@ -114,11 +114,11 @@
 
 		<div class="no-imports-exports">
 
-			<h2><?php echo __( 'Your automatic imports will appear here', 'houzezpropertyfeed' ); ?></h2>
+			<h2><?php echo esc_html( __( 'Your automatic imports will appear here', 'houzezpropertyfeed' ) ); ?></h2>
 
 			<p>You don't have any imports running at the moment. Why not go ahead and try creating one now?</p>
 
-			<p><a href="<?php echo admin_url('admin.php?page=houzez-property-feed-import&action=addimport'); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2" style="color:inherit;"></span> <?php echo __( 'Create New Import', 'houzezpropertyfeed' ); ?></a></p>
+			<p><a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-import&action=addimport')); ?>" class="button button-primary button-hero"><span class="dashicons dashicons-plus-alt2" style="color:inherit;"></span> <?php echo esc_html( __( 'Create New Import', 'houzezpropertyfeed' ) ); ?></a></p>
 
 			<p><strong>Need help?</strong> Our <a href="https://houzezpropertyfeed.com/documentation/" target="_blank">in-depth documentation</a> will guide you through the process.</p>
 

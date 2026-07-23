@@ -10,16 +10,16 @@
 
 		<div class="hpf-admin-settings-import-settings">
 
-			<h1><?php echo ( $export_id !== false ) ? __( 'Edit Export', 'houzezpropertyfeed' ) : __( 'Create Export', 'houzezpropertyfeed' ); ?></h1>
+			<h1><?php echo ( $export_id !== false ) ? esc_html(__( 'Edit Export', 'houzezpropertyfeed' )) : esc_html(__( 'Create Export', 'houzezpropertyfeed' )); ?></h1>
 
 			<div class="settings-area">
 
 				<div class="left-tabs">
 					<ul>
-						<li id="export_setting_tab_format" class="active"><a href="#format"><span class="dashicons dashicons-editor-code"></span> <?php echo __( 'Export Format', 'houzezpropertyfeed' ); ?></a></li>
-						<li id="export_setting_tab_frequency" style="display:none"><a href="#frequency"><span class="dashicons dashicons-clock"></span> <?php echo __( 'Frequency', 'houzezpropertyfeed' ); ?></a></li>
-						<li id="export_setting_tab_taxonomies"><a href="#taxonomies"><span class="dashicons dashicons-tag"></span> <?php echo __( 'Taxonomies', 'houzezpropertyfeed' ); ?></a></li>
-						<li id="export_setting_tab_fieldmapping"><a href="#fieldmapping"><span class="dashicons dashicons-admin-links"></span></span> <?php echo __( 'Field Mapping', 'houzezpropertyfeed' ); ?><span id="field_mapping_warning" style="color:#999; display:none">&nbsp;&nbsp;<span class="dashicons dashicons-warning"></span></span></a></li>
+						<li id="export_setting_tab_format" class="active"><a href="#format"><span class="dashicons dashicons-editor-code"></span> <?php echo esc_html(__( 'Export Format', 'houzezpropertyfeed' )); ?></a></li>
+						<li id="export_setting_tab_frequency" style="display:none"><a href="#frequency"><span class="dashicons dashicons-clock"></span> <?php echo esc_html(__( 'Frequency', 'houzezpropertyfeed' )); ?></a></li>
+						<li id="export_setting_tab_taxonomies"><a href="#taxonomies"><span class="dashicons dashicons-tag"></span> <?php echo esc_html(__( 'Taxonomies', 'houzezpropertyfeed' )); ?></a></li>
+						<li id="export_setting_tab_fieldmapping"><a href="#fieldmapping"><span class="dashicons dashicons-admin-links"></span></span> <?php echo esc_html(__( 'Field Mapping', 'houzezpropertyfeed' )); ?><span id="field_mapping_warning" style="color:#999; display:none">&nbsp;&nbsp;<span class="dashicons dashicons-warning"></span></span></a></li>
 					</ul>
 				</div>
 
@@ -38,8 +38,8 @@
 
 						</div>
 
-						<input type="submit" value="<?php echo __( 'Save changes', 'houzezpropertyfeed' ); ?>" class="button button-primary">&nbsp;
-						<a href="<?php echo admin_url('admin.php?page=houzez-property-feed-export'); ?>" class="button">Cancel</a>
+						<input type="submit" value="<?php echo esc_attr(__( 'Save changes', 'houzezpropertyfeed' )); ?>" class="button button-primary">&nbsp;
+						<a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-export')); ?>" class="button">Cancel</a>
 
 					</div>
 
@@ -65,8 +65,8 @@
 
 					<div class="buttons bottom">
 
-						<input type="submit" value="<?php echo __( 'Save changes', 'houzezpropertyfeed' ); ?>" class="button button-primary">&nbsp;
-						<a href="<?php echo admin_url('admin.php?page=houzez-property-feed-export'); ?>" class="button">Cancel</a>
+						<input type="submit" value="<?php echo esc_attr(__( 'Save changes', 'houzezpropertyfeed' )); ?>" class="button button-primary">&nbsp;
+						<a href="<?php echo esc_url(admin_url('admin.php?page=houzez-property-feed-export')); ?>" class="button">Cancel</a>
 
 					</div>
 

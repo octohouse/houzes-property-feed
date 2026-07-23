@@ -19,7 +19,7 @@
 		<tbody>
 			<tr>
 				<th>Value Sent In <span class="hpf-import-format-name"></span> Feed</th>
-				<td style="padding-left:0; font-weight:600">Value In Houzez <a href="<?php echo admin_url( 'edit-tags.php?taxonomy=property_status&post_type=property'); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></td>
+				<td style="padding-left:0; font-weight:600">Value In Houzez <a href="<?php echo esc_url(admin_url( 'edit-tags.php?taxonomy=property_status&post_type=property')); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></td>
 			</tr>
 		</tbody>
 	</table>
@@ -38,7 +38,7 @@
 		<tbody>
 			<tr>
 				<th>Value Sent In <span class="hpf-import-format-name"></span> Feed</th>
-				<td style="padding-left:0; font-weight:600">Value In Houzez <a href="<?php echo admin_url( 'edit-tags.php?taxonomy=property_status&post_type=property'); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></td>
+				<td style="padding-left:0; font-weight:600">Value In Houzez <a href="<?php echo esc_url(admin_url( 'edit-tags.php?taxonomy=property_status&post_type=property')); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Status Terms"><span class="dashicons dashicons-admin-tools"></span></a></td>
 			</tr>
 		</tbody>
 	</table>
@@ -57,12 +57,31 @@
 		<tbody>
 			<tr>
 				<th>Value Sent In <span class="hpf-import-format-name"></span> Feed</th>
-				<td style="padding-left:0; font-weight:600">Value In Houzez <a href="<?php echo admin_url( 'edit-tags.php?taxonomy=property_type&post_type=property'); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Type Terms"><span class="dashicons dashicons-admin-tools"></span></a></td>
+				<td style="padding-left:0; font-weight:600">Value In Houzez <a href="<?php echo esc_url(admin_url( 'edit-tags.php?taxonomy=property_type&post_type=property')); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Type Terms"><span class="dashicons dashicons-admin-tools"></span></a></td>
 			</tr>
 		</tbody>
 	</table>
 	<br>
 	<a href="#property_type" class="button add-additional-mapping"><span class="dashicons dashicons-plus-alt2"></span> Add Additional Mapping</a>
+
+	<hr>
+
+</div>
+
+<div id="taxonomy_mapping_property_feature">
+
+	<h3><?php echo esc_html(__( 'Property Feature Taxomomy', 'houzezpropertyfeed' )); ?></h3>
+
+	<table class="form-table" id="taxonomy_mapping_table_property_feature">
+		<tbody>
+			<tr>
+				<th>Value Sent In <span class="hpf-import-format-name"></span> Feed</th>
+				<td style="padding-left:0; font-weight:600">Value In Houzez <a href="<?php echo esc_url(admin_url( 'edit-tags.php?taxonomy=property_feature&post_type=property')); ?>" target="_blank" style="color:inherit; text-decoration:none; margin-right:4px;" title="Configure Property Feature Terms"><span class="dashicons dashicons-admin-tools"></span></a></td>
+			</tr>
+		</tbody>
+	</table>
+	<br>
+	<a href="#property_feature" class="button add-additional-mapping"><span class="dashicons dashicons-plus-alt2"></span> Add Additional Mapping</a>
 
 	<hr>
 
