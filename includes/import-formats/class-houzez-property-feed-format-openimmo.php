@@ -458,7 +458,19 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	            update_post_meta( $post_id, 'fave_property_id', (string)$property->verwaltung_techn->objektnr_intern );
 
 	            $address_parts = array();
-	            if ( isset($property->geo->ort) && (string)$property->geo->ort != '' )
+				if ( isset($property->geo->strasse) && (string)$property->geo->strasse != '' )
+				{
+					$address_parts[] = (string)$property->geo->strasse;
+				}
+				if ( isset($property->geo->hausnummer) && (string)$property->geo->hausnummer != '' )
+				{
+					$address_parts[] = (string)$property->geo->hausnummer;
+				}
+				if ( isset($property->geo->plz) && (string)$property->geo->plz != '' )
+				{
+					$address_parts[] = (string)$property->geo->plz;
+				}
+				if ( isset($property->geo->ort) && (string)$property->geo->ort != '' )
 				{
 					$address_parts[] = (string)$property->geo->ort;
 				}
@@ -491,6 +503,18 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	            
 	            $address_parts = array();
 	            if ( isset($property->geo->strasse) && (string)$property->geo->strasse != '' )
+				{
+					$address_parts[] = (string)$property->geo->strasse;
+				}
+				if ( isset($property->geo->hausnummer) && (string)$property->geo->hausnummer != '' )
+				{
+					$address_parts[] = (string)$property->geo->hausnummer;
+				}
+				if ( isset($property->geo->plz) && (string)$property->geo->plz != '' )
+				{
+					$address_parts[] = (string)$property->geo->plz;
+				}
+				if ( isset($property->geo->ort) && (string)$property->geo->ort != '' )
 				{
 					$address_parts[] = (string)$property->geo->ort;
 				}
