@@ -430,7 +430,7 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	                    update_post_meta( $post_id, 'fave_property_price', $price );
 	                    update_post_meta( $post_id, 'fave_property_price_postfix', '' );
 
-	                	$rent_frequency = 'pcm';
+	                	$rent_frequency = '';
 	                	if ( isset($property->preise->preis_zeiteinheit) )
 	                	{
 							switch (strtolower($property->preise->preis_zeiteinheit))
@@ -439,6 +439,7 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 								case "woche": { $rent_frequency = 'pw'; break; }
 								case "quartal": { $rent_frequency = 'pq'; break; }
 								case "jahr": { $rent_frequency = 'pa'; break; }
+								case "monat": { $rent_frequency = 'pm'; break; }
 							}
 						}
 						update_post_meta( $post_id, 'fave_property_price_postfix', $rent_frequency );
@@ -450,9 +451,9 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	            update_post_meta( $post_id, 'fave_property_rooms', ( ( isset($property->flaechen->anzahl_zimmer) && !empty((string)$property->flaechen->anzahl_zimmer) ) ? round((string)$property->flaechen->anzahl_zimmer) : '' ) );
 	            
 	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property->flaechen->wohnflaeche) && !empty((string)$property->flaechen->wohnflaeche) ) ? round((string)$property->flaechen->wohnflaeche) : '' ) );
-	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( isset($property->flaechen->wohnflaeche) && !empty((string)$property->flaechen->wohnflaeche) ) ? 'Sq M' : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( isset($property->flaechen->wohnflaeche) && !empty((string)$property->flaechen->wohnflaeche) ) ? 'm²' : '' ) );
 	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property->flaechen->grundstuecksflaeche) && !empty((string)$property->flaechen->grundstuecksflaeche) ) ? round((string)$property->flaechen->grundstuecksflaeche) : '' ) );
-	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property->flaechen->grundstuecksflaeche) && !empty((string)$property->flaechen->grundstuecksflaeche) ) ? 'Sq M' : '' ) );
+	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property->flaechen->grundstuecksflaeche) && !empty((string)$property->flaechen->grundstuecksflaeche) ) ? 'm²' : '' ) );
 
 	            /*update_post_meta( $post_id, 'fave_property_garage', '' );*/
 	            update_post_meta( $post_id, 'fave_property_id', (string)$property->verwaltung_techn->objektnr_intern );
