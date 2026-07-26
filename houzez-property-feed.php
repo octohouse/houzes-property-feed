@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Houzez Property Feed
- * Plugin Uri: https://houzezpropertyfeed.com
+ * Plugin Name: Houzez Property Feed - octohouse fork
+ * Plugin Uri: https://github.com/octohouse/houzes-property-feed
  * Description: Automatically import properties to Houzez from estate agency CRMs and export to portals
  * Version: 2.5.49-octohouse
  * Author: PropertyHive
- * Author URI: https://wp-property-hive.com
+ * Author URI: https://github.com/octohouse/houzes-property-feed
  * License: GPLv3
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
