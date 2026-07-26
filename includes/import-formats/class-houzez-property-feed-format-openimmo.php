@@ -447,10 +447,10 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 
                 update_post_meta( $post_id, 'fave_property_bedrooms', ( ( isset($property->flaechen->anzahl_schlafzimmer) && !empty((string)$property->flaechen->anzahl_schlafzimmer) ) ? round((string)$property->flaechen->anzahl_schlafzimmer) : '' ) );
 	            update_post_meta( $post_id, 'fave_property_bathrooms', ( ( isset($property->flaechen->anzahl_badezimmer) && !empty((string)$property->flaechen->anzahl_badezimmer) ) ? round((string)$property->flaechen->anzahl_badezimmer) : '' ) );
-	            update_post_meta( $post_id, 'fave_property_rooms', '' );
+	            update_post_meta( $post_id, 'fave_property_rooms', ( ( isset($property->flaechen->anzahl_zimmer) && !empty((string)$property->flaechen->anzahl_zimmer) ) ? round((string)$property->flaechen->anzahl_zimmer) : '' ) );
 	            
-	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property->flaechen->anzahl_schlafzimmer) && !empty((string)$property->flaechen->wohnflaeche) ) ? round((string)$property->flaechen->wohnflaeche) : '' ) );
-	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( isset($property->flaechen->anzahl_schlafzimmer) && !empty((string)$property->flaechen->wohnflaeche) ) ? 'Sq M' : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size', ( ( isset($property->flaechen->wohnflaeche) && !empty((string)$property->flaechen->wohnflaeche) ) ? round((string)$property->flaechen->wohnflaeche) : '' ) );
+	            update_post_meta( $post_id, 'fave_property_size_prefix', ( ( isset($property->flaechen->wohnflaeche) && !empty((string)$property->flaechen->wohnflaeche) ) ? 'Sq M' : '' ) );
 	            update_post_meta( $post_id, 'fave_property_land', ( ( isset($property->flaechen->grundstuecksflaeche) && !empty((string)$property->flaechen->grundstuecksflaeche) ) ? round((string)$property->flaechen->grundstuecksflaeche) : '' ) );
 	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property->flaechen->grundstuecksflaeche) && !empty((string)$property->flaechen->grundstuecksflaeche) ) ? 'Sq M' : '' ) );
 
