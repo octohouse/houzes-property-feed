@@ -1367,7 +1367,7 @@ class Houzez_Property_Feed_Import {
                         }
                     }
 
-                    if ( isset($houzez_fields[$and_rules['houzez_field']]) && isset($houzez_fields[$and_rules['houzez_field']]['field_type']) && $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'multiselect' )
+                    if ( isset($houzez_fields[$and_rules['houzez_field']]) && isset($houzez_fields[$and_rules['houzez_field']]['field_type']) && ( $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'multiselect' || $houzez_fields[$and_rules['houzez_field']]['field_type'] == 'checkbox_list' ) )
                     {
                         if ( !isset($multiselect_meta[$and_rules['houzez_field']]) ) { $multiselect_meta[$and_rules['houzez_field']] = array(); }
                         $multiselect_meta[$and_rules['houzez_field']][] = $result;
