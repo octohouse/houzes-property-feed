@@ -76,6 +76,24 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 					if ($zip->open($zip_file) === TRUE) 
 					{
 					    $zip->extractTo($local_directory);
+
+					    // Rename any XML files contained within the zip to a unique name so that
+					    // multiple zips containing XMLs with the same name don't overwrite each other
+					    for ( $i = 0; $i < $zip->numFiles; $i++ )
+					    {
+					    	$entry_name = $zip->getNameIndex( $i );
+					    	if ( $entry_name !== false && substr( strtolower( $entry_name ), -4 ) == '.xml' )
+					    	{
+					    		$extracted_path = $local_directory . '/' . $entry_name;
+					    		$unique_path = $local_directory . '/' . pathinfo( basename( $zip_file ), PATHINFO_FILENAME ) . '-' . basename( $entry_name );
+
+					    		if ( file_exists( $extracted_path ) )
+					    		{
+					    			@rename( $extracted_path, $unique_path );
+					    		}
+					    	}
+					    }
+
 					    $zip->close();
 					    sleep(1); // We sleep to ensure each XML has a different modified time in the same order
 
