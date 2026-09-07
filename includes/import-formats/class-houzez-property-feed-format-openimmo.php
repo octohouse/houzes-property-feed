@@ -474,7 +474,8 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 	            update_post_meta( $post_id, 'fave_property_land_postfix', ( ( isset($property->flaechen->grundstuecksflaeche) && !empty((string)$property->flaechen->grundstuecksflaeche) ) ? 'm²' : '' ) );
 
 	            /*update_post_meta( $post_id, 'fave_property_garage', '' );*/
-	            update_post_meta( $post_id, 'fave_property_id', (string)$property->verwaltung_techn->objektnr_intern );
+				$property_id = ( ( isset($property->verwaltung_techn->objektnr_intern) && !empty((string)$property->verwaltung_techn->objektnr_intern) ) ? (string)$property->verwaltung_techn->objektnr_intern : '' );
+	            update_post_meta( $post_id, 'fave_property_id', $property_id );
 
 	            $address_parts = array();
 				if ( isset($property->geo->strasse) && (string)$property->geo->strasse != '' )
@@ -1427,6 +1428,8 @@ class Houzez_Property_Feed_Format_OpenImmo extends Houzez_Property_Feed_Process 
 				$post = get_post( $post_id );
 				do_action( "save_post_property", $post_id, $post, false );
 				do_action( "save_post", $post_id, $post, false );
+
+				$this->geocode_after_import( $post_id, $property_id );
 
 				if ( $inserted_updated == 'updated' )
 				{
